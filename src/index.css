@@ -1,0 +1,15 @@
+body {
+    width: 530px;
+    min-height: 300px;
+    margin: 0;
+    display: flex;
+}
+
+#app-container {
+    flex: 1;
+}
+
+* {
+    box-sizing: border-box;
+}
+  

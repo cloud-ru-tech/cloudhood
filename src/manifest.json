@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Cloudhood",
+  "version": "0.0.1",
+  "action": {
+    "icon": "main-icon-38.png",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "38": "main-icon-38.png"
+    },
+    "default_title": "Modify Outgoing XHR/Fetch Request Headers and Query Params"
+  },
+  "icons": {
+    "128": "main-icon-128.jpg"
+  },
+  "permissions": [
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
