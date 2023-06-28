@@ -20,15 +20,11 @@
     "resolveJsonModule": true,
     "paths": {
       "#app": ["src/app"],
-      "#pages": ["src/pages"],
-      "#assets/*": ["src/assets/*"],
-      "#components/*": ["src/components/*"],
-      "#constants/*": ["src/constants/*"],
-      "#contexts/*": ["src/contexts/*"],
-      "#hooks/*": ["src/hooks/*"],
-      "#services/*": ["src/services/*"],
-      "#types/*": ["src/types/*"],
-      "#utils/*": ["src/utils/*"]
+      "#pages/*": ["src/pages/*"],
+      "#shared/*": ["src/shared/*"],
+      "#features/*": ["src/features/*"],
+      "#entities/*": ["src/entities/*"],
+      "#widgets/*": ["src/widgets/*"]
     }
   },
   "include": ["src/**/*"],

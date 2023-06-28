@@ -1,5 +1,5 @@
-import { generateId } from '../../../shared/utils/generateId';
-import { Profiles, RequestHeader, AddHeaderPayload, RemoveHeaderPayload } from '../../../entities/request-header/types';
+import { generateId } from '#shared/utils/generateId';
+import { Profiles, RequestHeader, AddHeaderPayload, RemoveHeaderPayload } from '#entities/request-header/types';
 
 type CRUDParams = {
   profiles: Profiles;
@@ -32,7 +32,7 @@ export function addProfileHeadersApi({ profiles, selectedProfile }: CRUDParams, 
 
 export function addProfileApi({ profiles }: Pick<CRUDParams, 'profiles'>) {
   const updatedProfiles: Profiles = JSON.parse(JSON.stringify(profiles));
-  updatedProfiles[generateId().toString()] = [];
+  updatedProfiles[generateId().toString()] = [{ id: generateId(), name: '', value: '', disabled: false }];
 
   return updatedProfiles;
 }
@@ -47,6 +47,8 @@ export function removeProfileHeadersApi({ profiles, selectedProfile }: CRUDParam
 }
 
 export function removeSelectedProfileApi({ profiles, selectedProfile }: CRUDParams) {
+  if (Object.keys(profiles).length === 1) throw new Error();
+
   const updatedProfiles: Profiles = JSON.parse(JSON.stringify(profiles));
 
   delete updatedProfiles[selectedProfile];

@@ -3,3 +3,7 @@ export enum BrowserStorageKey {
   SelectedProfile = 'selectedHeaderProfile',
   IsPaused = 'isPaused',
 }
+
+export enum ServiceWorkerEvent {
+  Reload = 'reload',
+}

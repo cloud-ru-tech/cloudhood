@@ -1,11 +1,16 @@
 import { attach, createEffect, createEvent, createStore, sample } from 'effector';
-import { initApp } from '../../shared/model';
+import { initApp } from '#shared/model';
 import { AddHeaderPayload, Profiles, RemoveHeaderPayload, RequestHeader } from '../request-header/types';
 import {
   addProfileApi,
-  addProfileHeadersApi, loadProfilesFromStorage,
-  loadSelectedProfileFromStorage, removeProfileHeadersApi, removeSelectedProfileApi, saveProfilesToBrowser,
-  saveSelectedProfileToBrowser, updateProfileHeadersApi
+  addProfileHeadersApi,
+  loadProfilesFromStorage,
+  loadSelectedProfileFromStorage,
+  removeProfileHeadersApi,
+  removeSelectedProfileApi,
+  saveProfilesToBrowser,
+  saveSelectedProfileToBrowser,
+  updateProfileHeadersApi,
 } from './utils';
 
 export const setSelectedRequestProfileName = createEvent<string>();
@@ -24,6 +29,15 @@ export const $selectedRequestProfile = createStore<string>('').on(
   setSelectedRequestProfileName,
   (_, profileName) => profileName,
 );
+
+sample({
+  source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
+  filter: ({ profiles, selectedProfile }) => Boolean(selectedProfile) && !Object.keys(profiles).includes(selectedProfile),
+  fn: ({ profiles }) => {
+    return Object.keys(profiles)[0];
+  },
+  target: $selectedRequestProfile,
+});
 
 sample({ source: $selectedRequestProfile, target: saveSelectedProfileToBrowserFx });
 sample({ source: $requestProfiles, target: saveProfilesToBrowserFx });

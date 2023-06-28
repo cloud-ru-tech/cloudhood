@@ -11,13 +11,20 @@
     "default_title": "Modify Outgoing XHR/Fetch Request Headers and Query Params"
   },
   "icons": {
+    "16": "main-icon-16.jpg",
+    "32": "main-icon-32.jpg",
+    "48": "main-icon-48.jpg",
     "128": "main-icon-128.jpg"
   },
+  "host_permissions": ["<all_urls>"],
   "permissions": [
     "storage",
-    "declarativeNetRequest"
+    "tabs",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "declarativeNetRequestFeedback"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ]
+  "background": {
+    "service_worker": "background.bundle.js"
+  }
 }

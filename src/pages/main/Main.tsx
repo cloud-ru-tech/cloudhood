@@ -1,5 +1,5 @@
-import { Header } from '../../widgets/header';
-import { Sidebar } from '../../widgets/sidebar';
+import { Header } from '#widgets/header';
+import { Sidebar } from '#widgets/sidebar';
 import { RequestHeadersActions } from './components/RequestHeadersActions';
 import * as S from './styled';
 

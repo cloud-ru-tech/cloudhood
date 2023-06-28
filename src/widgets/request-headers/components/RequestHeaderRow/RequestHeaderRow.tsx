@@ -1,7 +1,7 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import { Checkbox, IconButton, TextField } from '@mui/material';
-import { removeProfileHeader, updateProfileHeader } from '../../../../entities/request-header/model';
-import { RequestHeader } from '../../../../entities/request-header/types';
+import { removeProfileHeader, updateProfileHeader } from '#entities/request-header/model';
+import { RequestHeader } from '#entities/request-header/types';
 import * as S from './styled';
 
 export function RequestHeaderRow(props: RequestHeader) {

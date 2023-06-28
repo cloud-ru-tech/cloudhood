@@ -1,5 +1,5 @@
 import { createEffect, createEvent, createStore, sample } from 'effector';
-import { initApp } from '../../shared/model';
+import { initApp } from '#shared/model';
 import { saveIsPausedToBrowser } from './utils';
 import { loadIsPausedFromStorage } from './utils/load';
 

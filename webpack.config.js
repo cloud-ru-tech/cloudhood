@@ -7,7 +7,21 @@ var webpack = require('webpack'),
   TerserPlugin = require('terser-webpack-plugin');
 var { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const ASSET_PATH = process.env.ASSET_PATH || '/';
+var pathResolve = (...args) => path.resolve(process.cwd(), ...args);
+var replaceGlobs = path => path.replace(/(\/\*\*)*\/\*$/, '');
+
+function tsconfigPathsConverter(tsConfigPath, dirname = '.') {
+  var tsConfig = JSON.parse(fileSystem.readFileSync(tsConfigPath).toString());
+  var { baseUrl, paths = {} } = tsConfig.compilerOptions;
+  return Object.keys(paths).reduce((aliases, pathName) => {
+    var alias = replaceGlobs(pathName);
+    var path = replaceGlobs(paths[pathName][0]);
+    aliases[alias] = pathResolve(dirname, baseUrl, path);
+    return aliases;
+  }, {});
+}
+
+var ASSET_PATH = process.env.ASSET_PATH || '/';
 
 var alias = {
   'react-dom': '@hot-loader/react-dom',
@@ -16,18 +30,7 @@ var alias = {
 // load the secrets
 var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
 
-var fileExtensions = [
-  'jpg',
-  'jpeg',
-  'png',
-  'gif',
-  'eot',
-  'otf',
-  'svg',
-  'ttf',
-  'woff',
-  'woff2',
-];
+var fileExtensions = ['jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'];
 
 if (fileSystem.existsSync(secretsPath)) {
   alias['secrets'] = secretsPath;
@@ -37,6 +40,7 @@ var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
     popup: path.join(__dirname, 'src', 'index.tsx'),
+    background: path.join(__dirname, 'src', 'background.ts'),
   },
   output: {
     filename: '[name].bundle.js',
@@ -91,10 +95,8 @@ var options = {
     ],
   },
   resolve: {
-    alias: alias,
-    extensions: fileExtensions
-      .map((extension) => '.' + extension)
-      .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
+    alias: { ...tsconfigPathsConverter(pathResolve('tsconfig.json')), 'react-dom': '@hot-loader/react-dom' },
+    extensions: fileExtensions.map(extension => '.' + extension).concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
   },
   plugins: [
     new CleanWebpackPlugin({ verbose: false }),
@@ -104,7 +106,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/manifest.json',
+          from: 'manifest.json',
           to: path.join(__dirname, 'build'),
           force: true,
           transform: function (content, path) {
@@ -114,7 +116,7 @@ var options = {
                 description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
                 ...JSON.parse(content.toString()),
-              })
+              }),
             );
           },
         },

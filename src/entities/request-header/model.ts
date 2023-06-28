@@ -1,20 +1,16 @@
-import { createEffect, createEvent, sample } from 'effector';
-import { $isPaused } from '../is-paused/model';
+import { createEvent, sample } from 'effector';
 import {
-  $selectedRequestProfile,
   $requestProfiles,
+  $selectedRequestProfile,
   addProfileHeaders,
   removeProfileHeaders,
   updateProfileHeaders,
 } from '../request-profile/model';
 import { RemoveHeaderPayload, RequestHeader } from './types';
-import { updateOverrideHeaders } from './utils';
 
 export const updateProfileHeader = createEvent<RequestHeader>();
 export const removeProfileHeader = createEvent<RemoveHeaderPayload>();
 export const addEmptyProfileHeader = createEvent();
-
-const setHeadersToBrowserFx = createEffect(updateOverrideHeaders);
 
 export const $selectedProfileRequestHeaders = sample({
   source: {
@@ -22,19 +18,6 @@ export const $selectedProfileRequestHeaders = sample({
     selectedProfileName: $selectedRequestProfile,
   },
   fn: ({ profiles, selectedProfileName }) => profiles?.[selectedProfileName] ?? [],
-});
-
-sample({
-  source: {
-    profiles: $requestProfiles,
-    selectedProfileHeaders: $selectedProfileRequestHeaders,
-    isPaused: $isPaused,
-  },
-  fn: ({ profiles, selectedProfileHeaders, isPaused }) => ({
-    allHeaders: Object.values(profiles).flat(),
-    headersToAdd: !isPaused ? selectedProfileHeaders : [],
-  }),
-  target: setHeadersToBrowserFx,
 });
 
 sample({ clock: updateProfileHeader, fn: header => [header], target: updateProfileHeaders });

@@ -5,7 +5,8 @@ export const Wrapper = styled.div`
   justify-content: space-between;
   background-color: #5600e8;
   width: 100%;
-  padding: 0 12px;
+  padding: 12px;
+  padding-left: 16px;
   align-items: center;
 `;
 

@@ -1,4 +1,4 @@
-import { BrowserStorageKey } from '../../../shared/constants';
+import { BrowserStorageKey } from '#shared/constants';
 
 export async function loadIsPausedFromStorage() {
   try {

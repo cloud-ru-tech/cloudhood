@@ -1,6 +1,6 @@
 import { createEvent, sample } from 'effector';
-import { $selectedProfileRequestHeaders } from '../../entities/request-header/model';
-import { updateProfileHeaders } from '../../entities/request-profile/model';
+import { $selectedProfileRequestHeaders } from '#entities/request-header/model';
+import { updateProfileHeaders } from '#entities/request-profile/model';
 
 export const toggleAllProfileRequestHeaders = createEvent<boolean>();
 

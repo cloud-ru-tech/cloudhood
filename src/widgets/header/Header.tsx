@@ -2,9 +2,9 @@ import { ControlPointDuplicateOutlined, MoreVert, Delete } from '@mui/icons-mate
 import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useState } from 'react';
-import { addProfile, removeSelectedProfile } from '../../entities/request-profile/model';
-import { PauseAllRequestHeaders } from '../../features/pause-all-request-headers/PauseAllRequestHeaders';
-import { Logo } from '../../shared/components/Logo';
+import { addProfile, removeSelectedProfile } from '#entities/request-profile/model';
+import { PauseAllRequestHeaders } from '#features/pause-all-request-headers/PauseAllRequestHeaders';
+import { Logo } from '#shared/components/Logo';
 import * as S from './styled';
 export function Header() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -34,7 +34,7 @@ export function Header() {
         <Logo />
         <S.Actions>
           <PauseAllRequestHeaders />
-          <IconButton sx={{ color: grey[100] }} onClick={handleOpen}>
+          <IconButton sx={{ color: grey[100] }} size='small' onClick={handleOpen}>
             <MoreVert />
           </IconButton>
         </S.Actions>
