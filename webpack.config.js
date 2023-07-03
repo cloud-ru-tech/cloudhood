@@ -1,7 +1,7 @@
 var webpack = require('webpack'),
   path = require('path'),
   fileSystem = require('fs-extra'),
-  env = require('./utils/env'),
+  env = require('./scripts/env'),
   CopyWebpackPlugin = require('copy-webpack-plugin'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
   TerserPlugin = require('terser-webpack-plugin');
@@ -51,21 +51,11 @@ var options = {
   module: {
     rules: [
       {
-        // look for .css or .scss files
-        test: /\.(css|scss)$/,
-        // in the `src` directory
+        // look for .css
+        test: /\.(css)$/,
         use: [
           {
-            loader: 'style-loader',
-          },
-          {
             loader: 'css-loader',
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true,
-            },
           },
         ],
       },
@@ -80,18 +70,6 @@ var options = {
         exclude: /node_modules/,
       },
       { test: /\.(ts|tsx)$/, loader: 'ts-loader', exclude: /node_modules/ },
-      {
-        test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: 'source-map-loader',
-          },
-          {
-            loader: 'babel-loader',
-          },
-        ],
-        exclude: /node_modules/,
-      },
     ],
   },
   resolve: {
@@ -125,16 +103,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/main-icon-128.jpg',
-          to: path.join(__dirname, 'build'),
-          force: true,
-        },
-      ],
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: 'src/assets/img/main-icon-38.png',
+          from: 'src/assets/img',
           to: path.join(__dirname, 'build'),
           force: true,
         },

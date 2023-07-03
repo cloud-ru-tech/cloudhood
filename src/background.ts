@@ -1,8 +1,6 @@
 import { Profiles, RequestHeader } from './entities/request-header/types';
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 
-chrome.runtime.onMessage.addListener(notify);
-
 function getRule(header: RequestHeader) {
   return {
     id: header.id,
@@ -42,3 +40,5 @@ function notify(message: ServiceWorkerEvent) {
     );
   }
 }
+
+chrome.runtime.onMessage.addListener(notify);

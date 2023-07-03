@@ -1,5 +1,6 @@
 import { Checkbox } from '@mui/material';
 import { useUnit } from 'effector-react';
+
 import { $isAllEnabled, toggleAllProfileRequestHeaders } from './model';
 
 export function ToggleAllRequestHeaders() {

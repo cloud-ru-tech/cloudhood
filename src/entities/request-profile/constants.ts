@@ -1,4 +1,5 @@
 import { generateId } from '#shared/utils/generateId';
+
 import { Profiles } from '../request-header/types';
 
 export const DEFAULT_REQUEST_HEADERS: Profiles = {

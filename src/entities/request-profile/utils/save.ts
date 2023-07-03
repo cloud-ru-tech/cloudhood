@@ -1,5 +1,6 @@
-import { updateOverrideHeaders } from '#shared/utils/updateOverrideHeaders';
 import { BrowserStorageKey } from '#shared/constants';
+import { updateOverrideHeaders } from '#shared/utils/updateOverrideHeaders';
+
 import { Profiles } from '../../request-header/types';
 
 export async function saveProfilesToBrowser(profiles: Profiles) {

@@ -1,4 +1,5 @@
 import { createEvent, sample } from 'effector';
+
 import { $selectedProfileRequestHeaders } from '#entities/request-header/model';
 import { updateProfileHeaders } from '#entities/request-profile/model';
 
@@ -12,8 +13,6 @@ export const $isAllEnabled = sample({
 sample({
   clock: toggleAllProfileRequestHeaders,
   source: $selectedProfileRequestHeaders,
-  fn: (headers, enabled) => {
-    return headers.map(h => ({ ...h, disabled: !enabled }));
-  },
+  fn: (headers, enabled) => headers.map(h => ({ ...h, disabled: !enabled })),
   target: updateProfileHeaders,
 });

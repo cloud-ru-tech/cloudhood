@@ -1,1 +1,1 @@
-export * from './AddNewRequestHeader'
+export * from './AddNewRequestHeader';

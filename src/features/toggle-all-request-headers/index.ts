@@ -1,1 +1,1 @@
-export * from './ToggleAllRequestHeaders'
+export * from './ToggleAllRequestHeaders';

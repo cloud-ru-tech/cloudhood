@@ -1,1 +1,1 @@
-export * from './PauseAllRequestHeaders'
+export * from './PauseAllRequestHeaders';

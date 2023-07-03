@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
 type CircleProps = {
-    isSelected: boolean
-}
+  isSelected: boolean;
+};
 
 export const Circle = styled.div<CircleProps>`
   display: grid;
@@ -14,5 +14,5 @@ export const Circle = styled.div<CircleProps>`
   cursor: pointer;
   border-radius: 50%;
 
-  background-color: ${({isSelected})=> isSelected ? '#BB86FC' : '#00000099'};
+  background-color: ${({ isSelected }) => (isSelected ? '#BB86FC' : '#00000099')};
 `;

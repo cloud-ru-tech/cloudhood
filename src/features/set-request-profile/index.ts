@@ -1,1 +1,1 @@
-export * from './SetRequestProfile'
+export * from './SetRequestProfile';

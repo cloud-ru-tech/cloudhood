@@ -1,10 +1,12 @@
-import { ControlPointDuplicateOutlined, MoreVert, Delete } from '@mui/icons-material';
+import { ControlPointDuplicateOutlined, Delete, MoreVert } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useState } from 'react';
+
 import { addProfile, removeSelectedProfile } from '#entities/request-profile/model';
 import { PauseAllRequestHeaders } from '#features/pause-all-request-headers/PauseAllRequestHeaders';
 import { Logo } from '#shared/components/Logo';
+
 import * as S from './styled';
 export function Header() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);

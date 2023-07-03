@@ -7,7 +7,7 @@ export async function loadIsPausedFromStorage() {
 
     return isPaused;
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 
   return false;

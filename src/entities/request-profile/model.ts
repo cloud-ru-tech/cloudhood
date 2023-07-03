@@ -1,5 +1,7 @@
 import { attach, createEffect, createEvent, createStore, sample } from 'effector';
+
 import { initApp } from '#shared/model';
+
 import { AddHeaderPayload, Profiles, RemoveHeaderPayload, RequestHeader } from '../request-header/types';
 import {
   addProfileApi,
@@ -32,10 +34,9 @@ export const $selectedRequestProfile = createStore<string>('').on(
 
 sample({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
-  filter: ({ profiles, selectedProfile }) => Boolean(selectedProfile) && !Object.keys(profiles).includes(selectedProfile),
-  fn: ({ profiles }) => {
-    return Object.keys(profiles)[0];
-  },
+  filter: ({ profiles, selectedProfile }) =>
+    Boolean(selectedProfile) && !Object.keys(profiles).includes(selectedProfile),
+  fn: ({ profiles }) => Object.keys(profiles)[0],
   target: $selectedRequestProfile,
 });
 

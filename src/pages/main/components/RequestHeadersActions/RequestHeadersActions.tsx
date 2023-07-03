@@ -1,11 +1,13 @@
 import { Delete } from '@mui/icons-material';
 import { Backdrop, IconButton, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
-import { removeSelectedProfile } from '#entities/request-profile/model';
+
 import { $isPaused } from '#entities/is-paused/model';
+import { removeSelectedProfile } from '#entities/request-profile/model';
 import { AddNewRequestHeader } from '#features/add-new-request-header/AddNewRequestHeader';
 import { ToggleAllRequestHeaders } from '#features/toggle-all-request-headers';
 import { RequestHeaders } from '#widgets/request-headers';
+
 import * as S from './styled';
 
 export function RequestHeadersActions() {

@@ -1,5 +1,5 @@
+import { AddHeaderPayload, Profiles, RemoveHeaderPayload, RequestHeader } from '#entities/request-header/types';
 import { generateId } from '#shared/utils/generateId';
-import { Profiles, RequestHeader, AddHeaderPayload, RemoveHeaderPayload } from '#entities/request-header/types';
 
 type CRUDParams = {
   profiles: Profiles;

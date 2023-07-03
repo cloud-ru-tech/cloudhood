@@ -2,6 +2,7 @@ import { Pause, PlayArrow } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useUnit } from 'effector-react';
+
 import { $isPaused, toggleIsPaused } from '#entities/is-paused/model';
 
 export function PauseAllRequestHeaders() {

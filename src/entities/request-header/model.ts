@@ -1,4 +1,5 @@
 import { createEvent, sample } from 'effector';
+
 import {
   $requestProfiles,
   $selectedRequestProfile,
