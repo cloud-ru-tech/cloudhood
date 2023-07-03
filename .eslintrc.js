@@ -99,9 +99,5 @@ module.exports = {
         'import/no-default-export': 'off',
       },
     },
-    {
-      files: ['**/__e2e__/**/*.ts'],
-      extends: ['plugin:testcafe-community/recommended'],
-    },
   ],
 };

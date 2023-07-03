@@ -1,5 +1,3 @@
-// add declarations.d.ts file to your project
-
 declare namespace NodeModule {
   type __HotModuleReplacement = {
     accept(dependencies: string[], callback: (updatedDependencies: unknown) => void): void;
