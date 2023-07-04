@@ -9,8 +9,3 @@ render(
   </StrictMode>,
   window.document.getElementById('app-container'),
 );
-
-// TODO: add typings
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-if (module.hot) module.hot.accept();

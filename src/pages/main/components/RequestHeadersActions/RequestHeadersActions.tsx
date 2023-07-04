@@ -1,5 +1,5 @@
 import { Delete } from '@mui/icons-material';
-import { Backdrop, IconButton, Typography } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
 
 import { $isPaused } from '#entities/is-paused/model';
@@ -15,7 +15,7 @@ export function RequestHeadersActions() {
 
   return (
     <S.Content>
-      <Backdrop style={{ position: 'absolute', zIndex: 2 }} open={isPaused} />
+      <S.StyledBackdrop open={isPaused} />
       <S.ContentHeader>
         <S.LeftHeaderActions>
           <ToggleAllRequestHeaders />

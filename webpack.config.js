@@ -23,10 +23,6 @@ function tsconfigPathsConverter(tsConfigPath, dirname = '.') {
 
 var ASSET_PATH = process.env.ASSET_PATH || '/';
 
-var alias = {
-  'react-dom': '@hot-loader/react-dom',
-};
-
 // load the secrets
 var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
 
@@ -73,7 +69,7 @@ var options = {
     ],
   },
   resolve: {
-    alias: { ...tsconfigPathsConverter(pathResolve('tsconfig.json')), 'react-dom': '@hot-loader/react-dom' },
+    alias: tsconfigPathsConverter(pathResolve('tsconfig.json')),
     extensions: fileExtensions.map(extension => '.' + extension).concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
   },
   plugins: [

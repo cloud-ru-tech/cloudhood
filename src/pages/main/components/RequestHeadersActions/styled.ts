@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Backdrop } from '@mui/material';
 
 export const Content = styled.div`
   display: flex;
@@ -28,4 +29,9 @@ export const RightHeaderActions = styled.div`
   display: flex;
   gap: 12px;
   align-items: center;
+`;
+
+export const StyledBackdrop = styled(Backdrop)`
+  position: absolute;
+  z-index: 2;
 `;

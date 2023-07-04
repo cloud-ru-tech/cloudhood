@@ -1,37 +1,27 @@
 # Cloudhood
 
-Расширение позволяет пользователю управлять заголовками запросов, которые будут внедряться в запросы, сделанные при просмотре веб-сайта в Chrome, где каждое переопределение содержит следующие свойства:
+The extension allows the user to control the request headers that will be embedded in requests made while browsing the website in Chrome, where each override contains the following properties:
 
 * Header: Header key.
-* Header Value: Значение, связанное с ключом заголовка.
+* Header Value: The value associated with the header key.
 
-Переопределения заголовков управляются во всплывающем окне расширения Chrome (простое приложение для реагирования), сохраняются в локальном хранилище Chrome и применяются к восходящим запросам страниц с помощью функции updateDynamicRules динамических правил запроса chrome declarativeNetRequest.
-
+Header overrides are managed in a Chrome extension popup (a simple react app), stored in Chrome local storage, and applied to upstream page requests using the updateDynamicRules function of chrome's declarativeNetRequest dynamic request rules.
 ## Local Development
 
 ### Start Local Server
 
 1. Run `npm install` to install the dependencies.
 2. Run `npm start`
-3. Загрузите расширение в Chrome:
-   3.1. Откройте `chrome://extensions/` в адрессной строке
-   3.2. Включите `Developer mode`
-   3.3. Нажмите на `Load unpacked extension`
-   3.4. Выберите `build` директорию.
+3. Download extension in Chrome:
+   3.1. Open `chrome://extensions/` in the address bar
+   3.2. Turn on `Developer mode`
+   3.3. Click `Load unpacked extension`
+   3.4. Select `build` directory.
 
 ## Packing
 
-После разработки вашего расширения выполните команду
+After developing your extension, run the command
 
 ```
-$ NODE_ENV=production npm run build
+npm run build
 ```
-
-## Resources:
-
-|  Source  |      Description      |
-|----------|-----------------------|
-| [chrome-extension-boilerplate-react](https://github.com/lxieyang/chrome-extension-boilerplate-react) | A React Chrome Extension Boilerplate, используемый для проекта расширения переопределения заголовка HTTP-запроса. |
-| [Chrome Extension documentation](https://developer.chrome.com/extensions/getstarted) | Main Google Docs for developing Chrome Extensions |
-
----
