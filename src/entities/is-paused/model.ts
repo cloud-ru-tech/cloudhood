@@ -2,13 +2,13 @@ import { createEffect, createEvent, createStore, sample } from 'effector';
 
 import { initApp } from '#shared/model';
 
-import { saveIsPausedToBrowser } from './utils';
-import { loadIsPausedFromStorage } from './utils/load';
+import { saveIsPausedToBrowserApi } from './utils';
+import { loadIsPausedFromStorageApi } from './utils/load';
 
 export const toggleIsPaused = createEvent();
 
-const loadIsPausedFromStorageFx = createEffect(loadIsPausedFromStorage);
-const saveIsPausedToStorageFx = createEffect(saveIsPausedToBrowser);
+const loadIsPausedFromStorageFx = createEffect(loadIsPausedFromStorageApi);
+const saveIsPausedToStorageFx = createEffect(saveIsPausedToBrowserApi);
 
 export const $isPaused = createStore<boolean>(false).on(toggleIsPaused, state => !state);
 

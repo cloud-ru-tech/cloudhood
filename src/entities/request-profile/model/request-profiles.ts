@@ -2,46 +2,42 @@ import { attach, createEffect, createEvent, createStore, sample } from 'effector
 
 import { initApp } from '#shared/model';
 
-import { AddHeaderPayload, Profiles, RemoveHeaderPayload, RequestHeader } from '../request-header/types';
+import { AddHeaderPayload, Profiles, RemoveHeaderPayload, RequestHeader } from '../types';
 import {
   addProfileApi,
   addProfileHeadersApi,
-  loadProfilesFromStorage,
-  loadSelectedProfileFromStorage,
+  loadProfilesFromStorageApi,
   removeProfileHeadersApi,
   removeSelectedProfileApi,
-  saveProfilesToBrowser,
-  saveSelectedProfileToBrowser,
+  saveProfilesToBrowserApi,
   updateProfileHeadersApi,
-} from './utils';
+} from '../utils';
+import {
+  $selectedRequestProfile,
+  loadSelectedProfileFromStorage,
+  setSelectedRequestProfileName,
+} from './selected-request-profile';
 
-export const setSelectedRequestProfileName = createEvent<string>();
 export const addProfile = createEvent();
 export const removeSelectedProfile = createEvent();
 export const updateProfileHeaders = createEvent<RequestHeader[]>();
 export const addProfileHeaders = createEvent<AddHeaderPayload[]>();
 export const removeProfileHeaders = createEvent<RemoveHeaderPayload[]>();
 
-const saveProfilesToBrowserFx = createEffect(saveProfilesToBrowser);
-const saveSelectedProfileToBrowserFx = createEffect(saveSelectedProfileToBrowser);
-const loadProfilesFromStorageFx = createEffect(loadProfilesFromStorage);
+const saveProfilesToBrowserFx = createEffect(saveProfilesToBrowserApi);
+const loadProfilesFromStorageFx = createEffect(loadProfilesFromStorageApi);
 
-export const $requestProfiles = createStore<Profiles>({});
-export const $selectedRequestProfile = createStore<string>('').on(
-  setSelectedRequestProfileName,
-  (_, profileName) => profileName,
-);
+export const $requestProfiles = createStore<{ map: Profiles }>({ map: new Map() });
 
 sample({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   filter: ({ profiles, selectedProfile }) =>
-    Boolean(selectedProfile) && !Object.keys(profiles).includes(selectedProfile),
-  fn: ({ profiles }) => Object.keys(profiles)[0],
+    Boolean(selectedProfile) && !Array.from(profiles.map.keys()).includes(selectedProfile),
+  fn: ({ profiles }) => Array.from(profiles.map.keys()).at(-1) ?? '',
   target: $selectedRequestProfile,
 });
 
-sample({ source: $selectedRequestProfile, target: saveSelectedProfileToBrowserFx });
-sample({ source: $requestProfiles, target: saveProfilesToBrowserFx });
+sample({ source: $requestProfiles, fn: ({ map }) => map, target: saveProfilesToBrowserFx });
 
 const removeProfileHeadersFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
@@ -76,11 +72,14 @@ const addProfileFx = attach({
   effect: addProfileApi,
 });
 sample({ clock: addProfile, target: addProfileFx });
-sample({ clock: addProfileFx.doneData, target: $requestProfiles });
+sample({ clock: addProfileFx.doneData, fn: ({ profiles }) => profiles, target: $requestProfiles });
+sample({
+  clock: addProfileFx.doneData,
+  fn: ({ addedHeaderId }) => addedHeaderId,
+  target: setSelectedRequestProfileName,
+});
 
 // loading from browser cache
-const loadSelectedProfileFromStorageFx = attach({ source: $requestProfiles, effect: loadSelectedProfileFromStorage });
 sample({ clock: initApp, target: loadProfilesFromStorageFx });
 sample({ clock: loadProfilesFromStorageFx.doneData, target: $requestProfiles });
-sample({ clock: loadProfilesFromStorageFx.doneData, target: loadSelectedProfileFromStorageFx });
-sample({ clock: loadSelectedProfileFromStorageFx.doneData, target: $selectedRequestProfile });
+sample({ clock: loadProfilesFromStorageFx.doneData, fn: ({ map }) => map, target: loadSelectedProfileFromStorage });

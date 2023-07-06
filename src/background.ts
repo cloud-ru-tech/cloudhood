@@ -1,7 +1,9 @@
-import { Profiles, RequestHeader } from './entities/request-header/types';
+import { Profiles, RequestHeader } from './entities/request-profile/types';
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 
 function getRule(header: RequestHeader) {
+  const allResourceTypes = Object.values(chrome.declarativeNetRequest.ResourceType);
+
   return {
     id: header.id,
     action: {
@@ -12,7 +14,7 @@ function getRule(header: RequestHeader) {
     },
     condition: {
       urlFilter: undefined,
-      resourceTypes: ['main_frame', 'sub_frame', 'script', 'xmlhttprequest', 'other'],
+      resourceTypes: allResourceTypes,
     },
   };
 }
@@ -23,16 +25,16 @@ function notify(message: ServiceWorkerEvent) {
       [BrowserStorageKey.Profiles, BrowserStorageKey.SelectedProfile, BrowserStorageKey.IsPaused],
       async result => {
         const isPaused: boolean = result[BrowserStorageKey.IsPaused];
-        const profiles: Profiles = JSON.parse(result[BrowserStorageKey.Profiles]);
+        const profiles: Profiles = new Map(Object.entries(JSON.parse(result[BrowserStorageKey.Profiles])));
         const selectedProfile: string = result[BrowserStorageKey.SelectedProfile];
         const currentRules = await chrome.declarativeNetRequest.getDynamicRules();
 
-        const addRules = !isPaused
-          ? (profiles[selectedProfile] ?? []).filter(({ disabled }) => !disabled).map(getRule)
-          : [];
+        const selectedProfileHeaders = profiles.get(selectedProfile) ?? [];
+
+        const addRules = !isPaused ? selectedProfileHeaders.filter(({ disabled }) => !disabled).map(getRule) : [];
         const removeRuleIds = currentRules.map(item => item.id);
 
-        chrome.declarativeNetRequest.updateDynamicRules({
+        await chrome.declarativeNetRequest.updateDynamicRules({
           removeRuleIds,
           addRules,
         });
@@ -40,5 +42,7 @@ function notify(message: ServiceWorkerEvent) {
     );
   }
 }
+
+notify(ServiceWorkerEvent.Reload);
 
 chrome.runtime.onMessage.addListener(notify);

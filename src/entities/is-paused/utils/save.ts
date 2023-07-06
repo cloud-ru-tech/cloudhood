@@ -1,7 +1,7 @@
 import { BrowserStorageKey } from '#shared/constants';
 import { updateOverrideHeaders } from '#shared/utils/updateOverrideHeaders';
 
-export async function saveIsPausedToBrowser(isPaused: boolean) {
+export async function saveIsPausedToBrowserApi(isPaused: boolean) {
   await chrome.storage.local.set(
     {
       [BrowserStorageKey.IsPaused]: isPaused,

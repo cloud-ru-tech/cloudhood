@@ -1,31 +1,38 @@
 import { Delete } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
 import { IconButton, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
 
 import { $isPaused } from '#entities/is-paused/model';
-import { removeSelectedProfile } from '#entities/request-profile/model';
-import { AddNewRequestHeader } from '#features/add-new-request-header/AddNewRequestHeader';
-import { ToggleAllRequestHeaders } from '#features/toggle-all-request-headers';
+import { addProfileHeaders } from '#entities/request-profile/model';
+import { removeSelectedProfile } from '#entities/request-profile/model/request-profiles';
 import { RequestHeaders } from '#widgets/request-headers';
 
+import { AllRequestHeadersCheckbox } from './components/AllRequestHeadersCheckbox';
 import * as S from './styled';
 
 export function RequestHeadersActions() {
   const [isPaused, handleRemoveClick] = useUnit([$isPaused, removeSelectedProfile]);
+
+  const handleAdd = () => {
+    addProfileHeaders([{ disabled: false, name: '', value: '' }]);
+  };
 
   return (
     <S.Content>
       <S.StyledBackdrop open={isPaused} />
       <S.ContentHeader>
         <S.LeftHeaderActions>
-          <ToggleAllRequestHeaders />
+          <AllRequestHeadersCheckbox />
           <Typography variant='body1'>Request headers</Typography>
         </S.LeftHeaderActions>
         <S.RightHeaderActions>
           <IconButton onClick={handleRemoveClick}>
             <Delete />
           </IconButton>
-          <AddNewRequestHeader />
+          <IconButton onClick={handleAdd}>
+            <AddIcon />
+          </IconButton>
         </S.RightHeaderActions>
       </S.ContentHeader>
       <RequestHeaders />

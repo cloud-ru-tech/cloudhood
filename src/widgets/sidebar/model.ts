@@ -1,8 +1,8 @@
 import { sample } from 'effector';
 
-import { $requestProfiles } from '#entities/request-profile/model';
+import { $requestProfiles } from '#entities/request-profile/model/request-profiles';
 
 export const $profilesName = sample({
   source: $requestProfiles,
-  fn: profiles => Object.keys(profiles),
+  fn: ({ map }) => Array.from(map.keys()),
 });

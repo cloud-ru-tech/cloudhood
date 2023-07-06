@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Menu } from '@mui/material';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -15,4 +16,10 @@ export const Actions = styled.div`
   flex-direction: row;
 
   gap: 16px;
+`;
+
+export const StyledMenu = styled(Menu)`
+  li {
+    justify-content: space-between;
+  }
 `;

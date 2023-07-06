@@ -1,9 +1,9 @@
 import { Checkbox } from '@mui/material';
 import { useUnit } from 'effector-react';
 
-import { $isAllEnabled, toggleAllProfileRequestHeaders } from './model';
+import { $isAllEnabled, toggleAllProfileRequestHeaders } from '#features/toggle-all-request-headers/model';
 
-export function ToggleAllRequestHeaders() {
+export function AllRequestHeadersCheckbox() {
   const isAllEnabled = useUnit($isAllEnabled);
 
   return (

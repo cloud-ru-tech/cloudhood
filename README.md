@@ -1,6 +1,6 @@
 # Cloudhood
 
-The extension allows the user to control the request headers that will be embedded in requests made while browsing the website in Chrome, where each override contains the following properties:
+This extension allows users to control request headers that will be embedded in all requests in Chrome Browser, where each override contains the following properties:
 
 * Header: Header key.
 * Header Value: The value associated with the header key.

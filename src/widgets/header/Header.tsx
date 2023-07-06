@@ -1,13 +1,14 @@
 import { ControlPointDuplicateOutlined, Delete, MoreVert } from '@mui/icons-material';
-import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { IconButton, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useState } from 'react';
 
-import { addProfile, removeSelectedProfile } from '#entities/request-profile/model';
-import { PauseAllRequestHeaders } from '#features/pause-all-request-headers/PauseAllRequestHeaders';
+import { addProfile, removeSelectedProfile } from '#entities/request-profile/model/request-profiles';
 import { Logo } from '#shared/components/Logo';
 
+import { PauseAllRequestHeaders } from './components/PauseAllRequestHeaders';
 import * as S from './styled';
+
 export function Header() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -41,16 +42,16 @@ export function Header() {
           </IconButton>
         </S.Actions>
       </S.Wrapper>
-      <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>
-        <MenuItem onClick={handleAddProfile}>
+      <S.StyledMenu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>
+        <MenuItem key={'add'} onClick={handleAddProfile}>
           <Typography variant='body2'>Add profile</Typography>
           <ControlPointDuplicateOutlined />
         </MenuItem>
-        <MenuItem onClick={handleRemoveProfile}>
+        <MenuItem key={'remove'} onClick={handleRemoveProfile}>
           <Typography variant='body2'>Delete profile</Typography>
           <Delete />
         </MenuItem>
-      </Menu>
+      </S.StyledMenu>
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { BrowserStorageKey } from '#shared/constants';
 
-export async function loadIsPausedFromStorage() {
+export async function loadIsPausedFromStorageApi() {
   try {
     const response = await chrome.storage.local.get([BrowserStorageKey.IsPaused]);
     const isPaused = response[BrowserStorageKey.IsPaused] ?? false;

@@ -8,6 +8,8 @@ export const Content = styled.div`
   flex: 1;
   gap: 16px;
 
+  overflow-y: auto;
+
   padding: 8px;
   padding-bottom: 0;
 `;

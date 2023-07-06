@@ -3,7 +3,7 @@ import { IconButton } from '@mui/material';
 import { useUnit } from 'effector-react';
 
 import { $selectedRequestProfile, addProfile } from '#entities/request-profile/model';
-import { SetRequestProfile } from '#features/set-request-profile';
+import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
 import { $profilesName } from './model';
 import * as S from './styled';
@@ -19,7 +19,7 @@ export function Sidebar() {
     <S.Wrapper>
       {profileNames.map((profile, index) => (
         <SetRequestProfile
-          key={profile}
+          key={profile.toString()}
           index={(index + 1).toString()}
           isSelected={profile === selectedProfile}
           profile={profile}

@@ -1,14 +1,11 @@
-import { createEvent, sample } from 'effector';
+import { combine, createEvent, sample } from 'effector';
 
-import { $selectedProfileRequestHeaders } from '#entities/request-header/model';
-import { updateProfileHeaders } from '#entities/request-profile/model';
+import { updateProfileHeaders } from '#entities/request-profile/model/request-profiles';
+import { $selectedProfileRequestHeaders } from '#entities/request-profile/model/selected-request-headers';
 
 export const toggleAllProfileRequestHeaders = createEvent<boolean>();
 
-export const $isAllEnabled = sample({
-  source: $selectedProfileRequestHeaders,
-  fn: headers => headers.every(h => !h.disabled),
-});
+export const $isAllEnabled = combine($selectedProfileRequestHeaders, headers => headers.every(h => !h.disabled));
 
 sample({
   clock: toggleAllProfileRequestHeaders,

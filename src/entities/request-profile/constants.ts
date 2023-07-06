@@ -1,14 +1,17 @@
 import { generateId } from '#shared/utils/generateId';
 
-import { Profiles } from '../request-header/types';
+import { Profiles } from './types';
 
-export const DEFAULT_REQUEST_HEADERS: Profiles = {
-  [generateId().toString()]: [
-    {
-      disabled: false,
-      id: generateId(),
-      name: '',
-      value: '',
-    },
+export const DEFAULT_REQUEST_HEADERS: Profiles = new Map([
+  [
+    generateId().toString(),
+    [
+      {
+        id: generateId(),
+        disabled: false,
+        name: '',
+        value: '',
+      },
+    ],
   ],
-};
+]);
