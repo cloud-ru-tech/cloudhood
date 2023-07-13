@@ -10,7 +10,7 @@ export function PauseAllRequestHeaders() {
 
   return (
     <IconButton sx={{ color: grey[100] }} onClick={handleToggle}>
-      {isPaused ? <Pause /> : <PlayArrow />}
+      {!isPaused ? <Pause /> : <PlayArrow />}
     </IconButton>
   );
 }

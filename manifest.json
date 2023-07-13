@@ -8,7 +8,7 @@
     "default_icon": {
       "38": "main-icon-38.png"
     },
-    "default_title": "Modify Outgoing XHR/Fetch Request Headers and Query Params"
+    "default_title": "Modify Outgoing XHR/Fetch Request Headers"
   },
   "icons": {
     "16": "main-icon-16.jpg",

@@ -1,5 +1,5 @@
-import { Delete } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { IconButton, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
 
@@ -9,10 +9,15 @@ import { removeSelectedProfile } from '#entities/request-profile/model/request-p
 import { RequestHeaders } from '#widgets/request-headers';
 
 import { AllRequestHeadersCheckbox } from './components/AllRequestHeadersCheckbox';
+import { $isProfileRemoveAvailable } from './model';
 import * as S from './styled';
 
 export function RequestHeadersActions() {
-  const [isPaused, handleRemoveClick] = useUnit([$isPaused, removeSelectedProfile]);
+  const [isPaused, handleRemove, isProfileRemoveAvailable] = useUnit([
+    $isPaused,
+    removeSelectedProfile,
+    $isProfileRemoveAvailable,
+  ]);
 
   const handleAdd = () => {
     addProfileHeaders([{ disabled: false, name: '', value: '' }]);
@@ -21,20 +26,18 @@ export function RequestHeadersActions() {
   return (
     <S.Content>
       <S.StyledBackdrop open={isPaused} />
-      <S.ContentHeader>
-        <S.LeftHeaderActions>
-          <AllRequestHeadersCheckbox />
-          <Typography variant='body1'>Request headers</Typography>
-        </S.LeftHeaderActions>
-        <S.RightHeaderActions>
-          <IconButton onClick={handleRemoveClick}>
-            <Delete />
-          </IconButton>
-          <IconButton onClick={handleAdd}>
-            <AddIcon />
-          </IconButton>
-        </S.RightHeaderActions>
-      </S.ContentHeader>
+      <S.LeftHeaderActions>
+        <AllRequestHeadersCheckbox />
+        <Typography variant='body1'>Request headers</Typography>
+      </S.LeftHeaderActions>
+      <S.RightHeaderActions>
+        <IconButton onClick={handleAdd}>
+          <AddIcon />
+        </IconButton>
+        <IconButton disabled={!isProfileRemoveAvailable} onClick={handleRemove}>
+          <DeleteOutlineIcon />
+        </IconButton>
+      </S.RightHeaderActions>
       <RequestHeaders />
     </S.Content>
   );

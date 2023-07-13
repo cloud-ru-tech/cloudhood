@@ -31,18 +31,30 @@ function notify(message: ServiceWorkerEvent) {
 
         const selectedProfileHeaders = profiles.get(selectedProfile) ?? [];
 
-        const addRules = !isPaused ? selectedProfileHeaders.filter(({ disabled }) => !disabled).map(getRule) : [];
+        const addRules = !isPaused
+          ? selectedProfileHeaders
+              .filter(({ disabled, name, value }) => !disabled && Boolean(name) && Boolean(value))
+              .map(getRule)
+          : [];
         const removeRuleIds = currentRules.map(item => item.id);
 
-        await chrome.declarativeNetRequest.updateDynamicRules({
-          removeRuleIds,
-          addRules,
-        });
+        try {
+          await chrome.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds,
+            addRules,
+          });
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        }
       },
     );
   }
 }
 
-notify(ServiceWorkerEvent.Reload);
+chrome.storage.local.get(
+  [BrowserStorageKey.Profiles, BrowserStorageKey.SelectedProfile, BrowserStorageKey.IsPaused],
+  result => Object.keys(result).length && notify(ServiceWorkerEvent.Reload),
+);
 
 chrome.runtime.onMessage.addListener(notify);
