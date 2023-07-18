@@ -17,13 +17,7 @@
     "128": "main-icon-128.jpg"
   },
   "host_permissions": ["<all_urls>"],
-  "permissions": [
-    "storage",
-    "tabs",
-    "declarativeNetRequest",
-    "declarativeNetRequestWithHostAccess",
-    "declarativeNetRequestFeedback"
-  ],
+  "permissions": ["storage", "declarativeNetRequest"],
   "background": {
     "service_worker": "background.bundle.js"
   }
