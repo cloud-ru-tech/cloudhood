@@ -1,0 +1,32 @@
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2017", "dom", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "strict": true,
+    "isolatedModules": false,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "resolveJsonModule": true,
+    "paths": {
+      "#app": ["src/app"],
+      "#pages/*": ["src/pages/*"],
+      "#shared/*": ["src/shared/*"],
+      "#features/*": ["src/features/*"],
+      "#entities/*": ["src/entities/*"],
+      "#widgets/*": ["src/widgets/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
