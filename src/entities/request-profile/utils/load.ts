@@ -1,10 +1,10 @@
 import { BrowserStorageKey } from '#shared/constants';
 
 import { DEFAULT_REQUEST_HEADERS } from '../constants';
-import { Profiles } from '../types';
+import { Profile } from '../types';
 
-export async function loadSelectedProfileFromStorageApi(profiles: Profiles) {
-  const firstProfileKey = Array.from(profiles.keys())[0];
+export async function loadSelectedProfileFromStorageApi(profiles: Profile[]) {
+  const firstProfileKey = profiles[0].id;
 
   try {
     const response = await chrome.storage.local.get([BrowserStorageKey.SelectedProfile]);
@@ -21,12 +21,12 @@ export async function loadSelectedProfileFromStorageApi(profiles: Profiles) {
 export async function loadProfilesFromStorageApi() {
   try {
     const response = await chrome.storage.local.get([BrowserStorageKey.Profiles]);
-    const headers: Profiles | null = JSON.parse(response[BrowserStorageKey.Profiles] ?? 'null');
+    const profiles: Profile[] | null = JSON.parse(response[BrowserStorageKey.Profiles] ?? 'null');
 
-    return { map: headers ? new Map(Object.entries(headers)) : DEFAULT_REQUEST_HEADERS };
+    return profiles ?? DEFAULT_REQUEST_HEADERS;
   } catch (e) {
     console.error(e);
   }
 
-  return { map: DEFAULT_REQUEST_HEADERS };
+  return DEFAULT_REQUEST_HEADERS;
 }

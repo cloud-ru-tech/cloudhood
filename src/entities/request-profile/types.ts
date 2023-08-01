@@ -5,10 +5,8 @@ export type RequestHeader = {
   disabled: boolean;
 };
 
-export type Profiles = Map<string, RequestHeader[]>;
+export type Profile = { id: string; requestHeaders: RequestHeader[] };
 
 export type RemoveHeaderPayload = {
   headerId: number;
 };
-
-export type AddHeaderPayload = Omit<RequestHeader, 'id'>;

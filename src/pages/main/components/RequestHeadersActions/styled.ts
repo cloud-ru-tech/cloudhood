@@ -3,11 +3,10 @@ import { Backdrop } from '@mui/material';
 
 export const Content = styled.div`
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: fit-content(100%);
+  display: flex;
+  flex-direction: column;
   flex: 1;
-  gap: 16px;
+  gap: 4px;
 
   overflow-y: auto;
 
@@ -16,21 +15,26 @@ export const Content = styled.div`
 `;
 
 export const LeftHeaderActions = styled.div`
-  grid-area: 1 / 1 / 2 / 3;
   display: flex;
-  justify-content: space-between;
+  gap: 8px;
   align-items: center;
 `;
 
 export const RightHeaderActions = styled.div`
   display: flex;
   gap: 12px;
+  margin-right: 16px;
   justify-content: flex-end;
   align-items: center;
-  grid-area: 1 / 4 / 2 / 6;
 `;
 
 export const StyledBackdrop = styled(Backdrop)`
   position: absolute;
   z-index: 2;
+`;
+
+export const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `;

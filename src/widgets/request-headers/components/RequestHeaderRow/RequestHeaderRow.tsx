@@ -1,8 +1,9 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import { Checkbox, IconButton, TextField } from '@mui/material';
 
-import { removeProfileHeaders, updateProfileHeaders } from '#entities/request-profile/model';
 import { RequestHeader } from '#entities/request-profile/types';
+import { selectedProfileRequestHeadersRemoved } from '#features/selected-profile-request-headers/remove/model';
+import { selectedProfileRequestHeadersUpdated } from '#features/selected-profile-request-headers/update/model';
 
 import * as S from './styled';
 
@@ -11,24 +12,26 @@ export function RequestHeaderRow(props: RequestHeader) {
 
   return (
     <S.Wrapper>
-      <Checkbox
-        color='default'
-        checked={!disabled}
-        onChange={e => updateProfileHeaders([{ ...props, disabled: !e.target.checked }])}
-      />
-      <TextField
-        placeholder='Header name'
-        variant='standard'
-        value={name}
-        onChange={e => updateProfileHeaders([{ ...props, name: e.target.value }])}
-      />
+      <S.LeftHeaderActions>
+        <Checkbox
+          color='default'
+          checked={!disabled}
+          onChange={e => selectedProfileRequestHeadersUpdated([{ ...props, disabled: !e.target.checked }])}
+        />
+        <TextField
+          placeholder='Header name'
+          variant='standard'
+          value={name}
+          onChange={e => selectedProfileRequestHeadersUpdated([{ ...props, name: e.target.value }])}
+        />
+      </S.LeftHeaderActions>
       <TextField
         placeholder='Header value'
         variant='standard'
         value={value}
-        onChange={e => updateProfileHeaders([{ ...props, value: e.target.value }])}
+        onChange={e => selectedProfileRequestHeadersUpdated([{ ...props, value: e.target.value }])}
       />
-      <IconButton onClick={() => removeProfileHeaders([{ headerId: id }])}>
+      <IconButton onClick={() => selectedProfileRequestHeadersRemoved([id])}>
         <ClearIcon />
       </IconButton>
     </S.Wrapper>

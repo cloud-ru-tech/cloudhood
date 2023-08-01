@@ -1,10 +1,10 @@
 import { createEffect, createEvent, createStore, sample } from 'effector';
 
-import { Profiles } from '../types';
+import { Profile } from '../types';
 import { loadSelectedProfileFromStorageApi, saveSelectedProfileToBrowserApi } from '../utils';
 
 export const setSelectedRequestProfileName = createEvent<string>();
-export const loadSelectedProfileFromStorage = createEvent<Profiles>();
+export const loadSelectedProfileFromStorage = createEvent<Profile[]>();
 const saveSelectedProfileToBrowserFx = createEffect(saveSelectedProfileToBrowserApi);
 
 export const $selectedRequestProfile = createStore<string>('').on(

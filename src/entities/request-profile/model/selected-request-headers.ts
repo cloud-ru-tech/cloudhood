@@ -6,5 +6,5 @@ import { $selectedRequestProfile } from './selected-request-profile';
 export const $selectedProfileRequestHeaders = combine(
   $selectedRequestProfile,
   $requestProfiles,
-  (selectedProfileName, profiles) => profiles.map.get(selectedProfileName) ?? [],
+  (selectedProfileName, profiles) => profiles.find(p => p.id === selectedProfileName)?.requestHeaders ?? [],
 );

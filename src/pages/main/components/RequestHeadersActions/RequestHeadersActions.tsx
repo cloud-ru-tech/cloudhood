@@ -4,8 +4,8 @@ import { IconButton, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
 
 import { $isPaused } from '#entities/is-paused/model';
-import { addProfileHeaders } from '#entities/request-profile/model';
-import { removeSelectedProfile } from '#entities/request-profile/model/request-profiles';
+import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
+import { selectedProfileRequestHeadersAdded } from '#features/selected-profile-request-headers/add/model';
 import { RequestHeaders } from '#widgets/request-headers';
 
 import { AllRequestHeadersCheckbox } from './components/AllRequestHeadersCheckbox';
@@ -15,29 +15,33 @@ import * as S from './styled';
 export function RequestHeadersActions() {
   const [isPaused, handleRemove, isProfileRemoveAvailable] = useUnit([
     $isPaused,
-    removeSelectedProfile,
+    selectedProfileRemoved,
     $isProfileRemoveAvailable,
   ]);
 
   const handleAdd = () => {
-    addProfileHeaders([{ disabled: false, name: '', value: '' }]);
+    selectedProfileRequestHeadersAdded([{ disabled: false, name: '', value: '' }]);
   };
 
   return (
     <S.Content>
       <S.StyledBackdrop open={isPaused} />
-      <S.LeftHeaderActions>
-        <AllRequestHeadersCheckbox />
-        <Typography variant='body1'>Request headers</Typography>
-      </S.LeftHeaderActions>
-      <S.RightHeaderActions>
-        <IconButton onClick={handleAdd}>
-          <AddIcon />
-        </IconButton>
-        <IconButton disabled={!isProfileRemoveAvailable} onClick={handleRemove}>
-          <DeleteOutlineIcon />
-        </IconButton>
-      </S.RightHeaderActions>
+      <S.Header>
+        <S.LeftHeaderActions>
+          <AllRequestHeadersCheckbox />
+          <Typography fontWeight='bold' variant='body1'>
+            Request headers
+          </Typography>
+        </S.LeftHeaderActions>
+        <S.RightHeaderActions>
+          <IconButton onClick={handleAdd}>
+            <AddIcon />
+          </IconButton>
+          <IconButton disabled={!isProfileRemoveAvailable} onClick={handleRemove}>
+            <DeleteOutlineIcon />
+          </IconButton>
+        </S.RightHeaderActions>
+      </S.Header>
       <RequestHeaders />
     </S.Content>
   );

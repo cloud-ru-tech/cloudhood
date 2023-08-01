@@ -2,7 +2,7 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { IconButton } from '@mui/material';
 import { useUnit } from 'effector-react';
 
-import { $selectedRequestProfile, addProfile } from '#entities/request-profile/model';
+import { $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
 import { $profilesName } from './model';
@@ -12,7 +12,7 @@ export function Sidebar() {
   const [profileNames, selectedProfile, handleAddProfile] = useUnit([
     $profilesName,
     $selectedRequestProfile,
-    addProfile,
+    profileAdded,
   ]);
 
   return (

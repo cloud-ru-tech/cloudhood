@@ -1,16 +1,12 @@
 import { BrowserStorageKey } from '#shared/constants';
 import { updateOverrideHeaders } from '#shared/utils/updateOverrideHeaders';
 
-import { Profiles } from '../types';
+import { Profile } from '../types';
 
-function mapToJSON(map: Map<unknown, unknown>) {
-  return JSON.stringify(Object.fromEntries(map));
-}
-
-export async function saveProfilesToBrowserApi(profiles: Profiles) {
+export async function saveProfilesToBrowserApi(profiles: Profile[]) {
   await chrome.storage.local.set(
     {
-      [BrowserStorageKey.Profiles]: mapToJSON(profiles),
+      [BrowserStorageKey.Profiles]: JSON.stringify(profiles),
     },
     updateOverrideHeaders,
   );
