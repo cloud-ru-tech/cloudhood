@@ -1,11 +1,11 @@
 import { generateId } from '#shared/utils/generateId';
 
-import { Profiles } from './types';
+import { Profile } from './types';
 
-export const DEFAULT_REQUEST_HEADERS: Profiles = new Map([
-  [
-    generateId().toString(),
-    [
+export const DEFAULT_REQUEST_HEADERS: Profile[] = [
+  {
+    id: generateId().toString(),
+    requestHeaders: [
       {
         id: generateId(),
         disabled: false,
@@ -13,5 +13,5 @@ export const DEFAULT_REQUEST_HEADERS: Profiles = new Map([
         value: '',
       },
     ],
-  ],
-]);
+  },
+];

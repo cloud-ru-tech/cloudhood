@@ -3,7 +3,8 @@ import { IconButton, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useState } from 'react';
 
-import { addProfile, removeSelectedProfile } from '#entities/request-profile/model/request-profiles';
+import { profileAdded } from '#entities/request-profile/model/request-profiles';
+import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { Logo } from '#shared/components/Logo';
 
 import { PauseAllRequestHeaders } from './components/PauseAllRequestHeaders';
@@ -22,12 +23,12 @@ export function Header() {
   };
 
   const handleAddProfile = () => {
-    addProfile();
+    profileAdded();
     handleClose();
   };
 
   const handleRemoveProfile = () => {
-    removeSelectedProfile();
+    selectedProfileRemoved();
     handleClose();
   };
 

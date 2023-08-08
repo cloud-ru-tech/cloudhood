@@ -20,4 +20,6 @@
 # secrets
 secrets.*.js
 
+# builds
 build
+*.zip

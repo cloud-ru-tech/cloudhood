@@ -1,4 +1,4 @@
-import { Profiles, RequestHeader } from './entities/request-profile/types';
+import { Profile, RequestHeader } from './entities/request-profile/types';
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 
 function getRule(header: RequestHeader) {
@@ -25,11 +25,13 @@ function notify(message: ServiceWorkerEvent) {
       [BrowserStorageKey.Profiles, BrowserStorageKey.SelectedProfile, BrowserStorageKey.IsPaused],
       async result => {
         const isPaused: boolean = result[BrowserStorageKey.IsPaused];
-        const profiles: Profiles = new Map(Object.entries(JSON.parse(result[BrowserStorageKey.Profiles])));
+        const profiles: Profile[] = JSON.parse(result[BrowserStorageKey.Profiles]);
         const selectedProfile: string = result[BrowserStorageKey.SelectedProfile];
         const currentRules = await chrome.declarativeNetRequest.getDynamicRules();
 
-        const selectedProfileHeaders = profiles.get(selectedProfile) ?? [];
+        const profile = profiles.find(p => p.id === selectedProfile);
+
+        const selectedProfileHeaders = profile?.requestHeaders ?? [];
 
         const addRules = !isPaused
           ? selectedProfileHeaders

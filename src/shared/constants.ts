@@ -1,7 +1,7 @@
 export enum BrowserStorageKey {
-  Profiles = 'requestHeaderProfiles',
-  SelectedProfile = 'selectedHeaderProfile',
-  IsPaused = 'isPaused',
+  Profiles = 'requestHeaderProfilesV1',
+  SelectedProfile = 'selectedHeaderProfileV1',
+  IsPaused = 'isPausedV1',
 }
 
 export enum ServiceWorkerEvent {
