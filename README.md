@@ -25,3 +25,7 @@ After developing your extension, run the command
 ```
 npm run build
 ```
+
+# License
+
+[Apache License 2.0](LICENSE). 
