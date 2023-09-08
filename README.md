@@ -1,22 +1,30 @@
 # Cloudhood
 
+<a href="https://chrome.google.com/webstore/detail/cloudhood/hohljodjndmmaiedadcdmnelgdfnbfgp"><img alt="Chrome Web Store" src="https://img.shields.io/chrome-web-store/rating/hohljodjndmmaiedadcdmnelgdfnbfgp?label=Chrome%20Web%20Store%20rating"></a>
+<a href="https://github.com/sbercloud/cloudhood/releases"><img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/sbercloud/cloudhood" /></a>
+
 This extension allows users to control request headers that will be embedded in all requests in Chrome Browser, where each override contains the following properties:
 
-* Header: Header key.
-* Header Value: The value associated with the header key.
+- Header: Header key.
+- Header Value: The value associated with the header key.
 
 Header overrides are managed in a Chrome extension popup (a simple react app), stored in Chrome local storage, and applied to upstream page requests using the updateDynamicRules function of chrome's declarativeNetRequest dynamic request rules.
+
+## Testing
+
+You can get a test build for each pull-request in its comments. [Example](https://github.com/sbercloud/cloudhood/pull/1#issuecomment-1713810507).
+
 ## Local Development
 
 ### Start Local Server
 
 1. Run `npm install` to install the dependencies.
-2. Run `npm start`
-3. Download extension in Chrome:
-   3.1. Open `chrome://extensions/` in the address bar
-   3.2. Turn on `Developer mode`
-   3.3. Click `Load unpacked extension`
-   3.4. Select `build` directory.
+1. Run `npm start`
+1. Download extension in Chrome:
+   - Open `chrome://extensions/` in the address bar
+   - Turn on `Developer mode`
+   - Click `Load unpacked extension`
+   - Select `build` directory.
 
 ## Packing
 
@@ -28,4 +36,4 @@ npm run build
 
 # License
 
-[Apache License 2.0](LICENSE). 
+[Apache License 2.0](LICENSE).
