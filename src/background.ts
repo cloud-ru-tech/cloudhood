@@ -1,5 +1,8 @@
 import { Profile, RequestHeader } from './entities/request-profile/types';
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
+import { setIconBadge } from './shared/utils/setIconBadge';
+
+const BADGE_COLOR = '#ffffff';
 
 function getRule(header: RequestHeader) {
   const allResourceTypes = Object.values(chrome.declarativeNetRequest.ResourceType);
@@ -33,11 +36,9 @@ function notify(message: ServiceWorkerEvent) {
 
         const selectedProfileHeaders = profile?.requestHeaders ?? [];
 
-        const addRules = !isPaused
-          ? selectedProfileHeaders
-              .filter(({ disabled, name, value }) => !disabled && Boolean(name) && Boolean(value))
-              .map(getRule)
-          : [];
+        const activeRules = selectedProfileHeaders.filter(({ disabled, name }) => !disabled && Boolean(name));
+
+        const addRules = !isPaused ? activeRules.map(getRule) : [];
         const removeRuleIds = currentRules.map(item => item.id);
 
         try {
@@ -45,6 +46,8 @@ function notify(message: ServiceWorkerEvent) {
             removeRuleIds,
             addRules,
           });
+
+          await setIconBadge({ isPaused, activeRulesCount: activeRules.length });
         } catch (err) {
           // eslint-disable-next-line no-console
           console.log(err);
@@ -58,5 +61,7 @@ chrome.storage.local.get(
   [BrowserStorageKey.Profiles, BrowserStorageKey.SelectedProfile, BrowserStorageKey.IsPaused],
   result => Object.keys(result).length && notify(ServiceWorkerEvent.Reload),
 );
+
+chrome.action.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
 chrome.runtime.onMessage.addListener(notify);
