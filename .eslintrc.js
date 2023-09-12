@@ -23,7 +23,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
   ],
-  plugins: ['import', 'simple-import-sort'],
+  plugins: ['import', 'simple-import-sort', 'deprecate'],
   rules: {
     eqeqeq: ['error', 'allow-null'],
     'arrow-body-style': ['error', 'as-needed'],

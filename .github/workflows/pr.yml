@@ -1,0 +1,63 @@
+name: PR
+
+on:
+  pull_request:
+
+jobs:
+  license:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: License validator
+        uses: './.github/actions/license'
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: ESLint
+        uses: './.github/actions/eslint'
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: TypeScript
+        uses: './.github/actions/typescript'
+
+  pr-build:
+    needs: [license, lint, typescript]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Pack build-folder to ZIP-file
+        run: |
+          cd build
+          zip -r ../cloudhood.zip .
+
+      - name: Pull request artifacts
+        uses: gavv/pull-request-artifacts@v1.1.0
+        with:
+          commit: ${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts-branch: artifacts
+          artifacts: |
+            cloudhood.zip
