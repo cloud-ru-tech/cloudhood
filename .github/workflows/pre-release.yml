@@ -1,0 +1,64 @@
+name: Pre-release
+on:
+  push:
+    branches: main
+
+jobs:
+  license:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: License validator
+        uses: './.github/actions/license'
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: ESLint
+        uses: './.github/actions/eslint'
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: TypeScript
+        uses: './.github/actions/typescript'
+
+  build:
+    needs: [license, lint, typescript]
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Pack build-folder to ZIP-file
+        run: |
+          cd build
+          zip -r ../cloudhood.zip .
+
+      - name: Pre-release
+        uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          automatic_release_tag: 'latest'
+          prerelease: true
+          title: 'Pre-release build'
+          files: |
+            cloudhood.zip

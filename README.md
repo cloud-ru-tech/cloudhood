@@ -35,6 +35,18 @@ After developing your extension, run the command
 npm run build
 ```
 
+## Release
+
+The repository is configured with actions for automatic pre-releases and releases.
+
+You don't need to do anything to create a pre-release: the pre-release will be built as soon as there are changes in the `main` branch.
+
+To create a release you need to execute the following command in the terminal, having previously set a new tag instead of `v1.2.3`:
+
+```
+TAG=v1.2.3 && git tag $TAG && git push origin tag $TAG
+```
+
 # License
 
 [Apache License 2.0](LICENSE).
