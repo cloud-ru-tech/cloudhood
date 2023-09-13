@@ -43,12 +43,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Bumping version
-        uses: jpb06/bump-package@latest
-        with:
-          major-keywords: major,BREAKING CHANGE
-          minor-keywords: feat,minor
-          patch-keywords: fix,chore
+      # - name: Bumping version
+      #   uses: jpb06/bump-package@latest
+      #   with:
+      #     major-keywords: major,BREAKING CHANGE
+      #     minor-keywords: feat,minor
+      #     patch-keywords: fix,chore
 
       - name: Install dependencies
         run: npm ci
@@ -62,16 +62,18 @@ jobs:
           cd build
           zip -r ../cloudhood.zip .
 
-      - name: Get latest tag and set it to ENV
-        run: |
-          git fetch --tags
-          echo "LATEST_TAG=$(git tag -l --sort=-creatordate | head -n 1)" >> $GITHUB_ENV
+      # - name: Get latest tag and set it to ENV
+      #   run: |
+      #     git fetch --tags
+      #     echo "LATEST_TAG=$(git tag -l --sort=-creatordate | head -n 1)" >> $GITHUB_ENV
 
       - name: Publish
         uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
-          automatic_release_tag: ${{ env.LATEST_TAG }}
+          prerelease: true
+          title: Latest build
+          automatic_release_tag: 'latest'
+          # automatic_release_tag: ${{ env.LATEST_TAG }}
           files: |
             cloudhood.zip
