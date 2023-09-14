@@ -42,13 +42,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ssh-key: ${{secrets.PAT}}
 
-      # - name: Bumping version
-      #   uses: jpb06/bump-package@latest
-      #   with:
-      #     major-keywords: major,BREAKING CHANGE
-      #     minor-keywords: feat,minor
-      #     patch-keywords: fix,chore
+      - name: Automated version bump
+        uses: phips28/gh-action-bump-version@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          major-wording: 'MAJOR,BREAKING CHANGE'
+          minor-wording: 'add,new,feat'
+          patch-wording: 'patch,fix,chore'
+          skip-commit: 'true'
+          skip-tag: 'true'
+
+      - name: Apply version bump
+        run: |
+          VERSION=$(node --print 'require("./package.json").version')
+          TAG=v$VERSION
+          echo "LATEST_TAG=$TAG" >> $GITHUB_ENV
+          jq --arg ver "$VERSION" '.version = $ver' manifest.json > tmp.json && mv tmp.json manifest.json
+          git config --local user.name github-actions
+          git config --local user.email github-actions@github.com
+          git fetch --tags
+          git add manifest.json package.json
+          git commit -m "ci: bump version to $VERSION [skip actions]"
+          git tag $TAG
+          git push origin HEAD $TAG
 
       - name: Install dependencies
         run: npm ci
@@ -62,18 +82,13 @@ jobs:
           cd build
           zip -r ../cloudhood.zip .
 
-      # - name: Get latest tag and set it to ENV
-      #   run: |
-      #     git fetch --tags
-      #     echo "LATEST_TAG=$(git tag -l --sort=-creatordate | head -n 1)" >> $GITHUB_ENV
-
       - name: Publish
         uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
-          title: Latest build
-          automatic_release_tag: 'latest'
-          # automatic_release_tag: ${{ env.LATEST_TAG }}
+          prerelease: false
+          # title: Latest build
+          # automatic_release_tag: 'latest'
+          automatic_release_tag: ${{ env.LATEST_TAG }}
           files: |
             cloudhood.zip
