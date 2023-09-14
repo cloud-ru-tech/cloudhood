@@ -66,9 +66,10 @@ jobs:
           git config --local user.email github-actions@github.com
           git fetch --tags
           git add manifest.json package.json package-lock.json
-          git commit -m "ci: bump version to $VERSION [skip actions]"
+          git commit -m "ci: bump version to $VERSION [skip ci]"
+          git push
           git tag $TAG
-          git push origin HEAD $TAG
+          git push origin tag $TAG
 
       - name: Install dependencies
         run: npm ci
