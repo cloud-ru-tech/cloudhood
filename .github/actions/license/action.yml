@@ -20,6 +20,6 @@ runs:
 
     - name: Run license validator
       run: |
-        chmod +x ./check-license
+        chmod +x ./.license-validator
         npm run check-license
       shell: bash
