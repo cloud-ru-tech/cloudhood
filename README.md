@@ -11,6 +11,8 @@ This extension allows users to control request headers that will be embedded in 
 
 Header overrides are managed in a Chrome extension popup (a simple react app), stored in Chrome local storage, and applied to upstream page requests using the updateDynamicRules function of chrome's declarativeNetRequest dynamic request rules.
 
+Also you can get current profile from JS: `window.CLOUDHOOD_BROWSER_EXTENSION`
+
 ## Testing
 
 You can get a test build for each pull-request in its comments. [Example](https://github.com/sbercloud/cloudhood/pull/1#issuecomment-1713810507).

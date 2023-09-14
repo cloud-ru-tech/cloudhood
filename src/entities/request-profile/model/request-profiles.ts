@@ -58,6 +58,8 @@ const profileUpdatedFx = attach({
   effect: (profiles, profile: Profile) => {
     const profileIndex = profiles.findIndex(p => p.id === profile.id);
 
+    window.CLOUDHOOD_BROWSER_EXTENSION = profile;
+
     return [...profiles.slice(0, profileIndex), profile, ...profiles.slice(profileIndex + 1)];
   },
 });
