@@ -19,5 +19,7 @@ runs:
       shell: bash
 
     - name: Run license validator
-      run: npm run check-license
+      run: |
+        chmod +x ./check-license
+        npm run check-license
       shell: bash
