@@ -65,7 +65,7 @@ jobs:
           git config --local user.name github-actions
           git config --local user.email github-actions@github.com
           git fetch --tags
-          git add manifest.json package.json
+          git add manifest.json package.json package-lock.json
           git commit -m "ci: bump version to $VERSION [skip actions]"
           git tag $TAG
           git push origin HEAD $TAG
