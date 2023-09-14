@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Cloudhood",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "action": {
     "icon": "main-icon-38.png",
     "default_popup": "popup.html",
@@ -16,8 +16,13 @@
     "48": "main-icon-48.jpg",
     "128": "main-icon-128.jpg"
   },
-  "host_permissions": ["<all_urls>"],
-  "permissions": ["storage", "declarativeNetRequest"],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "storage",
+    "declarativeNetRequest"
+  ],
   "background": {
     "service_worker": "background.bundle.js"
   }
