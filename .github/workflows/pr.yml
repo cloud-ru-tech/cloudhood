@@ -50,14 +50,16 @@ jobs:
 
       - name: Pack build-folder to ZIP-file
         run: |
+          SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
           cd build
-          zip -r ../cloudhood.zip .
+          zip -r ../cloudhood-$SHORT_SHA.zip .
 
       - name: Pull request artifacts
         uses: gavv/pull-request-artifacts@v1.1.0
         with:
-          commit: ${{ github.event.pull_request.head.sha }}
+          commit: ${{ env.SHORT_SHA }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-branch: artifacts
           artifacts: |
-            cloudhood.zip
+            cloudhood-${{ env.SHORT_SHA }}.zip
