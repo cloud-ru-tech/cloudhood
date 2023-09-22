@@ -22,8 +22,9 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
+    'plugin:effector/recommended',
   ],
-  plugins: ['import', 'simple-import-sort', 'deprecate'],
+  plugins: ['import', 'simple-import-sort', 'deprecate', 'effector'],
   rules: {
     eqeqeq: ['error', 'allow-null'],
     'arrow-body-style': ['error', 'as-needed'],
