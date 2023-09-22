@@ -23,3 +23,7 @@ secrets.*.js
 # builds
 build
 *.zip
+
+# editors
+.vscode
+.idea
