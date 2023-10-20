@@ -20,6 +20,7 @@ export const Actions = styled.div`
 
 export const StyledMenu = styled(Menu)`
   li {
+    width: 328px;
     justify-content: space-between;
   }
 `;

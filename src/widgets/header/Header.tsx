@@ -1,8 +1,9 @@
-import { ControlPointDuplicateOutlined, Delete, MoreVert } from '@mui/icons-material';
+import { ArrowDownward, ControlPointDuplicateOutlined, Delete, MoreVert } from '@mui/icons-material';
 import { IconButton, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useState } from 'react';
 
+import { exportModalOpened } from '#entities/modal/model';
 import { profileAdded } from '#entities/request-profile/model/request-profiles';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { Logo } from '#shared/components/Logo';
@@ -32,6 +33,11 @@ export function Header() {
     handleClose();
   };
 
+  const handleexportModalOpened = () => {
+    exportModalOpened();
+    handleClose();
+  };
+
   return (
     <>
       <S.Wrapper>
@@ -45,12 +51,22 @@ export function Header() {
       </S.Wrapper>
       <S.StyledMenu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>
         <MenuItem key={'add'} onClick={handleAddProfile}>
-          <Typography variant='body2'>Add profile</Typography>
+          <Typography variant='body2' my={1}>
+            Add profile
+          </Typography>
           <ControlPointDuplicateOutlined />
         </MenuItem>
         <MenuItem key={'remove'} onClick={handleRemoveProfile}>
-          <Typography variant='body2'>Delete profile</Typography>
+          <Typography variant='body2' my={1}>
+            Delete profile
+          </Typography>
           <Delete />
+        </MenuItem>
+        <MenuItem key={'export'} onClick={handleexportModalOpened}>
+          <Typography variant='body2' my={1}>
+            Export/share profile
+          </Typography>
+          <ArrowDownward />
         </MenuItem>
       </S.StyledMenu>
     </>
