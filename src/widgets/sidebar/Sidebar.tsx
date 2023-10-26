@@ -9,7 +9,7 @@ import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile
 import { $profilesName } from './model';
 import * as S from './styled';
 
-const CLOUDHOOD_GITHUB_URL = 'https://github.com/sbercloud/cloudhood/';
+const CLOUDHOOD_GITHUB_URL = 'https://github.com/cloud-ru-tech/cloudhood/';
 
 export function Sidebar() {
   const [profileNames, selectedProfile, handleAddProfile] = useUnit([

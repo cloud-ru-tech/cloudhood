@@ -1,8 +1,8 @@
-![Cloudhood](https://github.com/sbercloud/cloudhood/assets/24465747/0a026d8b-be14-4f1f-9be3-d4e6056aea20)
+![Cloudhood](https://github.com/cloud-ru-tech/cloudhood/assets/24465747/0a026d8b-be14-4f1f-9be3-d4e6056aea20)
 
 <a href="https://chrome.google.com/webstore/detail/cloudhood/hohljodjndmmaiedadcdmnelgdfnbfgp"><img alt="Chrome Web Store Rating" src="https://img.shields.io/chrome-web-store/rating/hohljodjndmmaiedadcdmnelgdfnbfgp?label=Chrome%20Web%20Store%20Rating"></a>
 <a href="https://chrome.google.com/webstore/detail/cloudhood/hohljodjndmmaiedadcdmnelgdfnbfgp"><img alt="Chrome Web Store Users" src="https://img.shields.io/chrome-web-store/users/hohljodjndmmaiedadcdmnelgdfnbfgp?label=Chrome%20Web%20Store%20Users&color=%2325c2a0"></a>
-<a href="https://github.com/sbercloud/cloudhood/releases"><img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/sbercloud/cloudhood" /></a>
+<a href="https://github.com/cloud-ru-tech/cloudhood/releases"><img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/cloud-ru-tech/cloudhood" /></a>
 
 This extension allows users to control request headers that will be embedded in all requests in Chrome Browser, where each override contains the following properties:
 
@@ -13,7 +13,7 @@ Header overrides are managed in a Chrome extension popup (a simple react app), s
 
 ## Testing
 
-You can get a test build for each pull-request in its comments. [Example](https://github.com/sbercloud/cloudhood/pull/1#issuecomment-1713810507).
+You can get a test build for each pull-request in its comments. [Example](https://github.com/cloud-ru-tech/cloudhood/pull/1#issuecomment-1713810507).
 
 ## Local Development
 
