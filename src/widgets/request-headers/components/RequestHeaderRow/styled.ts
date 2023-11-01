@@ -1,5 +1,6 @@
 import { CSS, Transform } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
+import { Menu } from '@mui/material';
 
 export const Wrapper = styled.div<{ transform: Transform | null; isDragging: boolean; transition?: string }>`
   display: flex;
@@ -16,4 +17,11 @@ export const Wrapper = styled.div<{ transform: Transform | null; isDragging: boo
 export const LeftHeaderActions = styled.div`
   display: flex;
   flex-direction: row;
+`;
+
+export const StyledMenu = styled(Menu)`
+  li {
+    width: 228px;
+    justify-content: space-between;
+  }
 `;

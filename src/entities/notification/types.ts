@@ -6,5 +6,5 @@ export enum NotificationVariant {
 
 export type NotificationInfo = {
   message: string | null;
-  variant: NotificationVariant;
+  variant?: NotificationVariant;
 };

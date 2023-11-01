@@ -22,7 +22,11 @@ const $notificationVariant = createStore(NotificationVariant.Default)
 export const $notificationInfo = combine({ message: $notificationMessage, variant: $notificationVariant });
 
 sample({ clock: notificationAdded, fn: (info: NotificationInfo) => info.message, target: notificationMessageChanged });
-sample({ clock: notificationAdded, fn: (info: NotificationInfo) => info.variant, target: notificationVariantChanged });
+sample({
+  clock: notificationAdded,
+  fn: (info: NotificationInfo) => info?.variant || NotificationVariant.Default,
+  target: notificationVariantChanged,
+});
 
 sample({ clock: notificationCleared, target: notificationMessageCleared });
 sample({ clock: notificationCleared, target: notificationVariantCleared });

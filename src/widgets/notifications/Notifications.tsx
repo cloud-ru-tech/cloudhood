@@ -20,10 +20,11 @@ export function Notifications() {
     switch (variant) {
       case NotificationVariant.ImportProfileSuccess:
         return <ButtonAction onClick={handleProfileImportedUndo}>UNDO</ButtonAction>;
+
       case NotificationVariant.ImportProfileError:
-        return null;
       case NotificationVariant.Default:
         return null;
+
       default:
         return notReachable(variant);
     }

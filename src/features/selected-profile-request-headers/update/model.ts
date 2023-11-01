@@ -15,7 +15,7 @@ const selectedProfileRequestHeadersUpdatedFx = attach({
         profile?.requestHeaders.map(header => {
           const updatedHeader = updatedHeaders?.find(h => h.id === header.id);
           if (updatedHeader) {
-            return updatedHeader;
+            return { ...updatedHeader, name: updatedHeader.name.trim(), value: updatedHeader.value.trim() };
           }
 
           return header;
