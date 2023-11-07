@@ -9,8 +9,8 @@ export const Circle = styled.div<CircleProps>`
   display: grid;
   place-items: center;
 
-  min-height: 24px;
-  width: 24px;
+  min-height: 32px;
+  width: 32px;
 
   cursor: pointer;
   border-radius: 50%;

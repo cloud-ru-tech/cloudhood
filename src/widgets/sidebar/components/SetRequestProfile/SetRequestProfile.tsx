@@ -16,7 +16,7 @@ export function SetRequestProfile({ profile: profileId, index, isSelected }: Set
 
   return (
     <S.Circle isSelected={isSelected} onClick={handleClick} bgColor={profileColorList[index % profileColorList.length]}>
-      <Typography color={'white'} variant='body2' alignItems={'center'}>
+      <Typography color='white' variant='subtitle1' alignItems={'center'}>
         {index + 1}
       </Typography>
     </S.Circle>

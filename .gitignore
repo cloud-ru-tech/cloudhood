@@ -27,3 +27,6 @@ build
 # editors
 .vscode
 .idea
+
+#reposrt tests
+reports/unit/unit-report.xml
