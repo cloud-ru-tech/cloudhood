@@ -38,6 +38,7 @@ const reorderRequestHeadersFx = attach({
 
     return {
       id: selectedProfile,
+      name: profile?.name || `Profile ${(profiles?.length || 0) + 1}`,
       requestHeaders: arrayMove(requestHeaders, activeIndex, targetIndex),
     };
   },

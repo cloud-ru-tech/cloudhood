@@ -5,7 +5,7 @@ export type RequestHeader = {
   disabled: boolean;
 };
 
-export type Profile = { id: string; requestHeaders: RequestHeader[] };
+export type Profile = { id: string; name?: string; requestHeaders: RequestHeader[] };
 
 export type RemoveHeaderPayload = {
   headerId: number;

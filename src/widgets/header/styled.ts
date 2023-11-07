@@ -1,10 +1,14 @@
 import styled from '@emotion/styled';
 import { Menu } from '@mui/material';
 
-export const Wrapper = styled.div`
+type WrapperProps = {
+  bgColor: string;
+};
+
+export const Wrapper = styled.div<WrapperProps>`
   display: flex;
   justify-content: space-between;
-  background-color: #5600e8;
+  background-color: ${({ bgColor }) => bgColor};
   width: 100%;
   padding: 12px;
   padding-left: 16px;

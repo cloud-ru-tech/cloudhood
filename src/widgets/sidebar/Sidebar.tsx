@@ -6,32 +6,32 @@ import { $selectedRequestProfile, profileAdded } from '#entities/request-profile
 import { GuthubIcon } from '#shared/assets/GuthubIcon/GuthubIcon';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
-import { $profilesName } from './model';
+import { $profileIds } from './model';
 import * as S from './styled';
 
 const CLOUDHOOD_GITHUB_URL = 'https://github.com/cloud-ru-tech/cloudhood/';
 
 export function Sidebar() {
-  const [profileNames, selectedProfile] = useUnit([$profilesName, $selectedRequestProfile]);
+  const [profileIds, selectedProfileId, handleAddProfile] = useUnit([
+    $profileIds,
+    $selectedRequestProfile,
+    profileAdded,
+  ]);
 
   const handleGithubIconClick = () => window.open(CLOUDHOOD_GITHUB_URL, '_blank')?.focus();
-
-  function handleProfileAdded() {
-    profileAdded();
-  }
 
   return (
     <S.Wrapper>
       <S.ProfilesWrapper>
-        {profileNames.map((profile, index) => (
+        {profileIds.map((profileId, index) => (
           <SetRequestProfile
-            key={profile.toString()}
-            index={(index + 1).toString()}
-            isSelected={profile === selectedProfile}
-            profile={profile}
+            key={profileId.toString()}
+            index={index}
+            isSelected={profileId === selectedProfileId}
+            profile={profileId}
           />
         ))}
-        <IconButton onClick={handleProfileAdded}>
+        <IconButton onClick={handleAddProfile}>
           <ControlPointIcon />
         </IconButton>
       </S.ProfilesWrapper>

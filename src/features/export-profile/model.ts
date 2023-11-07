@@ -96,12 +96,12 @@ sample({
 
 sample({
   source: profileExportCopyToClipboardFx.doneData,
-  fn: () => COPY_RESULT_STATUS.SUCCESS,
+  fn: () => COPY_RESULT_STATUS.Success,
   target: notificationMessageChanged,
 });
 
 sample({
   source: profileExportCopyToClipboardFx.failData,
-  fn: () => COPY_RESULT_STATUS.ERROR,
+  fn: () => COPY_RESULT_STATUS.Error,
   target: notificationMessageChanged,
 });
