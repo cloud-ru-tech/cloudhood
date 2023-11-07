@@ -1,18 +1,23 @@
 import { Add, DeleteOutline, MoreVert } from '@mui/icons-material';
 import { IconButton, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
+import { useUnit } from 'effector-react';
 import { useState } from 'react';
 
 import { exportModalOpened, importModalOpened } from '#entities/modal/model';
+import { $selectedProfileIndex } from '#entities/request-profile/model';
 import { profileAdded } from '#entities/request-profile/model/request-profiles';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
+import { profileColorList } from '#shared/assets/colors';
 import { FileDownload, FileUpload } from '#shared/assets/svg';
-import { Logo } from '#shared/components/Logo';
 
+import { CopyActiveRequestHeaders } from './components/CopyActiveRequestHeaders';
 import { PauseAllRequestHeaders } from './components/PauseAllRequestHeaders';
+import { ProfileNameField } from './components/ProfileNameField';
 import * as S from './styled';
 
 export function Header() {
+  const [selectedProfileIndex] = useUnit([$selectedProfileIndex]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
 
@@ -46,9 +51,10 @@ export function Header() {
 
   return (
     <>
-      <S.Wrapper>
-        <Logo />
+      <S.Wrapper bgColor={profileColorList[selectedProfileIndex % profileColorList.length]}>
+        <ProfileNameField key={selectedProfileIndex} />
         <S.Actions>
+          <CopyActiveRequestHeaders />
           <PauseAllRequestHeaders />
           <IconButton sx={{ color: grey[100] }} size='small' onClick={handleOpen}>
             <MoreVert />

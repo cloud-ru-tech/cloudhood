@@ -8,7 +8,7 @@ import { loadProfilesFromStorageApi, saveProfilesToBrowserApi } from '../utils';
 import {
   $selectedRequestProfile,
   loadSelectedProfileFromStorage,
-  setSelectedRequestProfileName,
+  selectedRequestProfileIdChanged,
 } from './selected-request-profile';
 
 export const profileAdded = createEvent();
@@ -27,7 +27,7 @@ sample({
   filter: ({ profiles, selectedProfile }) =>
     Boolean(selectedProfile) && !profiles.map(p => p.id).includes(selectedProfile),
   fn: ({ profiles }) => profiles.at(-1)?.id ?? '',
-  target: setSelectedRequestProfileName,
+  target: selectedRequestProfileIdChanged,
 });
 
 sample({ source: $requestProfiles, target: profilesSavedToBrowserFx });
@@ -55,7 +55,7 @@ sample({ clock: profileAddedFx.doneData, fn: ({ profiles }) => profiles, target:
 sample({
   clock: profileAddedFx.doneData,
   fn: ({ addedHeaderId }) => addedHeaderId,
-  target: setSelectedRequestProfileName,
+  target: selectedRequestProfileIdChanged,
 });
 
 const profileMultiAddedFx = attach({
@@ -75,7 +75,7 @@ sample({ clock: profileMultiAddedFx.doneData, fn: ({ profiles }) => profiles, ta
 sample({
   clock: profileMultiAddedFx.doneData,
   fn: ({ lastHeaderId }) => lastHeaderId,
-  target: setSelectedRequestProfileName,
+  target: selectedRequestProfileIdChanged,
 });
 
 const profileUpdatedFx = attach({

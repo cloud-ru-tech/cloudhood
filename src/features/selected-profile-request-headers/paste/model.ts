@@ -19,6 +19,7 @@ const selectedProfileRequestHeadersPastedFx = attach({
     const profile = profiles.find(p => p.id === selectedProfile);
     return {
       id: selectedProfile,
+      name: profile?.name || `Profile ${(profiles?.length || 0) + 1}`,
       requestHeaders:
         profile?.requestHeaders.map(header => {
           const isUpdatedHeader = updatedHeader.id === header.id;
