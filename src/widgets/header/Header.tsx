@@ -1,11 +1,12 @@
-import { ArrowDownward, ControlPointDuplicateOutlined, Delete, MoreVert } from '@mui/icons-material';
+import { Add, DeleteOutline, MoreVert } from '@mui/icons-material';
 import { IconButton, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useState } from 'react';
 
-import { exportModalOpened } from '#entities/modal/model';
+import { exportModalOpened, importModalOpened } from '#entities/modal/model';
 import { profileAdded } from '#entities/request-profile/model/request-profiles';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
+import { FileDownload, FileUpload } from '#shared/assets/svg';
 import { Logo } from '#shared/components/Logo';
 
 import { PauseAllRequestHeaders } from './components/PauseAllRequestHeaders';
@@ -25,6 +26,11 @@ export function Header() {
 
   const handleAddProfile = () => {
     profileAdded();
+    handleClose();
+  };
+
+  const handleOpenImportModal = () => {
+    importModalOpened();
     handleClose();
   };
 
@@ -51,22 +57,20 @@ export function Header() {
       </S.Wrapper>
       <S.StyledMenu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>
         <MenuItem key={'add'} onClick={handleAddProfile}>
-          <Typography variant='body2' my={1}>
-            Add profile
-          </Typography>
-          <ControlPointDuplicateOutlined />
+          <Typography variant='body2'>Add profile</Typography>
+          <Add />
         </MenuItem>
-        <MenuItem key={'remove'} onClick={handleRemoveProfile}>
-          <Typography variant='body2' my={1}>
-            Delete profile
-          </Typography>
-          <Delete />
+        <MenuItem key={'import'} onClick={handleOpenImportModal}>
+          <Typography variant='body2'>Import profile</Typography>
+          <FileDownload />
         </MenuItem>
         <MenuItem key={'export'} onClick={handleexportModalOpened}>
-          <Typography variant='body2' my={1}>
-            Export/share profile
-          </Typography>
-          <ArrowDownward />
+          <Typography variant='body2'>Export/share profile</Typography>
+          <FileUpload />
+        </MenuItem>
+        <MenuItem key={'remove'} onClick={handleRemoveProfile}>
+          <Typography variant='body2'>Delete profile</Typography>
+          <DeleteOutline />
         </MenuItem>
       </S.StyledMenu>
     </>

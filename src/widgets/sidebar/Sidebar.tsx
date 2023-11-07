@@ -12,13 +12,13 @@ import * as S from './styled';
 const CLOUDHOOD_GITHUB_URL = 'https://github.com/cloud-ru-tech/cloudhood/';
 
 export function Sidebar() {
-  const [profileNames, selectedProfile, handleAddProfile] = useUnit([
-    $profilesName,
-    $selectedRequestProfile,
-    profileAdded,
-  ]);
+  const [profileNames, selectedProfile] = useUnit([$profilesName, $selectedRequestProfile]);
 
   const handleGithubIconClick = () => window.open(CLOUDHOOD_GITHUB_URL, '_blank')?.focus();
+
+  function handleProfileAdded() {
+    profileAdded();
+  }
 
   return (
     <S.Wrapper>
@@ -31,7 +31,7 @@ export function Sidebar() {
             profile={profile}
           />
         ))}
-        <IconButton onClick={handleAddProfile}>
+        <IconButton onClick={handleProfileAdded}>
           <ControlPointIcon />
         </IconButton>
       </S.ProfilesWrapper>
