@@ -12,7 +12,9 @@ import {
 } from './selected-request-profile';
 
 export const profileAdded = createEvent();
+export const profileMultiAdded = createEvent<Profile[]>();
 export const profileRemoved = createEvent<Profile['id']>();
+export const profileMultiRemoved = createEvent<Profile['id'][]>();
 export const profileUpdated = createEvent<Profile>();
 
 const profilesSavedToBrowserFx = createEffect(saveProfilesToBrowserApi);
@@ -38,7 +40,10 @@ const profileAddedFx = attach({
     return {
       profiles: [
         ...profiles,
-        { id: addedHeaderId, requestHeaders: [{ id: generateId(), name: '', value: '', disabled: false }] },
+        {
+          id: addedHeaderId,
+          requestHeaders: [{ id: generateId(), name: '', value: '', disabled: false }],
+        },
       ],
       addedHeaderId,
     };
@@ -50,6 +55,26 @@ sample({ clock: profileAddedFx.doneData, fn: ({ profiles }) => profiles, target:
 sample({
   clock: profileAddedFx.doneData,
   fn: ({ addedHeaderId }) => addedHeaderId,
+  target: setSelectedRequestProfileName,
+});
+
+const profileMultiAddedFx = attach({
+  source: $requestProfiles,
+  effect: (profiles, newProfiles: Profile[]) => {
+    const lastHeaderId = newProfiles[newProfiles.length - 1].id;
+
+    return {
+      profiles: [...profiles, ...newProfiles],
+      lastHeaderId,
+    };
+  },
+});
+sample({ clock: profileMultiAdded, target: profileMultiAddedFx });
+sample({ clock: profileMultiAddedFx.doneData, fn: ({ profiles }) => profiles, target: $requestProfiles });
+
+sample({
+  clock: profileMultiAddedFx.doneData,
+  fn: ({ lastHeaderId }) => lastHeaderId,
   target: setSelectedRequestProfileName,
 });
 
@@ -74,6 +99,13 @@ const profileRemovedFx = attach({
 });
 sample({ clock: profileRemoved, target: profileRemovedFx });
 sample({ clock: profileRemovedFx.doneData, target: $requestProfiles });
+
+const profileMultiRemovedFx = attach({
+  source: $requestProfiles,
+  effect: (profiles, profileIds: Profile['id'][]) => profiles.filter(p => !profileIds.includes(p.id)),
+});
+sample({ clock: profileMultiRemoved, target: profileMultiRemovedFx });
+sample({ clock: profileMultiRemovedFx.doneData, target: $requestProfiles });
 
 // loading from browser cache
 sample({ clock: initApp, target: profilesLoadedFromStorageFx });

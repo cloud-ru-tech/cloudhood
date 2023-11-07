@@ -1,12 +1,17 @@
 import { useUnit } from 'effector-react';
-import React from 'react';
 
-import { $isExportModalOpen } from '#entities/modal/model';
+import { $isExportModalOpen, $isImportModalOpen } from '#entities/modal/model';
 
 import { ExportModal } from './components/ExportModal';
+import { ImportModal } from './components/ImportModal';
 
 export function Modals() {
-  const [isExportModalOpen] = useUnit([$isExportModalOpen]);
+  const [isImportModalOpen, isExportModalOpen] = useUnit([$isImportModalOpen, $isExportModalOpen]);
 
-  return <>{isExportModalOpen && <ExportModal />}</>;
+  return (
+    <>
+      {isImportModalOpen && <ImportModal />}
+      {isExportModalOpen && <ExportModal />}
+    </>
+  );
 }

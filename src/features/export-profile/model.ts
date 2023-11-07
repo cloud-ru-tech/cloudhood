@@ -1,7 +1,6 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
-import { delay } from 'patronum/delay';
 
-import { notificationAdded, notificationCleared } from '#entities/notification/model';
+import { notificationMessageChanged } from '#entities/notification/model';
 import { $requestProfiles, $selectedRequestProfile } from '#entities/request-profile/model';
 import { copyToClipboard } from '#shared/utils/copyToClipboard';
 
@@ -98,13 +97,11 @@ sample({
 sample({
   source: profileExportCopyToClipboardFx.doneData,
   fn: () => COPY_RESULT_STATUS.SUCCESS,
-  target: notificationAdded,
+  target: notificationMessageChanged,
 });
 
 sample({
   source: profileExportCopyToClipboardFx.failData,
   fn: () => COPY_RESULT_STATUS.ERROR,
-  target: notificationAdded,
+  target: notificationMessageChanged,
 });
-
-delay({ source: notificationAdded, timeout: 2000, target: notificationCleared });
