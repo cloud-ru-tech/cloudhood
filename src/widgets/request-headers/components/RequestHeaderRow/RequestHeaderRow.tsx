@@ -9,6 +9,7 @@ import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-
 import { selectedProfileRequestHeadersRemoved } from '#features/selected-profile-request-headers/remove/model';
 import { DragHandle } from '#features/selected-profile-request-headers/reorder/components';
 import { selectedProfileRequestHeadersUpdated } from '#features/selected-profile-request-headers/update/model';
+import { validateStringBySpecialSymbols } from '#shared/utils/validateStringBySpecialSymbols';
 
 import { RequestHeaderMenu } from './RequestHeaderMenu';
 import * as S from './styled';
@@ -48,6 +49,7 @@ export function RequestHeaderRow(props: RequestHeader) {
         <DragHandle listeners={listeners} attributes={attributes} />
         <Checkbox color='default' checked={!disabled} onChange={handleChecked} />
         <TextField
+          error={Boolean(name.length) && !validateStringBySpecialSymbols(name)}
           placeholder='Header name'
           variant='standard'
           value={name}
@@ -57,6 +59,7 @@ export function RequestHeaderRow(props: RequestHeader) {
         />
       </S.LeftHeaderActions>
       <TextField
+        error={Boolean(value.length) && !validateStringBySpecialSymbols(value)}
         placeholder='Header value'
         variant='standard'
         value={value}

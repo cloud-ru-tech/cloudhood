@@ -2,7 +2,7 @@ import { Add, DeleteOutline, MoreVert } from '@mui/icons-material';
 import { IconButton, MenuItem, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useUnit } from 'effector-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { exportModalOpened, importModalOpened } from '#entities/modal/model';
 import { $selectedProfileIndex } from '#entities/request-profile/model';
@@ -49,9 +49,14 @@ export function Header() {
     handleClose();
   };
 
+  const bgColor = useMemo(
+    () => profileColorList[selectedProfileIndex % profileColorList.length],
+    [selectedProfileIndex],
+  );
+
   return (
     <>
-      <S.Wrapper bgColor={profileColorList[selectedProfileIndex % profileColorList.length]}>
+      <S.Wrapper bgColor={bgColor}>
         <ProfileNameField key={selectedProfileIndex} />
         <S.Actions>
           <CopyActiveRequestHeaders />
