@@ -29,8 +29,10 @@ export const RightHeaderActions = styled.div`
 `;
 
 export const StyledBackdrop = styled(Backdrop)`
-  position: absolute;
+  position: fixed;
   z-index: 2;
+  top: 64px;
+  left: 74px;
 `;
 
 export const Header = styled.div`
