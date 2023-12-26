@@ -31,14 +31,16 @@ export function Sidebar() {
             profile={profileId}
           />
         ))}
+      </S.ProfilesWrapper>
+      <S.IconButtonWrapper>
         <IconButton onClick={handleAddProfile}>
           <ControlPointIcon />
         </IconButton>
-      </S.ProfilesWrapper>
 
-      <IconButton onClick={handleGithubIconClick}>
-        <GuthubIcon />
-      </IconButton>
+        <IconButton onClick={handleGithubIconClick}>
+          <GuthubIcon />
+        </IconButton>
+      </S.IconButtonWrapper>
     </S.Wrapper>
   );
 }

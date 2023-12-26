@@ -17,4 +17,18 @@ export const ProfilesWrapper = styled.div`
   gap: 12px;
 
   overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+`;
+
+export const IconButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
 `;
