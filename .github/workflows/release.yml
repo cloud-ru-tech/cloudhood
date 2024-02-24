@@ -93,3 +93,18 @@ jobs:
           automatic_release_tag: ${{ env.LATEST_TAG }}
           files: |
             cloudhood.zip
+
+      - name: Upload
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+        run: publish-extension \
+          --dry-run true
+          --chrome-zip build/cloudhood.zip \
+          --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
+          --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
+          --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
+          --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }} \
+          --

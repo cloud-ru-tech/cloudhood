@@ -55,6 +55,7 @@
     "license-checker": "25.0.1",
     "lint-staged": "^15.2.10",
     "prettier": "2.7.1",
+    "publish-browser-extension": "2.1.2",
     "style-loader": "3.3.1",
     "terser-webpack-plugin": "5.3.6",
     "ts-loader": "9.4.1",
@@ -63,6 +64,7 @@
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.11.1",
     "@cloud-ru/ft-config-vitest": "1.2.1"
+
   },
   "homepage": "https://github.com/cloud-ru-tech/cloudhood"
 }
