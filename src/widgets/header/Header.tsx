@@ -44,7 +44,7 @@ export function Header() {
     handleClose();
   };
 
-  const handleexportModalOpened = () => {
+  const handleExportModalOpened = () => {
     exportModalOpened();
     handleClose();
   };
@@ -75,7 +75,7 @@ export function Header() {
           <Typography variant='body2'>Import profile</Typography>
           <FileDownload />
         </MenuItem>
-        <MenuItem key={'export'} onClick={handleexportModalOpened}>
+        <MenuItem key={'export'} onClick={handleExportModalOpened}>
           <Typography variant='body2'>Export/share profile</Typography>
           <FileUpload />
         </MenuItem>

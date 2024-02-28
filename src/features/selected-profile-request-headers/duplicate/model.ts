@@ -13,6 +13,7 @@ const selectedProfileRequestHeadersDuplicatedFx = attach({
     const currentRequestHeader = profile?.requestHeaders.filter(h => h.id === requestHeaderId) || [];
     return {
       id: selectedProfile,
+      name: profile?.name,
       requestHeaders: [
         ...(profile?.requestHeaders ?? []),
         ...currentRequestHeader.map(h => ({ ...h, id: generateId() })),
