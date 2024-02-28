@@ -25,6 +25,11 @@ export const $dragTarget = createStore<Id | null>(null);
 export const $raisedRequestHeader = createStore<Id | null>(null);
 export const $flattenRequestHeaders = $selectedProfileRequestHeaders.map(headers => headers.map(({ id }) => id));
 
+export const $draggableRequestHeader = combine(
+  [$selectedProfileRequestHeaders, $raisedRequestHeader],
+  ([headers, raisedHeader]) => headers.find(header => header.id === raisedHeader),
+);
+
 const reorderRequestHeadersFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, payload: DragEndPayload) => {
@@ -43,11 +48,6 @@ const reorderRequestHeadersFx = attach({
     };
   },
 });
-
-export const $draggableRequestHeader = combine(
-  [$selectedProfileRequestHeaders, $raisedRequestHeader],
-  ([headers, raisedHeader]) => headers.find(header => header.id === raisedHeader),
-);
 
 sample({
   clock: dragStarted,

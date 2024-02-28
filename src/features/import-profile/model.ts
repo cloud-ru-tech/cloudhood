@@ -89,12 +89,6 @@ const profileImportedFx = attach({
     profileListAdded(importString, existingProfileList);
   },
 });
-sample({ clock: profileImported, target: profileImportedFx });
-sample({
-  clock: profileImportedFx.doneData,
-  target: [profileImportStringCleared, profileImportErrorMessageCleared, profileListAddedDoneFx],
-});
-sample({ clock: profileImportedFx.failData, fn: error => error.message, target: profileImportErrorMessageChanged });
 
 const profileImportLoadedFileFx = attach({
   source: $requestProfiles,
@@ -104,6 +98,14 @@ const profileImportLoadedFileFx = attach({
     profileListAdded(importString, existingProfiles);
   },
 });
+
+sample({ clock: profileImported, target: profileImportedFx });
+sample({
+  clock: profileImportedFx.doneData,
+  target: [profileImportStringCleared, profileImportErrorMessageCleared, profileListAddedDoneFx],
+});
+sample({ clock: profileImportedFx.failData, fn: error => error.message, target: profileImportErrorMessageChanged });
+
 sample({ clock: profileImportLoadedFile, target: profileImportLoadedFileFx });
 sample({ clock: profileImportLoadedFileFx.doneData, target: profileListAddedDoneFx });
 sample({
