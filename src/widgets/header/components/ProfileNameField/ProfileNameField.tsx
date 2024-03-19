@@ -1,11 +1,13 @@
+import DoneIcon from '@mui/icons-material/Done';
+import EditIcon from '@mui/icons-material/Edit';
 import { Grid, Tooltip, TooltipProps } from '@mui/material';
 import { useUnit } from 'effector-react';
-import { KeyboardEvent, useMemo, useRef, useState } from 'react';
+import { FocusEvent, KeyboardEvent, useRef, useState } from 'react';
 
 import { $selectedProfile, $selectedProfileIndex } from '#entities/request-profile/model';
 import { setSelectedRequestProfileName } from '#features/selected-profile-update-name/model';
 
-import { EditIcon, TextField, Typography } from './styled';
+import { IconButton, TextField, Typography } from './styled';
 
 const tooltipProps: TooltipProps['slotProps'] = {
   popper: {
@@ -27,11 +29,12 @@ export function ProfileNameField() {
     $selectedProfileIndex,
     setSelectedRequestProfileName,
   ]);
-  const ref = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const toggleEdit = () => {
     setIsEdited(prev => !prev);
-    if (ref.current && isEdited) onChangeProfileName(ref.current?.value);
+    if (inputRef.current && isEdited) onChangeProfileName(inputRef.current?.value);
   };
 
   const handleKeyUp = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -40,22 +43,24 @@ export function ProfileNameField() {
     }
   };
 
-  const profileName = useMemo(
-    () => (profile?.name !== undefined ? profile.name : `Profile ${profileIndex + 1}`),
-    [profile, profileIndex],
-  );
+  const handleBlur = ({ relatedTarget }: FocusEvent) => {
+    if (relatedTarget === buttonRef.current) return;
+    toggleEdit();
+  };
+
+  const profileName = profile?.name !== undefined ? profile.name : `Profile ${profileIndex + 1}`;
 
   return (
-    <Grid container alignItems='center' xs={6} spacing={2} wrap='nowrap'>
+    <Grid container alignItems='center' width='50%' spacing={2} wrap='nowrap'>
       <Grid item xs={8}>
         {isEdited ? (
           <TextField
-            inputRef={ref}
+            inputRef={inputRef}
             placeholder='Profile name'
             variant='standard'
             defaultValue={profileName}
             onKeyUp={handleKeyUp}
-            onBlur={toggleEdit}
+            onBlur={handleBlur}
             autoFocus
           />
         ) : (
@@ -67,7 +72,9 @@ export function ProfileNameField() {
         )}
       </Grid>
       <Grid item xs={4}>
-        <EditIcon onClick={toggleEdit} />
+        <IconButton ref={buttonRef} onClick={toggleEdit}>
+          {isEdited ? <DoneIcon /> : <EditIcon />}
+        </IconButton>
       </Grid>
     </Grid>
   );

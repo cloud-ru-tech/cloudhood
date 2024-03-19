@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
-import _EditIcon from '@mui/icons-material/Edit';
-import { TextField as _TextField, Typography as _Typography } from '@mui/material';
+import { IconButton as _IconButton, TextField as _TextField, Typography as _Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
-export const EditIcon = styled(_EditIcon)`
-  fill: ${grey[100]};
+export const IconButton = styled(_IconButton)`
+  & svg {
+    fill: ${grey[100]};
+  }
 
   &:hover {
     cursor: pointer;
