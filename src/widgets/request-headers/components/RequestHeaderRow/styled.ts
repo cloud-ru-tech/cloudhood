@@ -1,6 +1,7 @@
-import { CSS, Transform } from '@dnd-kit/utilities';
+import { CSS, type Transform } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
-import { Menu } from '@mui/material';
+import { Menu, TextField } from '@mui/material';
+import { styled as muiStyled } from '@mui/material/styles';
 
 export const Wrapper = styled.div<{ transform: Transform | null; isDragging: boolean; transition?: string }>`
   display: flex;
@@ -25,3 +26,9 @@ export const StyledMenu = styled(Menu)`
     justify-content: space-between;
   }
 `;
+
+export const StyledTextField = muiStyled(TextField)(({ theme }) => ({
+  '& [aria-invalid="true"]': {
+    color: theme.palette.error.main,
+  },
+}));

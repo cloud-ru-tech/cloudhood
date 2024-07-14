@@ -1,7 +1,7 @@
 import { attach, createEvent, sample } from 'effector';
 
 import { $requestProfiles, $selectedRequestProfile, profileUpdated } from '#entities/request-profile/model';
-import { RequestHeader } from '#entities/request-profile/types';
+import type { RequestHeader } from '#entities/request-profile/types';
 
 export const selectedProfileRequestHeadersUpdated = createEvent<RequestHeader[]>();
 
@@ -16,7 +16,7 @@ const selectedProfileRequestHeadersUpdatedFx = attach({
         profile?.requestHeaders.map(header => {
           const updatedHeader = updatedHeaders?.find(h => h.id === header.id);
           if (updatedHeader) {
-            return { ...updatedHeader, name: updatedHeader.name.trim(), value: updatedHeader.value.trim() };
+            return { ...updatedHeader, name: updatedHeader.name, value: updatedHeader.value };
           }
 
           return header;
