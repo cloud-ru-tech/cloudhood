@@ -1,8 +1,8 @@
-import { Profile, RequestHeader } from '#entities/request-profile/types';
+import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
+import { validateHeader } from './headers';
 import { setIconBadge } from './setIconBadge';
-import { validateStringBySpecialSymbols } from './validateStringBySpecialSymbols';
 
 function getRule(header: RequestHeader) {
   const allResourceTypes = Object.values(chrome.declarativeNetRequest.ResourceType);
@@ -33,8 +33,7 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
   const selectedProfileHeaders = profile?.requestHeaders ?? [];
 
   const activeRules = selectedProfileHeaders.filter(
-    ({ disabled, name, value }) =>
-      !disabled && Boolean(name) && validateStringBySpecialSymbols(name) && validateStringBySpecialSymbols(value),
+    ({ disabled, name, value }) => !disabled && validateHeader(name, value),
   );
 
   const addRules = !isPaused ? activeRules.map(getRule) : [];

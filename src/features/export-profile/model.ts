@@ -5,7 +5,7 @@ import { $requestProfiles, $selectedRequestProfile } from '#entities/request-pro
 import { copyToClipboard } from '#shared/utils/copyToClipboard';
 
 import { COPY_RESULT_STATUS } from './constants';
-import { OptionProfileExport } from './types';
+import type { OptionProfileExport } from './types';
 import { downloadSelectedProfiles } from './utils';
 
 export const $profileExportList = createStore<string[]>([]);
@@ -58,13 +58,7 @@ const profileExportCopyToClipboardFx = attach({
 
 const profileExportDownloadFileFx = attach({
   source: $profileExportString,
-  effect: profilesString => {
-    try {
-      downloadSelectedProfiles(profilesString);
-    } catch (error) {
-      console.error('Error while downloading:', error);
-    }
-  },
+  effect: serializedProfiles => downloadSelectedProfiles(serializedProfiles),
 });
 
 sample({
