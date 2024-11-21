@@ -4,7 +4,8 @@ import { importModalClosed } from '#entities/modal/model';
 import { notificationAdded, notificationCleared } from '#entities/notification/model';
 import { NotificationVariant } from '#entities/notification/types';
 import { $requestProfiles, profileMultiAdded, profileMultiRemoved } from '#entities/request-profile/model';
-import { Profile } from '#entities/request-profile/types';
+import { Profile, RequestHeader } from '#entities/request-profile/types';
+import { generateIdWithExcludeList } from '#shared/utils/generateId';
 import { readJSONFile } from '#shared/utils/readJSONfile';
 
 import { validateProfileList } from './utils';
@@ -54,7 +55,20 @@ export const $profilesImportIds = createStore<string[]>([])
   .reset(profileImportIdsCleared);
 
 function profileListAdded(importString: string, existingProfileList: Profile[]) {
-  const profileList = JSON.parse(importString) as Profile[];
+  const existingProfileListId = existingProfileList.map(profile => Number(profile.id));
+  const existingProfileRequestHeadersListId = existingProfileList.flatMap(profile =>
+    profile.requestHeaders.map(header => header.id),
+  );
+
+  const importList = JSON.parse(importString) as Profile[];
+  const profileList = importList.map(profile => ({
+    ...profile,
+    id: generateIdWithExcludeList(existingProfileListId).toString(),
+    requestHeaders: profile.requestHeaders.map((header: RequestHeader) => ({
+      ...header,
+      id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
+    })),
+  }));
 
   validateProfileList(profileList, existingProfileList);
 
