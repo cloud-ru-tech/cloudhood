@@ -62,6 +62,6 @@
     "webpack": "5.75.0",
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.11.1",
-    "@cloud-ru/ft-config-vitest": "1.1.0"
+    "@cloud-ru/ft-config-vitest": "1.2.1"
   }
 }
