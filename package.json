@@ -63,5 +63,6 @@
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.11.1",
     "@cloud-ru/ft-config-vitest": "1.2.1"
-  }
+  },
+  "homepage": "https://github.com/cloud-ru-tech/cloudhood"
 }
