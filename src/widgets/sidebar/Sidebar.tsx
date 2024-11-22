@@ -2,20 +2,20 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { IconButton } from '@mui/material';
 import { useUnit } from 'effector-react';
 
-import { $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
+import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
 import { GuthubIcon } from '#shared/assets/GuthubIcon/GuthubIcon';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
-import { $profileIds } from './model';
+import { getProfileNameAbbreviation } from './helpers/sidebar';
 import * as S from './styled';
 
 const CLOUDHOOD_GITHUB_URL = 'https://github.com/cloud-ru-tech/cloudhood/';
 
 export function Sidebar() {
-  const [profileIds, selectedProfileId, handleAddProfile] = useUnit([
-    $profileIds,
+  const [selectedProfileId, handleAddProfile, profiles] = useUnit([
     $selectedRequestProfile,
     profileAdded,
+    $requestProfiles,
   ]);
 
   const handleGithubIconClick = () => window.open(CLOUDHOOD_GITHUB_URL, '_blank')?.focus();
@@ -23,12 +23,13 @@ export function Sidebar() {
   return (
     <S.Wrapper>
       <S.ProfilesWrapper>
-        {profileIds.map((profileId, index) => (
+        {profiles.map((profile, index) => (
           <SetRequestProfile
-            key={profileId.toString()}
+            key={profile.id.toString()}
             index={index}
-            isSelected={profileId === selectedProfileId}
-            profile={profileId}
+            isSelected={profile.id === selectedProfileId}
+            profileId={profile.id}
+            profileNameAbbreviation={getProfileNameAbbreviation(profile.name ?? `Profile ${index + 1}`)}
           />
         ))}
       </S.ProfilesWrapper>

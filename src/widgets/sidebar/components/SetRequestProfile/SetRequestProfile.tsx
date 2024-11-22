@@ -6,18 +6,19 @@ import { profileColorList } from '#shared/assets/colors';
 import * as S from './styled';
 
 type SetRequestProfileProps = {
-  profile: string;
+  profileId: string;
   index: number;
   isSelected: boolean;
+  profileNameAbbreviation: string;
 };
 
-export function SetRequestProfile({ profile: profileId, index, isSelected }: SetRequestProfileProps) {
+export function SetRequestProfile({ profileId, index, isSelected, profileNameAbbreviation }: SetRequestProfileProps) {
   const handleClick = () => selectedRequestProfileIdChanged(profileId);
 
   return (
     <S.Circle isSelected={isSelected} onClick={handleClick} bgColor={profileColorList[index % profileColorList.length]}>
       <Typography color='white' variant='subtitle1' alignItems={'center'}>
-        {index + 1}
+        {profileNameAbbreviation.length === 0 ? index + 1 : profileNameAbbreviation}
       </Typography>
     </S.Circle>
   );
