@@ -4,11 +4,10 @@ import { importModalClosed } from '#entities/modal/model';
 import { notificationAdded, notificationCleared } from '#entities/notification/model';
 import { NotificationVariant } from '#entities/notification/types';
 import { $requestProfiles, profileMultiAdded, profileMultiRemoved } from '#entities/request-profile/model';
-import { Profile, RequestHeader } from '#entities/request-profile/types';
-import { generateIdWithExcludeList } from '#shared/utils/generateId';
+import { Profile } from '#entities/request-profile/types';
 import { readJSONFile } from '#shared/utils/readJSONfile';
 
-import { validateProfileList } from './utils';
+import { generateProfileList, validateProfileList } from './utils';
 
 export const profileImportErrorMessageChanged = createEvent<string>();
 export const profileImportErrorMessageCleared = createEvent();
@@ -55,20 +54,8 @@ export const $profilesImportIds = createStore<string[]>([])
   .reset(profileImportIdsCleared);
 
 function profileListAdded(importString: string, existingProfileList: Profile[]) {
-  const existingProfileListId = existingProfileList.map(profile => Number(profile.id));
-  const existingProfileRequestHeadersListId = existingProfileList.flatMap(profile =>
-    profile.requestHeaders.map(header => header.id),
-  );
-
-  const importList = JSON.parse(importString) as Profile[];
-  const profileList = importList.map(profile => ({
-    ...profile,
-    id: generateIdWithExcludeList(existingProfileListId).toString(),
-    requestHeaders: profile.requestHeaders.map((header: RequestHeader) => ({
-      ...header,
-      id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
-    })),
-  }));
+  const importProfileList = JSON.parse(importString) as Profile[];
+  const profileList = generateProfileList(importProfileList, existingProfileList);
 
   validateProfileList(profileList, existingProfileList);
 

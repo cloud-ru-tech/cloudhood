@@ -7,7 +7,7 @@ export function generateId() {
 export function generateIdWithExcludeList(exclude: number[] = []) {
   let id;
   do {
-    id = Math.floor(Math.random() * MAX_HEADER_ID);
+    id = generateId();
   } while (exclude.includes(id));
   return id;
 }
