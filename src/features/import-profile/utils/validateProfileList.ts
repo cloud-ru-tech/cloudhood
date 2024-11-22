@@ -1,4 +1,5 @@
 import { Profile, RequestHeader } from '#entities/request-profile/types';
+import { generateIdWithExcludeList } from '#shared/utils/generateId';
 
 export function validateProfileList(profileList: Profile[], existingProfileList: Profile[]) {
   if (!Array.isArray(profileList) || !profileList.length) {
@@ -66,4 +67,20 @@ export function validateProfileList(profileList: Profile[], existingProfileList:
       });
     });
   });
+}
+
+export function generateProfileList(profileList: Profile[], existingProfileList: Profile[]) {
+  const existingProfileListId = existingProfileList.map(profile => Number(profile.id));
+  const existingProfileRequestHeadersListId = existingProfileList.flatMap(profile =>
+    profile.requestHeaders.map(header => header.id),
+  );
+
+  return profileList.map(profile => ({
+    ...profile,
+    id: generateIdWithExcludeList(existingProfileListId).toString(),
+    requestHeaders: profile.requestHeaders.map((header: RequestHeader) => ({
+      ...header,
+      id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
+    })),
+  }));
 }

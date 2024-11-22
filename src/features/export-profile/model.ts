@@ -32,7 +32,16 @@ export const $profileExportString = combine(
   $requestProfiles,
   $selectedExportProfileIdList,
   (profiles, selectedExportProfileIdList) =>
-    JSON.stringify(profiles.filter(({ id }) => selectedExportProfileIdList.includes(id)) || []),
+    JSON.stringify(
+      profiles
+        .filter(({ id }) => selectedExportProfileIdList.includes(id))
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
+        .map(({ id, requestHeaders, ...rest }) => ({
+          ...rest,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
+          requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
+        })) || [],
+    ),
 );
 
 export const $selectedExportProfileValue = combine(
