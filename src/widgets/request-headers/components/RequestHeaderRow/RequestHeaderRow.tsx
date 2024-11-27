@@ -4,8 +4,9 @@ import { Checkbox, IconButton, Tooltip } from '@mui/material';
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 
 import type { RequestHeader } from '#entities/request-profile/types';
-import { DELIMITER } from '#features/selected-profile-request-headers/paste/constant';
+import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
 import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-request-headers/paste/model';
+import { selectedProfileRequestHeadersPastedMultiple } from '#features/selected-profile-request-headers/pasteMultiple/model';
 import { selectedProfileRequestHeadersRemoved } from '#features/selected-profile-request-headers/remove/model';
 import { DragHandle } from '#features/selected-profile-request-headers/reorder/components';
 import { selectedProfileRequestHeadersUpdated } from '#features/selected-profile-request-headers/update/model';
@@ -27,6 +28,10 @@ export function RequestHeaderRow(props: RequestHeader) {
       return;
     }
     e.preventDefault();
+    if (value.includes(NEW_ROW)) {
+      selectedProfileRequestHeadersPastedMultiple({ id, value, field });
+      return;
+    }
     selectedProfileRequestHeadersPasted({ id, value, field });
   };
 
