@@ -2,8 +2,10 @@ import { attach, createEvent, sample } from 'effector';
 
 import { $requestProfiles, $selectedRequestProfile, profileUpdated } from '#entities/request-profile/model';
 import { RequestHeader } from '#entities/request-profile/types';
+import { formatHeaderValue } from '#shared/utils/formatHeaderValue';
+import { generateId } from '#shared/utils/generateId';
 
-import { DELIMITER } from './constant';
+import { NEW_ROW } from './constant';
 
 type SelectedProfileRequestHeadersPasted = {
   id: RequestHeader['id'];
@@ -17,30 +19,38 @@ const selectedProfileRequestHeadersPastedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, updatedHeader: SelectedProfileRequestHeadersPasted) => {
     const profile = profiles.find(p => p.id === selectedProfile);
+
+    const [targetValue, ...additionalValues] = updatedHeader.value.split(NEW_ROW).filter(Boolean);
+
     return {
       id: selectedProfile,
-      ...(Boolean(profile?.name) && { name: profile?.name }),
-      requestHeaders:
-        profile?.requestHeaders.map(header => {
+      name: profile?.name || '',
+      requestHeaders: [
+        ...(profile?.requestHeaders.map(header => {
           const isUpdatedHeader = updatedHeader.id === header.id;
 
           if (isUpdatedHeader) {
-            const transformNameValue = updatedHeader.value.split(DELIMITER).map(element => element.trim());
-            const allElementsHaveCharacters = transformNameValue.every(element => element.length > 0);
-
-            const name = allElementsHaveCharacters ? transformNameValue[0] : header.name;
-            const value = allElementsHaveCharacters ? transformNameValue[1] : header.value;
+            const { name, value } = formatHeaderValue({ pastedValue: targetValue, header });
 
             return {
               ...header,
-              id: updatedHeader.id,
               name,
               value,
             };
           }
 
           return header;
-        }) ?? [],
+        }) ?? []),
+        ...(additionalValues.map(pastedValue => {
+          const { name, value } = formatHeaderValue({ pastedValue });
+          return {
+            id: generateId(),
+            name,
+            value,
+            disabled: false,
+          };
+        }) ?? []),
+      ],
     };
   },
 });

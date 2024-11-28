@@ -4,7 +4,7 @@ import { Checkbox, IconButton, Tooltip } from '@mui/material';
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 
 import type { RequestHeader } from '#entities/request-profile/types';
-import { DELIMITER } from '#features/selected-profile-request-headers/paste/constant';
+import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
 import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-request-headers/paste/model';
 import { selectedProfileRequestHeadersRemoved } from '#features/selected-profile-request-headers/remove/model';
 import { DragHandle } from '#features/selected-profile-request-headers/reorder/components';
@@ -23,9 +23,11 @@ export function RequestHeaderRow(props: RequestHeader) {
 
   const handlePaste = (field: 'value' | 'name') => (e: ClipboardEvent<HTMLInputElement>) => {
     const value = e.clipboardData.getData('text/plain');
-    if (!value.includes(DELIMITER)) {
+
+    if (![DELIMITER, NEW_ROW].some(item => value.includes(item))) {
       return;
     }
+
     e.preventDefault();
     selectedProfileRequestHeadersPasted({ id, value, field });
   };
