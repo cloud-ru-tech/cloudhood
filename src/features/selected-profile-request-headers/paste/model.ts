@@ -20,28 +20,48 @@ const selectedProfileRequestHeadersPastedFx = attach({
   effect: ({ profiles, selectedProfile }, updatedHeader: SelectedProfileRequestHeadersPasted) => {
     const profile = profiles.find(p => p.id === selectedProfile);
 
-    const [targetValue, ...additionalValues] = updatedHeader.value.split(NEW_ROW).filter(Boolean);
+    const pasteValues: string[] = updatedHeader.value.split(NEW_ROW).filter(Boolean);
+
+    let indexAfterTarget: number;
 
     return {
       id: selectedProfile,
       name: profile?.name || '',
+
       requestHeaders: [
-        ...(profile?.requestHeaders.map(header => {
+        ...(profile?.requestHeaders.reduce((acc, header, index) => {
           const isUpdatedHeader = updatedHeader.id === header.id;
 
-          if (isUpdatedHeader) {
-            const { name, value } = formatHeaderValue({ pastedValue: targetValue, header });
+          if (isUpdatedHeader && pasteValues.length) {
+            const { name, value } = formatHeaderValue({ pastedValue: pasteValues.shift() as string, header });
 
-            return {
-              ...header,
-              name,
-              value,
-            };
+            indexAfterTarget = index;
+
+            return [
+              ...acc,
+              {
+                ...header,
+                name,
+                value,
+              },
+            ];
           }
 
-          return header;
-        }) ?? []),
-        ...(additionalValues.map(pastedValue => {
+          if (index > indexAfterTarget && !header.name && !header.value && pasteValues.length) {
+            const { name, value } = formatHeaderValue({ pastedValue: pasteValues.shift() as string, header });
+            return [
+              ...acc,
+              {
+                ...header,
+                name,
+                value,
+              },
+            ];
+          }
+
+          return [...acc, header];
+        }, [] as RequestHeader[]) || []),
+        ...(pasteValues.map(pastedValue => {
           const { name, value } = formatHeaderValue({ pastedValue });
           return {
             id: generateId(),
