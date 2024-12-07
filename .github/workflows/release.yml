@@ -1,44 +1,20 @@
 name: Release
 
 on:
-  push:
-    branches: main
+  workflow_dispatch:
 
 jobs:
-  license:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: License validator
-        uses: './.github/actions/license'
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: ESLint
-        uses: './.github/actions/eslint'
-
-  typescript:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: TypeScript
-        uses: './.github/actions/typescript'
-
   build:
-    needs: [license, lint, typescript]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      contains(github.event.user.groups, 'admin')
     permissions:
       contents: write
       pull-requests: write
       statuses: write
     runs-on: ubuntu-latest
+    outputs:
+      latest_tag: ${{ steps.set_latest_tag.outputs.latest_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -57,10 +33,11 @@ jobs:
           skip-tag: 'true'
 
       - name: Apply version bump
+        id: set_latest_tag
         run: |
           VERSION=$(node --print 'require("./package.json").version')
           TAG=v$VERSION
-          echo "LATEST_TAG=$TAG" >> $GITHUB_ENV
+          echo "latest_tag=$TAG" >> $GITHUB_OUTPUT
           jq --arg ver "$VERSION" '.version = $ver' manifest.json > tmp.json && mv tmp.json manifest.json
           git config --local user.name github-actions
           git config --local user.email github-actions@github.com
@@ -83,28 +60,40 @@ jobs:
           cd build
           zip -r ../cloudhood.zip .
 
-      - name: Publish
-        uses: 'marvinpinto/action-automatic-releases@latest'
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
-          # title: Latest build
-          # automatic_release_tag: 'latest'
-          automatic_release_tag: ${{ env.LATEST_TAG }}
-          files: |
-            cloudhood.zip
+          name: cloudhood
+          path: cloudhood.zip
 
-      - name: Upload
+  publish:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install publish-browser-extension
+        run: npm install -g publish-browser-extension
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood
+          path: build
+
+      - name: Upload CHROME
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
-        run: publish-extension \
-          --dry-run true
-          --chrome-zip build/cloudhood.zip \
-          --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
-          --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
-          --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
-          --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }} \
-          --
+        run: |
+          npx publish-extension \
+            --chrome-zip build/cloudhood.zip \
+            --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
+            --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
+            --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
+            --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
+            --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
