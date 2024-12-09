@@ -1,38 +1,35 @@
 import Backdrop from '@mui/material/Backdrop';
 import Fade from '@mui/material/Fade';
 import Modal from '@mui/material/Modal';
-import Typography from '@mui/material/Typography';
+import { useUnit } from 'effector-react';
 
 import { exportModalClosed } from '#entities/modal/model';
 
-import { ExportModalBody } from './component';
+import { ExportModalBody } from './components/ExportModalBody';
+import { ExportModalFooter } from './components/ExportModalFooter';
 import * as S from './styled';
 
 export function ExportModal() {
-  const handleClose = () => exportModalClosed();
+  const [handleExportModalClosed] = useUnit([exportModalClosed]);
 
   return (
-    <>
-      <Modal
-        open={true}
-        onClose={handleClose}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in>
-          <S.Wrapper>
-            <Typography variant='h6' component='h2' mb={3}>
-              Export profile
-            </Typography>
-            <ExportModalBody />
-          </S.Wrapper>
-        </Fade>
-      </Modal>
-    </>
+    <Modal
+      open={true}
+      onClose={handleExportModalClosed}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+        },
+      }}
+    >
+      <Fade in>
+        <S.Wrapper>
+          <ExportModalBody />
+          <ExportModalFooter />
+        </S.Wrapper>
+      </Fade>
+    </Modal>
   );
 }

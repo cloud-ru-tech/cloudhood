@@ -69,9 +69,11 @@ export function ImportModalBody() {
           rows={4}
           error={isError}
           helperText={
-            <S.HelperText component='span' variant='body2'>
-              {errorMessage}
-            </S.HelperText>
+            errorMessage ? (
+              <S.HelperText component='span' variant='body2'>
+                {errorMessage}
+              </S.HelperText>
+            ) : undefined
           }
         />
       </Box>
