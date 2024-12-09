@@ -4,12 +4,12 @@ import { grey } from '@mui/material/colors';
 import { useUnit } from 'effector-react';
 import { useMemo, useState } from 'react';
 
-import { exportModalOpened, importModalOpened } from '#entities/modal/model';
+import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { $selectedProfileIndex } from '#entities/request-profile/model';
 import { profileAdded } from '#entities/request-profile/model/request-profiles';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { profileColorList } from '#shared/assets/colors';
-import { FileDownload, FileUpload } from '#shared/assets/svg';
+import { FileDownload, FileImport, FileUpload } from '#shared/assets/svg';
 
 import { CopyActiveRequestHeaders } from './components/CopyActiveRequestHeaders';
 import { PauseAllRequestHeaders } from './components/PauseAllRequestHeaders';
@@ -36,6 +36,10 @@ export function Header() {
 
   const handleOpenImportModal = () => {
     importModalOpened();
+    handleClose();
+  };
+  const handleOpenImportFromExtensionModal = () => {
+    importFromExtensionModalOpened();
     handleClose();
   };
 
@@ -74,6 +78,10 @@ export function Header() {
         <MenuItem key={'import'} onClick={handleOpenImportModal}>
           <Typography variant='body2'>Import profile</Typography>
           <FileDownload />
+        </MenuItem>
+        <MenuItem key={'import-from-extension'} onClick={handleOpenImportFromExtensionModal}>
+          <Typography variant='body2'>Import from other extension</Typography>
+          <FileImport />
         </MenuItem>
         <MenuItem key={'export'} onClick={handleExportModalOpened}>
           <Typography variant='body2'>Export/share profile</Typography>

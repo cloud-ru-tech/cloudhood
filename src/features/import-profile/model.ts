@@ -1,12 +1,25 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 
-import { importModalClosed } from '#entities/modal/model';
+import {
+  importFromExtensionModalClosed,
+  importFromExtensionModalOpened,
+  importModalClosed,
+  importModalOpened,
+} from '#entities/modal/model';
 import { notificationAdded, notificationCleared } from '#entities/notification/model';
 import { NotificationVariant } from '#entities/notification/types';
 import { $requestProfiles, profileMultiAdded, profileMultiRemoved } from '#entities/request-profile/model';
 import { Profile } from '#entities/request-profile/types';
+import { Extensions } from '#shared/constants';
 import { readJSONFile } from '#shared/utils/readJSONfile';
 
+import { modheaderImportAdapter } from './extensions/adapters/modheader';
+import { requestlyImportAdapter } from './extensions/adapters/requestly';
+import {
+  $profileImportExtensionName,
+  profileImportExtensionNameCleared,
+  profileImportExtensionNameReset,
+} from './extensions/model';
 import { generateProfileList, validateProfileList } from './utils';
 
 export const profileImportErrorMessageChanged = createEvent<string>();
@@ -53,8 +66,7 @@ export const $profilesImportIds = createStore<string[]>([])
   .on(profileImportIdsChanged, (_, ids) => ids)
   .reset(profileImportIdsCleared);
 
-function profileListAdded(importString: string, existingProfileList: Profile[]) {
-  const importProfileList = JSON.parse(importString) as Profile[];
+function profileListAdded(importProfileList: Profile[], existingProfileList: Profile[]) {
   const profileList = generateProfileList(importProfileList, existingProfileList);
 
   validateProfileList(profileList, existingProfileList);
@@ -81,22 +93,40 @@ export const profileListAddedDoneFx = attach({
       variant: NotificationVariant.ImportProfileSuccess,
     });
     importModalClosed();
+    importFromExtensionModalClosed();
   },
 });
 
+function prepareImportProfiles(importString: string, profileImportExtensionName: string | null): Profile[] {
+  const parsedImportString = JSON.parse(importString);
+
+  let importProfileList = parsedImportString;
+
+  if (profileImportExtensionName === Extensions.ModHeader) {
+    importProfileList = modheaderImportAdapter(parsedImportString);
+  }
+
+  if (profileImportExtensionName === Extensions.Requestly) {
+    importProfileList = requestlyImportAdapter(parsedImportString);
+  }
+
+  return importProfileList;
+}
+
 const profileImportedFx = attach({
-  source: [$profileImportString, $requestProfiles],
-  effect: ([importString, existingProfileList]) => {
-    profileListAdded(importString, existingProfileList);
+  source: [$profileImportString, $requestProfiles, $profileImportExtensionName],
+  effect: ([importString, existingProfileList, profileImportExtensionName]) => {
+    const importProfileList = prepareImportProfiles(importString, profileImportExtensionName);
+    profileListAdded(importProfileList, existingProfileList);
   },
 });
 
 const profileImportLoadedFileFx = attach({
-  source: $requestProfiles,
-  effect: async (existingProfiles, file: Blob) => {
+  source: [$requestProfiles, $profileImportExtensionName],
+  effect: async ([existingProfiles, profileImportExtensionName], file: Blob) => {
     const importString = await readJSONFile(file);
-
-    profileListAdded(importString, existingProfiles);
+    const importProfileList = prepareImportProfiles(importString, profileImportExtensionName);
+    profileListAdded(importProfileList, existingProfiles);
   },
 });
 
@@ -137,4 +167,10 @@ sample({
   target: profileImportErrorPositionChanged,
 });
 
-sample({ clock: importModalClosed, target: profileImportErrorMessageCleared });
+sample({ clock: [importModalClosed, importFromExtensionModalClosed], target: profileImportErrorMessageCleared });
+
+// Clear extensionName to null when opening the regular import window
+sample({ clock: importModalOpened, target: profileImportExtensionNameCleared });
+
+// Reset extensionName to default value when opening the "import from extensions" window
+sample({ clock: importFromExtensionModalOpened, target: profileImportExtensionNameReset });
