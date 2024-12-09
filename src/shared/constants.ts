@@ -7,3 +7,8 @@ export enum BrowserStorageKey {
 export enum ServiceWorkerEvent {
   Reload = 'reload',
 }
+
+export enum Extensions {
+  ModHeader = 'modheader',
+  Requestly = 'requestly',
+}
