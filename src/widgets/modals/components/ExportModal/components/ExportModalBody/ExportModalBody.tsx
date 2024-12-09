@@ -1,29 +1,27 @@
-import { Autocomplete, Box, Chip, Stack, TextField } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { Autocomplete, Box, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
 import { ChangeEvent, useCallback } from 'react';
 
+import { exportModalClosed } from '#entities/modal/model';
 import {
   $profileExportString,
   $profilesNameOptions,
   $selectedExportProfileValue,
   OptionProfileExport,
-  profileExportDownloaded,
-  profileExportSaved,
   profileExportStringChanged,
   profileNameExportChanged,
 } from '#features/export-profile';
 
-import { CopyButton, DownloadButton } from './styled';
+import { IconButton } from './styled';
 
 export function ExportModalBody() {
-  const [profileExportString, profilesNameOptions, selectedExportProfileValue, downloadHandler, copyToClipboard] =
-    useUnit([
-      $profileExportString,
-      $profilesNameOptions,
-      $selectedExportProfileValue,
-      profileExportDownloaded,
-      profileExportSaved,
-    ]);
+  const [profileExportString, profilesNameOptions, selectedExportProfileValue, handleExportModalClosed] = useUnit([
+    $profileExportString,
+    $profilesNameOptions,
+    $selectedExportProfileValue,
+    exportModalClosed,
+  ]);
 
   const handleChangedCurrentProfiles = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
     profileExportStringChanged(event.target.value);
@@ -32,9 +30,19 @@ export function ExportModalBody() {
   const handleChange = useCallback((_: unknown, value: OptionProfileExport[]) => profileNameExportChanged(value), []);
 
   return (
-    <>
+    <Stack direction='column' rowGap='24px' padding='8px 14px 8px 0'>
+      <Stack direction='row' justifyContent='space-between'>
+        <Stack direction='row' alignItems='center' columnGap='4px'>
+          <Typography variant='h6' component='h2'>
+            Export profile
+          </Typography>
+        </Stack>
+        <IconButton onClick={handleExportModalClosed}>
+          <Close />
+        </IconButton>
+      </Stack>
       <>
-        <Box mb={3}>
+        <Box>
           <Autocomplete
             fullWidth
             multiple
@@ -59,7 +67,7 @@ export function ExportModalBody() {
             onChange={handleChange}
           />
         </Box>
-        <Box mb={3}>
+        <Box>
           <TextField
             label='JSON'
             value={profileExportString}
@@ -70,12 +78,6 @@ export function ExportModalBody() {
           />
         </Box>
       </>
-      <Stack direction='row' justifyContent='flex-end' alignItems='center' spacing={2}>
-        <DownloadButton onClick={downloadHandler}>Download JSON</DownloadButton>
-        <CopyButton variant='contained' onClick={copyToClipboard}>
-          Copy
-        </CopyButton>
-      </Stack>
-    </>
+    </Stack>
   );
 }
