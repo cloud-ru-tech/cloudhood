@@ -1,16 +1,19 @@
-import { Pause, PlayArrow } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
-import { grey } from '@mui/material/colors';
 import { useUnit } from 'effector-react';
 
+import { ButtonFunction } from '@snack-uikit/button';
+
 import { $isPaused, toggleIsPaused } from '#entities/is-paused/model';
+import { PauseSVG, PlayArrowSVG } from '#shared/assets/svg';
 
 export function PauseAllRequestHeaders() {
   const [isPaused, handleToggle] = useUnit([$isPaused, toggleIsPaused]);
 
   return (
-    <IconButton sx={{ color: grey[100] }} onClick={handleToggle}>
-      {!isPaused ? <Pause /> : <PlayArrow />}
-    </IconButton>
+    <ButtonFunction
+      appearance='neutral'
+      icon={!isPaused ? <PauseSVG /> : <PlayArrowSVG />}
+      onClick={handleToggle}
+      size='m'
+    />
   );
 }

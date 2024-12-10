@@ -1,6 +1,7 @@
 import { createEffect, createEvent, sample } from 'effector';
 
-import { notificationMessageChanged } from '#entities/notification/model';
+import { notificationAdded } from '#entities/notification/model';
+import { NotificationInfo, NotificationVariant } from '#entities/notification/types';
 import { $selectedProfileRequestHeaders } from '#entities/request-profile/model/selected-request-headers';
 import { doesNavigatorExist } from '#shared/utils/checkNavigator';
 import { copyToClipboard } from '#shared/utils/copyToClipboard';
@@ -23,12 +24,18 @@ sample({
 
 sample({
   source: activeHeadersCopiedToClipboardFx.doneData,
-  fn: () => COPY_RESULT_STATUS.Success,
-  target: notificationMessageChanged,
+  fn: (): NotificationInfo => ({
+    variant: NotificationVariant.Default,
+    message: COPY_RESULT_STATUS.Success,
+  }),
+  target: notificationAdded,
 });
 
 sample({
   source: activeHeadersCopiedToClipboardFx.failData,
-  fn: () => COPY_RESULT_STATUS.Error,
-  target: notificationMessageChanged,
+  fn: (): NotificationInfo => ({
+    variant: NotificationVariant.Default,
+    message: COPY_RESULT_STATUS.Error,
+  }),
+  target: notificationAdded,
 });

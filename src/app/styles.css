@@ -1,0 +1,63 @@
+@font-face {
+    font-family: 'SB Sans Interface';
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+    src: url('../assets/fonts/SBSansUI-Light.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'SB Sans Interface';
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    src: url('../assets/fonts/SBSansUI-Regular.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'SB Sans Interface';
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    src: url('../assets/fonts/SBSansUI-Semibold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'SB Sans Interface';
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+    src: url('../assets/fonts/SBSansUI-Bold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'SB Sans Text Mono';
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+    src: url('../assets/fonts/SBSansTextMono-Bold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'SB Sans Text Mono';
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    src: url('../assets/fonts/SBSansTextMono-Regular.otf') format('opentype');
+}
+
+body {
+    width: 630px;
+    height: 492px;
+    margin: 0;
+    display: flex;
+    color: var(--sys-neutral-text-main)
+}
+
+#app-container {
+    flex: 1;
+}
+
+* {
+    box-sizing: border-box;
+}

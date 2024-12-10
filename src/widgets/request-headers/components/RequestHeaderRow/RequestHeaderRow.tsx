@@ -1,7 +1,11 @@
 import { useSortable } from '@dnd-kit/sortable';
-import ClearIcon from '@mui/icons-material/Clear';
-import { Checkbox, IconButton, Tooltip } from '@mui/material';
-import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
+import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
+
+import { ButtonFunction } from '@snack-uikit/button';
+import { FieldText } from '@snack-uikit/fields';
+import { CrossSVG } from '@snack-uikit/icons';
+import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
+import { Tooltip } from '@snack-uikit/tooltip';
 
 import type { RequestHeader } from '#entities/request-profile/types';
 import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
@@ -21,6 +25,11 @@ export function RequestHeaderRow(props: RequestHeader) {
   const isNameFormatVerified = validateHeaderName(name);
   const isValueFormatVerified = validateHeaderValue(value);
 
+  const [headerNameFocused, setHeaderNameFocused] = useState(false);
+
+  const onHeaderNameFocused = () => setHeaderNameFocused(true);
+  const onHeaderNameBlur = () => setHeaderNameFocused(false);
+
   const handlePaste = (field: 'value' | 'name') => (e: ClipboardEvent<HTMLInputElement>) => {
     const value = e.clipboardData.getData('text/plain');
 
@@ -32,68 +41,68 @@ export function RequestHeaderRow(props: RequestHeader) {
     selectedProfileRequestHeadersPasted({ id, value, field });
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement;
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement;
     const cursorPosition = target.selectionStart;
-    if (e.key === ' ' && cursorPosition === 0) {
-      e.preventDefault();
+    if (event.key === ' ' && cursorPosition === 0) {
+      event.preventDefault();
     }
   };
 
-  const handleChange = (field: 'value' | 'name') => (e: ChangeEvent<HTMLInputElement>) => {
-    selectedProfileRequestHeadersUpdated([{ ...props, [field]: e.target.value }]);
+  const handleChange = (field: 'value' | 'name') => (value: string) => {
+    selectedProfileRequestHeadersUpdated([{ ...props, [field]: value }]);
   };
 
-  const handleChecked = (e: ChangeEvent<HTMLInputElement>) => {
-    selectedProfileRequestHeadersUpdated([{ ...props, disabled: !e.target.checked }]);
+  const handleChecked: CheckboxProps['onChange'] = checked => {
+    selectedProfileRequestHeadersUpdated([{ ...props, disabled: !checked }]);
   };
 
   return (
     <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
       <S.LeftHeaderActions>
         <DragHandle listeners={listeners} attributes={attributes} />
-        <Checkbox color='default' checked={!disabled} onChange={handleChecked} />
+
+        <Checkbox checked={!disabled} onChange={handleChecked} />
 
         <Tooltip
-          title={
-            name.length === 0 || isNameFormatVerified
-              ? null
-              : 'Header names may only include Latin characters without spaces and these special symbols: (),/:;<=>?@[]{}")'
-          }
+          open={headerNameFocused && name.length > 0 && !isNameFormatVerified}
+          tip='Header names may only include Latin characters without spaces and these special symbols: (),/:;<=>?@[]{}")'
           placement='top'
-          arrow
         >
-          <S.StyledTextField
+          <FieldText
+            size='m'
             value={name}
             placeholder='Header name'
-            variant='standard'
-            onPaste={handlePaste('name')}
             onChange={handleChange('name')}
+            onPaste={handlePaste('name')}
             onKeyDown={handleKeyPress}
-            error={name.length > 0 && !isNameFormatVerified}
+            onFocus={onHeaderNameFocused}
+            onBlur={onHeaderNameBlur}
+            showClearButton={false}
+            validationState={name.length > 0 && !isNameFormatVerified ? 'error' : 'default'}
           />
         </Tooltip>
       </S.LeftHeaderActions>
 
       <Tooltip
-        title={value.length === 0 || isValueFormatVerified ? null : 'Incorrect format for header value'}
+        tip='Incorrect format for header value'
         placement='top'
-        arrow
+        open={value.length > 0 && !isValueFormatVerified}
       >
-        <S.StyledTextField
+        <FieldText
+          size='m'
           value={value}
           placeholder='Header value'
-          variant='standard'
+          onChange={handleChange('value')}
           onPaste={handlePaste('value')}
-          onInput={handleChange('value')}
           onKeyDown={handleKeyPress}
-          error={value.length > 0 && !isValueFormatVerified}
+          showClearButton={false}
+          validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
         />
       </Tooltip>
 
-      <IconButton onClick={() => selectedProfileRequestHeadersRemoved([id])}>
-        <ClearIcon />
-      </IconButton>
+      <ButtonFunction size='s' icon={<CrossSVG />} onClick={() => selectedProfileRequestHeadersRemoved([id])} />
+
       <RequestHeaderMenu {...props} />
     </S.Wrapper>
   );

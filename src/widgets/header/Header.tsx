@@ -1,15 +1,11 @@
-import { Add, DeleteOutline, MoreVert } from '@mui/icons-material';
-import { IconButton, MenuItem, Typography } from '@mui/material';
-import { grey } from '@mui/material/colors';
 import { useUnit } from 'effector-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
+import { ButtonFunction } from '@snack-uikit/button';
+import { KebabSVG } from '@snack-uikit/icons';
+
 import { $selectedProfileIndex } from '#entities/request-profile/model';
-import { profileAdded } from '#entities/request-profile/model/request-profiles';
-import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
-import { profileColorList } from '#shared/assets/colors';
-import { FileDownload, FileImport, FileUpload } from '#shared/assets/svg';
+import { useActions } from '#widgets/header/hooks';
 
 import { CopyActiveRequestHeaders } from './components/CopyActiveRequestHeaders';
 import { PauseAllRequestHeaders } from './components/PauseAllRequestHeaders';
@@ -18,80 +14,29 @@ import * as S from './styled';
 
 export function Header() {
   const [selectedProfileIndex] = useUnit([$selectedProfileIndex]);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const isMenuOpen = Boolean(anchorEl);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const onClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleAddProfile = () => {
-    profileAdded();
-    handleClose();
-  };
-
-  const handleOpenImportModal = () => {
-    importModalOpened();
-    handleClose();
-  };
-  const handleOpenImportFromExtensionModal = () => {
-    importFromExtensionModalOpened();
-    handleClose();
-  };
-
-  const handleRemoveProfile = () => {
-    selectedProfileRemoved();
-    handleClose();
-  };
-
-  const handleExportModalOpened = () => {
-    exportModalOpened();
-    handleClose();
-  };
-
-  const bgColor = useMemo(
-    () => profileColorList[selectedProfileIndex % profileColorList.length],
-    [selectedProfileIndex],
-  );
+  const actions = useActions({ onClose });
 
   return (
     <>
-      <S.Wrapper bgColor={bgColor}>
+      <S.Wrapper>
         <ProfileNameField key={selectedProfileIndex} />
+
         <S.Actions>
           <CopyActiveRequestHeaders />
+
           <PauseAllRequestHeaders />
-          <IconButton sx={{ color: grey[100] }} size='small' onClick={handleOpen}>
-            <MoreVert />
-          </IconButton>
+
+          <S.StyledDroplist open={isOpen} onOpenChange={setIsOpen} placement='bottom-end' size='m' items={actions}>
+            <ButtonFunction appearance='neutral' size='m' icon={<KebabSVG />} />
+          </S.StyledDroplist>
         </S.Actions>
       </S.Wrapper>
-      <S.StyledMenu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>
-        <MenuItem key={'add'} onClick={handleAddProfile}>
-          <Typography variant='body2'>Add profile</Typography>
-          <Add />
-        </MenuItem>
-        <MenuItem key={'import'} onClick={handleOpenImportModal}>
-          <Typography variant='body2'>Import profile</Typography>
-          <FileDownload />
-        </MenuItem>
-        <MenuItem key={'import-from-extension'} onClick={handleOpenImportFromExtensionModal}>
-          <Typography variant='body2'>Import from other extension</Typography>
-          <FileImport />
-        </MenuItem>
-        <MenuItem key={'export'} onClick={handleExportModalOpened}>
-          <Typography variant='body2'>Export/share profile</Typography>
-          <FileUpload />
-        </MenuItem>
-        <MenuItem key={'remove'} onClick={handleRemoveProfile}>
-          <Typography variant='body2'>Delete profile</Typography>
-          <DeleteOutline />
-        </MenuItem>
-      </S.StyledMenu>
     </>
   );
 }

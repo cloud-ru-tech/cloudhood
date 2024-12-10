@@ -1,25 +1,21 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 
-import { notificationMessageChanged } from '#entities/notification/model';
+import { notificationAdded } from '#entities/notification/model';
+import { NotificationInfo, NotificationVariant } from '#entities/notification/types';
 import { $requestProfiles, $selectedRequestProfile } from '#entities/request-profile/model';
 import { copyToClipboard } from '#shared/utils/copyToClipboard';
 
 import { COPY_RESULT_STATUS } from './constants';
-import type { OptionProfileExport } from './types';
 import { downloadSelectedProfiles } from './utils';
 
 export const $profileExportList = createStore<string[]>([]);
 
-export const $profilesNameOptions = $requestProfiles.map(profiles =>
-  profiles.map((p, index) => ({ id: p.id, name: `Profile ${index + 1}` })),
-);
-
-export const profileNameExportChanged = createEvent<OptionProfileExport[]>();
+export const profileNameExportChanged = createEvent<string[]>();
 
 export const profileExportStringChanged = createEvent<string>();
 
 const $selectedProfileExportList = createStore<string[]>([]).on(profileNameExportChanged, (_, item) =>
-  item.map(({ id }) => id),
+  item.map(id => id),
 );
 
 export const $selectedExportProfileIdList = combine(
@@ -44,11 +40,22 @@ export const $profileExportString = combine(
     ),
 );
 
+export const $profilesNameOptions = combine(
+  $requestProfiles,
+  $selectedExportProfileIdList,
+  (requestProfiles, selectedExportProfileIdList) =>
+    requestProfiles.map((p, index) => ({
+      value: p.id,
+      option: `Profile ${index + 1}`,
+      disabled: selectedExportProfileIdList.length === 1 && selectedExportProfileIdList[0] === p.id,
+    })),
+);
+
 export const $selectedExportProfileValue = combine(
   $selectedExportProfileIdList,
   $profilesNameOptions,
   (selectedProfileIdList, profilesNameOptions) =>
-    profilesNameOptions.filter(({ id }) => selectedProfileIdList.includes(id)),
+    profilesNameOptions.filter(({ value }) => selectedProfileIdList.includes(value)).map(({ value }) => value),
 );
 
 export const profileExportSaved = createEvent();
@@ -99,12 +106,18 @@ sample({
 
 sample({
   source: profileExportCopyToClipboardFx.doneData,
-  fn: () => COPY_RESULT_STATUS.Success,
-  target: notificationMessageChanged,
+  fn: (): NotificationInfo => ({
+    variant: NotificationVariant.Default,
+    message: COPY_RESULT_STATUS.Success,
+  }),
+  target: notificationAdded,
 });
 
 sample({
   source: profileExportCopyToClipboardFx.failData,
-  fn: () => COPY_RESULT_STATUS.Error,
-  target: notificationMessageChanged,
+  fn: (): NotificationInfo => ({
+    variant: NotificationVariant.Default,
+    message: COPY_RESULT_STATUS.Error,
+  }),
+  target: notificationAdded,
 });

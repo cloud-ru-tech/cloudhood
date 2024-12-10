@@ -1,5 +1,3 @@
-import { Typography } from '@mui/material';
-
 import { selectedRequestProfileIdChanged } from '#entities/request-profile/model';
 import { profileColorList } from '#shared/assets/colors';
 
@@ -14,12 +12,16 @@ type SetRequestProfileProps = {
 
 export function SetRequestProfile({ profileId, index, isSelected, profileNameAbbreviation }: SetRequestProfileProps) {
   const handleClick = () => selectedRequestProfileIdChanged(profileId);
+  const color = profileColorList[index % profileColorList.length];
 
   return (
-    <S.Circle isSelected={isSelected} onClick={handleClick} bgColor={profileColorList[index % profileColorList.length]}>
-      <Typography color='white' variant='subtitle1' alignItems={'center'}>
-        {profileNameAbbreviation.length === 0 ? index + 1 : profileNameAbbreviation}
-      </Typography>
+    <S.Circle
+      data-selected={isSelected || undefined}
+      onClick={handleClick}
+      color={color.font}
+      backgroundColor={color.background}
+    >
+      {profileNameAbbreviation.length === 0 ? index + 1 : profileNameAbbreviation}
     </S.Circle>
   );
 }

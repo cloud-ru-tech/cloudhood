@@ -1,6 +1,8 @@
-import FileDownload from './FileDownload.svg';
-import FileImport from './FileImport.svg';
-import FileUpload from './FileUpload.svg';
-import SendArrowOutline from './SendArrowOutline.svg';
+import DragIndicatorSVG from './DragIndicator.svg';
+import EditSVG from './Edit.svg';
+import PauseSVG from './Pause.svg';
+import PlayArrowSVG from './PlayArrow.svg';
+import SwitchAccountSVG from './SwitchAccount.svg';
+import FileOpenSVG from './FileOpen.svg';
 
-export { FileDownload, FileUpload, FileImport, SendArrowOutline };
+export { DragIndicatorSVG, EditSVG, PauseSVG, PlayArrowSVG, SwitchAccountSVG, FileOpenSVG };
