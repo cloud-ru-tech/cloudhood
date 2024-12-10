@@ -1,22 +1,32 @@
 import styled from '@emotion/styled';
 
+import { themeVars } from '@snack-uikit/figma-tokens';
+
 type CircleProps = {
-  isSelected: boolean;
-  bgColor: string;
+  color: string;
+  backgroundColor: string;
 };
 
 export const Circle = styled.div<CircleProps>`
+  ${themeVars.sans.title.m};
+
+  color: ${({ color }) => color};
   display: grid;
   place-items: center;
 
-  min-height: 32px;
-  width: 32px;
+  min-height: 48px;
+  width: 48px;
 
   cursor: pointer;
   border-radius: 50%;
-  border-width: 2px;
+  border-width: 8px;
   border-style: solid;
-  border-color: ${({ isSelected }) => (isSelected ? '#00000099' : 'transparent')};
+  border-color: ${themeVars.sys.neutral.background1Level};
 
-  background-color: ${({ bgColor }) => bgColor};
+  background-color: ${({ backgroundColor }) => backgroundColor};
+
+  &[data-selected] {
+    border-radius: 0;
+    border-color: ${({ backgroundColor }) => backgroundColor};
+  }
 `;

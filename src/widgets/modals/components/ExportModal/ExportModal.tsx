@@ -1,35 +1,82 @@
-import Backdrop from '@mui/material/Backdrop';
-import Fade from '@mui/material/Fade';
-import Modal from '@mui/material/Modal';
 import { useUnit } from 'effector-react';
+import { useCallback } from 'react';
+
+import { FieldSelect, FieldTextArea } from '@snack-uikit/fields';
+import { Modal } from '@snack-uikit/modal';
 
 import { exportModalClosed } from '#entities/modal/model';
+import {
+  $profileExportString,
+  $profilesNameOptions,
+  $selectedExportProfileValue,
+  profileExportDownloaded,
+  profileExportSaved,
+  profileExportStringChanged,
+  profileNameExportChanged,
+} from '#features/export-profile';
 
-import { ExportModalBody } from './components/ExportModalBody';
-import { ExportModalFooter } from './components/ExportModalFooter';
 import * as S from './styled';
 
 export function ExportModal() {
-  const [handleExportModalClosed] = useUnit([exportModalClosed]);
+  const [
+    downloadHandler,
+    copyToClipboard,
+    profileExportString,
+    profilesNameOptions,
+    selectedExportProfileValue,
+    handleExportModalClosed,
+  ] = useUnit([
+    profileExportDownloaded,
+    profileExportSaved,
+    $profileExportString,
+    $profilesNameOptions,
+    $selectedExportProfileValue,
+    exportModalClosed,
+  ]);
+
+  const handleProfilesChange = useCallback((value: string[]) => {
+    if (value.length < 1) {
+      return;
+    }
+
+    profileNameExportChanged(value);
+  }, []);
 
   return (
     <Modal
-      open={true}
+      open
       onClose={handleExportModalClosed}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{
-        backdrop: {
-          timeout: 500,
-        },
+      title='Export profile'
+      approveButton={{
+        onClick: copyToClipboard,
+        label: 'Copy',
       }}
-    >
-      <Fade in>
+      cancelButton={{
+        onClick: downloadHandler,
+        label: 'Download JSON',
+      }}
+      content={
         <S.Wrapper>
-          <ExportModalBody />
-          <ExportModalFooter />
+          <FieldSelect
+            label='Profiles'
+            selection='multiple'
+            value={selectedExportProfileValue}
+            size='m'
+            options={profilesNameOptions}
+            onChange={handleProfilesChange}
+            showClearButton={false}
+          />
+
+          <FieldTextArea
+            label='JSON'
+            value={profileExportString}
+            onChange={profileExportStringChanged}
+            minRows={4}
+            maxRows={4}
+            size='m'
+          />
         </S.Wrapper>
-      </Fade>
-    </Modal>
+      }
+    />
   );
 }
