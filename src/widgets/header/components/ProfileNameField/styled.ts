@@ -1,15 +1,10 @@
 import styled from '@emotion/styled';
-import { IconButton as _IconButton, TextField as _TextField, Typography as _Typography } from '@mui/material';
-import { grey } from '@mui/material/colors';
+import { TextField as _TextField } from '@mui/material';
+import { themeVars } from '@snack-uikit/figma-tokens';
+import { TruncateString } from '@snack-uikit/truncate-string';
 
-export const IconButton = styled(_IconButton)`
-  & svg {
-    fill: ${grey[100]};
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
+export const Title = styled(TruncateString)`
+  ${themeVars.sans.title.l}
 `;
 
 export const TextField = styled(_TextField)`
@@ -25,14 +20,4 @@ export const TextField = styled(_TextField)`
   & .MuiInput-underline:after {
     border-bottom-color: white;
   }
-`;
-
-export const Typography = styled(_Typography)`
-  width: fit-content;
-  max-width: 100%;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  word-break: break-all;
 `;

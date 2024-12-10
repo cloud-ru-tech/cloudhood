@@ -1,6 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import ClearIcon from '@mui/icons-material/Clear';
-import { Checkbox, IconButton, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
+import { ButtonFunction } from '@snack-uikit/button';
+import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 
 import type { RequestHeader } from '#entities/request-profile/types';
@@ -44,15 +46,16 @@ export function RequestHeaderRow(props: RequestHeader) {
     selectedProfileRequestHeadersUpdated([{ ...props, [field]: e.target.value }]);
   };
 
-  const handleChecked = (e: ChangeEvent<HTMLInputElement>) => {
-    selectedProfileRequestHeadersUpdated([{ ...props, disabled: !e.target.checked }]);
+  const handleChecked: CheckboxProps['onChange'] = checked => {
+    selectedProfileRequestHeadersUpdated([{ ...props, disabled: !checked }]);
   };
 
   return (
     <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
       <S.LeftHeaderActions>
         <DragHandle listeners={listeners} attributes={attributes} />
-        <Checkbox color='default' checked={!disabled} onChange={handleChecked} />
+
+        <Checkbox checked={!disabled} onChange={handleChecked} />
 
         <Tooltip
           title={
@@ -91,9 +94,8 @@ export function RequestHeaderRow(props: RequestHeader) {
         />
       </Tooltip>
 
-      <IconButton onClick={() => selectedProfileRequestHeadersRemoved([id])}>
-        <ClearIcon />
-      </IconButton>
+      <ButtonFunction size='s' icon={<ClearIcon />} onClick={() => selectedProfileRequestHeadersRemoved([id])} />
+
       <RequestHeaderMenu {...props} />
     </S.Wrapper>
   );

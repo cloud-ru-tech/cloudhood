@@ -1,6 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { IconButton, Typography } from '@mui/material';
+import { ButtonFunction } from '@snack-uikit/button';
 import { useUnit } from 'effector-react';
 
 import { $isPaused } from '#entities/is-paused/model';
@@ -29,17 +29,11 @@ export function RequestHeadersActions() {
       <S.Header>
         <S.LeftHeaderActions>
           <AllRequestHeadersCheckbox />
-          <Typography fontWeight='bold' variant='body1'>
-            Request headers
-          </Typography>
+          Request headers
         </S.LeftHeaderActions>
         <S.RightHeaderActions>
-          <IconButton onClick={handleAdd}>
-            <AddIcon />
-          </IconButton>
-          <IconButton disabled={!isProfileRemoveAvailable} onClick={handleRemove}>
-            <DeleteOutlineIcon />
-          </IconButton>
+          <ButtonFunction icon={<AddIcon />} onClick={handleAdd} />
+          <ButtonFunction icon={<DeleteOutlineIcon />} disabled={!isProfileRemoveAvailable} onClick={handleRemove} />
         </S.RightHeaderActions>
       </S.Header>
       <RequestHeaders />

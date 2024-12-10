@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { DragIndicator } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { ButtonFunction } from '@snack-uikit/button';
 
 type DragHandleProps = {
   listeners: ReturnType<typeof useSortable>['listeners'];
@@ -9,8 +9,8 @@ type DragHandleProps = {
 
 export function DragHandle({ listeners, attributes }: DragHandleProps) {
   return (
-    <IconButton {...listeners} {...attributes}>
-      <DragIndicator />
-    </IconButton>
+    <span {...listeners} {...attributes}>
+      <ButtonFunction size='m' icon={<DragIndicator />} />
+    </span>
   );
 }

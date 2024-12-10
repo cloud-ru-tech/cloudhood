@@ -1,6 +1,6 @@
 import { Add, DeleteOutline, MoreVert } from '@mui/icons-material';
-import { IconButton, MenuItem, Typography } from '@mui/material';
-import { grey } from '@mui/material/colors';
+import { MenuItem, Typography } from '@mui/material';
+import { ButtonTonal } from '@snack-uikit/button';
 import { useUnit } from 'effector-react';
 import { useMemo, useState } from 'react';
 
@@ -49,21 +49,19 @@ export function Header() {
     handleClose();
   };
 
-  const bgColor = useMemo(
+  const colorMap = useMemo(
     () => profileColorList[selectedProfileIndex % profileColorList.length],
     [selectedProfileIndex],
   );
 
   return (
     <>
-      <S.Wrapper bgColor={bgColor}>
+      <S.Wrapper backgroundColor={colorMap?.background} color={colorMap?.font}>
         <ProfileNameField key={selectedProfileIndex} />
         <S.Actions>
           <CopyActiveRequestHeaders />
           <PauseAllRequestHeaders />
-          <IconButton sx={{ color: grey[100] }} size='small' onClick={handleOpen}>
-            <MoreVert />
-          </IconButton>
+          <ButtonTonal appearance='neutral' size='m' icon={<MoreVert />} onClick={handleOpen} />
         </S.Actions>
       </S.Wrapper>
       <S.StyledMenu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>

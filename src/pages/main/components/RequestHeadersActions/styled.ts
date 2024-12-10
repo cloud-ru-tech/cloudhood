@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { Backdrop } from '@mui/material';
+import { themeVars } from '@snack-uikit/figma-tokens';
 
 export const Content = styled.div`
   position: relative;
@@ -15,6 +16,9 @@ export const Content = styled.div`
 `;
 
 export const LeftHeaderActions = styled.div`
+  ${themeVars.sans.title.m}
+
+  color: ${themeVars.sys.neutral.textMain};
   display: flex;
   gap: 8px;
   align-items: center;

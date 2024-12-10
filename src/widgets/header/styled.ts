@@ -2,13 +2,15 @@ import styled from '@emotion/styled';
 import { Menu } from '@mui/material';
 
 type WrapperProps = {
-  bgColor: string;
+  backgroundColor: string;
+  color: string;
 };
 
 export const Wrapper = styled.div<WrapperProps>`
   display: flex;
   justify-content: space-between;
-  background-color: ${({ bgColor }) => bgColor};
+  background-color: ${({ backgroundColor }) => backgroundColor};
+  color: ${({ color }) => color};
   width: 100%;
   padding: 12px;
   padding-left: 16px;
@@ -18,6 +20,7 @@ export const Wrapper = styled.div<WrapperProps>`
 export const Actions = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
 
   gap: 16px;
 `;

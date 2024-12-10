@@ -1,4 +1,4 @@
-import { Checkbox } from '@mui/material';
+import { Checkbox } from '@snack-uikit/toggles';
 import { useUnit } from 'effector-react';
 
 import { $isAllEnabled, toggleAllProfileRequestHeaders } from '#features/toggle-all-request-headers/model';
@@ -6,7 +6,5 @@ import { $isAllEnabled, toggleAllProfileRequestHeaders } from '#features/toggle-
 export function AllRequestHeadersCheckbox() {
   const isAllEnabled = useUnit($isAllEnabled);
 
-  return (
-    <Checkbox color='default' checked={isAllEnabled} onChange={e => toggleAllProfileRequestHeaders(e.target.checked)} />
-  );
+  return <Checkbox checked={isAllEnabled} onChange={toggleAllProfileRequestHeaders} />;
 }

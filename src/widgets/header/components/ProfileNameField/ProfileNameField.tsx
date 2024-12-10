@@ -1,26 +1,14 @@
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
-import { Grid, Tooltip, TooltipProps } from '@mui/material';
+import { Grid } from '@mui/material';
+import { ButtonTonal } from '@snack-uikit/button';
 import { useUnit } from 'effector-react';
 import { FocusEvent, KeyboardEvent, useRef, useState } from 'react';
 
 import { $selectedProfile, $selectedProfileIndex } from '#entities/request-profile/model';
 import { setSelectedRequestProfileName } from '#features/selected-profile-update-name/model';
 
-import { IconButton, TextField, Typography } from './styled';
-
-const tooltipProps: TooltipProps['slotProps'] = {
-  popper: {
-    modifiers: [
-      {
-        name: 'offset',
-        options: {
-          offset: [0, -5],
-        },
-      },
-    ],
-  },
-};
+import * as S from './styled';
 
 export function ProfileNameField() {
   const [isEdited, setIsEdited] = useState<boolean>(false);
@@ -54,7 +42,7 @@ export function ProfileNameField() {
     <Grid container alignItems='center' width='50%' spacing={2} wrap='nowrap'>
       <Grid item xs={8}>
         {isEdited ? (
-          <TextField
+          <S.TextField
             inputRef={inputRef}
             placeholder='Profile name'
             variant='standard'
@@ -64,17 +52,17 @@ export function ProfileNameField() {
             autoFocus
           />
         ) : (
-          <Tooltip title={profileName} arrow placement='bottom-start' slotProps={tooltipProps}>
-            <Typography color='white' variant='h6'>
-              {profileName}
-            </Typography>
-          </Tooltip>
+          <S.Title text={profileName} />
         )}
       </Grid>
       <Grid item xs={4}>
-        <IconButton ref={buttonRef} onClick={toggleEdit}>
-          {isEdited ? <DoneIcon /> : <EditIcon />}
-        </IconButton>
+        <ButtonTonal
+          appearance='neutral'
+          size='m'
+          ref={buttonRef}
+          onClick={toggleEdit}
+          icon={isEdited ? <DoneIcon /> : <EditIcon />}
+        />
       </Grid>
     </Grid>
   );

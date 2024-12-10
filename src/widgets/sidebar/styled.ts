@@ -31,4 +31,5 @@ export const IconButtonWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
+  align-items: center;
 `;

@@ -2,7 +2,8 @@ import { MoreVert } from '@mui/icons-material';
 import ClearIcon from '@mui/icons-material/Clear';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SwitchAccountIcon from '@mui/icons-material/SwitchAccount';
-import { IconButton, MenuItem, Typography } from '@mui/material';
+import { MenuItem, Typography } from '@mui/material';
+import { ButtonFunction } from '@snack-uikit/button';
 import { useUnit } from 'effector-react';
 import { useState } from 'react';
 
@@ -36,9 +37,8 @@ export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
 
   return (
     <>
-      <IconButton size='small' onClick={handleOpen}>
-        <MoreVert />
-      </IconButton>
+      <ButtonFunction size='s' onClick={handleOpen} icon={<MoreVert />} />
+
       <S.StyledMenu anchorEl={anchorEl} open={isMenuOpen} onClose={handleClose}>
         <MenuItem key={'duplicate-value'} onClick={() => handleDuplicate(id)}>
           <Typography variant='body2'>Duplicate</Typography>

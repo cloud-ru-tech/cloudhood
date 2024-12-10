@@ -1,9 +1,9 @@
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import { IconButton } from '@mui/material';
+import { ButtonFunction } from '@snack-uikit/button';
 import { useUnit } from 'effector-react';
 
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
-import { GuthubIcon } from '#shared/assets/GuthubIcon/GuthubIcon';
+import { GithubIcon } from '#shared/assets/GithubIcon/GithubIcon';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
 import { getProfileNameAbbreviation } from './helpers/sidebar';
@@ -34,13 +34,9 @@ export function Sidebar() {
         ))}
       </S.ProfilesWrapper>
       <S.IconButtonWrapper>
-        <IconButton onClick={handleAddProfile}>
-          <ControlPointIcon />
-        </IconButton>
+        <ButtonFunction onClick={handleAddProfile} size='m' icon={<ControlPointIcon />} />
 
-        <IconButton onClick={handleGithubIconClick}>
-          <GuthubIcon />
-        </IconButton>
+        <ButtonFunction onClick={handleGithubIconClick} size='m' icon={<GithubIcon />} />
       </S.IconButtonWrapper>
     </S.Wrapper>
   );

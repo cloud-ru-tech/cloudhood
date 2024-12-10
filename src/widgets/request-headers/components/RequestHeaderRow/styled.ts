@@ -7,6 +7,8 @@ export const Wrapper = styled.div<{ transform: Transform | null; isDragging: boo
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+  gap: 4px;
 
   transform: ${props => CSS.Transform.toString(props.transform)};
   opacity: ${props => (props.isDragging ? 0 : 1)};
@@ -18,6 +20,8 @@ export const Wrapper = styled.div<{ transform: Transform | null; isDragging: boo
 export const LeftHeaderActions = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 4px;
 `;
 
 export const StyledMenu = styled(Menu)`
