@@ -1,24 +1,24 @@
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import './styles.css';
 
-import { GlobalStyles } from '@mui/material';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+
+import { Sprite, SpriteSVG } from '@snack-uikit/icons';
 
 import { MainPage } from '#pages/main';
 import { initApp } from '#shared/model';
 
-import * as S from './styled';
+import { useSetTheme } from './hooks';
 
 export function App() {
   useEffect(() => {
     initApp();
   }, []);
 
+  useSetTheme();
+
   return (
     <>
-      <GlobalStyles styles={S.baseStyles} />
+      <Sprite content={SpriteSVG} />
       <MainPage />
     </>
   );

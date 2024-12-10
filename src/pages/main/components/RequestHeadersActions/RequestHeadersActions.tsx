@@ -1,7 +1,7 @@
-import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { IconButton, Typography } from '@mui/material';
 import { useUnit } from 'effector-react';
+
+import { ButtonFunction } from '@snack-uikit/button';
+import { PlusSVG, TrashSVG } from '@snack-uikit/icons';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
@@ -25,23 +25,19 @@ export function RequestHeadersActions() {
 
   return (
     <S.Content>
-      <S.StyledBackdrop open={isPaused} />
+      <S.StyledBackdrop data-open={isPaused || undefined} />
+
       <S.Header>
         <S.LeftHeaderActions>
           <AllRequestHeadersCheckbox />
-          <Typography fontWeight='bold' variant='body1'>
-            Request headers
-          </Typography>
+          Request headers
         </S.LeftHeaderActions>
         <S.RightHeaderActions>
-          <IconButton onClick={handleAdd}>
-            <AddIcon />
-          </IconButton>
-          <IconButton disabled={!isProfileRemoveAvailable} onClick={handleRemove}>
-            <DeleteOutlineIcon />
-          </IconButton>
+          <ButtonFunction icon={<PlusSVG />} onClick={handleAdd} />
+          <ButtonFunction icon={<TrashSVG />} disabled={!isProfileRemoveAvailable} onClick={handleRemove} />
         </S.RightHeaderActions>
       </S.Header>
+
       <RequestHeaders />
     </S.Content>
   );

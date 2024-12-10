@@ -1,15 +1,17 @@
-import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import { IconButton } from '@mui/material';
 import { useUnit } from 'effector-react';
 
+import { ButtonFunction } from '@snack-uikit/button';
+import { PlusSVG } from '@snack-uikit/icons';
+
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
-import { GuthubIcon } from '#shared/assets/GuthubIcon/GuthubIcon';
+import { GithubIcon } from '#shared/assets/GithubIcon/GithubIcon';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
+import packageJson from '../../../package.json';
 import { getProfileNameAbbreviation } from './helpers/sidebar';
 import * as S from './styled';
 
-const CLOUDHOOD_GITHUB_URL = 'https://github.com/cloud-ru-tech/cloudhood/';
+const CLOUDHOOD_GITHUB_URL = packageJson.homepage;
 
 export function Sidebar() {
   const [selectedProfileId, handleAddProfile, profiles] = useUnit([
@@ -33,14 +35,11 @@ export function Sidebar() {
           />
         ))}
       </S.ProfilesWrapper>
-      <S.IconButtonWrapper>
-        <IconButton onClick={handleAddProfile}>
-          <ControlPointIcon />
-        </IconButton>
 
-        <IconButton onClick={handleGithubIconClick}>
-          <GuthubIcon />
-        </IconButton>
+      <S.IconButtonWrapper>
+        <ButtonFunction onClick={handleAddProfile} size='m' icon={<PlusSVG />} />
+
+        <ButtonFunction onClick={handleGithubIconClick} size='m' icon={<GithubIcon />} />
       </S.IconButtonWrapper>
     </S.Wrapper>
   );

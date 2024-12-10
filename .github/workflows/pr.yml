@@ -22,6 +22,9 @@ jobs:
       - name: ESLint
         uses: './.github/actions/eslint'
 
+      - name: Stylelint
+        uses: './.github/actions/stylelint'
+
   typescript:
     runs-on: ubuntu-latest
     steps:
