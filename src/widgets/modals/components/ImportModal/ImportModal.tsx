@@ -1,35 +1,99 @@
-import Backdrop from '@mui/material/Backdrop';
-import Fade from '@mui/material/Fade';
-import Modal from '@mui/material/Modal';
 import { useUnit } from 'effector-react';
+import { useCallback, useEffect, useRef } from 'react';
+
+import { ButtonFilled, ButtonSimple } from '@snack-uikit/button';
+import { FileUpload } from '@snack-uikit/drop-zone';
+import { FieldTextArea } from '@snack-uikit/fields';
+import { UploadSVG } from '@snack-uikit/icons';
+import { ModalCustom } from '@snack-uikit/modal';
 
 import { importModalClosed } from '#entities/modal/model';
+import {
+  $profileImportErrorInfo,
+  $profileImportString,
+  profileImported,
+  profileImportLoadedFile,
+  profileImportStringChanged,
+} from '#features/import-profile/model';
 
-import { ImportModalBody } from './components/ImportModalBody';
-import { ImportModalFooter } from './components/ImportModalFooter';
+import { TOOLTIP_JSON_FORMAT, TOOLTIP_TITLE } from './constants';
 import * as S from './styled';
 
 export function ImportModal() {
-  const [handleImportModalClosed] = useUnit([importModalClosed]);
+  const [
+    profileImportString,
+    { errorMessage, errorPosition, isError },
+    handleImportModalClosed,
+    handleProfileImported,
+  ] = useUnit([$profileImportString, $profileImportErrorInfo, importModalClosed, profileImported]);
+
+  const loadFileRef = useRef<HTMLInputElement>(null);
+  const textFieldRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleProfileLoaded = useCallback((files: File[]) => {
+    const currentFile = files?.[0];
+    const fileStorage = loadFileRef.current;
+
+    if (fileStorage) {
+      fileStorage.value = '';
+    }
+
+    if (currentFile) {
+      profileImportLoadedFile(currentFile);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isError && textFieldRef.current) {
+      textFieldRef.current.focus();
+
+      if (errorPosition) {
+        textFieldRef.current.setSelectionRange(errorPosition, errorPosition);
+      }
+    }
+  }, [errorPosition, isError]);
 
   return (
-    <Modal
-      open={true}
-      onClose={handleImportModalClosed}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{
-        backdrop: {
-          timeout: 500,
-        },
-      }}
-    >
-      <Fade in>
-        <S.Wrapper>
-          <ImportModalBody />
-          <ImportModalFooter />
-        </S.Wrapper>
-      </Fade>
-    </Modal>
+    <ModalCustom open onClose={handleImportModalClosed}>
+      <S.DropZone onFilesUpload={handleProfileLoaded} description='Drop files to upload'>
+        <ModalCustom.Header
+          title={'Import profile'}
+          titleTooltip={
+            <>
+              {TOOLTIP_TITLE}
+
+              <pre>{JSON.stringify(TOOLTIP_JSON_FORMAT, null, 2)}</pre>
+            </>
+          }
+        />
+
+        <ModalCustom.Body
+          content={
+            <FieldTextArea
+              size='m'
+              ref={textFieldRef}
+              label='JSON'
+              value={profileImportString}
+              onChange={profileImportStringChanged}
+              minRows={4}
+              maxRows={4}
+              error={errorMessage ?? undefined}
+            />
+          }
+        />
+
+        <ModalCustom.Footer
+          actions={
+            <>
+              <ButtonFilled size='m' appearance='primary' label='Import' onClick={handleProfileImported} />
+
+              <FileUpload onFilesUpload={handleProfileLoaded}>
+                <ButtonSimple size='m' appearance='neutral' label='Load file' icon={<UploadSVG />} />
+              </FileUpload>
+            </>
+          }
+        />
+      </S.DropZone>
+    </ModalCustom>
   );
 }

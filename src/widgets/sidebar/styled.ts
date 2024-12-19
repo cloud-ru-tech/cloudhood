@@ -5,16 +5,14 @@ export const Wrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-
-  padding: 16px 12px 8px 12px;
+  width: 48px;
 `;
 
 export const ProfilesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  padding: 6px 0;
 
   overflow-y: auto;
 
@@ -30,5 +28,8 @@ export const IconButtonWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
   justify-content: space-between;
 `;

@@ -6,6 +6,7 @@ var webpack = require('webpack'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
   TerserPlugin = require('terser-webpack-plugin');
 var { CleanWebpackPlugin } = require('clean-webpack-plugin');
+var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 var pathResolve = (...args) => path.resolve(process.cwd(), ...args);
 var replaceGlobs = path => path.replace(/(\/\*\*)*\/\*$/, '');
@@ -51,13 +52,25 @@ var options = {
         test: /\.(css)$/,
         use: [
           {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          {
             loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              modules: { auto: true },
+            },
           },
         ],
       },
       {
+        test: /\.symbol.svg$/,
+        use: 'svg-inline-loader',
+      },
+      {
         test: /\.svg$/i,
         issuer: /\.[jt]sx?$/,
+        exclude: /\.symbol.svg$/,
         use: ['@svgr/webpack'],
       },
       {
@@ -82,6 +95,7 @@ var options = {
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new MiniCssExtractPlugin({ filename: 'styles.css' }),
     new CopyWebpackPlugin({
       patterns: [
         {

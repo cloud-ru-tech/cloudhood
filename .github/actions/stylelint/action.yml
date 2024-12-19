@@ -1,0 +1,19 @@
+name: Stylelint
+description: Run Stylelint check
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Stylelint check
+      run: npx stylelint "./src/**/*.{ts,tsx}" --config stylelint.config.js
+      shell: bash

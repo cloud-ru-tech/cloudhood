@@ -1,26 +1,15 @@
-import DoneIcon from '@mui/icons-material/Done';
-import EditIcon from '@mui/icons-material/Edit';
-import { Grid, Tooltip, TooltipProps } from '@mui/material';
 import { useUnit } from 'effector-react';
-import { FocusEvent, KeyboardEvent, useRef, useState } from 'react';
+import { FocusEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
+
+import { ButtonFunction } from '@snack-uikit/button';
+import { FieldText } from '@snack-uikit/fields';
+import { CheckSVG } from '@snack-uikit/icons';
 
 import { $selectedProfile, $selectedProfileIndex } from '#entities/request-profile/model';
 import { setSelectedRequestProfileName } from '#features/selected-profile-update-name/model';
+import { EditSVG } from '#shared/assets/svg';
 
-import { IconButton, TextField, Typography } from './styled';
-
-const tooltipProps: TooltipProps['slotProps'] = {
-  popper: {
-    modifiers: [
-      {
-        name: 'offset',
-        options: {
-          offset: [0, -5],
-        },
-      },
-    ],
-  },
-};
+import * as S from './styled';
 
 export function ProfileNameField() {
   const [isEdited, setIsEdited] = useState<boolean>(false);
@@ -32,50 +21,66 @@ export function ProfileNameField() {
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  const profileName = profile?.name !== undefined ? profile.name : `Profile ${profileIndex + 1}`;
+
+  const [value, setValue] = useState(profileName);
+
   const toggleEdit = () => {
     setIsEdited(prev => !prev);
-    if (inputRef.current && isEdited) onChangeProfileName(inputRef.current?.value);
+
+    if (isEdited) {
+      onChangeProfileName(value);
+    }
   };
 
-  const handleKeyUp = (event: KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       toggleEdit();
     }
   };
 
   const handleBlur = ({ relatedTarget }: FocusEvent) => {
-    if (relatedTarget === buttonRef.current) return;
+    if (relatedTarget === buttonRef.current) {
+      return;
+    }
+
     toggleEdit();
   };
 
-  const profileName = profile?.name !== undefined ? profile.name : `Profile ${profileIndex + 1}`;
+  useEffect(() => {
+    if (isEdited) {
+      inputRef.current?.focus();
+    }
+  }, [isEdited]);
 
   return (
-    <Grid container alignItems='center' width='50%' spacing={2} wrap='nowrap'>
-      <Grid item xs={8}>
+    <S.Row>
+      <S.TitleWrapper>
         {isEdited ? (
-          <TextField
-            inputRef={inputRef}
+          <FieldText
+            size='m'
+            ref={inputRef}
             placeholder='Profile name'
-            variant='standard'
-            defaultValue={profileName}
-            onKeyUp={handleKeyUp}
+            value={value}
+            onChange={setValue}
+            onKeyDown={onKeyDown}
             onBlur={handleBlur}
-            autoFocus
+            showClearButton={false}
           />
         ) : (
-          <Tooltip title={profileName} arrow placement='bottom-start' slotProps={tooltipProps}>
-            <Typography color='white' variant='h6'>
-              {profileName}
-            </Typography>
-          </Tooltip>
+          <S.Title text={profileName} />
         )}
-      </Grid>
-      <Grid item xs={4}>
-        <IconButton ref={buttonRef} onClick={toggleEdit}>
-          {isEdited ? <DoneIcon /> : <EditIcon />}
-        </IconButton>
-      </Grid>
-    </Grid>
+      </S.TitleWrapper>
+
+      <S.ButtonWrapper>
+        <ButtonFunction
+          appearance='neutral'
+          size='m'
+          ref={buttonRef}
+          onClick={toggleEdit}
+          icon={isEdited ? <CheckSVG /> : <EditSVG />}
+        />
+      </S.ButtonWrapper>
+    </S.Row>
   );
 }

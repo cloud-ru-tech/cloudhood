@@ -1,38 +1,26 @@
 import styled from '@emotion/styled';
-import { IconButton as _IconButton, TextField as _TextField, Typography as _Typography } from '@mui/material';
-import { grey } from '@mui/material/colors';
 
-export const IconButton = styled(_IconButton)`
-  & svg {
-    fill: ${grey[100]};
-  }
+import { themeVars } from '@snack-uikit/figma-tokens';
+import { TruncateString } from '@snack-uikit/truncate-string';
 
-  &:hover {
-    cursor: pointer;
-  }
+export const Title = styled(TruncateString)`
+  ${themeVars.sans.title.l}
 `;
 
-export const TextField = styled(_TextField)`
-  .MuiInput-root:before {
-    border-bottom-color: white;
-  }
-  .MuiInput-root:hover:not(.Mui-disabled, .Mui-error):before {
-    border-bottom-color: white;
-  }
-  & .MuiInput-input {
-    color: white;
-  }
-  & .MuiInput-underline:after {
-    border-bottom-color: white;
-  }
+export const Row = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-grow: 1;
 `;
 
-export const Typography = styled(_Typography)`
-  width: fit-content;
-  max-width: 100%;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  word-break: break-all;
+export const TitleWrapper = styled.div`
+  display: flex;
+  flex-grow: 1;
+  min-width: 0;
+`;
+
+export const ButtonWrapper = styled.div`
+  display: flex;
+  flex-shrink: 0;
 `;

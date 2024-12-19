@@ -43,6 +43,7 @@ export const profileImportedUndo = createEvent();
 export const $profileImportErrorMessage = createStore<string | null>(null)
   .on(profileImportErrorMessageChanged, (_, error) => error)
   .reset(profileImportErrorMessageCleared);
+
 export const $profileImportIsError = $profileImportErrorMessage.map(errorMessage => Boolean(errorMessage));
 export const $profileImportErrorPosition = createStore<number | null>(null)
   .on(profileImportErrorPositionChanged, (_, position) => position)
@@ -89,7 +90,7 @@ export const profileListAddedDoneFx = attach({
   source: $profilesImportIds,
   effect: profilesImportIds => {
     notificationAdded({
-      message: `${profilesImportIds.length} profiles imported`,
+      message: `${profilesImportIds.length} profile${profilesImportIds.length > 1 ? 's' : ''} imported`,
       variant: NotificationVariant.ImportProfileSuccess,
     });
     importModalClosed();
