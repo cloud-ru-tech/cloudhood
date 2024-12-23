@@ -1,27 +1,49 @@
+import { useUnit } from 'effector-react';
 import { useEffect } from 'react';
 
 import BrandClassnames from '@snack-uikit/figma-tokens/build/css/brand.module.css';
 
-export function useSetTheme() {
-  useEffect(() => {
-    const setTheme = (colorSchemeEvent: MediaQueryList | MediaQueryListEvent) => {
-      const { classList } = document.body;
+import { $selectedThemeMode, initThemeMode } from '#entities/themeMode/model';
+import { ThemeMode } from '#shared/constants';
 
-      if (colorSchemeEvent.matches) {
-        classList.remove(BrandClassnames.light);
-        classList.add(BrandClassnames.dark);
+export function useSetTheme() {
+  const [themeMode] = useUnit([$selectedThemeMode]);
+
+  useEffect(() => {
+    initThemeMode();
+  }, []);
+
+  useEffect(() => {
+    const setTheme = (mode: 'dark' | 'light') => {
+      if (mode === 'dark') {
+        document.body.classList.remove(BrandClassnames.light);
+        document.body.classList.add(BrandClassnames.dark);
       } else {
-        classList.remove(BrandClassnames.dark);
-        classList.add(BrandClassnames.light);
+        document.body.classList.remove(BrandClassnames.dark);
+        document.body.classList.add(BrandClassnames.light);
       }
     };
 
-    const matchMedia = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+    switch (themeMode) {
+      case ThemeMode.Light:
+        setTheme('light');
+        break;
+      case ThemeMode.Dark:
+        setTheme('dark');
+        break;
+      case ThemeMode.System:
+      default:
+        const toggleThemeMode = (colorSchemeEvent: MediaQueryList | MediaQueryListEvent) => {
+          setTheme(colorSchemeEvent.matches ? 'dark' : 'light');
+        };
 
-    setTheme(matchMedia);
+        const matchMedia = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
 
-    matchMedia.addEventListener('change', setTheme);
+        toggleThemeMode(matchMedia);
 
-    return () => matchMedia.removeEventListener('change', setTheme);
-  }, []);
+        matchMedia.addEventListener('change', toggleThemeMode);
+
+        return () => matchMedia.removeEventListener('change', toggleThemeMode);
+    }
+  }, [themeMode]);
 }
