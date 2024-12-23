@@ -33,8 +33,6 @@ export const RightHeaderActions = styled.div`
 
 export const StyledBackdrop = styled.div`
   position: fixed;
-  /* stylelint-disable-next-line declaration-property-value-allowed-list */
-  z-index: 2;
   top: 64px;
   left: 52px;
   background: ${themeVars.sys.neutral.textMain};

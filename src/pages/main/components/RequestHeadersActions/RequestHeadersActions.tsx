@@ -25,8 +25,6 @@ export function RequestHeadersActions() {
 
   return (
     <S.Content>
-      <S.StyledBackdrop data-open={isPaused || undefined} />
-
       <S.Header>
         <S.LeftHeaderActions>
           <AllRequestHeadersCheckbox />
@@ -39,6 +37,8 @@ export function RequestHeadersActions() {
       </S.Header>
 
       <RequestHeaders />
+
+      <S.StyledBackdrop data-open={isPaused || undefined} />
     </S.Content>
   );
 }
