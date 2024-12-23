@@ -1,10 +1,13 @@
 import { useUnit } from 'effector-react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { PlusSVG } from '@snack-uikit/icons';
+import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, ThemeContrastSVG } from '@snack-uikit/icons';
+import { Droplist } from '@snack-uikit/list';
 
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
-import { GithubIcon } from '#shared/assets/GithubIcon/GithubIcon';
+import { $selectedThemeMode, selectedThemeModeChanges } from '#entities/themeMode/model';
+import { GithubIcon } from '#shared/assets/GithubIcon';
+import { ThemeMode } from '#shared/constants';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
 import packageJson from '../../../package.json';
@@ -14,7 +17,9 @@ import * as S from './styled';
 const CLOUDHOOD_GITHUB_URL = packageJson.homepage;
 
 export function Sidebar() {
-  const [selectedProfileId, handleAddProfile, profiles] = useUnit([
+  const [selectedThemeMode, toggleThemeMode, selectedProfileId, handleAddProfile, profiles] = useUnit([
+    $selectedThemeMode,
+    selectedThemeModeChanges,
     $selectedRequestProfile,
     profileAdded,
     $requestProfiles,
@@ -39,7 +44,25 @@ export function Sidebar() {
       <S.IconButtonWrapper>
         <ButtonFunction onClick={handleAddProfile} size='m' icon={<PlusSVG />} />
 
-        <ButtonFunction onClick={handleGithubIconClick} size='m' icon={<GithubIcon />} />
+        <S.IconButtonBottomWrapper>
+          <Droplist
+            placement='right-end'
+            selection={{
+              mode: 'single',
+              value: selectedThemeMode,
+              onChange: toggleThemeMode,
+            }}
+            items={[
+              { id: ThemeMode.Light, content: { option: 'Light' }, beforeContent: <DaySVG /> },
+              { id: ThemeMode.Dark, content: { option: 'Dark' }, beforeContent: <NightSVG /> },
+              { id: ThemeMode.System, content: { option: 'System' }, beforeContent: <LaptopPhoneSVG /> },
+            ]}
+          >
+            <ButtonFunction size='m' icon={<ThemeContrastSVG />} />
+          </Droplist>
+
+          <ButtonFunction onClick={handleGithubIconClick} size='m' icon={<GithubIcon />} />
+        </S.IconButtonBottomWrapper>
       </S.IconButtonWrapper>
     </S.Wrapper>
   );

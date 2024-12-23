@@ -29,7 +29,12 @@ export const IconButtonWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   align-items: center;
-  gap: 4px;
   padding: 4px 0;
   justify-content: space-between;
+`;
+
+export const IconButtonBottomWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
