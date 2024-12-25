@@ -1,20 +1,64 @@
-import { createEffect, createEvent, createStore, sample } from 'effector';
+import { attach, createEffect, createEvent, createStore, sample } from 'effector';
 
-import { ThemeMode } from '#shared/constants';
+import BrandClassnames from '@snack-uikit/figma-tokens/build/css/brand.module.css';
 
-import { getThemeMode, setThemeMode } from './utils';
+import { BrowserStorageKey, ThemeMode } from '#shared/constants';
+import { initApp } from '#shared/model';
 
-export const selectedThemeModeChanges = createEvent<ThemeMode>();
-export const initThemeMode = createEvent();
+export const currentThemeChanged = createEvent<ThemeMode>();
+export const systemThemeChanged = createEvent<ThemeMode>();
 
-const setThemeModeFx = createEffect(setThemeMode);
-const loadThemeModeFromStorageFx = createEffect(getThemeMode);
+const loadThemeModeFromStorageFx = createEffect(async (): Promise<ThemeMode> => {
+  const response = await chrome.storage.local.get([BrowserStorageKey.ThemeMode]);
+  return response[BrowserStorageKey.ThemeMode] ?? ThemeMode.System;
+});
 
-export const $selectedThemeMode = createStore<ThemeMode>(ThemeMode.System).on(
-  selectedThemeModeChanges,
+export const $currentTheme = createStore<ThemeMode>(ThemeMode.System).on(
+  [currentThemeChanged, loadThemeModeFromStorageFx.doneData],
   (_, mode) => mode,
 );
 
-sample({ source: $selectedThemeMode, target: setThemeModeFx });
-sample({ clock: initThemeMode, target: loadThemeModeFromStorageFx });
-sample({ clock: loadThemeModeFromStorageFx.doneData, target: $selectedThemeMode });
+export const $preferSystemTheme = $currentTheme.map(theme => theme === ThemeMode.System);
+
+const trackSystemThemeChangesFx = createEffect(async () => {
+  const mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
+
+  mediaQueryList.addEventListener('change', event => {
+    systemThemeChanged(event.matches ? ThemeMode.Dark : ThemeMode.Light);
+  });
+});
+
+const toggleThemeInDomFx = attach({
+  source: { preferSystemTheme: $preferSystemTheme },
+  effect: async ({ preferSystemTheme }, theme: ThemeMode) => {
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? ThemeMode.Dark : ThemeMode.Light;
+    const nextTheme = preferSystemTheme ? systemTheme : theme;
+
+    if (nextTheme === ThemeMode.Dark) {
+      document.body.classList.remove(BrandClassnames.light);
+      document.body.classList.add(BrandClassnames.dark);
+    } else {
+      document.body.classList.remove(BrandClassnames.dark);
+      document.body.classList.add(BrandClassnames.light);
+    }
+
+    return theme;
+  },
+});
+
+const toggleThemeInDomAndStorageFx = createEffect(async (theme: ThemeMode) => {
+  await toggleThemeInDomFx(theme);
+  await chrome.storage.local.set({ [BrowserStorageKey.ThemeMode]: theme });
+  return theme;
+});
+
+// Загружаем last saved версию темы из хранилища
+sample({ clock: initApp, target: loadThemeModeFromStorageFx });
+// Подписываемся на изменение системной темы
+sample({ clock: initApp, source: $currentTheme, target: trackSystemThemeChangesFx });
+// Инициализируем тему в DOM на первую загрузку
+sample({ clock: initApp, source: $currentTheme, target: toggleThemeInDomFx });
+// при изменении темы обновляем DOM, сохраняем в storage
+sample({ source: $currentTheme, target: toggleThemeInDomAndStorageFx });
+// При изменении системной темы и пользователь выбрал явно режим "System" обновляем тему
+sample({ clock: systemThemeChanged, filter: $preferSystemTheme, target: toggleThemeInDomAndStorageFx });

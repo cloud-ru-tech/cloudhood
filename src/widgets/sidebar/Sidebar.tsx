@@ -5,7 +5,7 @@ import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, ThemeContrastSVG } from '@sn
 import { Droplist } from '@snack-uikit/list';
 
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
-import { $selectedThemeMode, selectedThemeModeChanges } from '#entities/themeMode/model';
+import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
 import { GithubIcon } from '#shared/assets/GithubIcon';
 import { ThemeMode } from '#shared/constants';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
@@ -17,9 +17,9 @@ import * as S from './styled';
 const CLOUDHOOD_GITHUB_URL = packageJson.homepage;
 
 export function Sidebar() {
-  const [selectedThemeMode, toggleThemeMode, selectedProfileId, handleAddProfile, profiles] = useUnit([
-    $selectedThemeMode,
-    selectedThemeModeChanges,
+  const [currentTheme, toggleTheme, selectedProfileId, handleAddProfile, profiles] = useUnit([
+    $currentTheme,
+    currentThemeChanged,
     $selectedRequestProfile,
     profileAdded,
     $requestProfiles,
@@ -49,8 +49,8 @@ export function Sidebar() {
             placement='right-end'
             selection={{
               mode: 'single',
-              value: selectedThemeMode,
-              onChange: toggleThemeMode,
+              value: currentTheme,
+              onChange: toggleTheme,
             }}
             items={[
               { id: ThemeMode.Light, content: { option: 'Light' }, beforeContent: <DaySVG /> },
