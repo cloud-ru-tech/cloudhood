@@ -40,6 +40,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      short_sha: ${{ steps.set_short_sha.outputs.short_sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -47,22 +49,64 @@ jobs:
       - name: Install dependencies
         run: npm ci
         shell: bash
-
       - name: Build React app
         run: npm run build
 
-      - name: Pack build-folder to ZIP-file
+      - name: Set SHORT_SHA
+        id: set_short_sha
         run: |
           SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
-          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Pack build-folder to ZIP-file
+        run: |
           cd build
-          zip -r ../cloudhood-$SHORT_SHA.zip .
+          zip -r ../cloudhood-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
       - name: Pull request artifacts
         uses: gavv/pull-request-artifacts@v1.1.0
         with:
-          commit: ${{ env.SHORT_SHA }}
+          commit: ${{ steps.set_short_sha.outputs.short_sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-branch: artifacts
           artifacts: |
-            cloudhood-${{ env.SHORT_SHA }}.zip
+            cloudhood-${{ steps.set_short_sha.outputs.short_sha }}.zip
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-${{ steps.set_short_sha.outputs.short_sha }}
+          path: cloudhood-${{ steps.set_short_sha.outputs.short_sha }}.zip
+
+  pre-publish:
+    needs: [pr-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install publish-browser-extension
+        run: npm install -save-dev publish-browser-extension
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.pr-build.outputs.short_sha }}
+          path: build
+
+      - name: Publish Chrome Extension (Dry Run)
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+        run: |
+          npx publish-extension \
+            --dry-run \
+            --chrome-zip build/cloudhood-${{ needs.pr-build.outputs.short_sha }}.zip \
+            --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
+            --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
+            --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
+            --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
+            --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
