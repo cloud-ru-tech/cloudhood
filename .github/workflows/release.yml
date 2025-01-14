@@ -6,8 +6,7 @@ on:
 jobs:
   build:
     if: |
-      github.ref == 'refs/heads/main' &&
-      github.actor_id == github.repository_owner_id
+      github.ref == 'refs/heads/main'
     permissions:
       contents: write
       pull-requests: write
