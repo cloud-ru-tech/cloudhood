@@ -7,7 +7,7 @@ jobs:
   build:
     if: |
       github.ref == 'refs/heads/main' &&
-      contains(github.event.user.groups, 'admin')
+      github.actor_id == github.repository_owner_id
     permissions:
       contents: write
       pull-requests: write
