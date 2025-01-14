@@ -6,7 +6,9 @@ on:
 jobs:
   build:
     if: |
-      github.ref == 'refs/heads/main'
+      github.ref == 'refs/heads/main' &&
+      contains(fromJson('["Egorzaa", "JustPilz", "Kirrrusha"]'), github.actor)
+
     permissions:
       contents: write
       pull-requests: write
