@@ -31,8 +31,8 @@ export function RequestHeadersActions() {
           Request headers
         </S.LeftHeaderActions>
         <S.RightHeaderActions>
-          <ButtonFunction icon={<PlusSVG />} onClick={handleAdd} />
-          <ButtonFunction icon={<TrashSVG />} disabled={!isProfileRemoveAvailable} onClick={handleRemove} />
+          <ButtonFunction disabled={isPaused} icon={<PlusSVG />} onClick={handleAdd} />
+          <ButtonFunction icon={<TrashSVG />} disabled={isPaused || !isProfileRemoveAvailable} onClick={handleRemove} />
         </S.RightHeaderActions>
       </S.Header>
 
