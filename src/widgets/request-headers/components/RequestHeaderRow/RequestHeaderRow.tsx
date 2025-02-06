@@ -1,4 +1,5 @@
 import { useSortable } from '@dnd-kit/sortable';
+import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
@@ -7,6 +8,7 @@ import { CrossSVG } from '@snack-uikit/icons';
 import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
 
+import { $isPaused } from '#entities/is-paused/model';
 import type { RequestHeader } from '#entities/request-profile/types';
 import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
 import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-request-headers/paste/model';
@@ -21,6 +23,9 @@ import * as S from './styled';
 export function RequestHeaderRow(props: RequestHeader) {
   const { disabled, name, value, id } = props;
   const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
+  const { isPaused } = useUnit({
+    isPaused: $isPaused,
+  });
 
   const isNameFormatVerified = validateHeaderName(name);
   const isValueFormatVerified = validateHeaderValue(value);
@@ -60,9 +65,9 @@ export function RequestHeaderRow(props: RequestHeader) {
   return (
     <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
       <S.LeftHeaderActions>
-        <DragHandle listeners={listeners} attributes={attributes} />
+        <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
 
-        <Checkbox checked={!disabled} onChange={handleChecked} />
+        <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} />
 
         <Tooltip
           open={headerNameFocused && name.length > 0 && !isNameFormatVerified}
@@ -79,6 +84,7 @@ export function RequestHeaderRow(props: RequestHeader) {
             onFocus={onHeaderNameFocused}
             onBlur={onHeaderNameBlur}
             showClearButton={false}
+            disabled={isPaused}
             validationState={name.length > 0 && !isNameFormatVerified ? 'error' : 'default'}
           />
         </Tooltip>
@@ -97,11 +103,17 @@ export function RequestHeaderRow(props: RequestHeader) {
           onPaste={handlePaste('value')}
           onKeyDown={handleKeyPress}
           showClearButton={false}
+          disabled={isPaused}
           validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
         />
       </Tooltip>
 
-      <ButtonFunction size='s' icon={<CrossSVG />} onClick={() => selectedProfileRequestHeadersRemoved([id])} />
+      <ButtonFunction
+        disabled={isPaused}
+        size='s'
+        icon={<CrossSVG />}
+        onClick={() => selectedProfileRequestHeadersRemoved([id])}
+      />
 
       <RequestHeaderMenu {...props} />
     </S.Wrapper>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ButtonFunction } from '@snack-uikit/button';
 import { CopySVG, CrossSVG, KebabSVG } from '@snack-uikit/icons';
 
+import { $isPaused } from '#entities/is-paused/model';
 import { RequestHeader } from '#entities/request-profile/types';
 import { selectedProfileRequestHeaderCleared } from '#features/selected-profile-request-headers/clear/model';
 import { selectedProfileRequestHeaderCopied } from '#features/selected-profile-request-headers/copy/model';
@@ -13,10 +14,11 @@ import { SwitchAccountSVG } from '#shared/assets/svg';
 import * as S from './styled';
 
 export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
-  const [handleDuplicate, handleRequestHeaderCopy, handleClear] = useUnit([
+  const [handleDuplicate, handleRequestHeaderCopy, handleClear, isPaused] = useUnit([
     selectedProfileRequestHeaderDuplicated,
     selectedProfileRequestHeaderCopied,
     selectedProfileRequestHeaderCleared,
+    $isPaused,
   ]);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -53,7 +55,7 @@ export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
         },
       ]}
     >
-      <ButtonFunction size='s' icon={<KebabSVG />} />
+      <ButtonFunction size='s' icon={<KebabSVG />} disabled={isPaused} />
     </S.StyledDroplist>
   );
 }
