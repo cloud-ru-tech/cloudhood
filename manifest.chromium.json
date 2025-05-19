@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Cloudhood",
+  "version": "1.1.2",
+  "action": {
+    "icon": "main-icon-38.png",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "38": "main-icon-38.png"
+    },
+    "default_title": "Modify Outgoing XHR/Fetch Request Headers"
+  },
+  "icons": {
+    "16": "main-icon-16.jpg",
+    "32": "main-icon-32.jpg",
+    "48": "main-icon-48.jpg",
+    "128": "main-icon-128.jpg"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "tabs",
+    "contextMenus"
+  ],
+  "background": {
+    "service_worker": "background.bundle.js"
+  }
+}
