@@ -1,8 +1,10 @@
+import browser from 'webextension-polyfill';
+
 import { BrowserStorageKey } from '#shared/constants';
 
 export async function loadIsPausedFromStorageApi() {
   try {
-    const response = await chrome.storage.local.get([BrowserStorageKey.IsPaused]);
+    const response = await browser.storage.local.get([BrowserStorageKey.IsPaused]);
     const isPaused = response[BrowserStorageKey.IsPaused] ?? false;
 
     return isPaused;
