@@ -91,20 +91,20 @@ jobs:
         run: npm run build:firefox
         shell: bash
 
-      # - name: Pack Firefox build folder to ZIP-file
-      #   run: |
-      #     cd build/firefox
-      #     zip -r ../../cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip .
+      - name: Pack Firefox build folder to ZIP-file
+        run: |
+          cd build/firefox
+          zip -r ../../cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
-      # - name: Pull request artifacts
-      #   uses: gavv/pull-request-artifacts@v1.1.0
-      #   with:
-      #     commit: ${{ steps.set_short_sha.outputs.short_sha }}
-      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
-      #     artifacts-branch: artifacts
-      #     artifacts: |
-      #       cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
-      #       cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
+      - name: Pull request artifacts
+        uses: gavv/pull-request-artifacts@v1.1.0
+        with:
+          commit: ${{ steps.set_short_sha.outputs.short_sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts-branch: artifacts
+          artifacts: |
+            cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
+            cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
       - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
@@ -112,11 +112,11 @@ jobs:
           name: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}
           path: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
-      # - name: Upload Firefox build artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}
-      #     path: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
+      - name: Upload Firefox build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}
+          path: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
   pre-publish:
     needs: [pr-build]
@@ -134,11 +134,11 @@ jobs:
           name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
           path: dist/chrome
 
-      # - name: Download Firefox build artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
-      #     path: dist/firefox
+      - name: Download Firefox build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
+          path: dist/firefox
 
       - name: Publish Chrome Extension (Dry Run)
         env:

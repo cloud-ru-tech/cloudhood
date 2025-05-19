@@ -19,8 +19,8 @@ describe('generateIdWithExcludeList', () => {
   });
 
   it('should generate a different id if the first generated id is in the exclude list', () => {
-    const exclude = Array.from({ length: 999999999 }, (_, i) => i);
+    const exclude = Array.from({ length: 1000 }, (_, i) => i);
     const id = generateIdWithExcludeList(exclude);
-    expect(id).not.toBe(0);
+    expect(exclude).not.toContain(id);
   });
 });

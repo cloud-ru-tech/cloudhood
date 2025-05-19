@@ -1,6 +1,3 @@
-/**
- * Уровни логирования
- */
 export enum LogLevel {
   DEBUG = 'DEBUG',
   INFO = 'INFO',
@@ -20,48 +17,30 @@ export type LoggerConfig = {
   enabled: boolean;
 };
 
-// Конфигурация по умолчанию
 const defaultConfig: LoggerConfig = {
   minLevel: LogLevel.INFO,
   showTimestamp: true,
   enabled: true,
 };
 
-// Текущая конфигурация
 let currentConfig = { ...defaultConfig };
 
-/**
- * Установить конфигурацию логгера
- */
 export function configureLogger(config: Partial<LoggerConfig>): void {
   currentConfig = { ...currentConfig, ...config };
 }
 
-/**
- * Отключить логирование
- */
 export function disableLogger(): void {
   currentConfig.enabled = false;
 }
 
-/**
- * Включить логирование
- */
 export function enableLogger(): void {
   currentConfig.enabled = true;
 }
-
-/**
- * Форматирование сообщения лога
- */
 function formatLogMessage(level: LogLevel, message: string): string {
   const timestamp = currentConfig.showTimestamp ? `[${new Date().toISOString()}] ` : '';
   return `${timestamp}[${level}] ${message}`;
 }
 
-/**
- * Проверка, нужно ли логировать сообщение данного уровня
- */
 function shouldLog(level: LogLevel): boolean {
   if (!currentConfig.enabled) return false;
 
@@ -69,9 +48,6 @@ function shouldLog(level: LogLevel): boolean {
   return levels.indexOf(level) >= levels.indexOf(currentConfig.minLevel);
 }
 
-/**
- * Логирование с уровнем DEBUG
- */
 export function logDebug(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.DEBUG)) {
     // eslint-disable-next-line no-console
@@ -79,9 +55,6 @@ export function logDebug(message: string, ...args: unknown[]): void {
   }
 }
 
-/**
- * Логирование с уровнем INFO
- */
 export function logInfo(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.INFO)) {
     // eslint-disable-next-line no-console
@@ -89,9 +62,6 @@ export function logInfo(message: string, ...args: unknown[]): void {
   }
 }
 
-/**
- * Логирование с уровнем WARN
- */
 export function logWarn(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.WARN)) {
     // eslint-disable-next-line no-console
@@ -99,9 +69,6 @@ export function logWarn(message: string, ...args: unknown[]): void {
   }
 }
 
-/**
- * Логирование с уровнем ERROR
- */
 export function logError(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.ERROR)) {
     // eslint-disable-next-line no-console
@@ -109,9 +76,6 @@ export function logError(message: string, ...args: unknown[]): void {
   }
 }
 
-/**
- * Группировка логов
- */
 export function logGroup(title: string, collapsed = false): void {
   if (!currentConfig.enabled) return;
 
@@ -124,9 +88,6 @@ export function logGroup(title: string, collapsed = false): void {
   }
 }
 
-/**
- * Завершение группы логов
- */
 export function logGroupEnd(): void {
   if (!currentConfig.enabled) return;
 
@@ -134,7 +95,6 @@ export function logGroupEnd(): void {
   console.groupEnd();
 }
 
-// Экспортируем для удобства использования
 export const logger = {
   debug: logDebug,
   info: logInfo,
