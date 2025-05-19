@@ -2,6 +2,8 @@
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 process.env.ASSET_PATH = '/';
+process.env.BROWSER = 'chrome';
+process.env.BUILD_DIR = 'chrome';
 
 var webpack = require('webpack'),
   config = require('../webpack.config');

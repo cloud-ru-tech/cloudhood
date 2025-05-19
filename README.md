@@ -28,6 +28,55 @@ You can get a test build for each pull-request in its comments. [Example](https:
    - Click `Load unpacked extension`
    - Select `build` directory.
 
+## Development for different browsers
+
+### Chrome Development
+
+```bash
+npm run start:chrome
+```
+
+### Firefox Development
+
+```bash
+npm run start:firefox
+```
+
+## Building Extensions
+
+### Build Chrome Extension
+
+```bash
+npm run build:chromium
+```
+
+The extension will be built in the `build/chrome` directory.
+
+### Build Firefox Extension
+
+```bash
+npm run build:firefox
+```
+
+The extension will be built in the `build/firefox` directory.
+
+### Build Both Extensions
+
+```bash
+npm run build
+```
+
+## Releasing
+
+We use GitHub Actions to automate the release process. The workflow:
+1. Bumps version based on commit messages
+2. Builds extensions for Chrome and Firefox
+3. Creates ZIP archives for both platforms
+4. Publishes to Chrome Web Store and Firefox Add-ons
+5. Creates a GitHub Release with both extension packages
+
+See [RELEASE_SETUP.md](RELEASE_SETUP.md) for details on configuring the release automation.
+
 ## Packing
 
 After developing your extension, run the command

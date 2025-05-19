@@ -7,6 +7,7 @@ var webpack = require('webpack'),
   TerserPlugin = require('terser-webpack-plugin');
 var { CleanWebpackPlugin } = require('clean-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
+var fs = require('fs');
 
 var pathResolve = (...args) => path.resolve(process.cwd(), ...args);
 var replaceGlobs = path => path.replace(/(\/\*\*)*\/\*$/, '');
@@ -23,6 +24,8 @@ function tsconfigPathsConverter(tsConfigPath, dirname = '.') {
 }
 
 var ASSET_PATH = process.env.ASSET_PATH || '/';
+var TARGET_BROWSER = process.env.BROWSER || 'chrome';
+var BUILD_DIR = process.env.BUILD_DIR || '';
 
 // load the secrets
 var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
@@ -41,14 +44,13 @@ var options = {
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'build'),
+    path: BUILD_DIR ? path.resolve(__dirname, 'build', BUILD_DIR) : path.resolve(__dirname, 'build'),
     clean: true,
     publicPath: ASSET_PATH,
   },
   module: {
     rules: [
       {
-        // look for .css
         test: /\.(css)$/,
         use: [
           {
@@ -93,17 +95,33 @@ var options = {
   plugins: [
     new CleanWebpackPlugin({ verbose: false }),
     new webpack.ProgressPlugin(),
-    // expose and write the allowed env vars on the compiled bundle
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
+    {
+      apply: compiler => {
+        compiler.hooks.beforeRun.tap('EnsureBuildDirExists', () => {
+          if (BUILD_DIR) {
+            // Ensure build directory exists
+            const buildDir = path.resolve(__dirname, 'build', BUILD_DIR);
+            if (!fs.existsSync(path.resolve(__dirname, 'build'))) {
+              fs.mkdirSync(path.resolve(__dirname, 'build'));
+            }
+            if (!fs.existsSync(buildDir)) {
+              fs.mkdirSync(buildDir);
+            }
+          }
+        });
+      },
+    },
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'BROWSER']),
     new MiniCssExtractPlugin({ filename: 'styles.css' }),
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'manifest.json',
-          to: path.join(__dirname, 'build'),
+          from: TARGET_BROWSER === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json',
+          to: BUILD_DIR
+            ? path.join(__dirname, 'build', BUILD_DIR, 'manifest.json')
+            : path.join(__dirname, 'build', 'manifest.json'),
           force: true,
           transform: function (content) {
-            // generates the manifest file using the package.json informations
             return Buffer.from(
               JSON.stringify({
                 description: process.env.npm_package_description,
@@ -119,7 +137,7 @@ var options = {
       patterns: [
         {
           from: 'src/assets/img',
-          to: path.join(__dirname, 'build'),
+          to: BUILD_DIR ? path.join(__dirname, 'build', BUILD_DIR) : path.join(__dirname, 'build'),
           force: true,
         },
       ],

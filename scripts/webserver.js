@@ -2,6 +2,9 @@
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 process.env.ASSET_PATH = '/';
+// Default browser and build dir
+process.env.BROWSER = process.env.BROWSER || 'chrome';
+process.env.BUILD_DIR = process.env.BROWSER === 'firefox' ? 'firefox' : 'chrome';
 
 var WebpackDevServer = require('webpack-dev-server'),
   webpack = require('webpack'),
@@ -35,7 +38,7 @@ var server = new WebpackDevServer(
     host: 'localhost',
     port: env.PORT,
     static: {
-      directory: path.join(__dirname, '../build'),
+      directory: path.join(__dirname, `../build/${process.env.BUILD_DIR}`),
     },
     devMiddleware: {
       publicPath: `http://localhost:${env.PORT}/`,
@@ -52,6 +55,21 @@ var server = new WebpackDevServer(
 if (process.env.NODE_ENV === 'development' && module.hot) {
   module.hot.accept();
 }
+
+// eslint-disable-next-line no-console
+console.log(
+  `Starting ${process.env.BROWSER.toUpperCase()} extension development server (BUILD_DIR: ${
+    process.env.BUILD_DIR
+  }) on http://localhost:${env.PORT}`,
+);
+
+// Display startup info
+// eslint-disable-next-line no-console
+console.log(
+  `Starting ${process.env.BROWSER.toUpperCase()} extension development server (BUILD_DIR: ${
+    process.env.BUILD_DIR
+  }) on http://localhost:${env.PORT}`,
+);
 
 (async () => {
   await server.start();
