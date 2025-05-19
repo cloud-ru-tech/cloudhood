@@ -1,26 +1,116 @@
+import browser from 'webextension-polyfill';
+
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
+import { browserAction } from './shared/utils/browserAPI';
+import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
+
+// Настраиваем логгер
+logger.configure({
+  minLevel: process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
+  showTimestamp: true,
+  enabled: true,
+});
 
 const BADGE_COLOR = '#ffffff';
 
-function notify(message: ServiceWorkerEvent) {
+async function notify(message: ServiceWorkerEvent) {
+  logger.debug('Received message:', message);
+
   if (message === ServiceWorkerEvent.Reload) {
-    chrome.storage.local.get(
-      [BrowserStorageKey.Profiles, BrowserStorageKey.SelectedProfile, BrowserStorageKey.IsPaused],
-      setBrowserHeaders,
-    );
+    logger.info('Reloading headers configuration');
+
+    const result = await browser.storage.local.get([
+      BrowserStorageKey.Profiles,
+      BrowserStorageKey.SelectedProfile,
+      BrowserStorageKey.IsPaused,
+    ]);
+
+    await setBrowserHeaders(result);
   }
+  return undefined;
 }
 
-chrome.runtime.onStartup.addListener(function () {
-  chrome.storage.local.get(
-    [BrowserStorageKey.Profiles, BrowserStorageKey.SelectedProfile, BrowserStorageKey.IsPaused],
-    async result => {
-      Object.keys(result).length && setBrowserHeaders(result);
-    },
-  );
+browser.runtime.onStartup.addListener(async function () {
+  logger.info('Extension startup triggered');
+
+  const result = await browser.storage.local.get([
+    BrowserStorageKey.Profiles,
+    BrowserStorageKey.SelectedProfile,
+    BrowserStorageKey.IsPaused,
+  ]);
+
+  if (Object.keys(result).length) {
+    logger.debug('Storage data found, setting browser headers');
+    await setBrowserHeaders(result);
+  } else {
+    logger.warn('No storage data found on startup');
+  }
 });
 
-chrome.action.setBadgeBackgroundColor({ color: BADGE_COLOR });
+// Добавляем слушатель изменений в хранилище
+browser.storage.onChanged.addListener(async (changes, areaName) => {
+  logger.debug('Storage changes detected in area:', areaName, changes);
 
-chrome.runtime.onMessage.addListener(notify);
+  if (areaName === 'local') {
+    // Проверяем, изменились ли данные, влияющие на заголовки
+    const relevantChanges = [
+      BrowserStorageKey.Profiles,
+      BrowserStorageKey.SelectedProfile,
+      BrowserStorageKey.IsPaused,
+    ].some(key => Object.keys(changes).includes(key));
+
+    if (relevantChanges) {
+      logger.info('Relevant storage changes detected, updating headers');
+      const result = await browser.storage.local.get([
+        BrowserStorageKey.Profiles,
+        BrowserStorageKey.SelectedProfile,
+        BrowserStorageKey.IsPaused,
+      ]);
+      await setBrowserHeaders(result);
+    }
+  }
+});
+
+// Добавляем обработчик события установки/обновления расширения
+browser.runtime.onInstalled.addListener(async details => {
+  logger.info('Extension installed/updated:', details.reason);
+
+  // Загружаем настройки из хранилища
+  const result = await browser.storage.local.get([
+    BrowserStorageKey.Profiles,
+    BrowserStorageKey.SelectedProfile,
+    BrowserStorageKey.IsPaused,
+  ]);
+
+  if (Object.keys(result).length) {
+    logger.debug('Storage data found, initializing browser headers');
+    await setBrowserHeaders(result);
+  }
+});
+
+// Обработчик изменения активной вкладки для обеспечения применения правил
+browser.tabs.onActivated.addListener(async activeInfo => {
+  logger.debug('Tab activated:', activeInfo);
+
+  // В Chrome часто требуется переприменение правил при переключении контекста
+  const result = await browser.storage.local.get([
+    BrowserStorageKey.Profiles,
+    BrowserStorageKey.SelectedProfile,
+    BrowserStorageKey.IsPaused,
+  ]);
+
+  if (Object.keys(result).length) {
+    await setBrowserHeaders(result);
+  }
+});
+
+// Используем кроссбраузерную обертку вместо прямого вызова browser.action
+browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
+
+browser.runtime.onMessage.addListener(message => {
+  notify(message as ServiceWorkerEvent).catch(err => {
+    logger.error('Error handling message:', err);
+  });
+  return undefined;
+});

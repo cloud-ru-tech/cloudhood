@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 import { BrowserStorageKey } from '#shared/constants';
 
 import { DEFAULT_REQUEST_HEADERS } from '../constants';
@@ -7,8 +9,8 @@ export async function loadSelectedProfileFromStorageApi(profiles: Profile[]) {
   const firstProfileKey = profiles[0].id;
 
   try {
-    const response = await chrome.storage.local.get([BrowserStorageKey.SelectedProfile]);
-    const selectedProfile = response[BrowserStorageKey.SelectedProfile] ?? firstProfileKey;
+    const response = (await browser.storage.local.get([BrowserStorageKey.SelectedProfile])) as Record<string, unknown>;
+    const selectedProfile = (response[BrowserStorageKey.SelectedProfile] as string) ?? firstProfileKey;
 
     return selectedProfile;
   } catch (e) {
@@ -20,8 +22,8 @@ export async function loadSelectedProfileFromStorageApi(profiles: Profile[]) {
 
 export async function loadProfilesFromStorageApi() {
   try {
-    const response = await chrome.storage.local.get([BrowserStorageKey.Profiles]);
-    const profiles: Profile[] | null = JSON.parse(response[BrowserStorageKey.Profiles] ?? 'null');
+    const response = (await browser.storage.local.get([BrowserStorageKey.Profiles])) as Record<string, unknown>;
+    const profiles: Profile[] | null = JSON.parse((response[BrowserStorageKey.Profiles] as string) ?? 'null');
 
     return profiles ?? DEFAULT_REQUEST_HEADERS;
   } catch (e) {

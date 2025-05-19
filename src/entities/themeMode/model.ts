@@ -1,4 +1,5 @@
 import { attach, createEffect, createEvent, createStore, sample } from 'effector';
+import browser from 'webextension-polyfill';
 
 import BrandClassnames from '@snack-uikit/figma-tokens/build/css/brand.module.css';
 
@@ -9,7 +10,9 @@ export const currentThemeChanged = createEvent<ThemeMode>();
 export const systemThemeChanged = createEvent<ThemeMode>();
 
 const loadThemeModeFromStorageFx = createEffect(async (): Promise<ThemeMode> => {
-  const response = await chrome.storage.local.get([BrowserStorageKey.ThemeMode]);
+  const response = (await browser.storage.local.get([BrowserStorageKey.ThemeMode])) as {
+    [BrowserStorageKey.ThemeMode]: ThemeMode | undefined;
+  };
   return response[BrowserStorageKey.ThemeMode] ?? ThemeMode.System;
 });
 
@@ -48,7 +51,7 @@ const toggleThemeInDomFx = attach({
 
 const toggleThemeInDomAndStorageFx = createEffect(async (theme: ThemeMode) => {
   await toggleThemeInDomFx(theme);
-  await chrome.storage.local.set({ [BrowserStorageKey.ThemeMode]: theme });
+  await browser.storage.local.set({ [BrowserStorageKey.ThemeMode]: theme });
   return theme;
 });
 

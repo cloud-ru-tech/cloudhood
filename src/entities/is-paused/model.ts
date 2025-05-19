@@ -7,12 +7,24 @@ import { loadIsPausedFromStorageApi } from './utils/load';
 
 export const toggleIsPaused = createEvent();
 
-const loadIsPausedFromStorageFx = createEffect(loadIsPausedFromStorageApi);
-const saveIsPausedToStorageFx = createEffect(saveIsPausedToBrowserApi);
+const loadIsPausedFromStorageFx = createEffect({
+  handler: loadIsPausedFromStorageApi,
+});
 
-export const $isPaused = createStore<boolean>(false).on(toggleIsPaused, state => !state);
+const saveIsPausedToStorageFx = createEffect({
+  handler: saveIsPausedToBrowserApi,
+});
 
-sample({ source: $isPaused, target: saveIsPausedToStorageFx });
+export const $isPaused = createStore<boolean>(false)
+  .on(toggleIsPaused, state => !state)
+  .on(loadIsPausedFromStorageFx.doneData, (_, isPaused) => Boolean(isPaused));
 
-sample({ clock: initApp, target: loadIsPausedFromStorageFx });
-sample({ clock: loadIsPausedFromStorageFx.doneData, target: $isPaused });
+sample({
+  source: $isPaused,
+  target: saveIsPausedToStorageFx,
+});
+
+sample({
+  source: initApp,
+  target: loadIsPausedFromStorageFx,
+});
