@@ -4,7 +4,30 @@ on:
   workflow_dispatch:
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Run unit tests
+        run: npm run test:unit
+        shell: bash
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/unit/
+          retention-days: 5
+
   build:
+    needs: [unit-tests]
     if: |
       github.ref == 'refs/heads/main' &&
       contains(fromJson('["Egorzaa", "JustPilz", "Kirrrusha"]'), github.actor)
@@ -39,11 +62,15 @@ jobs:
           VERSION=$(node --print 'require("./package.json").version')
           TAG=v$VERSION
           echo "latest_tag=$TAG" >> $GITHUB_OUTPUT
-          jq --arg ver "$VERSION" '.version = $ver' manifest.json > tmp.json && mv tmp.json manifest.json
+
+          # Update manifest files for both browsers
+          jq --arg ver "$VERSION" '.version = $ver' manifest.chromium.json > tmp.json && mv tmp.json manifest.chromium.json
+          jq --arg ver "$VERSION" '.version = $ver' manifest.firefox.json > tmp.json && mv tmp.json manifest.firefox.json
+
           git config --local user.name github-actions
           git config --local user.email github-actions@github.com
           git fetch --tags
-          git add manifest.json package.json package-lock.json
+          git add manifest.chromium.json manifest.firefox.json package.json package-lock.json
           git commit -m "ci: bump version to $VERSION [skip ci]"
           git push
           git tag $TAG
@@ -53,19 +80,35 @@ jobs:
         run: npm ci
         shell: bash
 
-      - name: Build React app
-        run: npm run build
+      - name: Build Chrome extension
+        run: npm run build:chromium
+        shell: bash
 
-      - name: Pack build-folder to ZIP-file
+      - name: Pack Chrome build folder to ZIP-file
         run: |
-          cd build
-          zip -r ../cloudhood.zip .
+          cd build/chrome
+          zip -r ../../cloudhood-chrome.zip .
 
-      - name: Upload build artifact
+      # - name: Build Firefox extension
+      #   run: npm run build:firefox
+      #   shell: bash
+
+      # - name: Pack Firefox build folder to ZIP-file
+      #   run: |
+      #     cd build/firefox
+      #     zip -r ../../cloudhood-firefox.zip .
+
+      - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cloudhood
-          path: cloudhood.zip
+          name: cloudhood-chrome
+          path: cloudhood-chrome.zip
+
+      # - name: Upload Firefox build artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: cloudhood-firefox
+      #     path: cloudhood-firefox.zip
 
   publish:
     needs: [build]
@@ -77,13 +120,19 @@ jobs:
       - name: Install publish-browser-extension
         run: npm install -g publish-browser-extension
 
-      - name: Download build artifact
+      - name: Download Chrome build artifact
         uses: actions/download-artifact@v4
         with:
-          name: cloudhood
-          path: build
+          name: cloudhood-chrome
+          path: dist/chrome
 
-      - name: Upload CHROME
+      # - name: Download Firefox build artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: cloudhood-firefox
+      #     path: dist/firefox
+
+      - name: Upload to Chrome Web Store
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -92,9 +141,53 @@ jobs:
           CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
         run: |
           npx publish-extension \
-            --chrome-zip build/cloudhood.zip \
+            --chrome-zip dist/chrome/cloudhood-chrome.zip \
             --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
             --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
             --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
             --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
             --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
+
+      # - name: Upload to Firefox Add-ons
+      #   env:
+      #     FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+      #     FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+      #     FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+      #   run: |
+      #     npx publish-extension \
+      #       --firefox-zip dist/firefox/cloudhood-firefox.zip \
+      #       --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
+      #       --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
+      #       --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
+
+  create-github-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Chrome build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-chrome
+          path: ./
+
+      # - name: Download Firefox build artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: cloudhood-firefox
+      #     path: ./
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.build.outputs.latest_tag }}
+          name: Release ${{ needs.build.outputs.latest_tag }}
+          files: |
+            cloudhood-chrome.zip
+            # cloudhood-firefox.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

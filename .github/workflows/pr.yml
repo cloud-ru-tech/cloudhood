@@ -34,8 +34,30 @@ jobs:
       - name: TypeScript
         uses: './.github/actions/typescript'
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Run unit tests
+        run: npm run test:unit
+        shell: bash
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/unit/
+          retention-days: 5
+
   pr-build:
-    needs: [license, lint, typescript]
+    needs: [license, lint, typescript, unit-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -49,8 +71,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
         shell: bash
-      - name: Build React app
-        run: npm run build
 
       - name: Set SHORT_SHA
         id: set_short_sha
@@ -58,25 +78,45 @@ jobs:
           SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
           echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
 
-      - name: Pack build-folder to ZIP-file
+      - name: Build Chrome extension
+        run: npm run build:chromium
+        shell: bash
+
+      - name: Pack Chrome build folder to ZIP-file
         run: |
-          cd build
-          zip -r ../cloudhood-${{ steps.set_short_sha.outputs.short_sha }}.zip .
+          cd build/chrome
+          zip -r ../../cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
-      - name: Pull request artifacts
-        uses: gavv/pull-request-artifacts@v1.1.0
-        with:
-          commit: ${{ steps.set_short_sha.outputs.short_sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts-branch: artifacts
-          artifacts: |
-            cloudhood-${{ steps.set_short_sha.outputs.short_sha }}.zip
+      - name: Build Firefox extension
+        run: npm run build:firefox
+        shell: bash
 
-      - name: Upload build artifact
+      # - name: Pack Firefox build folder to ZIP-file
+      #   run: |
+      #     cd build/firefox
+      #     zip -r ../../cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip .
+
+      # - name: Pull request artifacts
+      #   uses: gavv/pull-request-artifacts@v1.1.0
+      #   with:
+      #     commit: ${{ steps.set_short_sha.outputs.short_sha }}
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     artifacts-branch: artifacts
+      #     artifacts: |
+      #       cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
+      #       cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
+
+      - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cloudhood-${{ steps.set_short_sha.outputs.short_sha }}
-          path: cloudhood-${{ steps.set_short_sha.outputs.short_sha }}.zip
+          name: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}
+          path: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
+
+      # - name: Upload Firefox build artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}
+      #     path: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
   pre-publish:
     needs: [pr-build]
@@ -88,11 +128,17 @@ jobs:
       - name: Install publish-browser-extension
         run: npm install -save-dev publish-browser-extension
 
-      - name: Download build artifact
+      - name: Download Chrome build artifact
         uses: actions/download-artifact@v4
         with:
-          name: cloudhood-${{ needs.pr-build.outputs.short_sha }}
-          path: build
+          name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
+          path: dist/chrome
+
+      # - name: Download Firefox build artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
+      #     path: dist/firefox
 
       - name: Publish Chrome Extension (Dry Run)
         env:
@@ -104,9 +150,22 @@ jobs:
         run: |
           npx publish-extension \
             --dry-run \
-            --chrome-zip build/cloudhood-${{ needs.pr-build.outputs.short_sha }}.zip \
+            --chrome-zip dist/chrome/cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip \
             --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
             --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
             --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
             --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
             --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
+
+      # - name: Publish Firefox Extension (Dry Run)
+      #   env:
+      #     FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+      #     FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+      #     FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+      #   run: |
+      #     npx publish-extension \
+      #       --dry-run \
+      #       --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
+      #       --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
+      #       --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
+      #       --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
