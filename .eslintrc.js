@@ -5,4 +5,5 @@ module.exports = {
     'prettier/prettier': 'off',
   },
   plugins: ['effector'],
+  ignorePatterns: ['vitest.config.ts'],
 };
