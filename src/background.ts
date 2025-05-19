@@ -5,7 +5,6 @@ import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 
-// Настраиваем логгер
 logger.configure({
   minLevel: process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
   showTimestamp: true,
@@ -48,12 +47,10 @@ browser.runtime.onStartup.addListener(async function () {
   }
 });
 
-// Добавляем слушатель изменений в хранилище
 browser.storage.onChanged.addListener(async (changes, areaName) => {
   logger.debug('Storage changes detected in area:', areaName, changes);
 
   if (areaName === 'local') {
-    // Проверяем, изменились ли данные, влияющие на заголовки
     const relevantChanges = [
       BrowserStorageKey.Profiles,
       BrowserStorageKey.SelectedProfile,
@@ -72,11 +69,9 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
   }
 });
 
-// Добавляем обработчик события установки/обновления расширения
 browser.runtime.onInstalled.addListener(async details => {
   logger.info('Extension installed/updated:', details.reason);
 
-  // Загружаем настройки из хранилища
   const result = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
@@ -89,11 +84,9 @@ browser.runtime.onInstalled.addListener(async details => {
   }
 });
 
-// Обработчик изменения активной вкладки для обеспечения применения правил
 browser.tabs.onActivated.addListener(async activeInfo => {
   logger.debug('Tab activated:', activeInfo);
 
-  // В Chrome часто требуется переприменение правил при переключении контекста
   const result = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
@@ -105,7 +98,6 @@ browser.tabs.onActivated.addListener(async activeInfo => {
   }
 });
 
-// Используем кроссбраузерную обертку вместо прямого вызова browser.action
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
 browser.runtime.onMessage.addListener(message => {

@@ -14,7 +14,7 @@
     "start:chrome": "BROWSER=chrome PORT=3001 node scripts/webserver.js",
     "start:firefox": "BROWSER=firefox PORT=3002 node scripts/webserver.js",
     "prepare": "husky install",
-    "test:unit": "vitest run"
+    "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
     "@dnd-kit/core": "6.0.8",

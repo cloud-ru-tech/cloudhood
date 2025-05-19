@@ -99,7 +99,6 @@ var options = {
       apply: compiler => {
         compiler.hooks.beforeRun.tap('EnsureBuildDirExists', () => {
           if (BUILD_DIR) {
-            // Ensure build directory exists
             const buildDir = path.resolve(__dirname, 'build', BUILD_DIR);
             if (!fs.existsSync(path.resolve(__dirname, 'build'))) {
               fs.mkdirSync(path.resolve(__dirname, 'build'));

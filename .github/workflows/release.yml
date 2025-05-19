@@ -89,14 +89,14 @@ jobs:
           cd build/chrome
           zip -r ../../cloudhood-chrome.zip .
 
-      # - name: Build Firefox extension
-      #   run: npm run build:firefox
-      #   shell: bash
+      - name: Build Firefox extension
+        run: npm run build:firefox
+        shell: bash
 
-      # - name: Pack Firefox build folder to ZIP-file
-      #   run: |
-      #     cd build/firefox
-      #     zip -r ../../cloudhood-firefox.zip .
+      - name: Pack Firefox build folder to ZIP-file
+        run: |
+          cd build/firefox
+          zip -r ../../cloudhood-firefox.zip .
 
       - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
@@ -104,11 +104,11 @@ jobs:
           name: cloudhood-chrome
           path: cloudhood-chrome.zip
 
-      # - name: Upload Firefox build artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: cloudhood-firefox
-      #     path: cloudhood-firefox.zip
+      - name: Upload Firefox build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-firefox
+          path: cloudhood-firefox.zip
 
   publish:
     needs: [build]
@@ -126,11 +126,11 @@ jobs:
           name: cloudhood-chrome
           path: dist/chrome
 
-      # - name: Download Firefox build artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: cloudhood-firefox
-      #     path: dist/firefox
+      - name: Download Firefox build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox
+          path: dist/firefox
 
       - name: Upload to Chrome Web Store
         env:
@@ -173,11 +173,11 @@ jobs:
           name: cloudhood-chrome
           path: ./
 
-      # - name: Download Firefox build artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: cloudhood-firefox
-      #     path: ./
+      - name: Download Firefox build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox
+          path: ./
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
