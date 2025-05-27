@@ -14,12 +14,7 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: Build license validator
-      run: npm run build:license-validator
-      shell: bash
-
     - name: Run license validator
       run: |
-        chmod +x ./.license-validator -R
-        npm run check-license
+        npx @cloud-ru/ft-license-validator@latest
       shell: bash
