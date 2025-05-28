@@ -40,12 +40,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.10.0
+
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         shell: bash
 
       - name: Run unit tests
-        run: npm run test:unit
+        run: pnpm test:unit
         shell: bash
 
       - name: Archive test results
@@ -68,8 +73,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.10.0
+
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         shell: bash
 
       - name: Set SHORT_SHA
@@ -79,7 +89,7 @@ jobs:
           echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
 
       - name: Build Chrome extension
-        run: npm run build:chromium
+        run: pnpm build:chromium
         shell: bash
 
       - name: Pack Chrome build folder to ZIP-file
@@ -88,7 +98,7 @@ jobs:
           zip -r ../../cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
       - name: Build Firefox extension
-        run: npm run build:firefox
+        run: pnmp build:firefox
         shell: bash
 
       - name: Pack Firefox build folder to ZIP-file
@@ -122,11 +132,16 @@ jobs:
     needs: [pr-build]
     runs-on: ubuntu-latest
     steps:
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.10.0
+
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install publish-browser-extension
-        run: npm install -save-dev publish-browser-extension
+        run: pnpm install -save-dev publish-browser-extension
 
       - name: Download Chrome build artifact
         uses: actions/download-artifact@v4

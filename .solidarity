@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json.schemastore.org/solidaritySchema",
+  "requirements": {
+    "NPM": [
+      {
+        "rule": "cli",
+        "binary": "npm",
+        "semver": "^10.8.2",
+        "version": "--version",
+        "error": "You have npm@{{installedVersion}}, and need npm@{{wantedVersion}}. Fix with `npm install -g npm@{{wantedVersion}}`"
+      }
+    ],
+    "Node": [
+      {
+        "rule": "cli",
+        "binary": "node",
+        "semver": "^22.8.0",
+        "version": "--version",
+        "error": "You have node@{{installedVersion}}, and need node@{{wantedVersion}}. Go to https://nodejs.org/ to update`"
+      }
+    ],
+    "PNPM": [
+      {
+        "rule": "cli",
+        "binary": "pnpm",
+        "semver": "10.10.0",
+        "version": "--version",
+        "error": "You have pnpm@{{installedVersion}}, and need pnpm@{{wantedVersion}}. Fix with `npm install -g pnpm@{{wantedVersion}}``"
+      }
+    ]
+  }
+}

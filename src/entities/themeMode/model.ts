@@ -49,6 +49,7 @@ const toggleThemeInDomFx = attach({
   },
 });
 
+// eslint-disable-next-line effector/strict-effect-handlers
 const toggleThemeInDomAndStorageFx = createEffect(async (theme: ThemeMode) => {
   await toggleThemeInDomFx(theme);
   await browser.storage.local.set({ [BrowserStorageKey.ThemeMode]: theme });

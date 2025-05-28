@@ -100,7 +100,7 @@ browser.tabs.onActivated.addListener(async activeInfo => {
 
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
-browser.runtime.onMessage.addListener(message => {
+browser.runtime.onMessage.addListener((message: unknown) => {
   notify(message as ServiceWorkerEvent).catch(err => {
     logger.error('Error handling message:', err);
   });

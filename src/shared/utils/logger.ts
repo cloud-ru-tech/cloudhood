@@ -57,21 +57,18 @@ export function logDebug(message: string, ...args: unknown[]): void {
 
 export function logInfo(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.INFO)) {
-    // eslint-disable-next-line no-console
     console.info(formatLogMessage(LogLevel.INFO, message), ...args);
   }
 }
 
 export function logWarn(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.WARN)) {
-    // eslint-disable-next-line no-console
     console.warn(formatLogMessage(LogLevel.WARN, message), ...args);
   }
 }
 
 export function logError(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.ERROR)) {
-    // eslint-disable-next-line no-console
     console.error(formatLogMessage(LogLevel.ERROR, message), ...args);
   }
 }

@@ -5,7 +5,9 @@ import { selectedProfileRequestHeadersUpdated } from '#features/selected-profile
 
 export const toggleAllProfileRequestHeaders = createEvent<boolean>();
 
-export const $isAllEnabled = combine($selectedProfileRequestHeaders, headers => headers.every(h => !h.disabled));
+export const $isAllEnabled = combine($selectedProfileRequestHeaders, headers => headers.every(h => !h.disabled), {
+  skipVoid: false,
+});
 
 sample({
   clock: toggleAllProfileRequestHeaders,

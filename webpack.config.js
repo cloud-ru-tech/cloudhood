@@ -8,6 +8,7 @@ var webpack = require('webpack'),
 var { CleanWebpackPlugin } = require('clean-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var fs = require('fs');
+var { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 var pathResolve = (...args) => path.resolve(process.cwd(), ...args);
 var replaceGlobs = path => path.replace(/(\/\*\*)*\/\*$/, '');
@@ -93,8 +94,15 @@ var options = {
     extensions: fileExtensions.map(extension => '.' + extension).concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
   },
   plugins: [
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'disabled',
+    }),
     new CleanWebpackPlugin({ verbose: false }),
-    new webpack.ProgressPlugin(),
+    new webpack.ProgressPlugin({
+      handler: (percentage, message, ...args) => {
+        console.info(`${Math.round(percentage * 100)}%`, message, ...args);
+      },
+    }),
     {
       apply: compiler => {
         compiler.hooks.beforeRun.tap('EnsureBuildDirExists', () => {
