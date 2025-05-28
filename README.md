@@ -20,8 +20,8 @@ You can get a test build for each pull-request in its comments. [Example](https:
 
 ### Start Local Server
 
-1. Run `npm install` to install the dependencies.
-1. Run `npm start`
+1. Run `pnpm install` to install the dependencies.
+1. Run `pnpm start`
 1. Download extension in Chrome:
    - Open `chrome://extensions/` in the address bar
    - Turn on `Developer mode`
@@ -33,13 +33,13 @@ You can get a test build for each pull-request in its comments. [Example](https:
 ### Chrome Development
 
 ```bash
-npm run start:chrome
+pnpm start:chrome
 ```
 
 ### Firefox Development
 
 ```bash
-npm run start:firefox
+pnpm start:firefox
 ```
 
 ## Building Extensions
@@ -47,7 +47,7 @@ npm run start:firefox
 ### Build Chrome Extension
 
 ```bash
-npm run build:chromium
+pnpm build:chromium
 ```
 
 The extension will be built in the `build/chrome` directory.
@@ -55,7 +55,7 @@ The extension will be built in the `build/chrome` directory.
 ### Build Firefox Extension
 
 ```bash
-npm run build:firefox
+pnpm build:firefox
 ```
 
 The extension will be built in the `build/firefox` directory.
@@ -63,7 +63,7 @@ The extension will be built in the `build/firefox` directory.
 ### Build Both Extensions
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Releasing
@@ -82,7 +82,7 @@ See [RELEASE_SETUP.md](RELEASE_SETUP.md) for details on configuring the release 
 After developing your extension, run the command
 
 ```
-npm run build
+pnpm run build
 ```
 
 ## Releases

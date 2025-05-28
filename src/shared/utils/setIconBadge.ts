@@ -9,7 +9,6 @@ type SetIconBadgeParams = {
 export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeParams) {
   const iconPath = isPaused ? 'paused-icon-38.png' : 'main-icon-38.png';
   const badgeText = !isPaused && activeRulesCount > 0 ? activeRulesCount.toString() : '';
-
   logger.debug('Setting icon badge:', { isPaused, activeRulesCount, iconPath, badgeText });
 
   try {

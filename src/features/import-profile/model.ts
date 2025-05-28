@@ -57,6 +57,7 @@ export const $profileImportErrorInfo = combine(
     isError,
     errorPosition,
   }),
+  { skipVoid: false },
 );
 
 export const $profileImportString = createStore('')

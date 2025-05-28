@@ -49,19 +49,19 @@
 1. Запустите юнит-тесты:
 
    ```bash
-   npm run test:unit
+   pnpm test:unit
    ```
 
 2. Соберите расширения и создайте ZIP-архивы:
 
    ```bash
    # Для Chrome
-   npm run build:chromium
+   pnpm run build:chromium
    cd build/chrome
    zip -r ../../cloudhood-chrome.zip .
 
    # Для Firefox
-   npm run build:firefox
+   pnpm run build:firefox
    cd build/firefox
    zip -r ../../cloudhood-firefox.zip .
    ```

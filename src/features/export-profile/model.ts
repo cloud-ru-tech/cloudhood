@@ -22,13 +22,21 @@ export const $selectedExportProfileIdList = combine(
   $selectedProfileExportList,
   $profileExportList,
   (selectedProfileName, profileIds) => profileIds.filter(profileId => selectedProfileName.includes(profileId)) || [],
+  { skipVoid: false },
 );
+
+const $customProfileExportString = createStore<string | null>(null);
 
 export const $profileExportString = combine(
   $requestProfiles,
   $selectedExportProfileIdList,
-  (profiles, selectedExportProfileIdList) =>
-    JSON.stringify(
+  $customProfileExportString,
+  (profiles, selectedExportProfileIdList, customProfileExportString) => {
+    if (customProfileExportString !== null) {
+      return customProfileExportString;
+    }
+
+    return JSON.stringify(
       profiles
         .filter(({ id }) => selectedExportProfileIdList.includes(id))
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
@@ -37,7 +45,9 @@ export const $profileExportString = combine(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
           requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
         })) || [],
-    ),
+    );
+  },
+  { skipVoid: false },
 );
 
 export const $profilesNameOptions = combine(
@@ -49,6 +59,7 @@ export const $profilesNameOptions = combine(
       option: `Profile ${index + 1}`,
       disabled: selectedExportProfileIdList.length === 1 && selectedExportProfileIdList[0] === p.id,
     })),
+  { skipVoid: false },
 );
 
 export const $selectedExportProfileValue = combine(
@@ -56,6 +67,7 @@ export const $selectedExportProfileValue = combine(
   $profilesNameOptions,
   (selectedProfileIdList, profilesNameOptions) =>
     profilesNameOptions.filter(({ value }) => selectedProfileIdList.includes(value)).map(({ value }) => value),
+  { skipVoid: false },
 );
 
 export const profileExportSaved = createEvent();
@@ -91,7 +103,7 @@ sample({
 
 sample({
   source: profileExportStringChanged,
-  target: $profileExportString,
+  target: $customProfileExportString,
 });
 
 sample({

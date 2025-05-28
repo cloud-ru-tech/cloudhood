@@ -28,6 +28,7 @@ export const $flattenRequestHeaders = $selectedProfileRequestHeaders.map(headers
 export const $draggableRequestHeader = combine(
   [$selectedProfileRequestHeaders, $raisedRequestHeader],
   ([headers, raisedHeader]) => headers.find(header => header.id === raisedHeader),
+  { skipVoid: false },
 );
 
 const reorderRequestHeadersFx = attach({
