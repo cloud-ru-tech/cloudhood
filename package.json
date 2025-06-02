@@ -13,10 +13,10 @@
     "lint": "npx eslint ./src",
     "start:chrome": "BROWSER=chrome PORT=3001 node scripts/webserver.js",
     "start:firefox": "BROWSER=firefox PORT=3002 node scripts/webserver.js",
-    "prepare": "husky install",
     "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
+    "@cloud-ru/ft-config-lint-staged": "1.1.2",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
     "@emotion/react": "11.14.0",
@@ -56,8 +56,6 @@
     "fs-extra": "11.3.0",
     "html-loader": "5.1.0",
     "html-webpack-plugin": "5.6.3",
-    "husky": "9.1.7",
-    "lint-staged": "16.1.0",
     "mini-css-extract-plugin": "2.9.2",
     "prettier": "3.5.3",
     "style-loader": "4.0.0",
