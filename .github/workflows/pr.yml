@@ -98,7 +98,7 @@ jobs:
           zip -r ../../cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
       - name: Build Firefox extension
-        run: pnmp build:firefox
+        run: pnpm build:firefox
         shell: bash
 
       - name: Pack Firefox build folder to ZIP-file
