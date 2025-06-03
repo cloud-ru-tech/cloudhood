@@ -1,7 +1,13 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Cloudhood",
   "version": "1.1.1",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cloudhood@example.com",
+      "strict_min_version": "109.0"
+    }
+  },
   "browser_action": {
     "icon": "main-icon-38.png",
     "default_popup": "popup.html",

@@ -129,11 +129,20 @@ var options = {
             : path.join(__dirname, 'build', 'manifest.json'),
           force: true,
           transform: function (content) {
+            const manifest = JSON.parse(content.toString());
+
+            // Для Firefox манифеста заменяем gecko.id на значение из переменной окружения
+            if (TARGET_BROWSER === 'firefox' && process.env.FIREFOX_EXTENSION_ID) {
+              if (manifest.browser_specific_settings && manifest.browser_specific_settings.gecko) {
+                manifest.browser_specific_settings.gecko.id = process.env.FIREFOX_EXTENSION_ID;
+              }
+            }
+
             return Buffer.from(
               JSON.stringify({
                 description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
-                ...JSON.parse(content.toString()),
+                ...manifest,
               }),
             );
           },
