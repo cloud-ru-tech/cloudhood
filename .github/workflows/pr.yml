@@ -106,6 +106,13 @@ jobs:
           cd build/firefox
           zip -r ../../cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
+      - name: Build Firefox sources ZIP-file
+        run: npm run build:firefox-sources
+        shell: bash
+
+      - name: Rename Firefox sources ZIP-file
+        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
+
       - name: Pull request artifacts
         uses: gavv/pull-request-artifacts@v1.1.0
         with:
@@ -115,6 +122,7 @@ jobs:
           artifacts: |
             cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
             cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
+            cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
       - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
@@ -127,6 +135,12 @@ jobs:
         with:
           name: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}
           path: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
+
+      - name: Upload Firefox sources artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}
+          path: cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
   pre-publish:
     needs: [pr-build]
@@ -155,6 +169,12 @@ jobs:
           name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
           path: dist/firefox
 
+      - name: Download Firefox sources artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}
+          path: dist/firefox-sources
+
       - name: Publish Chrome Extension (Dry Run)
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
@@ -172,15 +192,16 @@ jobs:
             --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
             --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
 
-      # - name: Publish Firefox Extension (Dry Run)
-      #   env:
-      #     FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
-      #     FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
-      #     FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
-      #   run: |
-      #     npx publish-extension \
-      #       --dry-run \
-      #       --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
-      #       --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
-      #       --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
-      #       --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
+      - name: Publish Firefox Extension (Dry Run)
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          npx publish-extension \
+            --dry-run \
+            --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
+            --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}.zip \
+            --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
+            --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
+            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}

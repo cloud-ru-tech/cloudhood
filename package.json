@@ -9,11 +9,13 @@
     "check-license": "pnpx ./.license-validator -i",
     "build:chromium": "NODE_ENV=production node scripts/build-chromium.js",
     "build:firefox": "NODE_ENV=production node scripts/build-firefox.js",
+    "build:firefox-sources": "node scripts/build-firefox-sources.js",
     "build": "pnpm build:chromium && pnpm build:firefox",
     "lint": "npx eslint ./src",
     "start:chrome": "BROWSER=chrome PORT=3001 node scripts/webserver.js",
     "start:firefox": "BROWSER=firefox PORT=3002 node scripts/webserver.js",
-    "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run"
+    "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
+     "reinstall": "pnpm store prune && npx rimraf node_modules pnpm-lock.yaml && pnpm install"
   },
   "dependencies": {
     "@cloud-ru/ft-config-lint-staged": "1.1.2",

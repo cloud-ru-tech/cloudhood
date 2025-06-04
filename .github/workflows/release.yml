@@ -108,6 +108,13 @@ jobs:
           cd build/firefox
           zip -r ../../cloudhood-firefox.zip .
 
+      - name: Build Firefox sources ZIP-file
+        run: npm run build:firefox-sources
+        shell: bash
+
+      - name: Rename Firefox sources ZIP-file
+        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources.zip
+
       - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -119,6 +126,12 @@ jobs:
         with:
           name: cloudhood-firefox
           path: cloudhood-firefox.zip
+
+      - name: Upload Firefox sources artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-firefox-sources
+          path: cloudhood-firefox-sources.zip
 
   publish:
     needs: [build]
@@ -147,6 +160,12 @@ jobs:
           name: cloudhood-firefox
           path: dist/firefox
 
+      - name: Download Firefox sources artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox-sources
+          path: dist/firefox-sources
+
       - name: Upload to Chrome Web Store
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
@@ -163,17 +182,18 @@ jobs:
             --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
             --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
 
-      # - name: Upload to Firefox Add-ons
-      #   env:
-      #     FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
-      #     FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
-      #     FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
-      #   run: |
-      #     npx publish-extension \
-      #       --firefox-zip dist/firefox/cloudhood-firefox.zip \
-      #       --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
-      #       --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
-      #       --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
+      - name: Upload to Firefox Add-ons
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          npx publish-extension \
+            --firefox-zip dist/firefox/cloudhood-firefox.zip \
+            --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources.zip \
+            --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
+            --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
+            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
 
   create-github-release:
     needs: [build]
@@ -201,7 +221,7 @@ jobs:
           name: Release ${{ needs.build.outputs.latest_tag }}
           files: |
             cloudhood-chrome.zip
-            # cloudhood-firefox.zip
+            cloudhood-firefox.zip
           draft: false
           prerelease: false
         env:
