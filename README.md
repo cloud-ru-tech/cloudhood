@@ -60,6 +60,14 @@ pnpm build:firefox
 
 The extension will be built in the `build/firefox` directory.
 
+### Build Firefox Sources Archive
+
+```bash
+npm run build:firefox-sources
+```
+
+Creates a ZIP archive with source code required for Firefox Add-ons submission. Mozilla requires source code submission for extensions that use build tools or minification.
+
 ### Build Both Extensions
 
 ```bash
@@ -72,8 +80,9 @@ We use GitHub Actions to automate the release process. The workflow:
 1. Bumps version based on commit messages
 2. Builds extensions for Chrome and Firefox
 3. Creates ZIP archives for both platforms
-4. Publishes to Chrome Web Store and Firefox Add-ons
-5. Creates a GitHub Release with both extension packages
+4. Creates source code archive for Firefox Add-ons submission
+5. Publishes to Chrome Web Store and Firefox Add-ons (with source code)
+6. Creates a GitHub Release with both extension packages
 
 See [RELEASE_SETUP.md](RELEASE_SETUP.md) for details on configuring the release automation.
 
