@@ -112,9 +112,6 @@ jobs:
         run: npm run build:firefox-sources
         shell: bash
 
-      - name: Rename Firefox sources ZIP-file
-        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources.zip
-
       - name: Upload Chrome build artifact
         uses: actions/upload-artifact@v4
         with:
