@@ -130,12 +130,20 @@ jobs:
           name: cloudhood-firefox-sources
           path: cloudhood-firefox-sources.zip
 
-  upload-to-stores:
+  release-and-publish:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.10.0
+
+      - name: Install publish-browser-extension
+        run: pnpm install -g publish-browser-extension
 
       - name: Download Chrome build artifact
         uses: actions/download-artifact@v4
@@ -147,6 +155,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: cloudhood-firefox
+          path: ./
+
+      - name: Download Firefox sources artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox-sources
           path: ./
 
       - name: Create GitHub Release
@@ -161,23 +175,22 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          path: dist/firefox-sources
 
-      - name: Upload to Chrome Web Store
-        env:
-          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
-        run: |
-          npx publish-extension \
-            --chrome-zip dist/chrome/cloudhood-chrome.zip \
-            --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
-            --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
-            --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
-            --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
-            --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
+      # - name: Upload to Chrome Web Store
+      #   env:
+      #     CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+      #     CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+      #     CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+      #     CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      #     CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+      #   run: |
+      #     npx publish-extension \
+      #       --chrome-zip cloudhood-chrome.zip \
+      #       --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
+      #       --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
+      #       --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
+      #       --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
+      #       --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
 
       - name: Upload to Firefox Add-ons
         env:
@@ -186,40 +199,8 @@ jobs:
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
         run: |
           npx publish-extension \
-            --firefox-zip dist/firefox/cloudhood-firefox.zip \
-            --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources.zip \
+            --firefox-zip cloudhood-firefox.zip \
+            --firefox-sources-zip cloudhood-firefox-sources.zip \
             --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
             --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
             --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
-
-  create-github-release:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Download Chrome build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: cloudhood-chrome
-          path: ./
-
-      - name: Download Firefox build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: cloudhood-firefox
-          path: ./
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.build.outputs.latest_tag }}
-          name: Release ${{ needs.build.outputs.latest_tag }}
-          files: |
-            cloudhood-chrome.zip
-            cloudhood-firefox.zip
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
