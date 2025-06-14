@@ -75,7 +75,7 @@ jobs:
           git config --local user.name github-actions
           git config --local user.email github-actions@github.com
           git fetch --tags
-          git add manifest.chromium.json manifest.firefox.json package.json package-lock.json
+          git add manifest.chromium.json manifest.firefox.json package.json pnpm-lock.yaml
           git commit -m "ci: bump version to $VERSION [skip ci]"
           git push
           git tag $TAG
