@@ -205,3 +205,10 @@ jobs:
             --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
             --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
             --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
+          npx publish-extension \
+            --dry-run \
+            --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
+            --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}.zip \
+            --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
+            --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
+            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}

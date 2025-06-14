@@ -30,3 +30,6 @@ build
 
 #reposrt tests
 reports/unit/unit-report.xml
+
+# Firefox sources archives
+cloudhood-firefox-sources-v*.zip

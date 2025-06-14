@@ -7,6 +7,9 @@ import cloudConfig from '@cloud-ru/eslint-config';
 const compat = new FlatCompat();
 
 export default [
+  {
+    ignores: ['scripts/**/*'],
+  },
   ...cloudConfig,
   ...compat.extends('plugin:effector/recommended'),
   {
@@ -18,7 +21,7 @@ export default [
       ...effectorPlugin.configs.recommended.rules,
       ...effectorPlugin.configs.scope.rules,
       ...effectorPlugin.configs.react.rules,
-       // Possible Errors
+      // Possible Errors
       '@typescript-eslint/no-namespace': 'off',
       'prettier/prettier': 'off',
     },
