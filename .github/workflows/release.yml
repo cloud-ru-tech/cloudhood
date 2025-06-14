@@ -133,37 +133,37 @@ jobs:
           name: cloudhood-firefox-sources
           path: cloudhood-firefox-sources.zip
 
-  publish:
+  upload-to-stores:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.10.0
-
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Install publish-browser-extension
-        run: pnpm install -g publish-browser-extension
 
       - name: Download Chrome build artifact
         uses: actions/download-artifact@v4
         with:
           name: cloudhood-chrome
-          path: dist/chrome
+          path: ./
 
       - name: Download Firefox build artifact
         uses: actions/download-artifact@v4
         with:
           name: cloudhood-firefox
-          path: dist/firefox
+          path: ./
 
-      - name: Download Firefox sources artifact
-        uses: actions/download-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: cloudhood-firefox-sources
+          tag_name: ${{ needs.build.outputs.latest_tag }}
+          name: Release ${{ needs.build.outputs.latest_tag }}
+          files: |
+            cloudhood-chrome.zip
+            cloudhood-firefox.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           path: dist/firefox-sources
 
       - name: Upload to Chrome Web Store

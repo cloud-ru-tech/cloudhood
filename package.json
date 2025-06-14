@@ -15,7 +15,7 @@
     "start:chrome": "BROWSER=chrome PORT=3001 node scripts/webserver.js",
     "start:firefox": "BROWSER=firefox PORT=3002 node scripts/webserver.js",
     "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
-     "reinstall": "pnpm store prune && npx rimraf node_modules pnpm-lock.yaml && pnpm install"
+    "reinstall": "pnpm store prune && npx rimraf node_modules pnpm-lock.yaml && pnpm install"
   },
   "dependencies": {
     "@cloud-ru/ft-config-lint-staged": "1.1.2",
