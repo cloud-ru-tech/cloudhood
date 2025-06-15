@@ -214,5 +214,4 @@ jobs:
             --firefox-sources-zip cloudhood-firefox-sources.zip \
             --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
             --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
-            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }} \
-            --verbose
+            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
