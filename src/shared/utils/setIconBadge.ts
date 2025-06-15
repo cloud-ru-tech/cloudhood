@@ -14,7 +14,15 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
   try {
     await browserAction.setIcon({ path: iconPath });
     await browserAction.setBadgeText({ text: badgeText });
+    logger.debug('Icon badge set successfully');
   } catch (err) {
     logger.error('Error setting icon badge:', err);
+    logger.error('Error details:', {
+      iconPath,
+      badgeText,
+      isPaused,
+      activeRulesCount,
+      errorMessage: err instanceof Error ? err.message : String(err),
+    });
   }
 }
