@@ -181,21 +181,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Upload to Chrome Web Store
-      #   env:
-      #     CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-      #     CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-      #     CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-      #     CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-      #     CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
-      #   run: |
-      #     npx publish-browser-extension \
-      #       --chrome-zip cloudhood-chrome.zip \
-      #       --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
-      #       --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
-      #       --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
-      #       --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
-      #       --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
+      - name: Upload to Chrome Web Store
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+        run: |
+          npx publish-browser-extension \
+            --chrome-zip cloudhood-chrome.zip \
+            --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
+            --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
+            --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
+            --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
+            --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
 
       - name: Upload to Firefox Add-ons
         env:
