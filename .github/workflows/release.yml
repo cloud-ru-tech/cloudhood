@@ -100,6 +100,8 @@ jobs:
           zip -r ../../cloudhood-chrome.zip .
 
       - name: Build Firefox extension
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
         run: pnpm run build:firefox
         shell: bash
 
@@ -109,7 +111,7 @@ jobs:
           zip -r ../../cloudhood-firefox.zip .
 
       - name: Build Firefox sources ZIP-file
-        run: npm run build:firefox-sources
+        run: pnpm run build:firefox-sources
         shell: bash
 
       - name: Upload Chrome build artifact
@@ -163,6 +165,9 @@ jobs:
           name: cloudhood-firefox-sources
           path: ./
 
+      - name: Debug - List downloaded files
+        run: ls -la *.zip
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -198,9 +203,16 @@ jobs:
           FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
         run: |
+          echo "Debug: Checking Firefox files..."
+          ls -la cloudhood-firebase*.zip || echo "Firefox files not found"
+          ls -la cloudhood-firefox*.zip || echo "Firefox build files not found"
+
+          echo "Debug: Firefox extension ID is set: ${{ secrets.FIREFOX_EXTENSION_ID != '' }}"
+
           npx publish-browser-extension \
             --firefox-zip cloudhood-firefox.zip \
             --firefox-sources-zip cloudhood-firefox-sources.zip \
             --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
             --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
-            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
+            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }} \
+            --verbose
