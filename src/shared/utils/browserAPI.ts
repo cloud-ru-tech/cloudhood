@@ -10,7 +10,7 @@ export function isFirefox(): boolean {
 }
 
 /**
- * API для работы с иконкой расширения (action в Chrome, browserAction в Firefox)
+ * API для работы с иконкой расширения (action API в Manifest V3)
  */
 export const browserAction = {
   /**
@@ -18,18 +18,15 @@ export const browserAction = {
    */
   setBadgeBackgroundColor: (details: browser.Action.SetBadgeBackgroundColorDetailsType): Promise<void> => {
     logger.debug('Setting badge background color:', details);
-    if (isFirefox()) {
-      // Firefox использует browserAction (Manifest V2)
-      // browserAction не определен в типах webextension-polyfill для Manifest V3
-      return browser.browserAction.setBadgeBackgroundColor(details);
-    }
-    // Chrome использует action (Manifest V3)
-    // Если action не определен, пробуем использовать browserAction для обратной совместимости
+    // В Manifest V3 и Chrome, и Firefox используют action API
     if (browser.action) {
       return browser.action.setBadgeBackgroundColor(details);
     }
-    // fallback для старых версий Chrome с browserAction вместо action
-    return browser.browserAction.setBadgeBackgroundColor(details);
+    // Fallback для старых версий с browserAction (Manifest V2)
+    if (browser.browserAction) {
+      return browser.browserAction.setBadgeBackgroundColor(details);
+    }
+    throw new Error('Neither action nor browserAction API is available');
   },
 
   /**
@@ -37,15 +34,15 @@ export const browserAction = {
    */
   setBadgeText: (details: browser.Action.SetBadgeTextDetailsType): Promise<void> => {
     logger.debug('Setting badge text:', details);
-    if (isFirefox()) {
-      // browserAction API используется в Firefox с Manifest V2
-      return browser.browserAction.setBadgeText(details);
-    }
+    // В Manifest V3 и Chrome, и Firefox используют action API
     if (browser.action) {
       return browser.action.setBadgeText(details);
     }
-    // используется для совместимости со старыми версиями Chrome
-    return browser.browserAction.setBadgeText(details);
+    // Fallback для старых версий с browserAction (Manifest V2)
+    if (browser.browserAction) {
+      return browser.browserAction.setBadgeText(details);
+    }
+    throw new Error('Neither action nor browserAction API is available');
   },
 
   /**
@@ -53,12 +50,14 @@ export const browserAction = {
    */
   setIcon: (details: browser.Action.SetIconDetailsType): Promise<void> => {
     logger.debug('Setting icon:', details);
-    if (isFirefox()) {
-      return browser.browserAction.setIcon(details);
-    }
+    // В Manifest V3 и Chrome, и Firefox используют action API
     if (browser.action) {
       return browser.action.setIcon(details);
     }
-    return browser.browserAction.setIcon(details);
+    // Fallback для старых версий с browserAction (Manifest V2)
+    if (browser.browserAction) {
+      return browser.browserAction.setIcon(details);
+    }
+    throw new Error('Neither action nor browserAction API is available');
   },
 };
