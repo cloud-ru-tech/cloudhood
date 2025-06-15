@@ -98,6 +98,8 @@ jobs:
           zip -r ../../cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
       - name: Build Firefox extension
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
         run: pnpm build:firefox
         shell: bash
 
@@ -107,7 +109,7 @@ jobs:
           zip -r ../../cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip .
 
       - name: Build Firefox sources ZIP-file
-        run: npm run build:firefox-sources
+        run: pnpm run build:firefox-sources
         shell: bash
 
       - name: Rename Firefox sources ZIP-file
@@ -183,7 +185,7 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
         run: |
-          npx publish-extension \
+          npx publish-browser-extension \
             --dry-run \
             --chrome-zip dist/chrome/cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip \
             --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
@@ -198,14 +200,7 @@ jobs:
           FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
         run: |
-          npx publish-extension \
-            --dry-run \
-            --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
-            --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}.zip \
-            --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
-            --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
-            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}
-          npx publish-extension \
+          npx publish-browser-extension \
             --dry-run \
             --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
             --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}.zip \

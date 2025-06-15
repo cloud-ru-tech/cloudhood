@@ -3,7 +3,6 @@
   "name": "Cloudhood",
   "version": "1.1.6",
   "action": {
-    "icon": "main-icon-38.png",
     "default_popup": "popup.html",
     "default_icon": {
       "38": "main-icon-38.png"
@@ -23,7 +22,6 @@
     "tabs",
     "contextMenus",
     "webRequest",
-    "webRequestBlocking",
     "activeTab"
   ],
   "host_permissions": [

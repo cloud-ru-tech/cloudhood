@@ -129,13 +129,22 @@ var options = {
             : path.join(__dirname, 'build', 'manifest.json'),
           force: true,
           transform: function (content) {
-            return Buffer.from(
-              JSON.stringify({
-                description: process.env.npm_package_description,
-                version: process.env.npm_package_version,
-                ...JSON.parse(content.toString()),
-              }),
-            );
+            const manifest = {
+              description: process.env.npm_package_description,
+              version: process.env.npm_package_version,
+              ...JSON.parse(content.toString()),
+            };
+
+            // Добавляем ID расширения для Firefox из переменной окружения
+            if (TARGET_BROWSER === 'firefox' && process.env.FIREFOX_EXTENSION_ID) {
+              manifest.browser_specific_settings = {
+                gecko: {
+                  id: process.env.FIREFOX_EXTENSION_ID,
+                },
+              };
+            }
+
+            return Buffer.from(JSON.stringify(manifest, null, 2));
           },
         },
       ],
