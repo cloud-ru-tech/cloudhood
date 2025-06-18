@@ -6,7 +6,7 @@ import { Divider } from '@snack-uikit/divider';
 import { $selectedProfileIndex } from '#entities/request-profile/model';
 import { profileColorList } from '#shared/assets/colors';
 import { Header } from '#widgets/header';
-import { Modals } from '#widgets/modals';
+import { LazyModals } from '#widgets/modals';
 import { Sidebar } from '#widgets/sidebar';
 
 import { RequestHeadersActions } from './components/RequestHeadersActions';
@@ -35,7 +35,7 @@ export function MainPage() {
 
         <RequestHeadersActions />
 
-        <Modals />
+        <LazyModals />
       </S.Content>
     </S.Wrapper>
   );

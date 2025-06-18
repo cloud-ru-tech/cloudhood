@@ -5,15 +5,15 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "38": "main-icon-38.png"
+      "38": "img/main-icon-38.png"
     },
     "default_title": "Modify Outgoing XHR/Fetch Request Headers"
   },
   "icons": {
-    "16": "main-icon-16.jpg",
-    "32": "main-icon-32.jpg",
-    "48": "main-icon-48.jpg",
-    "128": "main-icon-128.jpg"
+    "16": "img/main-icon-16.jpg",
+    "32": "img/main-icon-32.jpg",
+    "48": "img/main-icon-48.jpg",
+    "128": "img/main-icon-128.jpg"
   },
   "permissions": [
     "storage",
@@ -32,5 +32,8 @@
       "background.bundle.js"
     ],
     "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob: moz-extension:; style-src 'self' 'unsafe-inline'; connect-src 'self' data: blob: moz-extension:;"
   }
 }
