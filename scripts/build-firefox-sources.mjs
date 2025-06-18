@@ -1,7 +1,10 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 // Файлы и папки для исключения из исходников
@@ -80,7 +83,7 @@ pnpm install
 pnpm build:firefox
 \`\`\`
 
-Собранное расширение будет находиться в папке \`dist/firefox/\`.
+Собранное расширение будет находиться в папке \`build/firefox/\`.
 
 ## Дополнительные команды
 
