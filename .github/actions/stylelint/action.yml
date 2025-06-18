@@ -20,5 +20,5 @@ runs:
       shell: bash
 
     - name: Stylelint check
-      run: npx stylelint "./src/**/*.{ts,tsx}" --config stylelint.config.js
+      run: npx stylelint "./src/**/*.{ts,tsx}" --config stylelint.config.cjs
       shell: bash

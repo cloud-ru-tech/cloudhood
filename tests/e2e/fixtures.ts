@@ -1,6 +1,10 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { type BrowserContext, chromium, test as base } from '@playwright/test';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const test = base.extend<{
   context: BrowserContext;

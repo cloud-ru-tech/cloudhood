@@ -38,7 +38,25 @@ pnpm test:e2e
 
 ## Local Development
 
-### Start Local Server
+### Development Server with Hot Reload
+
+For convenient development with automatic reload, use the following commands:
+
+#### Chrome Development (with hot reload)
+
+```bash
+pnpm dev:chrome
+```
+
+#### Firefox Development (with hot reload)
+
+```bash
+pnpm dev:firefox
+```
+
+These commands will start a dev server that will automatically update files in the `build` directory when source code changes.
+
+### Start Local Server (legacy method)
 
 1. Run `pnpm install` to install the dependencies.
 1. Run `pnpm start`
@@ -53,13 +71,13 @@ pnpm test:e2e
 ### Chrome Development
 
 ```bash
-pnpm start:chrome
+pnpm dev:chrome    # with hot reload (recommended)
 ```
 
 ### Firefox Development
 
 ```bash
-pnpm start:firefox
+pnpm dev:firefox    # with hot reload (recommended)
 ```
 
 ## Building Extensions

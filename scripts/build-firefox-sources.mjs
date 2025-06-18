@@ -1,7 +1,10 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 // Файлы и папки для исключения из исходников
@@ -38,8 +41,8 @@ const INCLUDE_FILES = [
   'RELEASE_SETUP.md',
   'tsconfig.json',
   'webpack.config.js',
-  'lint-staged.config.js',
-  'stylelint.config.js',
+  'lint-staged.config.mjs',
+  'stylelint.config.cjs',
   'vitest.config.ts',
   'manifest.chromium.json',
   'manifest.firefox.json',
@@ -81,7 +84,7 @@ pnpm install
 pnpm build:firefox
 \`\`\`
 
-Собранное расширение будет находиться в папке \`dist/firefox/\`.
+Собранное расширение будет находиться в папке \`build/firefox/\`.
 
 ## Дополнительные команды
 
@@ -101,8 +104,8 @@ pnpm build:firefox
 
 ## Файлы конфигурации
 
-- \`lint-staged.config.js\` - конфигурация pre-commit хуков
-- \`stylelint.config.js\` - конфигурация StyleLint
+- \`lint-staged.config.mjs\` - конфигурация pre-commit хуков
+- \`stylelint.config.cjs\` - конфигурация StyleLint
 - \`vitest.config.ts\` - конфигурация тестов
 
 ## Примечания

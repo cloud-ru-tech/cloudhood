@@ -2,9 +2,8 @@ import './styles.css';
 
 import { useEffect } from 'react';
 
-import { Sprite, SpriteSVG } from '@snack-uikit/icons';
-
 import { MainPage } from '#pages/main';
+import { SpriteLoader } from '#shared/components/SpriteLoader';
 import { initApp } from '#shared/model';
 
 export function App() {
@@ -14,7 +13,7 @@ export function App() {
 
   return (
     <>
-      <Sprite content={SpriteSVG} />
+      <SpriteLoader />
       <MainPage />
     </>
   );
