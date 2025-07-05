@@ -18,7 +18,23 @@ You can get a test build for each pull-request in its comments. [Example](https:
 
 ## Local Development
 
-### Start Local Server
+### Development Server with Hot Reload
+
+Для удобной разработки с автоматической перезагрузкой используйте следующие команды:
+
+#### Chrome Development (с hot reload)
+```bash
+pnpm dev:chrome
+```
+
+#### Firefox Development (с hot reload)
+```bash
+pnpm dev:firefox
+```
+
+Эти команды запустят dev server, который будет автоматически обновлять файлы в директории `build` при изменении исходного кода.
+
+### Start Local Server (устаревший способ)
 
 1. Run `pnpm install` to install the dependencies.
 1. Run `pnpm start`
@@ -33,13 +49,13 @@ You can get a test build for each pull-request in its comments. [Example](https:
 ### Chrome Development
 
 ```bash
-pnpm start:chrome
+pnpm dev:chrome    # с hot reload (рекомендуется)
 ```
 
 ### Firefox Development
 
 ```bash
-pnpm start:firefox
+pnpm dev:firefox    # с hot reload (рекомендуется)
 ```
 
 ## Building Extensions

@@ -25,8 +25,8 @@
       "#entities/*": ["src/entities/*"],
       "#widgets/*": ["src/widgets/*"]
     },
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "vite/client"],
   },
-  "include": ["src/**/*", "./vitest.config.ts"],
+  "include": ["src/**/*", "./vitest.config.ts", "./vite.config.ts"],
   "exclude": ["node_modules"]
 }
