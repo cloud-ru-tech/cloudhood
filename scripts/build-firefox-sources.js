@@ -25,6 +25,7 @@ const EXCLUDE_PATTERNS = [
   '.env.local',
   '.env.production',
   '.env.development',
+  'tests',
 ];
 
 // Конкретные файлы для включения в корне проекта

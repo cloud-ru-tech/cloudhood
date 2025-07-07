@@ -16,6 +16,26 @@ Header overrides are managed in a Chrome extension popup (a simple react app), s
 
 You can get a test build for each pull-request in its comments. [Example](https://github.com/cloud-ru-tech/cloudhood/pull/1#issuecomment-1713810507).
 
+### E2E Testing
+
+For E2E tests, always import the test fixtures:
+
+```typescript
+import { expect, test } from './fixtures';
+```
+
+Before running E2E tests for the first time, install the required browsers:
+
+```bash
+pnpm exec playwright install
+```
+
+Run E2E tests with:
+
+```bash
+pnpm test:e2e
+```
+
 ## Local Development
 
 ### Start Local Server
@@ -77,6 +97,7 @@ pnpm build
 ## Releasing
 
 We use GitHub Actions to automate the release process. The workflow:
+
 1. Bumps version based on commit messages
 2. Builds extensions for Chrome and Firefox
 3. Creates ZIP archives for both platforms

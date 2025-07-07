@@ -8,7 +8,7 @@ const compat = new FlatCompat();
 
 export default [
   {
-    ignores: ['scripts/**/*'],
+    ignores: ['scripts/**/*', 'playwright.config.ts'],
   },
   ...cloudConfig,
   ...compat.extends('plugin:effector/recommended'),
