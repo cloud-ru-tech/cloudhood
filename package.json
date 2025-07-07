@@ -15,7 +15,9 @@
     "start:chrome": "BROWSER=chrome PORT=3001 node scripts/webserver.js",
     "start:firefox": "BROWSER=firefox PORT=3002 node scripts/webserver.js",
     "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
-    "reinstall": "pnpm store prune && npx rimraf node_modules pnpm-lock.yaml && pnpm install"
+    "reinstall": "pnpm store prune && npx rimraf node_modules pnpm-lock.yaml && pnpm install",
+    "test:e2e": "HEADLESS=false playwright test",
+    "test:e2e:ci": "HEADLESS=true playwright test"
   },
   "dependencies": {
     "@cloud-ru/ft-config-lint-staged": "1.1.2",
@@ -47,6 +49,7 @@
     "@cloud-ru/ft-config-stylelint": "2.0.0",
     "@cloud-ru/ft-config-vitest": "1.2.2",
     "@eslint/compat": "1.2.9",
+    "@playwright/test": "1.53.1",
     "@svgr/webpack": "8.1.0",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.1",
