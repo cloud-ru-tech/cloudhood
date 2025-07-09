@@ -3,6 +3,7 @@ import { resolve } from 'path';
 
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string): void => {
   // Ensure build directory exists
@@ -44,6 +45,7 @@ export default defineConfig(({ mode }) => {
     react({
       jsxRuntime: 'automatic',
     }),
+    tsconfigPaths(),
   ];
 
   plugins.push(browserExtensionPlugin());
@@ -54,16 +56,6 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.NODE_ENV': JSON.stringify(mode),
       'process.env.BROWSER': JSON.stringify(targetBrowser),
-    },
-    resolve: {
-      alias: {
-        '#app': resolve(__dirname, 'src/app'),
-        '#pages': resolve(__dirname, 'src/pages'),
-        '#shared': resolve(__dirname, 'src/shared'),
-        '#features': resolve(__dirname, 'src/features'),
-        '#entities': resolve(__dirname, 'src/entities'),
-        '#widgets': resolve(__dirname, 'src/widgets'),
-      },
     },
     build: {
       outDir: `build/${targetBrowser}`,

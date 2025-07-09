@@ -30,6 +30,6 @@
     "service_worker": "background.bundle.js"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline';"
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob:; style-src 'self' 'nonce-cloudhood-extension-style-nonce';"
   }
 }
