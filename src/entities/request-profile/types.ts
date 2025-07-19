@@ -3,6 +3,7 @@ export type RequestHeader = {
   name: string;
   value: string;
   disabled: boolean;
+  urlFilters: string[];
 };
 
 export type Profile = { id: string; name?: string; requestHeaders: RequestHeader[] };
