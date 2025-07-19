@@ -5,12 +5,20 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string): void => {
+import { extensionReloadPlugin } from './src/utils/extension-reload-plugin';
+
+const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev: boolean = false): void => {
   // Ensure build directory exists
   mkdirSync(outDir, { recursive: true });
 
   // Copy manifest file
-  const manifestSrc = targetBrowser === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json';
+  let manifestSrc: string;
+  if (isDev) {
+    manifestSrc = 'manifest.dev.json';
+  } else {
+    manifestSrc = targetBrowser === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json';
+  }
+
   const manifestDest = resolve(outDir, 'manifest.json');
 
   if (existsSync(manifestSrc)) {
@@ -26,13 +34,13 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string): void 
   }
 };
 
-const browserExtensionPlugin = (): Plugin => ({
+const browserExtensionPlugin = (isDev: boolean = false): Plugin => ({
   name: 'browser-extension-build',
   writeBundle(options: { dir?: string }) {
     const targetBrowser = process.env.BROWSER || 'chrome';
     const outDir = options.dir || `build/${targetBrowser}`;
 
-    copyBrowserExtensionFiles(targetBrowser, outDir);
+    copyBrowserExtensionFiles(targetBrowser, outDir, isDev);
   },
 });
 
@@ -48,7 +56,12 @@ export default defineConfig(({ mode }) => {
     tsconfigPaths(),
   ];
 
-  plugins.push(browserExtensionPlugin());
+  // Добавляем плагин автоперезагрузки только в dev mode
+  if (!isProduction) {
+    plugins.push(extensionReloadPlugin());
+  }
+
+  plugins.push(browserExtensionPlugin(!isProduction));
 
   return {
     plugins,

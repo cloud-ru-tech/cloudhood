@@ -14,9 +14,10 @@
     "build": "pnpm build:chromium && pnpm build:firefox",
     "dev:chrome": "BROWSER=chrome vite build --watch --mode development",
     "dev:firefox": "BROWSER=firefox vite build --watch --mode development",
+    "dev:setup": "node scripts/dev-setup.cjs",
     "lint": "npx eslint ./src",
     "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
-    "reinstall": "pnpm store prune && npx rimraf node_modules pnpm-lock.yaml && pnpm install",
+    "reinstall": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "test:e2e": "HEADLESS=false playwright test",
     "test:e2e:ci": "HEADLESS=true playwright test"
   },
@@ -56,6 +57,7 @@
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.1",
     "@types/webextension-polyfill": "0.12.3",
+    "@types/ws": "8.18.1",
     "@vitejs/plugin-react": "^4.5.2",
     "eslint-plugin-effector": "0.15.0",
     "fs-extra": "11.3.0",
@@ -66,7 +68,8 @@
     "vite": "^5.4.19",
     "vite-plugin-svgr": "4.3.0",
     "vite-tsconfig-paths": "5.1.4",
-    "webextension-polyfill": "0.12.0"
+    "webextension-polyfill": "0.12.0",
+    "ws": "8.18.3"
   },
   "packageManager": "pnpm@10.10.0",
   "engines": {

@@ -20,7 +20,7 @@ export function RequestHeadersActions() {
   ]);
 
   const handleAdd = () => {
-    selectedProfileRequestHeadersAdded([{ disabled: false, name: '', value: '' }]);
+    selectedProfileRequestHeadersAdded([{ disabled: false, name: '', value: '', urlFilters: [] }]);
   };
 
   return (

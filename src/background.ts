@@ -4,12 +4,19 @@ import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
+import { enableExtensionReload } from './utils/extension-reload';
 
 logger.configure({
   minLevel: process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
   showTimestamp: true,
   enabled: true,
 });
+
+// Инициализируем автоперезагрузку только в dev mode
+if (process.env.NODE_ENV === 'development') {
+  enableExtensionReload();
+  logger.debug('Extension auto-reload enabled for development mode');
+}
 
 const BADGE_COLOR = '#ffffff';
 
