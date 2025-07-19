@@ -42,7 +42,7 @@ const profileAddedFx = attach({
         ...profiles,
         {
           id: addedHeaderId,
-          requestHeaders: [{ id: generateId(), name: '', value: '', disabled: false }],
+          requestHeaders: [{ id: generateId(), name: '', value: '', disabled: false, urlFilters: [] }],
         },
       ],
       addedHeaderId,
