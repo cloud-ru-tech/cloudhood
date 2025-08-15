@@ -1,45 +1,53 @@
 import type { Plugin } from 'vite';
-import WebSocket, { WebSocketServer } from 'ws';
 
 export const extensionReloadPlugin = (): Plugin => {
-  let wss: WebSocketServer | null = null;
+  let notifyClients: ((file?: string) => void) | null = null;
+
+  // Функция для отправки уведомления через WebSocket
+  const sendReloadNotification = (file?: string) => {
+    try {
+      // Используем встроенный WebSocket браузера
+      const WebSocket = globalThis.WebSocket || require('ws');
+      const ws = new WebSocket('ws://localhost:3333');
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'reload', file }));
+        ws.close();
+      };
+
+      ws.onerror = () => {
+        // Игнорируем ошибки подключения - сервер может быть не запущен
+      };
+    } catch (_error) {
+      // Игнорируем ошибки - сервер может быть не запущен
+    }
+  };
 
   return {
     name: 'extension-reload',
-    configureServer(server) {
-      if (server.config.command === 'serve' || server.config.mode === 'development') {
-        wss = new WebSocketServer({ port: 3333 });
 
-        wss.on('connection', (ws: WebSocket) => {
+    buildStart() {
+      if (process.env.NODE_ENV === 'development') {
+        notifyClients = sendReloadNotification;
+        // eslint-disable-next-line no-console
+        console.log('🔄 Extension reload plugin initialized');
+      }
+    },
+
+    buildEnd() {
+      // Уведомляем о завершении сборки
+      if (notifyClients && process.env.NODE_ENV === 'development') {
+        setTimeout(() => {
+          notifyClients?.();
           // eslint-disable-next-line no-console
-          console.log('Extension reload client connected');
-
-          ws.on('close', () => {
-            // eslint-disable-next-line no-console
-            console.log('Extension reload client disconnected');
-          });
-        });
+          console.log('🔄 Extension build completed - reload signal sent');
+        }, 100); // Небольшая задержка для завершения записи файлов
       }
     },
 
     handleHotUpdate({ file }) {
-      if (wss) {
-        wss.clients.forEach((client: WebSocket) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'reload', file }));
-          }
-        });
-      }
-    },
-
-    buildStart() {
-      // Уведомляем о начале сборки в watch mode
-      if (wss) {
-        wss.clients.forEach((client: WebSocket) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'reload' }));
-          }
-        });
+      if (notifyClients) {
+        notifyClients(file);
       }
     },
   };
