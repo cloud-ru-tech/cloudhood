@@ -12,6 +12,11 @@ logger.configure({
   enabled: true,
 });
 
+// Простой тест для проверки работы background script
+logger.info('🎯 Background script loaded successfully!');
+// Дублируем в logger.debug для гарантии видимости
+logger.debug('🎯 Background script loaded successfully! (debug)');
+
 // Инициализируем автоперезагрузку только в dev mode
 if (process.env.NODE_ENV === 'development') {
   enableExtensionReload();
@@ -24,7 +29,7 @@ async function notify(message: ServiceWorkerEvent) {
   logger.debug('Received message:', message);
 
   if (message === ServiceWorkerEvent.Reload) {
-    logger.info('Reloading headers configuration');
+    logger.info('🔄 Reloading headers configuration');
 
     const result = await browser.storage.local.get([
       BrowserStorageKey.Profiles,
@@ -32,6 +37,7 @@ async function notify(message: ServiceWorkerEvent) {
       BrowserStorageKey.IsPaused,
     ]);
 
+    logger.info('📦 Storage data for reload:', result);
     await setBrowserHeaders(result);
   }
   return undefined;
@@ -47,10 +53,11 @@ browser.runtime.onStartup.addListener(async function () {
   ]);
 
   if (Object.keys(result).length) {
-    logger.debug('Storage data found, setting browser headers');
+    logger.info('🚀 Storage data found, setting browser headers on startup');
+    logger.debug('Startup storage data:', result);
     await setBrowserHeaders(result);
   } else {
-    logger.warn('No storage data found on startup');
+    logger.warn('⚠️ No storage data found on startup');
   }
 });
 
@@ -65,12 +72,13 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
     ].some(key => Object.keys(changes).includes(key));
 
     if (relevantChanges) {
-      logger.info('Relevant storage changes detected, updating headers');
+      logger.info('📝 Relevant storage changes detected, updating headers');
       const result = await browser.storage.local.get([
         BrowserStorageKey.Profiles,
         BrowserStorageKey.SelectedProfile,
         BrowserStorageKey.IsPaused,
       ]);
+      logger.debug('Storage changes data:', result);
       await setBrowserHeaders(result);
     }
   }
@@ -86,7 +94,8 @@ browser.runtime.onInstalled.addListener(async details => {
   ]);
 
   if (Object.keys(result).length) {
-    logger.debug('Storage data found, initializing browser headers');
+    logger.info('🔧 Storage data found, initializing browser headers on install');
+    logger.debug('Install storage data:', result);
     await setBrowserHeaders(result);
   }
 });
@@ -101,6 +110,8 @@ browser.tabs.onActivated.addListener(async activeInfo => {
   ]);
 
   if (Object.keys(result).length) {
+    logger.info('📱 Tab activated, updating headers');
+    logger.debug('Tab activation storage data:', result);
     await setBrowserHeaders(result);
   }
 });
