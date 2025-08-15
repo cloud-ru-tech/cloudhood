@@ -6,6 +6,7 @@ import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { profileAdded } from '#entities/request-profile/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
+import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
 import { $isProfileRemoveAvailable } from '#pages/main/components/RequestHeadersActions/model';
 import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
@@ -42,6 +43,7 @@ export function useActions({ onClose }: UseActionsProps) {
   }, [onClose]);
 
   const handleAddUrlFilter = useCallback(() => {
+    profileUrlFiltersAdded();
     onClose();
   }, [onClose]);
 
@@ -92,6 +94,7 @@ export function useActions({ onClose }: UseActionsProps) {
       handleOpenImportModal,
       handleRemoveProfile,
       isProfileRemoveAvailable,
+      handleAddUrlFilter,
     ],
   );
 }
