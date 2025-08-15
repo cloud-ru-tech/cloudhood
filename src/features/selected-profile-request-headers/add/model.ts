@@ -14,8 +14,7 @@ const selectedProfileRequestHeadersAddedFx = attach({
     const profile = profiles.find(p => p.id === selectedProfile);
 
     return {
-      id: selectedProfile,
-      name: profile?.name,
+      ...profile,
       requestHeaders: [...(profile?.requestHeaders ?? []), ...requestHeaders.map(h => ({ ...h, id: generateId() }))],
     };
   },

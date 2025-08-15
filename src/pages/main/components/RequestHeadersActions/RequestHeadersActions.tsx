@@ -7,6 +7,7 @@ import { $isPaused } from '#entities/is-paused/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { selectedProfileRequestHeadersAdded } from '#features/selected-profile-request-headers/add/model';
 import { RequestHeaders } from '#widgets/request-headers';
+import { UrlFilters } from '#widgets/url-filters';
 
 import { AllRequestHeadersCheckbox } from './components/AllRequestHeadersCheckbox';
 import { $isProfileRemoveAvailable } from './model';
@@ -20,7 +21,7 @@ export function RequestHeadersActions() {
   ]);
 
   const handleAdd = () => {
-    selectedProfileRequestHeadersAdded([{ disabled: false, name: '', value: '', urlFilters: [] }]);
+    selectedProfileRequestHeadersAdded([{ disabled: false, name: '', value: '' }]);
   };
 
   return (
@@ -35,8 +36,11 @@ export function RequestHeadersActions() {
           <ButtonFunction icon={<TrashSVG />} disabled={isPaused || !isProfileRemoveAvailable} onClick={handleRemove} />
         </S.RightHeaderActions>
       </S.Header>
+      <S.ContentWrapper>
+        <RequestHeaders />
 
-      <RequestHeaders />
+        <UrlFilters />
+      </S.ContentWrapper>
 
       <S.StyledBackdrop data-open={isPaused || undefined} />
     </S.Content>
