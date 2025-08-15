@@ -30,5 +30,11 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' ws://localhost:3333; img-src 'self' data: blob:; style-src 'self' 'nonce-cloudhood-extension-style-nonce';"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["img/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
