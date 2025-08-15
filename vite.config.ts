@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 
 import react from '@vitejs/plugin-react';
@@ -31,6 +31,29 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
 
   if (existsSync(indexSrc)) {
     copyFileSync(indexSrc, popupDest);
+  }
+
+  // Copy background.html as background.html
+  const backgroundSrc = resolve(outDir, 'src/background.html');
+  const backgroundDest = resolve(outDir, 'background.html');
+
+  if (existsSync(backgroundSrc)) {
+    copyFileSync(backgroundSrc, backgroundDest);
+  }
+
+  // Ensure img directory exists and copy assets
+  const imgSrc = resolve(outDir, 'src/assets/img');
+  const imgDest = resolve(outDir, 'img');
+
+  if (existsSync(imgSrc)) {
+    mkdirSync(imgDest, { recursive: true });
+
+    const files = readdirSync(imgSrc);
+    files.forEach((file: string) => {
+      const srcFile = resolve(imgSrc, file);
+      const destFile = resolve(imgDest, file);
+      copyFileSync(srcFile, destFile);
+    });
   }
 };
 
@@ -75,6 +98,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: !isProduction,
       chunkSizeWarningLimit: 1000,
       minify: isProduction ? 'terser' : false,
+
       terserOptions: isProduction
         ? {
             compress: {
@@ -86,12 +110,15 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           popup: resolve(__dirname, 'src/index.html'),
-          background: resolve(__dirname, 'src/background.ts'),
+          background: resolve(__dirname, 'src/background.html'),
         },
         output: {
           entryFileNames: chunk => {
             if (chunk.name === 'popup') {
               return 'popup.bundle.js';
+            }
+            if (chunk.name === 'background') {
+              return 'background.bundle.js';
             }
             return '[name].bundle.js';
           },
@@ -105,8 +132,20 @@ export default defineConfig(({ mode }) => {
             }
             return '[name].[ext]';
           },
-          manualChunks: undefined, // Полностью отключаем разделение для диагностики
+          manualChunks: id => {
+            // Для background script - создаем отдельный бандл без чанков
+            if (id.includes('background')) {
+              return 'background';
+            }
+            // Для popup - создаем чанки
+            if (id.includes('node_modules') && !id.includes('background')) {
+              return 'vendor';
+            }
+            return undefined;
+          },
+          inlineDynamicImports: false,
         },
+        external: [],
       },
     },
     server: {
@@ -114,5 +153,6 @@ export default defineConfig(({ mode }) => {
     },
     assetsInclude: ['**/*.otf', '**/*.ttf', '**/*.woff', '**/*.woff2'],
     publicDir: 'src/assets',
+    copyPublicDir: true,
   };
 });
