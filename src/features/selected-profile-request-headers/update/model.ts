@@ -10,8 +10,8 @@ const selectedProfileRequestHeadersUpdatedFx = attach({
   effect: ({ profiles, selectedProfile }, updatedHeaders: RequestHeader[]) => {
     const profile = profiles.find(p => p.id === selectedProfile);
     return {
+      ...profile,
       id: selectedProfile,
-      ...(Boolean(profile?.name) && { name: profile?.name }),
       requestHeaders:
         profile?.requestHeaders.map(header => {
           const updatedHeader = updatedHeaders?.find(h => h.id === header.id);
