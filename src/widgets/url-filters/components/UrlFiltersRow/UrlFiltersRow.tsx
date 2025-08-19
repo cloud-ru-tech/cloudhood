@@ -1,8 +1,11 @@
+import { useSortable } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
 
+import { ButtonFunction } from '@snack-uikit/button';
 import { FieldText } from '@snack-uikit/fields';
-import { CheckboxProps } from '@snack-uikit/toggles';
+import { CrossSVG } from '@snack-uikit/icons';
+import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
 
 import { $isPaused } from '#entities/is-paused/model';
@@ -16,7 +19,7 @@ import * as S from './styled';
 
 export function UrlFiltersRow(props: UrlFilter) {
   const { disabled, value, id } = props;
-  // const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
+  const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
   const { isPaused } = useUnit({
     isPaused: $isPaused,
   });
@@ -30,10 +33,6 @@ export function UrlFiltersRow(props: UrlFilter) {
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     const value = e.clipboardData.getData('text/plain');
-
-    // if (![DELIMITER, NEW_ROW].some(item => value.includes(item))) {
-    //   return;
-    // }
 
     e.preventDefault();
     selectedProfileUrlFiltersUpdated([{ ...props, value }]);
@@ -52,11 +51,12 @@ export function UrlFiltersRow(props: UrlFilter) {
   };
 
   const handleChecked: CheckboxProps['onChange'] = checked => {
+    selectedProfileUrlFiltersUpdated([{ ...props, disabled: !checked }]);
   };
 
   return (
-    <S.Wrapper isDragging={false}>
-      {/* <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} /> */}
+    <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
+      <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} />
 
       <Tooltip
         tip='Incorrect format for header value'
@@ -76,12 +76,12 @@ export function UrlFiltersRow(props: UrlFilter) {
         />
       </Tooltip>
 
-      {/* <ButtonFunction
+      <ButtonFunction
         disabled={isPaused}
         size='s'
         icon={<CrossSVG />}
-        onClick={() => selectedProfileUrlFiltersRemoved([id])}
-      /> */}
+        // onClick={() => selectedProfileUrlFiltersRemoved([id])}
+      />
     </S.Wrapper>
   );
 }
