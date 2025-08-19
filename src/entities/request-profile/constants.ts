@@ -13,6 +13,12 @@ export const DEFAULT_REQUEST_HEADERS: Profile[] = [
         value: '',
       },
     ],
-    urlFilters: [],
+    urlFilters: [
+      {
+        id: generateId(),
+        value: '',
+        disabled: false,
+      },
+    ],
   },
 ];
