@@ -6,11 +6,9 @@ import { $selectedProfileRequestHeaders } from '#entities/request-profile/model/
 import {
   $draggableRequestHeader,
   $flattenRequestHeaders,
-  dragEnded,
-  dragOver,
-  dragStarted,
 } from '#features/selected-profile-request-headers/reorder/model';
 import { restrictToParentElement } from '#features/selected-profile-request-headers/reorder/utils';
+import { dragEnded, dragOver, dragStarted } from '#entities/sortable-list';
 import { isDefined } from '#shared/utils/typeGuards';
 
 import { RequestHeaderRow } from './components/RequestHeaderRow';
