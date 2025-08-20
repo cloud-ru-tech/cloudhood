@@ -2,12 +2,12 @@ import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from
 import { useUnit } from 'effector-react';
 
 import { $selectedProfileUrlFilters } from '#entities/request-profile/model';
+import { restrictToParentElement } from '#features/selected-profile-request-headers/reorder/utils';
 import {
   dragEnded,
   dragOver,
   dragStarted
-} from '#features/selected-profile-request-headers/reorder/model';
-import { restrictToParentElement } from '#features/selected-profile-request-headers/reorder/utils';
+} from '#entities/sortable-list';
 
 import { UrlFiltersRow } from './components/UrlFiltersRow';
 import * as S from './styled';

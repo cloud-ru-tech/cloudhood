@@ -13,6 +13,7 @@ import type { UrlFilter } from '#entities/request-profile/types';
 import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
 import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-request-headers/paste/model';
 import { selectedProfileUrlFiltersUpdated } from '#features/selected-profile-url-filters/update/model';
+import { DragHandle } from '#entities/sortable-list';
 import { validateHeaderValue } from '#shared/utils/headers';
 
 import * as S from './styled';
@@ -56,6 +57,7 @@ export function UrlFiltersRow(props: UrlFilter) {
 
   return (
     <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
+       <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
       <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} />
 
       <Tooltip
