@@ -11,7 +11,6 @@ import { ThemeMode } from '#shared/constants';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
 import packageJson from '../../../package.json';
-import { getProfileNameAbbreviation } from './helpers/sidebar';
 import * as S from './styled';
 
 const CLOUDHOOD_GITHUB_URL = packageJson.homepage;
@@ -36,7 +35,7 @@ export function Sidebar() {
             index={index}
             isSelected={profile.id === selectedProfileId}
             profileId={profile.id}
-            profileNameAbbreviation={getProfileNameAbbreviation(profile.name ?? `Profile ${index + 1}`)}
+            profileName={profile.name ?? `Profile ${index + 1}`}
           />
         ))}
       </S.ProfilesWrapper>
