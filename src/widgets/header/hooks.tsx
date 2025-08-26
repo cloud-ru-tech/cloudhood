@@ -4,10 +4,9 @@ import { useCallback, useMemo } from 'react';
 import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
 
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
-import { profileAdded } from '#entities/request-profile/model';
+import { $isProfileRemoveAvailable, profileAdded } from '#entities/request-profile/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
-import { $isProfileRemoveAvailable } from '#pages/main/components/RequestHeadersActions/model';
 import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
 type UseActionsProps = {
