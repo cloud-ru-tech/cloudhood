@@ -3,17 +3,16 @@ import { attach, combine, createEvent, sample } from 'effector';
 import { $requestProfiles, $selectedRequestProfile, profileUpdated } from '#entities/request-profile/model';
 import { generateId } from '#shared/utils/generateId';
 
-
 export const profileUrlFiltersAdded = createEvent();
 
 const urlFiltersAddedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
-  effect: ({ profiles, selectedProfile },) => {
+  effect: ({ profiles, selectedProfile }) => {
     const profile = profiles.find(p => p.id === selectedProfile);
 
     return {
       ...profile,
-      urlFilters: [...(profile?.urlFilters ?? []), { id: generateId(), name: '', disabled: false, value: ''}],
+      urlFilters: [...(profile?.urlFilters ?? []), { id: generateId(), disabled: false, value: '' }],
     };
   },
 });
