@@ -2,6 +2,8 @@ import { useSortable } from '@dnd-kit/sortable';
 
 import { ButtonFunction } from '@snack-uikit/button';
 
+import { DragIndicatorSVG } from '#shared/assets/svg';
+
 type DragHandleProps = {
   listeners: ReturnType<typeof useSortable>['listeners'];
   attributes: ReturnType<typeof useSortable>['attributes'];
@@ -14,8 +16,8 @@ export function DragHandle({
   listeners,
   attributes,
   disabled = false,
-  icon,
-  size = 'm'
+  icon = <DragIndicatorSVG />,
+  size = 'm',
 }: DragHandleProps) {
   return (
     <span {...listeners} {...attributes} tabIndex={disabled ? -1 : 0}>
