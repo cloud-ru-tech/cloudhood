@@ -1,20 +1,20 @@
-import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 
 import { $selectedProfileUrlFilters } from '#entities/request-profile/model';
-import { restrictToParentElement } from '#features/selected-profile-request-headers/reorder/utils';
-import {
-  dragEnded,
-  dragOver,
-  dragStarted
-} from '#entities/sortable-list';
+import { dragEnded, dragOver, dragStarted, restrictToParentElement } from '#entities/sortable-list';
+import { $draggableUrlFilter, $flattenUrlFilters } from '#features/selected-profile-url-filters/reorder/model';
+import { isDefined } from '#shared/utils/typeGuards';
 
 import { UrlFiltersRow } from './components/UrlFiltersRow';
 import * as S from './styled';
 
 export function UrlFilters() {
-  const { urlFilters } = useUnit({
+  const { urlFilters, flattenUrlFilters, activeUrlFilter } = useUnit({
     urlFilters: $selectedProfileUrlFilters,
+    flattenUrlFilters: $flattenUrlFilters,
+    activeUrlFilter: $draggableUrlFilter,
   });
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
@@ -28,11 +28,13 @@ export function UrlFilters() {
       onDragEnd={dragEnded}
     >
       <S.Wrapper>
-        {urlFilters.map(filter => (
-          <UrlFiltersRow key={filter.id} {...filter} />
-        ))}
+        <SortableContext items={flattenUrlFilters}>
+          {urlFilters.map(filter => (
+            <UrlFiltersRow key={filter.id} {...filter} />
+          ))}
+        </SortableContext>
       </S.Wrapper>
-      {/* <DragOverlay>{isDefined(activeRequestHeader) ? <RequestHeaderRow {...activeRequestHeader} /> : null}</DragOverlay> */}
+      <DragOverlay>{isDefined(activeUrlFilter) ? <UrlFiltersRow {...activeUrlFilter} /> : null}</DragOverlay>
     </DndContext>
   );
 }

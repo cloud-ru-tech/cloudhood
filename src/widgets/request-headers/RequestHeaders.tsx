@@ -3,12 +3,11 @@ import { SortableContext } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 
 import { $selectedProfileRequestHeaders } from '#entities/request-profile/model/selected-request-headers';
+import { dragEnded, dragOver, dragStarted, restrictToParentElement } from '#entities/sortable-list';
 import {
   $draggableRequestHeader,
   $flattenRequestHeaders,
 } from '#features/selected-profile-request-headers/reorder/model';
-import { restrictToParentElement } from '#features/selected-profile-request-headers/reorder/utils';
-import { dragEnded, dragOver, dragStarted } from '#entities/sortable-list';
 import { isDefined } from '#shared/utils/typeGuards';
 
 import { RequestHeaderRow } from './components/RequestHeaderRow';
