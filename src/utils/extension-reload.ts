@@ -1,4 +1,4 @@
-// Утилита для автоматической перезагрузки браузерного расширения в dev mode
+// Utility for automatic browser extension reload in development mode
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 10;
 let reconnectTimeout: NodeJS.Timeout | null = null;

@@ -68,7 +68,7 @@ logger.info('🔍 About to check storage contents...');
   }
 })();
 
-// Инициализируем автоперезагрузку только в dev mode
+// Initialize auto-reload only in development mode
 if (process.env.NODE_ENV === 'development') {
   enableExtensionReload();
   logger.debug('Extension auto-reload enabled for development mode');

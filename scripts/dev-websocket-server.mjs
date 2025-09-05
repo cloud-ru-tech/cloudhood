@@ -5,13 +5,15 @@ let isShuttingDown = false;
 
 async function createServer() {
   try {
+    const port = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
+
     wss = new WebSocketServer({
-      port: 3333,
+      port,
       perMessageDeflate: false,
       clientTracking: true
     });
 
-    console.log('🔄 Extension reload WebSocket server started on port 3333');
+    console.log(`🔄 Extension reload WebSocket server started on port ${port}`);
 
     wss.on('connection', (ws) => {
       console.log('📱 Extension reload client connected');
