@@ -79,7 +79,7 @@ export default defineConfig(({ mode }) => {
     tsconfigPaths(),
   ];
 
-  // Добавляем плагин автоперезагрузки только в dev mode
+  // Add auto-reload plugin only in dev mode
   if (!isProduction) {
     plugins.push(extensionReloadPlugin());
   }

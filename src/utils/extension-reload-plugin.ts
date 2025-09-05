@@ -8,7 +8,8 @@ export const extensionReloadPlugin = (): Plugin => {
     try {
       // Используем встроенный WebSocket браузера
       const WebSocket = globalThis.WebSocket || require('ws');
-      const ws = new WebSocket('ws://localhost:3333');
+      const port = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
+      const ws = new WebSocket(`ws://localhost:${port}`);
 
       ws.onopen = () => {
         ws.send(JSON.stringify({ type: 'reload', file }));
