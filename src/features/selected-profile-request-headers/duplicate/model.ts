@@ -10,14 +10,20 @@ const selectedProfileRequestHeadersDuplicatedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, requestHeaderId: RequestHeader['id']) => {
     const profile = profiles.find(p => p.id === selectedProfile);
-    const currentRequestHeader = profile?.requestHeaders.filter(h => h.id === requestHeaderId) || [];
+
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
+    const currentRequestHeader = profile.requestHeaders.find(h => h.id === requestHeaderId);
+
+    if (!currentRequestHeader) {
+      throw new Error('Request header not found');
+    }
+
     return {
-      id: selectedProfile,
-      name: profile?.name,
-      requestHeaders: [
-        ...(profile?.requestHeaders ?? []),
-        ...currentRequestHeader.map(h => ({ ...h, id: generateId() })),
-      ],
+      ...profile,
+      requestHeaders: [...profile.requestHeaders, { ...currentRequestHeader, id: generateId() }],
     };
   },
 });

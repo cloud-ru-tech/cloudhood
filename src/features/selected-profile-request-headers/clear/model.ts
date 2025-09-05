@@ -9,17 +9,16 @@ const selectedProfileRequestHeadersClearedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, requestHeaderId: RequestHeader['id']) => {
     const profile = profiles.find(p => p.id === selectedProfile);
+
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     return {
-      id: selectedProfile,
-      ...(Boolean(profile?.name) && { name: profile?.name }),
-      requestHeaders:
-        profile?.requestHeaders.reduce(
-          (acc: RequestHeader[], requestHeader: RequestHeader) => [
-            ...acc,
-            requestHeader.id === requestHeaderId ? { ...requestHeader, value: '' } : requestHeader,
-          ],
-          [],
-        ) ?? [],
+      ...profile,
+      requestHeaders: profile.requestHeaders.map(requestHeader =>
+        requestHeader.id === requestHeaderId ? { ...requestHeader, value: '' } : requestHeader,
+      ),
     };
   },
 });

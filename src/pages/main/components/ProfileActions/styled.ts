@@ -7,7 +7,6 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 8px;
 
   overflow-y: auto;
 

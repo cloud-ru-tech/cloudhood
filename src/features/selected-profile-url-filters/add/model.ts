@@ -10,9 +10,13 @@ const urlFiltersAddedFx = attach({
   effect: ({ profiles, selectedProfile }) => {
     const profile = profiles.find(p => p.id === selectedProfile);
 
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     return {
       ...profile,
-      urlFilters: [...(profile?.urlFilters ?? []), { id: generateId(), disabled: false, value: '' }],
+      urlFilters: [...profile.urlFilters, { id: generateId(), disabled: false, value: '' }],
     };
   },
 });
