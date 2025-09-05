@@ -13,6 +13,7 @@ import type { UrlFilter } from '#entities/request-profile/types';
 import { DragHandle } from '#entities/sortable-list';
 import { selectedProfileUrlFiltersRemoved } from '#features/selected-profile-url-filters/remove/model';
 import { selectedProfileUrlFiltersUpdated } from '#features/selected-profile-url-filters/update/model';
+import { validateUrlFilter } from '#shared/utils/createUrlCondition';
 import { validateHeaderValue } from '#shared/utils/headers';
 
 import * as S from './styled';
@@ -25,6 +26,7 @@ export function UrlFiltersRow(props: UrlFilter) {
   });
 
   const isValueFormatVerified = validateHeaderValue(value);
+  const urlFilterValidation = validateUrlFilter(value);
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     const value = e.clipboardData.getData('text/plain');
@@ -55,9 +57,17 @@ export function UrlFiltersRow(props: UrlFilter) {
       <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} />
 
       <Tooltip
-        tip='Incorrect format for header value'
+        tip={(() => {
+          if (!isValueFormatVerified) {
+            return 'Incorrect format for header value';
+          }
+          if (urlFilterValidation.warnings.length > 0) {
+            return urlFilterValidation.warnings.join('\n');
+          }
+          return undefined;
+        })()}
         placement='top'
-        open={value.length > 0 && !isValueFormatVerified}
+        open={value.length > 0 && (!isValueFormatVerified || urlFilterValidation.warnings.length > 0)}
       >
         <FieldText
           size='m'
@@ -68,7 +78,9 @@ export function UrlFiltersRow(props: UrlFilter) {
           onKeyDown={handleKeyPress}
           showClearButton={false}
           disabled={isPaused}
-          validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
+          validationState={
+            value.length > 0 && (!isValueFormatVerified || !urlFilterValidation.isValid) ? 'error' : 'default'
+          }
         />
       </Tooltip>
 
