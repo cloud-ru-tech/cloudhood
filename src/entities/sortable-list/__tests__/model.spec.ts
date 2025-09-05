@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { createStore, createEvent } from 'effector';
+import { createEvent, createStore } from 'effector';
+import { describe, expect, it } from 'vitest';
+
 import { createSortableListModel } from '../model';
 
 describe('createSortableListModel', () => {
@@ -58,6 +59,7 @@ describe('createSortableListModel', () => {
     });
 
     // Assert
+    // eslint-disable-next-line effector/no-getState
     expect(model.$flattenItems.getState()).toEqual([1, 2]);
   });
 

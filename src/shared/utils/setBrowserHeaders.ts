@@ -3,16 +3,10 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
+import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
 import { setIconBadge } from './setIconBadge';
-
-function normalizeUrlFilter(filter: string): string {
-  if (filter.includes('://') || filter.startsWith('*') || filter.includes('*')) {
-    return filter;
-  }
-  return `*://${filter}/*`;
-}
 
 function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
   const allResourceTypes = [
@@ -31,6 +25,7 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
     'other',
   ] as browser.DeclarativeNetRequest.ResourceType[];
 
+  // Если URL фильтров нет, применяем заголовок ко всем URL
   if (urlFilters.length === 0) {
     return [
       {
@@ -40,33 +35,71 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
           requestHeaders: [{ header: header.name, value: header.value, operation: 'set' as const }],
         },
         condition: {
-          resourceTypes: allResourceTypes,
+          resourceTypes: allResourceTypes, // Применяется ко всем типам ресурсов
         },
       },
     ];
   }
 
-  return urlFilters.map((urlFilter, index) => ({
-    id: header.id + index * 10000,
-    action: {
-      type: 'modifyHeaders' as const,
-      requestHeaders: [{ header: header.name, value: header.value, operation: 'set' as const }],
-    },
-    condition: {
-      urlFilter: normalizeUrlFilter(urlFilter),
-      resourceTypes: allResourceTypes,
-    },
-  }));
+  return urlFilters.map((urlFilter, index) => {
+    const urlCondition = createUrlCondition(urlFilter);
+    return {
+      id: header.id + index * 10000,
+      action: {
+        type: 'modifyHeaders' as const,
+        requestHeaders: [{ header: header.name, value: header.value, operation: 'set' as const }],
+      },
+      condition: {
+        ...urlCondition,
+        resourceTypes: allResourceTypes,
+      },
+    };
+  });
 }
 
 export async function setBrowserHeaders(result: Record<string, unknown>) {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
-  const profiles: Profile[] = JSON.parse(result[BrowserStorageKey.Profiles] as string);
-  const selectedProfile = result[BrowserStorageKey.SelectedProfile] as string;
+  // Валидация данных из storage
+  let profiles: Profile[] = [];
+  let selectedProfile = '';
+
+  try {
+    const profilesData = result[BrowserStorageKey.Profiles];
+    if (profilesData && typeof profilesData === 'string') {
+      profiles = JSON.parse(profilesData);
+    } else if (Array.isArray(profilesData)) {
+      profiles = profilesData as Profile[];
+    }
+  } catch (error) {
+    logger.error('Failed to parse profiles from storage:', error);
+    profiles = [];
+  }
+
+  const selectedProfileData = result[BrowserStorageKey.SelectedProfile];
+  if (selectedProfileData && typeof selectedProfileData === 'string') {
+    selectedProfile = selectedProfileData;
+  }
+
+  logger.debug('Storage data validation:', {
+    profilesCount: profiles.length,
+    selectedProfile,
+    isPaused,
+    hasProfilesData: Boolean(result[BrowserStorageKey.Profiles]),
+    hasSelectedProfileData: Boolean(result[BrowserStorageKey.SelectedProfile]),
+    hasIsPausedData: result[BrowserStorageKey.IsPaused] !== undefined,
+  });
+
   const currentRules = await browser.declarativeNetRequest.getDynamicRules();
 
   const profile = profiles.find(p => p.id === selectedProfile);
+
+  if (!profile && selectedProfile) {
+    logger.warn(
+      `Profile with id "${selectedProfile}" not found in storage. Available profiles:`,
+      profiles.map(p => ({ id: p.id, name: p.name })),
+    );
+  }
 
   logger.info('📋 Found profile:', profile);
 
