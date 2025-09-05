@@ -9,18 +9,21 @@ const selectedProfileUrlFiltersUpdatedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, updatedUrlFilters: UrlFilter[]) => {
     const profile = profiles.find(p => p.id === selectedProfile);
+
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     return {
       ...profile,
-      id: selectedProfile,
-      urlFilters:
-        profile?.urlFilters.map(filter => {
-          const updatedUrlFilter = updatedUrlFilters?.find(h => h.id === filter.id);
-          if (updatedUrlFilter) {
-            return updatedUrlFilter;
-          }
+      urlFilters: profile.urlFilters.map(filter => {
+        const updatedUrlFilter = updatedUrlFilters.find(h => h.id === filter.id);
+        if (updatedUrlFilter) {
+          return updatedUrlFilter;
+        }
 
-          return filter;
-        }) ?? [],
+        return filter;
+      }),
     };
   },
 });

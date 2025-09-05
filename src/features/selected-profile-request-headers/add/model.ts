@@ -13,9 +13,13 @@ const selectedProfileRequestHeadersAddedFx = attach({
   effect: ({ profiles, selectedProfile }, requestHeaders: SelectedProfileRequestHeadersAdded) => {
     const profile = profiles.find(p => p.id === selectedProfile);
 
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     return {
       ...profile,
-      requestHeaders: [...(profile?.requestHeaders ?? []), ...requestHeaders.map(h => ({ ...h, id: generateId() }))],
+      requestHeaders: [...profile.requestHeaders, ...requestHeaders.map(h => ({ ...h, id: generateId() }))],
     };
   },
 });

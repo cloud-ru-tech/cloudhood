@@ -9,9 +9,14 @@ const selectedProfileUrlFilterRemovedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, urlFilterId: UrlFilter['id'][]) => {
     const profile = profiles.find(p => p.id === selectedProfile);
+
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     return {
       ...profile,
-      urlFilters: profile?.urlFilters?.filter(h => !urlFilterId.includes(h.id)) ?? [],
+      urlFilters: profile.urlFilters.filter(h => !urlFilterId.includes(h.id)),
     };
   },
 });
