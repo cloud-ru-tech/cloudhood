@@ -3,11 +3,12 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
+import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
 import { setIconBadge } from './setIconBadge';
 
-function getRule(header: RequestHeader): browser.DeclarativeNetRequest.Rule {
+function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
   const allResourceTypes = [
     'main_frame',
     'sub_frame',
@@ -24,35 +25,113 @@ function getRule(header: RequestHeader): browser.DeclarativeNetRequest.Rule {
     'other',
   ] as browser.DeclarativeNetRequest.ResourceType[];
 
-  return {
-    id: header.id,
-    action: {
-      type: 'modifyHeaders',
-      requestHeaders: [{ header: header.name, value: header.value, operation: 'set' }],
-    },
-    condition: {
-      urlFilter: undefined,
-      resourceTypes: allResourceTypes,
-    },
-  };
+  // Если URL фильтров нет, применяем заголовок ко всем URL
+  if (urlFilters.length === 0) {
+    return [
+      {
+        id: header.id,
+        action: {
+          type: 'modifyHeaders' as const,
+          requestHeaders: [{ header: header.name, value: header.value, operation: 'set' as const }],
+        },
+        condition: {
+          resourceTypes: allResourceTypes, // Применяется ко всем типам ресурсов
+        },
+      },
+    ];
+  }
+
+  return urlFilters.map((urlFilter, index) => {
+    const urlCondition = createUrlCondition(urlFilter);
+    return {
+      id: header.id + index * 10000,
+      action: {
+        type: 'modifyHeaders' as const,
+        requestHeaders: [{ header: header.name, value: header.value, operation: 'set' as const }],
+      },
+      condition: {
+        ...urlCondition,
+        resourceTypes: allResourceTypes,
+      },
+    };
+  });
 }
 
 export async function setBrowserHeaders(result: Record<string, unknown>) {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
-  const profiles: Profile[] = JSON.parse(result[BrowserStorageKey.Profiles] as string);
-  const selectedProfile = result[BrowserStorageKey.SelectedProfile] as string;
+  // Валидация данных из storage
+  let profiles: Profile[] = [];
+  let selectedProfile = '';
+
+  try {
+    const profilesData = result[BrowserStorageKey.Profiles];
+    if (profilesData && typeof profilesData === 'string') {
+      profiles = JSON.parse(profilesData);
+    } else if (Array.isArray(profilesData)) {
+      profiles = profilesData as Profile[];
+    }
+  } catch (error) {
+    logger.error('Failed to parse profiles from storage:', error);
+    profiles = [];
+  }
+
+  const selectedProfileData = result[BrowserStorageKey.SelectedProfile];
+  if (selectedProfileData && typeof selectedProfileData === 'string') {
+    selectedProfile = selectedProfileData;
+  }
+
+  logger.debug('Storage data validation:', {
+    profilesCount: profiles.length,
+    selectedProfile,
+    isPaused,
+    hasProfilesData: Boolean(result[BrowserStorageKey.Profiles]),
+    hasSelectedProfileData: Boolean(result[BrowserStorageKey.SelectedProfile]),
+    hasIsPausedData: result[BrowserStorageKey.IsPaused] !== undefined,
+  });
+
   const currentRules = await browser.declarativeNetRequest.getDynamicRules();
 
   const profile = profiles.find(p => p.id === selectedProfile);
 
-  const selectedProfileHeaders = profile?.requestHeaders ?? [];
+  if (!profile && selectedProfile) {
+    logger.warn(
+      `Profile with id "${selectedProfile}" not found in storage. Available profiles:`,
+      profiles.map(p => ({ id: p.id, name: p.name })),
+    );
+  }
 
-  const activeRules = selectedProfileHeaders.filter(
+  logger.info('📋 Found profile:', profile);
+
+  const selectedProfileHeaders = profile?.requestHeaders ?? [];
+  const selectedProfileUrlFilters = profile?.urlFilters ?? [];
+
+  const activeHeaders = selectedProfileHeaders.filter(
     ({ disabled, name, value }) => !disabled && validateHeader(name, value),
   );
 
-  const addRules = !isPaused ? activeRules.map(getRule) : [];
+  // Убираем лишнюю строку и исправляем логирование
+  logger.info('URL filters from profile:', selectedProfileUrlFilters);
+
+  const activeUrlFilters = selectedProfileUrlFilters
+    .filter(({ disabled, value }) => !disabled && value.trim())
+    .map(({ value }) => value.trim());
+
+  logger.info('Active URL filters:', activeUrlFilters);
+
+  // Добавляем более заметное логирование
+  logger.debug('🔍 Profile data:', {
+    profileId: selectedProfile,
+    headersCount: selectedProfileHeaders.length,
+    activeHeadersCount: activeHeaders.length,
+    urlFiltersCount: selectedProfileUrlFilters.length,
+    activeUrlFiltersCount: activeUrlFilters.length,
+  });
+
+  const addRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
+    ? activeHeaders.flatMap(header => getRulesForHeader(header, activeUrlFilters))
+    : [];
+
   const removeRuleIds = currentRules.map(item => item.id);
 
   try {
@@ -60,7 +139,6 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     logger.info('Remove rule IDs:', removeRuleIds);
     logger.info('Add rules:', addRules);
 
-    // Сначала удаляем все правила для обеспечения чистого состояния
     if (removeRuleIds.length > 0) {
       await browser.declarativeNetRequest.updateDynamicRules({
         removeRuleIds,
@@ -69,7 +147,6 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
       logger.debug('Old rules removed');
     }
 
-    // Затем добавляем новые правила (если они есть)
     if (addRules.length > 0) {
       await browser.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [],
@@ -78,14 +155,13 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
       logger.debug('New rules added');
     }
 
-    // Проверяем, что правила действительно обновились
     const updatedRules = await browser.declarativeNetRequest.getDynamicRules();
     logger.debug('Current active rules after update:', updatedRules);
 
     logger.info('Rules updated successfully');
     logger.groupEnd();
 
-    await setIconBadge({ isPaused, activeRulesCount: activeRules.length });
+    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
   }

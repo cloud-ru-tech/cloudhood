@@ -9,10 +9,14 @@ const selectedProfileRequestHeadersRemovedFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, headersId: RequestHeader['id'][]) => {
     const profile = profiles.find(p => p.id === selectedProfile);
+
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     return {
-      id: selectedProfile,
-      name: profile?.name,
-      requestHeaders: profile?.requestHeaders?.filter(h => !headersId.includes(h.id)) ?? [],
+      ...profile,
+      requestHeaders: profile.requestHeaders.filter(h => !headersId.includes(h.id)),
     };
   },
 });

@@ -4,10 +4,10 @@ import { useCallback, useMemo } from 'react';
 import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
 
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
-import { profileAdded } from '#entities/request-profile/model';
+import { $isProfileRemoveAvailable, profileAdded } from '#entities/request-profile/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
-import { $isProfileRemoveAvailable } from '#pages/main/components/RequestHeadersActions/model';
-import { FileOpenSVG } from '#shared/assets/svg';
+import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
+import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
 type UseActionsProps = {
   onClose(): void;
@@ -41,6 +41,11 @@ export function useActions({ onClose }: UseActionsProps) {
     onClose();
   }, [onClose]);
 
+  const handleAddUrlFilter = useCallback(() => {
+    profileUrlFiltersAdded();
+    onClose();
+  }, [onClose]);
+
   return useMemo(
     () => [
       {
@@ -60,6 +65,12 @@ export function useActions({ onClose }: UseActionsProps) {
         content: { option: 'Import from other extension' },
         beforeContent: <FileOpenSVG />,
         onClick: handleOpenImportFromExtensionModal,
+      },
+      {
+        id: 'add-request-url-filter',
+        content: { option: 'Add request URL filters' },
+        beforeContent: <FileUploadSVG />,
+        onClick: handleAddUrlFilter,
       },
       {
         id: 'export',
@@ -82,6 +93,7 @@ export function useActions({ onClose }: UseActionsProps) {
       handleOpenImportModal,
       handleRemoveProfile,
       isProfileRemoveAvailable,
+      handleAddUrlFilter,
     ],
   );
 }

@@ -43,6 +43,7 @@ const profileAddedFx = attach({
         {
           id: addedHeaderId,
           requestHeaders: [{ id: generateId(), name: '', value: '', disabled: false }],
+          urlFilters: [],
         },
       ],
       addedHeaderId,
@@ -111,3 +112,5 @@ sample({ clock: profileMultiRemovedFx.doneData, target: $requestProfiles });
 sample({ clock: initApp, target: profilesLoadedFromStorageFx });
 sample({ clock: profilesLoadedFromStorageFx.doneData, target: $requestProfiles });
 sample({ clock: profilesLoadedFromStorageFx.doneData, target: loadSelectedProfileFromStorage });
+
+export const $isProfileRemoveAvailable = $requestProfiles.map(profiles => profiles.length > 1);

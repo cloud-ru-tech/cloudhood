@@ -7,28 +7,11 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 8px;
 
   overflow-y: auto;
 
   padding: 8px 8px 0;
-`;
-
-export const LeftHeaderActions = styled.div`
-  ${themeVars.sans.title.m}
-
-  color: ${themeVars.sys.neutral.textMain};
-  display: flex;
-  gap: 8px;
-  padding-left: 8px;
-  align-items: center;
-`;
-
-export const RightHeaderActions = styled.div`
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
-  align-items: center;
+  gap: 20px;
 `;
 
 export const StyledBackdrop = styled.div`
@@ -44,10 +27,4 @@ export const StyledBackdrop = styled.div`
   &[data-open] {
     display: block;
   }
-`;
-
-export const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
 `;
