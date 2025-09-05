@@ -20,13 +20,16 @@ const selectedProfileRequestHeadersPastedFx = attach({
   effect: ({ profiles, selectedProfile }, updatedHeader: SelectedProfileRequestHeadersPasted) => {
     const profile = profiles.find(p => p.id === selectedProfile);
 
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
     const [targetValue, ...additionalValues] = updatedHeader.value.split(NEW_ROW).filter(Boolean);
 
     return {
-      id: selectedProfile,
-      name: profile?.name || '',
+      ...profile,
       requestHeaders: [
-        ...(profile?.requestHeaders.map(header => {
+        ...profile.requestHeaders.map(header => {
           const isUpdatedHeader = updatedHeader.id === header.id;
 
           if (isUpdatedHeader) {
@@ -40,8 +43,8 @@ const selectedProfileRequestHeadersPastedFx = attach({
           }
 
           return header;
-        }) ?? []),
-        ...(additionalValues.map(pastedValue => {
+        }),
+        ...additionalValues.map(pastedValue => {
           const { name, value } = formatHeaderValue({ pastedValue });
           return {
             id: generateId(),
@@ -49,7 +52,7 @@ const selectedProfileRequestHeadersPastedFx = attach({
             value,
             disabled: false,
           };
-        }) ?? []),
+        }),
       ],
     };
   },

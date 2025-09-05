@@ -78,7 +78,6 @@ const urlFilterMoved = sample({
 
 sample({ clock: urlFilterMoved, target: reorderUrlFiltersFx });
 sample({
-  // @ts-expect-error doneData is not typed
   clock: reorderUrlFiltersFx.doneData,
   filter: Boolean,
   target: profileUpdated,
