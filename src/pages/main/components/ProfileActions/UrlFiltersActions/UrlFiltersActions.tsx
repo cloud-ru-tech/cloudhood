@@ -24,7 +24,7 @@ export function UrlFiltersActions() {
   const leftHeaderActions = (
     <>
       <AllUrlFiltersCheckbox />
-      Request URL filters Tooltip
+      <span data-test-id='url-filters-section'>Request URL filters</span>
       <Tooltip
         tip={
           <S.Ul>
