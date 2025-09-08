@@ -14,7 +14,6 @@ import { DragHandle } from '#entities/sortable-list';
 import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
 import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-request-headers/paste/model';
 import { selectedProfileRequestHeadersRemoved } from '#features/selected-profile-request-headers/remove/model';
-// import { DragHandle } from '#features/selected-profile-request-headers/reorder/components';
 import { selectedProfileRequestHeadersUpdated } from '#features/selected-profile-request-headers/update/model';
 import { validateHeaderName, validateHeaderValue } from '#shared/utils/headers';
 
@@ -86,6 +85,7 @@ export function RequestHeaderRow(props: RequestHeader) {
             onBlur={onHeaderNameBlur}
             showClearButton={false}
             disabled={isPaused}
+            data-test-id='header-name-input'
             validationState={name.length > 0 && !isNameFormatVerified ? 'error' : 'default'}
           />
         </Tooltip>
@@ -105,6 +105,7 @@ export function RequestHeaderRow(props: RequestHeader) {
           onKeyDown={handleKeyPress}
           showClearButton={false}
           disabled={isPaused}
+          data-test-id='header-value-input'
           validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
         />
       </Tooltip>

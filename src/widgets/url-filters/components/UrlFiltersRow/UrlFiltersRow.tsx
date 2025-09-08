@@ -78,6 +78,7 @@ export function UrlFiltersRow(props: UrlFilter) {
           onKeyDown={handleKeyPress}
           showClearButton={false}
           disabled={isPaused}
+          data-test-id='url-filter-input'
           validationState={
             value.length > 0 && (!isValueFormatVerified || !urlFilterValidation.isValid) ? 'error' : 'default'
           }
