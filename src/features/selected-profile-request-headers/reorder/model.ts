@@ -1,6 +1,6 @@
 import { DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { attach, combine,sample } from 'effector';
+import { attach, combine, sample } from 'effector';
 
 import {
   $requestProfiles,
@@ -8,24 +8,31 @@ import {
   $selectedRequestProfile,
   profileUpdated,
 } from '#entities/request-profile/model';
-import { createSortableListModel, dragEnded, dragOver,dragStarted } from '#entities/sortable-list';
+import {
+  createSortableListModel,
+  dragEnded,
+  dragOver,
+  dragStarted,
+  type SortableItemId,
+  type SortableItemIdOrNull,
+} from '#entities/sortable-list';
 
 export const {
   $flattenItems: $flattenRequestHeaders,
   $dragTarget: $dragTargetRequestHeaders,
   $raisedItem: $raisedRequestHeader,
   reorderItems,
-  updateItems,
+  itemsUpdated,
 } = createSortableListModel({
   $items: $selectedProfileRequestHeaders,
   $selectedItem: $selectedRequestProfile,
   $allItems: $requestProfiles.map(profiles => profiles.map(profile => profile.requestHeaders)),
-  updateItems: profileUpdated,
+  itemsUpdated: profileUpdated,
 });
 
 export const $draggableRequestHeader = combine(
   [$raisedRequestHeader, $selectedProfileRequestHeaders],
-  ([raisedId, headers]) => raisedId ? headers.find(header => header.id === raisedId) : null
+  ([raisedId, headers]) => (raisedId ? headers.find(header => header.id === raisedId) : null),
 );
 
 const reorderRequestHeadersFx = attach({
@@ -47,6 +54,7 @@ const reorderRequestHeadersFx = attach({
       id: selectedProfile,
       ...(Boolean(profile?.name) && { name: profile?.name }),
       requestHeaders: arrayMove(requestHeaders, activeIndex, targetIndex),
+      urlFilters: profile?.urlFilters ?? [],
     };
   },
 });
@@ -68,17 +76,19 @@ sample({
 const requestHeaderMoved = sample({
   clock: dragEnded,
   source: { active: $raisedRequestHeader, target: $dragTargetRequestHeaders },
-  filter(src: { active: string | number | null; target: string | number | null }): src is { active: string | number; target: string | number } {
+  filter(src: {
+    active: SortableItemIdOrNull;
+    target: SortableItemIdOrNull;
+  }): src is { active: SortableItemId; target: SortableItemId } {
     return Boolean(src.active) && Boolean(src.target) && src.active !== src.target;
   },
 });
 
 sample({ clock: requestHeaderMoved, target: reorderRequestHeadersFx });
 sample({
-  // @ts-expect-error doneData is not typed
   clock: reorderRequestHeadersFx.doneData,
   filter: Boolean,
-  target: profileUpdated
+  target: profileUpdated,
 });
 
 $dragTargetRequestHeaders.reset(reorderRequestHeadersFx.finally);

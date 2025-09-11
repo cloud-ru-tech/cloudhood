@@ -8,19 +8,26 @@ import {
   $selectedRequestProfile,
   profileUpdated,
 } from '#entities/request-profile/model';
-import { createSortableListModel, dragEnded, dragOver, dragStarted } from '#entities/sortable-list';
+import {
+  createSortableListModel,
+  dragEnded,
+  dragOver,
+  dragStarted,
+  type SortableItemId,
+  type SortableItemIdOrNull,
+} from '#entities/sortable-list';
 
 export const {
   $flattenItems: $flattenUrlFilters,
   $dragTarget: $dragTargetUrlFilters,
   $raisedItem: $raisedUrlFilter,
   reorderItems,
-  updateItems,
+  itemsUpdated,
 } = createSortableListModel({
   $items: $selectedProfileUrlFilters,
   $selectedItem: $selectedRequestProfile,
   $allItems: $requestProfiles.map(profiles => profiles.map(profile => profile.urlFilters)),
-  updateItems: profileUpdated,
+  itemsUpdated: profileUpdated,
 });
 
 export const $draggableUrlFilter = combine([$raisedUrlFilter, $selectedProfileUrlFilters], ([raisedId, filters]) =>
@@ -69,9 +76,9 @@ const urlFilterMoved = sample({
   clock: dragEnded,
   source: { active: $raisedUrlFilter, target: $dragTargetUrlFilters },
   filter(src: {
-    active: string | number | null;
-    target: string | number | null;
-  }): src is { active: string | number; target: string | number } {
+    active: SortableItemIdOrNull;
+    target: SortableItemIdOrNull;
+  }): src is { active: SortableItemId; target: SortableItemId } {
     return Boolean(src.active) && Boolean(src.target) && src.active !== src.target;
   },
 });

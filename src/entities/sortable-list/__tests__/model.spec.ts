@@ -21,14 +21,14 @@ describe('createSortableListModel', () => {
       ],
     ]);
 
-    const updateItems = createEvent();
+    const itemsUpdated = createEvent();
 
     // Act
     const model = createSortableListModel({
       $items,
       $selectedItem,
       $allItems,
-      updateItems,
+      itemsUpdated,
     });
 
     // Assert
@@ -36,7 +36,7 @@ describe('createSortableListModel', () => {
     expect(model).toHaveProperty('$dragTarget');
     expect(model).toHaveProperty('$raisedItem');
     expect(model).toHaveProperty('reorderItems');
-    expect(model).toHaveProperty('updateItems');
+    expect(model).toHaveProperty('itemsUpdated');
   });
 
   it('should return flattened items with correct IDs', () => {
@@ -48,14 +48,14 @@ describe('createSortableListModel', () => {
 
     const $selectedItem = createStore(1);
     const $allItems = createStore([[]]);
-    const updateItems = createEvent();
+    const itemsUpdated = createEvent();
 
     // Act
     const model = createSortableListModel({
       $items,
       $selectedItem,
       $allItems,
-      updateItems,
+      itemsUpdated,
     });
 
     // Assert
@@ -72,14 +72,14 @@ describe('createSortableListModel', () => {
 
     const $selectedItem = createStore(1);
     const $allItems = createStore([[]]);
-    const updateItems = createEvent();
+    const itemsUpdated = createEvent();
 
     // Act
     const model = createSortableListModel({
       $items,
       $selectedItem,
       $allItems,
-      updateItems,
+      itemsUpdated,
     });
 
     const result = model.reorderItems({ active: 1, target: 2 });
