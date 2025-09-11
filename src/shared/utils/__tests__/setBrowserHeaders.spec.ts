@@ -10,8 +10,8 @@ describe('createUrlCondition', () => {
     });
 
     it('должен возвращать urlFilter для ключевого слова', () => {
-      const result = createUrlCondition('console-dev');
-      expect(result).toEqual({ urlFilter: 'console-dev' });
+      const result = createUrlCondition('api-test');
+      expect(result).toEqual({ urlFilter: 'api-test' });
     });
 
     it('должен возвращать urlFilter для поддомена', () => {
@@ -43,36 +43,35 @@ describe('createUrlCondition', () => {
       expect(result).toEqual({ regexFilter: '.*://example\\.com/.*' });
     });
 
-    it('должен возвращать regexFilter для *://console-dev*/*', () => {
-      const result = createUrlCondition('*://console-dev*/*');
-      expect(result).toEqual({ regexFilter: '.*://console-dev.*/.*' });
+    it('должен возвращать regexFilter для *://api-test*/*', () => {
+      const result = createUrlCondition('*://api-test*/*');
+      expect(result).toEqual({ regexFilter: '.*://api-test.*/.*' });
     });
 
-    it('должен возвращать regexFilter для *://console-dev*/', () => {
-      const result = createUrlCondition('*://console-dev*/');
-      expect(result).toEqual({ regexFilter: '.*://console-dev.*/' });
+    it('должен возвращать regexFilter для *://api-test*/', () => {
+      const result = createUrlCondition('*://api-test*/');
+      expect(result).toEqual({ regexFilter: '.*://api-test.*/' });
     });
   });
 
   describe('Проверка регулярных выражений', () => {
     it('должен корректно работать с реальным URL', () => {
-      const testUrl =
-        'https://console-dev.cp.sbercloud.dev/u-api/svp/svc/v1/projects/1ca20625-50d2-48b0-8790-c9e3025c67cc/limits';
+      const testUrl = 'https://api-test.example.org/v1/projects/1ca20625-50d2-48b0-8790-c9e3025c67cc/limits';
 
-      // Тестируем паттерн *://console-dev*/*
-      const pattern1 = '*://console-dev*/*';
+      // Тестируем паттерн *://api-test*/*
+      const pattern1 = '*://api-test*/*';
       const result1 = createUrlCondition(pattern1);
-      expect(result1).toEqual({ regexFilter: '.*://console-dev.*/.*' });
+      expect(result1).toEqual({ regexFilter: '.*://api-test.*/.*' });
 
       // Используем результат функции createUrlCondition
       expect(result1.regexFilter).toBeDefined();
       const regex1 = new RegExp(result1.regexFilter as string);
       expect(regex1.test(testUrl)).toBe(true);
 
-      // Тестируем паттерн *://console-dev*/
-      const pattern2 = '*://console-dev*/';
+      // Тестируем паттерн *://api-test*/
+      const pattern2 = '*://api-test*/';
       const result2 = createUrlCondition(pattern2);
-      expect(result2).toEqual({ regexFilter: '.*://console-dev.*/' });
+      expect(result2).toEqual({ regexFilter: '.*://api-test.*/' });
 
       expect(result2.regexFilter).toBeDefined();
       const regex2 = new RegExp(result2.regexFilter as string);
@@ -82,23 +81,23 @@ describe('createUrlCondition', () => {
     it('должен работать с различными URL паттернами', () => {
       const testCases = [
         {
-          pattern: '*://console-dev*/*',
-          url: 'https://console-dev.cp.sbercloud.dev/api/test',
+          pattern: '*://api-test*/*',
+          url: 'https://api-test.example.org/api/test',
           shouldMatch: true,
         },
         {
-          pattern: '*://console-dev*/',
-          url: 'https://console-dev.cp.sbercloud.dev/api/test',
-          shouldMatch: true,
-        },
-        {
-          pattern: '*://api*/*',
-          url: 'https://api.example.com/test',
+          pattern: '*://api-test*/',
+          url: 'https://api-test.example.org/api/test',
           shouldMatch: true,
         },
         {
           pattern: '*://api*/*',
-          url: 'https://console-dev.cp.sbercloud.dev/api/test',
+          url: 'https://api-test.example.org/api/test',
+          shouldMatch: true,
+        },
+        {
+          pattern: '*://api*/*',
+          url: 'https://service.example.com/api/test',
           shouldMatch: false,
         },
       ];
