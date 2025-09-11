@@ -8,7 +8,7 @@
   "scripts": {
     "build:license-validator": "cd ./.license-validator && pnpm build",
     "check-license": "pnpx ./.license-validator -i",
-    "build:chromium": "BROWSER=chrome vite build",
+    "build:chromium": "BROWSER=chrome vite build && BROWSER=chrome vite build --config vite.background.config.ts",
     "build:firefox": "BROWSER=firefox vite build",
     "build:firefox-sources": "node scripts/build-firefox-sources.mjs",
     "build": "pnpm build:chromium && pnpm build:firefox",
@@ -41,6 +41,8 @@
     "@snack-uikit/truncate-string": "0.6.19",
     "effector": "23.3.0",
     "effector-react": "23.3.0",
+    "pino": "9.9.5",
+    "pino-pretty": "13.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

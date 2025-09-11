@@ -1,4 +1,18 @@
 import { WebSocketServer } from 'ws';
+import pino from 'pino';
+
+// Настройка логгера
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname'
+    }
+  }
+});
 
 let wss = null;
 let isShuttingDown = false;
@@ -13,17 +27,17 @@ async function createServer() {
       clientTracking: true
     });
 
-    console.log(`🔄 Extension reload WebSocket server started on port ${port}`);
+    logger.info(`🔄 Extension reload WebSocket server started on port ${port}`);
 
     wss.on('connection', (ws) => {
-      console.log('📱 Extension reload client connected');
+      logger.info('📱 Extension reload client connected');
 
       ws.on('close', () => {
-        console.log('📱 Extension reload client disconnected');
+        logger.info('📱 Extension reload client disconnected');
       });
 
       ws.on('error', (error) => {
-        console.error('❌ WebSocket client error:', error.message);
+        logger.error('❌ WebSocket client error:', error.message);
       });
 
       // Отправляем ping каждые 30 секунд для поддержания соединения
@@ -41,9 +55,9 @@ async function createServer() {
     });
 
     wss.on('error', (error) => {
-      console.error('❌ WebSocket server error:', error.message);
+      logger.error('❌ WebSocket server error:', error.message);
       if (!isShuttingDown) {
-        console.log('🔄 Attempting to restart WebSocket server in 2 seconds...');
+        logger.info('🔄 Attempting to restart WebSocket server in 2 seconds...');
         setTimeout(() => {
           if (!isShuttingDown) {
             createServer();
@@ -55,7 +69,7 @@ async function createServer() {
     // Обработка сигналов для корректного завершения
     process.on('SIGINT', () => {
       isShuttingDown = true;
-      console.log('\n🛑 Shutting down WebSocket server...');
+      logger.info('🛑 Shutting down WebSocket server...');
       if (wss) {
         wss.close(() => {
           process.exit(0);
@@ -67,7 +81,7 @@ async function createServer() {
 
     process.on('SIGTERM', () => {
       isShuttingDown = true;
-      console.log('\n🛑 Shutting down WebSocket server...');
+      logger.info('🛑 Shutting down WebSocket server...');
       if (wss) {
         wss.close(() => {
           process.exit(0);
@@ -79,9 +93,9 @@ async function createServer() {
 
     // Обработка необработанных исключений
     process.on('uncaughtException', (error) => {
-      console.error('❌ Uncaught exception:', error.message);
+      logger.error('❌ Uncaught exception:', error.message);
       if (!isShuttingDown) {
-        console.log('🔄 Restarting WebSocket server...');
+        logger.info('🔄 Restarting WebSocket server...');
         setTimeout(() => {
           if (!isShuttingDown) {
             createServer();
@@ -91,11 +105,11 @@ async function createServer() {
     });
 
     process.on('unhandledRejection', (reason, promise) => {
-      console.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
+      logger.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
     });
 
   } catch (error) {
-    console.error('❌ Failed to create WebSocket server:', error.message);
+    logger.error('❌ Failed to create WebSocket server:', error.message);
     if (!isShuttingDown) {
       setTimeout(() => {
         if (!isShuttingDown) {
@@ -109,13 +123,13 @@ async function createServer() {
 // Функция для отправки сигнала перезагрузки всем подключенным клиентам
 function notifyReload(file) {
   if (wss && wss.clients) {
-    console.log(`🔄 Sending reload signal to ${wss.clients.size} clients`);
+    logger.info(`🔄 Sending reload signal to ${wss.clients.size} clients`);
     wss.clients.forEach((client) => {
       if (client.readyState === 1) { // WebSocket.OPEN
         try {
           client.send(JSON.stringify({ type: 'reload', file }));
         } catch (error) {
-          console.error('❌ Error sending reload signal:', error.message);
+          logger.error('❌ Error sending reload signal:', error.message);
         }
       }
     });
