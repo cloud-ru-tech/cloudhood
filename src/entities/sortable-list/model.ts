@@ -1,34 +1,37 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
-import { createEvent, createStore, EventCallable,Store } from 'effector';
+import { combine, createEvent, createStore, EventCallable, Store } from 'effector';
+
+export type SortableItemId = string | number;
+export type SortableItemIdOrNull = SortableItemId | null;
 
 export type SortableItem = {
-  id: string | number;
+  id: SortableItemId;
   [key: string]: unknown;
 };
 
 export type DragEndPayload = {
-  active: string | number;
-  target: string | number;
+  active: SortableItemId;
+  target: SortableItemId;
 };
 
 export type SortableListConfig<T extends SortableItem, U> = {
   $items: Store<T[]>;
-  $selectedItem: Store<string | number | null>;
+  $selectedItem: Store<SortableItemIdOrNull>;
   $allItems: Store<T[][]>;
-  updateItems: EventCallable<U>;
+  itemsUpdated: EventCallable<U>;
 };
 
 export const dragStarted = createEvent<DragStartEvent>();
 export const dragEnded = createEvent<DragEndEvent>();
 export const dragOver = createEvent<DragOverEvent>();
 
-export const $dragTarget = createStore<string | number | null>(null);
-export const $raisedItem = createStore<string | number | null>(null);
+export const $dragTarget = createStore<SortableItemIdOrNull>(null);
+export const $raisedItem = createStore<SortableItemIdOrNull>(null);
 
 export function createSortableListModel<T extends SortableItem, U>(config: SortableListConfig<T, U>) {
-  const { $items, updateItems } = config;
+  const { $items, itemsUpdated } = config;
 
-  const $flattenItems = $items.map(items => items.map(({ id }) => id));
+  const $flattenItems = combine($items, items => items.map(({ id }) => id));
 
   const reorderItems = (payload: DragEndPayload) => {
     const { active, target } = payload;
@@ -45,6 +48,6 @@ export function createSortableListModel<T extends SortableItem, U>(config: Sorta
     $dragTarget,
     $raisedItem,
     reorderItems,
-    updateItems,
+    itemsUpdated,
   };
 }
