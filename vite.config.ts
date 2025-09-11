@@ -2,12 +2,28 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 
 import react from '@vitejs/plugin-react';
+import pino from 'pino';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { extensionReloadPlugin } from './src/utils/extension-reload-plugin';
 
+// Настройка логгера
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname',
+    },
+  },
+});
+
 const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev: boolean = false): void => {
+  logger.info({ outDir }, 'Copying browser extension files');
+
   // Ensure build directory exists
   mkdirSync(outDir, { recursive: true });
 
@@ -20,9 +36,13 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
   }
 
   const manifestDest = resolve(outDir, 'manifest.json');
+  logger.info({ manifestSrc, manifestDest }, 'Copying manifest');
 
   if (existsSync(manifestSrc)) {
     copyFileSync(manifestSrc, manifestDest);
+    logger.info('Manifest copied successfully');
+  } else {
+    logger.warn({ manifestSrc }, 'Manifest source not found');
   }
 
   // Copy index.html as popup.html
@@ -39,6 +59,25 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
 
   if (existsSync(backgroundSrc)) {
     copyFileSync(backgroundSrc, backgroundDest);
+  }
+
+  // Copy files from source directory if they exist
+  const srcDir = resolve(outDir, 'src');
+  if (existsSync(srcDir)) {
+    const files = readdirSync(srcDir);
+    files.forEach((file: string) => {
+      if (file.endsWith('.html')) {
+        const srcFile = resolve(srcDir, file);
+        const destFile = resolve(outDir, file);
+        copyFileSync(srcFile, destFile);
+      }
+    });
+  }
+
+  // Copy background.bundle.js from the separate build
+  const backgroundBundleSrc = resolve(outDir, 'background.bundle.js');
+  if (existsSync(backgroundBundleSrc)) {
+    // File already exists from the separate build
   }
 
   // Ensure img directory exists and copy assets
@@ -63,6 +102,7 @@ const browserExtensionPlugin = (isDev: boolean = false): Plugin => ({
     const targetBrowser = process.env.BROWSER || 'chrome';
     const outDir = options.dir || `build/${targetBrowser}`;
 
+    logger.info({ outDir }, 'Browser extension plugin: copying files');
     copyBrowserExtensionFiles(targetBrowser, outDir, isDev);
   },
 });
@@ -110,15 +150,11 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           popup: resolve(__dirname, 'src/index.html'),
-          background: resolve(__dirname, 'src/background.html'),
         },
         output: {
           entryFileNames: chunk => {
             if (chunk.name === 'popup') {
               return 'popup.bundle.js';
-            }
-            if (chunk.name === 'background') {
-              return 'background.bundle.js';
             }
             return '[name].bundle.js';
           },
@@ -133,17 +169,12 @@ export default defineConfig(({ mode }) => {
             return '[name].[ext]';
           },
           manualChunks: id => {
-            // Для background script - создаем отдельный бандл без чанков
-            if (id.includes('background')) {
-              return 'background';
-            }
             // Для popup - создаем чанки
-            if (id.includes('node_modules') && !id.includes('background')) {
+            if (id.includes('node_modules')) {
               return 'vendor';
             }
             return undefined;
           },
-          inlineDynamicImports: false,
         },
         external: [],
       },

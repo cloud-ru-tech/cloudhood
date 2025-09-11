@@ -1,8 +1,22 @@
 import { watch } from 'fs';
 import { WebSocketServer } from 'ws';
+import pino from 'pino';
 
-const PORT = 3333;
+const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
 const WATCH_DIR = 'build/chrome';
+
+// Настройка логгера
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname'
+    }
+  }
+});
 
 let wss = null;
 let clients = new Set();
@@ -14,32 +28,32 @@ function createServer() {
       perMessageDeflate: false
     });
 
-    console.log(`🔄 Extension reload server started on port ${PORT}`);
+    logger.info(`🔄 Extension reload server started on port ${PORT}`);
 
     wss.on('connection', (ws) => {
       clients.add(ws);
-      console.log(`📱 Client connected (${clients.size} total)`);
+      logger.info(`📱 Client connected (${clients.size} total)`);
 
       ws.on('close', () => {
         clients.delete(ws);
-        console.log(`📱 Client disconnected (${clients.size} total)`);
+        logger.info(`📱 Client disconnected (${clients.size} total)`);
       });
 
       ws.on('error', (error) => {
-        console.error('❌ Client error:', error.message);
+        logger.error('❌ Client error:', error.message);
         clients.delete(ws);
       });
     });
 
     wss.on('error', (error) => {
-      console.error('❌ Server error:', error.message);
+      logger.error('❌ Server error:', error.message);
     });
 
     // Отслеживаем изменения в папке build с дебаунсом
     let reloadTimeout = null;
     const watcher = watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
       if (filename && (filename.endsWith('.js') || filename.endsWith('.html') || filename.endsWith('.json'))) {
-        console.log(`📁 File changed: ${filename}`);
+        logger.info(`📁 File changed: ${filename}`);
 
         // Дебаунс для предотвращения множественных перезагрузок
         if (reloadTimeout) {
@@ -53,30 +67,30 @@ function createServer() {
       }
     });
 
-    console.log(`👀 Watching for changes in ${WATCH_DIR}`);
+    logger.info(`👀 Watching for changes in ${WATCH_DIR}`);
 
     // Обработка ошибок watcher
     watcher.on('error', (error) => {
-      console.error('❌ File watcher error:', error.message);
+      logger.error('❌ File watcher error:', error.message);
     });
 
     // Обработка сигналов завершения
     process.on('SIGINT', () => {
-      console.log('\n🛑 Shutting down server...');
+      logger.info('🛑 Shutting down server...');
       watcher.close();
       wss.close();
       process.exit(0);
     });
 
     process.on('SIGTERM', () => {
-      console.log('\n🛑 Shutting down server...');
+      logger.info('🛑 Shutting down server...');
       watcher.close();
       wss.close();
       process.exit(0);
     });
 
   } catch (error) {
-    console.error('❌ Failed to create server:', error.message);
+    logger.error('❌ Failed to create server:', error.message);
     process.exit(1);
   }
 }
@@ -89,7 +103,7 @@ function notifyClients() {
       try {
         client.send(message);
       } catch (error) {
-        console.error('❌ Error sending message:', error.message);
+        logger.error('❌ Error sending message:', error.message);
         clients.delete(client);
       }
     } else {
@@ -98,7 +112,7 @@ function notifyClients() {
   });
 
   if (clients.size > 0) {
-    console.log(`🔄 Sent reload signal to ${clients.size} clients`);
+    logger.info(`🔄 Sent reload signal to ${clients.size} clients`);
   }
 }
 

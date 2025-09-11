@@ -3,30 +3,29 @@
 import { spawn } from 'child_process';
 import { existsSync, watch } from 'fs';
 import { WebSocketServer } from 'ws';
+import pino from 'pino';
 
-const PORT = 3333;
+const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
 const WATCH_DIR = 'build/chrome';
+
+// Настройка логгера
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname'
+    }
+  }
+});
 
 let wss = null;
 let clients = new Set();
 let viteProcess = null;
+let backgroundViteProcess = null;
 let reloadTimeout = null;
-
-// Цвета для логов
-const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m'
-};
-
-function log(prefix, message, color = colors.reset) {
-  console.log(`${color}[${prefix}]${colors.reset} ${message}`);
-}
 
 function createWebSocketServer() {
   try {
@@ -39,32 +38,32 @@ function createWebSocketServer() {
       perMessageDeflate: false
     });
 
-    log('WS', `🔄 WebSocket server started on port ${PORT}`, colors.blue);
+    logger.info(`🔄 WebSocket server started on port ${PORT}`);
 
     wss.on('connection', (ws) => {
       clients.add(ws);
-      log('WS', `📱 Client connected (${clients.size} total)`, colors.green);
+      logger.info(`📱 Client connected (${clients.size} total)`);
 
       ws.on('close', () => {
         clients.delete(ws);
-        log('WS', `📱 Client disconnected (${clients.size} total)`, colors.yellow);
+        logger.info(`📱 Client disconnected (${clients.size} total)`);
       });
 
       ws.on('error', (error) => {
-        log('WS', `❌ Client error: ${error.message}`, colors.red);
+        logger.error(`❌ Client error: ${error.message}`);
         clients.delete(ws);
       });
     });
 
     wss.on('error', (error) => {
-      log('WS', `❌ Server error: ${error.message}`, colors.red);
+      logger.error(`❌ Server error: ${error.message}`);
       // Перезапускаем сервер через 1 секунду
       setTimeout(createWebSocketServer, 1000);
     });
 
     return true;
   } catch (error) {
-    log('WS', `❌ Failed to create WebSocket server: ${error.message}`, colors.red);
+    logger.error(`❌ Failed to create WebSocket server: ${error.message}`);
     // Перезапускаем сервер через 2 секунды
     setTimeout(createWebSocketServer, 2000);
     return false;
@@ -81,7 +80,7 @@ function notifyClients() {
         client.send(message);
         sentCount++;
       } catch (error) {
-        log('WS', `❌ Error sending message: ${error.message}`, colors.red);
+        logger.error(`❌ Error sending message: ${error.message}`);
         clients.delete(client);
       }
     } else {
@@ -90,7 +89,7 @@ function notifyClients() {
   });
 
   if (sentCount > 0) {
-    log('WS', `🔄 Sent reload signal to ${sentCount} client(s)`, colors.cyan);
+    logger.info(`🔄 Sent reload signal to ${sentCount} client(s)`);
   }
 }
 
@@ -99,7 +98,7 @@ function startViteBuild() {
     viteProcess.kill();
   }
 
-  log('BUILD', '🚀 Starting Vite build process...', colors.green);
+  logger.info('🚀 Starting Vite build process...');
 
   viteProcess = spawn('npx', ['vite', 'build', '--watch', '--mode', 'development'], {
     env: { ...process.env, BROWSER: 'chrome' },
@@ -112,7 +111,7 @@ function startViteBuild() {
       if (output) {
         output.split('\n').forEach(line => {
           if (line.trim()) {
-            log('BUILD', line, colors.green);
+            logger.info(line);
           }
         });
       }
@@ -123,7 +122,7 @@ function startViteBuild() {
       if (output) {
         output.split('\n').forEach(line => {
           if (line.trim()) {
-            log('BUILD', line, colors.red);
+            logger.error(line);
           }
         });
       }
@@ -131,32 +130,83 @@ function startViteBuild() {
 
     viteProcess.on('close', (code) => {
       if (code !== 0) {
-        log('BUILD', `❌ Vite process exited with code ${code}`, colors.red);
+        logger.error(`❌ Vite process exited with code ${code}`);
         // Перезапускаем через 2 секунды
         setTimeout(startViteBuild, 2000);
       }
     });
 
     viteProcess.on('error', (error) => {
-      log('BUILD', `❌ Vite process error: ${error.message}`, colors.red);
+      logger.error(`❌ Vite process error: ${error.message}`);
       // Перезапускаем через 2 секунды
       setTimeout(startViteBuild, 2000);
     });
   }
 }
 
+function startBackgroundViteBuild() {
+  if (backgroundViteProcess) {
+    backgroundViteProcess.kill();
+  }
+
+  logger.info('🚀 Starting Background Vite build process...');
+
+  backgroundViteProcess = spawn('npx', ['vite', 'build', '--watch', '--config', 'vite.background.config.ts'], {
+    env: { ...process.env, BROWSER: 'chrome' },
+    stdio: 'pipe'
+  });
+
+  if (backgroundViteProcess) {
+    backgroundViteProcess.stdout.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) {
+        output.split('\n').forEach(line => {
+          if (line.trim()) {
+            logger.info(`[BG] ${line}`);
+          }
+        });
+      }
+    });
+
+    backgroundViteProcess.stderr.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) {
+        output.split('\n').forEach(line => {
+          if (line.trim()) {
+            logger.error(`[BG] ${line}`);
+          }
+        });
+      }
+    });
+
+    backgroundViteProcess.on('close', (code) => {
+      if (code !== 0) {
+        logger.error(`❌ Background Vite process exited with code ${code}`);
+        // Перезапускаем через 2 секунды
+        setTimeout(startBackgroundViteBuild, 2000);
+      }
+    });
+
+    backgroundViteProcess.on('error', (error) => {
+      logger.error(`❌ Background Vite process error: ${error.message}`);
+      // Перезапускаем через 2 секунды
+      setTimeout(startBackgroundViteBuild, 2000);
+    });
+  }
+}
+
 function startFileWatcher() {
   if (!existsSync(WATCH_DIR)) {
-    log('WS', `⏳ Waiting for build directory: ${WATCH_DIR}`, colors.yellow);
+    logger.warn(`⏳ Waiting for build directory: ${WATCH_DIR}`);
     setTimeout(startFileWatcher, 1000);
     return;
   }
 
-  log('WS', `👀 Watching for changes in ${WATCH_DIR}`, colors.blue);
+  logger.info(`👀 Watching for changes in ${WATCH_DIR}`);
 
   const watcher = watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
     if (filename && (filename.endsWith('.js') || filename.endsWith('.html') || filename.endsWith('.json'))) {
-      log('WS', `📁 File changed: ${filename}`, colors.cyan);
+        logger.info(`📁 File changed: ${filename}`);
 
       // Дебаунс для предотвращения множественных перезагрузок
       if (reloadTimeout) {
@@ -168,13 +218,13 @@ function startFileWatcher() {
         if (existsSync(`${WATCH_DIR}/manifest.json`)) {
           notifyClients();
         } else {
-          log('WS', '⚠️ Manifest not ready, delaying reload...', colors.yellow);
+          logger.warn('⚠️ Manifest not ready, delaying reload...');
           // Повторяем проверку через 500мс
           setTimeout(() => {
             if (existsSync(`${WATCH_DIR}/manifest.json`)) {
               notifyClients();
             } else {
-              log('WS', '❌ Manifest still not available, skipping reload', colors.red);
+              logger.error('❌ Manifest still not available, skipping reload');
             }
           }, 500);
         }
@@ -184,7 +234,7 @@ function startFileWatcher() {
   });
 
   watcher.on('error', (error) => {
-    log('WS', `❌ File watcher error: ${error.message}`, colors.red);
+    logger.error(`❌ File watcher error: ${error.message}`);
     // Перезапускаем watcher через 1 секунду
     setTimeout(startFileWatcher, 1000);
   });
@@ -194,7 +244,7 @@ function startFileWatcher() {
 
 // Обработка сигналов завершения
 function cleanup() {
-  log('MAIN', '🛑 Shutting down...', colors.yellow);
+  logger.info('🛑 Shutting down...');
 
   if (reloadTimeout) {
     clearTimeout(reloadTimeout);
@@ -202,6 +252,10 @@ function cleanup() {
 
   if (viteProcess) {
     viteProcess.kill();
+  }
+
+  if (backgroundViteProcess) {
+    backgroundViteProcess.kill();
   }
 
   if (wss) {
@@ -214,11 +268,12 @@ function cleanup() {
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 
-log('MAIN', '🚀 Starting development server...', colors.bright);
+logger.info('🚀 Starting development server...');
 
 createWebSocketServer();
 startViteBuild();
+startBackgroundViteBuild();
 startFileWatcher();
 
-log('MAIN', '✅ Development server is running!', colors.green);
-log('MAIN', '📝 Press Ctrl+C to stop', colors.yellow);
+logger.info('✅ Development server is running!');
+logger.info('📝 Press Ctrl+C to stop');
