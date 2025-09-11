@@ -1,6 +1,6 @@
-import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { attach, combine, createEvent, createStore, sample } from 'effector';
+import { attach, combine, sample } from 'effector';
 
 import {
   $requestProfiles,
@@ -8,32 +8,36 @@ import {
   $selectedRequestProfile,
   profileUpdated,
 } from '#entities/request-profile/model';
-import { RequestHeader } from '#entities/request-profile/types';
+import {
+  createSortableListModel,
+  dragEnded,
+  dragOver,
+  dragStarted,
+  type SortableItemId,
+  type SortableItemIdOrNull,
+} from '#entities/sortable-list';
 
-type Id = RequestHeader['id'];
-
-export type DragEndPayload = {
-  active: Id;
-  target: Id;
-};
-
-export const dragStarted = createEvent<DragStartEvent>();
-export const dragEnded = createEvent<DragEndEvent>();
-export const dragOver = createEvent<DragOverEvent>();
-
-export const $dragTarget = createStore<Id | null>(null);
-export const $raisedRequestHeader = createStore<Id | null>(null);
-export const $flattenRequestHeaders = $selectedProfileRequestHeaders.map(headers => headers.map(({ id }) => id));
+export const {
+  $flattenItems: $flattenRequestHeaders,
+  $dragTarget: $dragTargetRequestHeaders,
+  $raisedItem: $raisedRequestHeader,
+  reorderItems,
+  itemsUpdated,
+} = createSortableListModel({
+  $items: $selectedProfileRequestHeaders,
+  $selectedItem: $selectedRequestProfile,
+  $allItems: $requestProfiles.map(profiles => profiles.map(profile => profile.requestHeaders)),
+  itemsUpdated: profileUpdated,
+});
 
 export const $draggableRequestHeader = combine(
-  [$selectedProfileRequestHeaders, $raisedRequestHeader],
-  ([headers, raisedHeader]) => headers.find(header => header.id === raisedHeader),
-  { skipVoid: false },
+  [$raisedRequestHeader, $selectedProfileRequestHeaders],
+  ([raisedId, headers]) => (raisedId ? headers.find(header => header.id === raisedId) : null),
 );
 
 const reorderRequestHeadersFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
-  effect: ({ profiles, selectedProfile }, payload: DragEndPayload) => {
+  effect: ({ profiles, selectedProfile }, payload: { active: string | number; target: string | number }) => {
     const { active, target } = payload;
 
     const profile = profiles.find(p => p.id === selectedProfile);
@@ -42,38 +46,50 @@ const reorderRequestHeadersFx = attach({
     const activeIndex = requestHeaders.findIndex(header => header.id === active);
     const targetIndex = requestHeaders.findIndex(header => header.id === target);
 
+    if (activeIndex === -1 || targetIndex === -1) {
+      return null;
+    }
+
     return {
       id: selectedProfile,
       ...(Boolean(profile?.name) && { name: profile?.name }),
       requestHeaders: arrayMove(requestHeaders, activeIndex, targetIndex),
+      urlFilters: profile?.urlFilters ?? [],
     };
   },
 });
 
 sample({
   clock: dragStarted,
-  filter: event => Boolean(event.active.id),
-  fn: event => event.active.id as Id,
+  filter: (event: DragStartEvent) => Boolean(event.active.id),
+  fn: (event: DragStartEvent) => event.active.id as string | number,
   target: $raisedRequestHeader,
 });
 
 sample({
   clock: dragOver,
-  filter: event => Boolean(event.over?.id),
-  fn: event => event.over?.id as Id,
-  target: $dragTarget,
+  filter: (event: DragOverEvent) => Boolean(event.over?.id),
+  fn: (event: DragOverEvent) => event.over?.id as string | number,
+  target: $dragTargetRequestHeaders,
 });
 
 const requestHeaderMoved = sample({
   clock: dragEnded,
-  source: { active: $raisedRequestHeader, target: $dragTarget },
-  filter(payload): payload is DragEndPayload {
-    return Boolean(payload.active) && Boolean(payload.target) && payload.active !== payload.target;
+  source: { active: $raisedRequestHeader, target: $dragTargetRequestHeaders },
+  filter(src: {
+    active: SortableItemIdOrNull;
+    target: SortableItemIdOrNull;
+  }): src is { active: SortableItemId; target: SortableItemId } {
+    return Boolean(src.active) && Boolean(src.target) && src.active !== src.target;
   },
 });
 
 sample({ clock: requestHeaderMoved, target: reorderRequestHeadersFx });
-sample({ clock: reorderRequestHeadersFx.doneData, target: profileUpdated });
+sample({
+  clock: reorderRequestHeadersFx.doneData,
+  filter: Boolean,
+  target: profileUpdated,
+});
 
-$dragTarget.reset(reorderRequestHeadersFx.finally);
+$dragTargetRequestHeaders.reset(reorderRequestHeadersFx.finally);
 $raisedRequestHeader.reset(reorderRequestHeadersFx.finally);
