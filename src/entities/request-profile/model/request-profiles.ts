@@ -11,15 +11,39 @@ import {
   selectedRequestProfileIdChanged,
 } from './selected-request-profile';
 
+// === Effector Events ===
+// Events for profile management - called from UI components
+// RU: События для управления профилями - вызываются из UI компонентов
+
+/** Event for adding a new profile | RU: Событие добавления нового профиля */
 export const profileAdded = createEvent();
+
+/** Event for adding multiple profiles (on import) | RU: Событие добавления нескольких профилей (при импорте) */
 export const profileMultiAdded = createEvent<Profile[]>();
+
+/** Event for removing a profile by ID | RU: Событие удаления профиля по ID */
 export const profileRemoved = createEvent<Profile['id']>();
+
+/** Event for removing multiple profiles | RU: Событие удаления нескольких профилей */
 export const profileMultiRemoved = createEvent<Profile['id'][]>();
+
+/** Event for updating a profile | RU: Событие обновления профиля */
 export const profileUpdated = createEvent<Profile>();
 
+// === Effector Effects ===
+// Async operations for working with Chrome Storage API
+// RU: Асинхронные операции для работы с Chrome Storage API
+
+/** Effect for saving profiles to Chrome Storage | RU: Эффект сохранения профилей в Chrome Storage */
 const profilesSavedToBrowserFx = createEffect(saveProfilesToBrowserApi);
+
+/** Effect for loading profiles from Chrome Storage | RU: Эффект загрузки профилей из Chrome Storage */
 const profilesLoadedFromStorageFx = createEffect(loadProfilesFromStorageApi);
 
+// === Effector Store ===
+// RU: Хранилище состояния
+
+/** Main store for all request profiles | RU: Основное хранилище всех профилей запросов */
 export const $requestProfiles = createStore<Profile[]>([]);
 
 sample({

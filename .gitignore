@@ -39,3 +39,5 @@ cloudhood-firefox-sources-v*.zip
 .env
 .dev-profiles/
 test-results/
+.cursor/
+.cursorrules
