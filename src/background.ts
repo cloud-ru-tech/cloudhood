@@ -1,3 +1,15 @@
+/**
+ * Service Worker для браузерного расширения Cloudhood
+ *
+ * Этот файл содержит логику Service Worker, которая:
+ * - Обрабатывает события расширения (установка, запуск, обновление)
+ * - Управляет HTTP заголовками через Declarative Net Request API
+ * - Синхронизирует состояние с Chrome Storage
+ * - Обрабатывает сообщения от popup UI
+ *
+ * Service Worker работает в фоновом режиме и не имеет прямого доступа к DOM
+ */
+
 import browser from 'webextension-polyfill';
 
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
