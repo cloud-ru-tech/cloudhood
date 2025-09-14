@@ -66,6 +66,7 @@ export function ProfileNameField() {
             onKeyDown={onKeyDown}
             onBlur={handleBlur}
             showClearButton={false}
+            inputMode='text'
           />
         ) : (
           <S.Title text={profileName} maxLines={1} />

@@ -12,7 +12,7 @@ runs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 20
         cache: 'pnpm'
 
     - name: Install dependencies
@@ -20,5 +20,5 @@ runs:
       shell: bash
 
     - name: Stylelint check
-      run: npx stylelint "./src/**/*.{ts,tsx}" --config stylelint.config.cjs
+      run: npx stylelint "./src/**/*.{ts,tsx}" --config stylelint.config.js
       shell: bash

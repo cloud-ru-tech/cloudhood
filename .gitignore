@@ -36,5 +36,6 @@ reports/unit/unit-report.xml
 cloudhood-firefox-sources-v*.zip
 
 # development
-.dev-profiles
 .env
+.dev-profiles/
+test-results/
