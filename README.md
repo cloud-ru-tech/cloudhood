@@ -5,18 +5,100 @@
 <a href="https://chrome.google.com/webstore/detail/cloudhood/hohljodjndmmaiedadcdmnelgdfnbfgp"><img alt="Chrome Web Store Version" src="https://img.shields.io/chrome-web-store/v/hohljodjndmmaiedadcdmnelgdfnbfgp?label=Chrome%20Web%20Store%20Version"></a>
 <a href="https://github.com/cloud-ru-tech/cloudhood/releases"><img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/cloud-ru-tech/cloudhood?label=Release%20Date" /></a>
 
-This extension allows users to control request headers that will be embedded in all requests in Chrome Browser, where each override contains the following properties:
+## 🌐 Language / Язык
 
-- Header: Header key.
-- Header Value: The value associated with the header key.
+- **[English](README.md)** (International version)
+- **[Русский](README.ru.md)** (Russian version)
 
-Header overrides are managed in a Chrome extension popup (a simple react app), stored in Chrome local storage, and applied to upstream page requests using the updateDynamicRules function of chrome's declarativeNetRequest dynamic request rules.
+---
 
-## Testing
+## About Cloudhood
 
-You can get a test build for each pull-request in its comments. [Example](https://github.com/cloud-ru-tech/cloudhood/pull/1#issuecomment-1713810507).
+Cloudhood is a powerful browser extension that allows users to control HTTP request headers that will be embedded in all web requests. Built with modern web technologies and following Feature-Sliced Design architecture principles.
 
-### E2E Testing
+### Key Features
+
+- **Header Management**: Create, edit, and manage custom HTTP headers
+- **Profile System**: Organize headers into reusable profiles
+- **Cross-Browser Support**: Works on Chrome and Firefox
+- **Import/Export**: Share profiles between devices and team members
+- **Real-time Application**: Headers are applied instantly to web requests
+- **Modern UI**: Clean, intuitive interface built with React and TypeScript
+
+### How It Works
+
+Header overrides are managed through a Chrome extension popup (React application), stored in browser local storage, and applied to upstream page requests using Chrome's Declarative Net Request API.
+
+## 📚 Documentation
+
+- **[Project Map](PROJECT_MAP.md)** - Detailed architecture and project structure overview
+- **[Cursor Guide](CURSOR_GUIDE.md)** - How to work effectively with the project in Cursor IDE
+- **[Architecture Diagrams](ARCHITECTURE_DIAGRAMS.md)** - Visual schemas of architecture and data flows
+- **[Developer Guide](DEVELOPER_GUIDE.md)** - Complete developer handbook
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js >= 20.0.0
+- pnpm >= 10.10.0
+- Chrome or Firefox browser
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/cloud-ru-tech/cloudhood.git
+cd cloudhood
+
+# Install dependencies
+pnpm install
+
+# Start development server for Chrome
+pnpm dev:chrome
+
+# Start development server for Firefox
+pnpm dev:firefox
+```
+
+### Loading the Extension
+
+#### Chrome
+1. Open `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked extension"
+4. Select the `build/chrome` directory
+
+#### Firefox
+1. Open `about:debugging`
+2. Click "This Firefox"
+3. Click "Load Temporary Add-on"
+4. Select `build/firefox/manifest.json`
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+# Run unit tests
+pnpm test:unit
+
+# Run with coverage
+pnpm test:unit --coverage
+```
+
+### E2E Tests
+
+```bash
+# Install browsers (first time only)
+pnpm exec playwright install
+
+# Run E2E tests
+pnpm test:e2e
+
+# Run in CI mode
+pnpm test:e2e:ci
+```
 
 For E2E tests, always import the test fixtures:
 
@@ -24,65 +106,56 @@ For E2E tests, always import the test fixtures:
 import { expect, test } from './fixtures';
 ```
 
-Before running E2E tests for the first time, install the required browsers:
+## 🛠️ Development
+
+### Development Commands
 
 ```bash
-pnpm exec playwright install
-```
-
-Run E2E tests with:
-
-```bash
-pnpm test:e2e
-```
-
-## Local Development
-
-### Development Server with Hot Reload
-
-For convenient development with automatic reload, use the following commands:
-
-#### Chrome Development (with hot reload)
-
-```bash
+# Chrome development with hot reload
 pnpm dev:chrome
-```
 
-#### Firefox Development (with hot reload)
-
-```bash
+# Firefox development with hot reload
 pnpm dev:firefox
+
+# Build for Chrome
+pnpm build:chromium
+
+# Build for Firefox
+pnpm build:firefox
+
+# Build for all browsers
+pnpm build
+
+# Lint code
+pnpm lint
 ```
 
-These commands will start a dev server that will automatically update files in the `build` directory when source code changes.
+### Architecture
 
-### Start Local Server (legacy method)
+The project follows **Feature-Sliced Design** architecture:
 
-1. Run `pnpm install` to install the dependencies.
-1. Run `pnpm start`
-1. Download extension in Chrome:
-   - Open `chrome://extensions/` in the address bar
-   - Turn on `Developer mode`
-   - Click `Load unpacked extension`
-   - Select `build` directory.
-
-## Development for different browsers
-
-### Chrome Development
-
-```bash
-pnpm dev:chrome    # with hot reload (recommended)
+```
+src/
+├── app/          # Application initialization
+├── pages/        # Pages (widget composition)
+├── widgets/      # High-level UI blocks
+├── features/     # User-facing features
+├── entities/     # Business entities
+└── shared/       # Shared resources
 ```
 
-### Firefox Development
+### Technology Stack
 
-```bash
-pnpm dev:firefox    # with hot reload (recommended)
-```
+- **Frontend**: React 18 + TypeScript
+- **State Management**: Effector
+- **UI Library**: @snack-uikit (Cloud.ru internal library)
+- **Build Tool**: Vite
+- **Testing**: Vitest + Playwright
+- **Architecture**: Feature-Sliced Design
 
-## Building Extensions
+## 📦 Building Extensions
 
-### Build Chrome Extension
+### Chrome Extension
 
 ```bash
 pnpm build:chromium
@@ -90,7 +163,7 @@ pnpm build:chromium
 
 The extension will be built in the `build/chrome` directory.
 
-### Build Firefox Extension
+### Firefox Extension
 
 ```bash
 pnpm build:firefox
@@ -98,7 +171,7 @@ pnpm build:firefox
 
 The extension will be built in the `build/firefox` directory.
 
-### Build Firefox Sources Archive
+### Firefox Sources Archive
 
 ```bash
 npm run build:firefox-sources
@@ -106,13 +179,7 @@ npm run build:firefox-sources
 
 Creates a ZIP archive with source code required for Firefox Add-ons submission. Mozilla requires source code submission for extensions that use build tools or minification.
 
-### Build Both Extensions
-
-```bash
-pnpm build
-```
-
-## Releasing
+## 🚀 Releasing
 
 We use GitHub Actions to automate the release process. The workflow:
 
@@ -125,18 +192,50 @@ We use GitHub Actions to automate the release process. The workflow:
 
 See [RELEASE_SETUP.md](RELEASE_SETUP.md) for details on configuring the release automation.
 
-## Packing
+## 🤝 Contributing
 
-After developing your extension, run the command
+### Development Process
+
+1. Create a feature branch from `main`
+2. Make changes following FSD architecture
+3. Add tests for new functionality
+4. Run `pnpm lint` and fix any issues
+5. Run `pnpm test:unit && pnpm test:e2e`
+6. Create a Pull Request
+
+### Code Standards
+
+- Use TypeScript strictly
+- Follow Feature-Sliced Design architecture
+- Add comments for complex logic
+- Use Effector for state management
+- Write tests for new functionality
+
+### Commits
+
+Use conventional commits:
 
 ```
-pnpm run build
+feat: add profile export functionality
+fix: resolve header saving issue
+docs: update documentation
+test: add tests for utilities
 ```
 
-## Releases
+## 🔗 Links
 
-The repository is configured with actions for automatic releases to Github.
+- **Chrome Web Store**: [Install Cloudhood](https://chrome.google.com/webstore/detail/cloudhood/hohljodjndmmaiedadcdmnelgdfnbfgp)
+- **Firefox Add-ons**: [Install Cloudhood](https://addons.mozilla.org/en-US/firefox/addon/cloudhood/)
+- **GitHub Releases**: [Latest Releases](https://github.com/cloud-ru-tech/cloudhood/releases)
 
-# License
+## 📄 License
 
-[Apache License 2.0](LICENSE).
+[Apache License 2.0](LICENSE)
+
+---
+
+## 🏢 About Cloud.ru
+
+Cloudhood is developed by [Cloud.ru](https://cloud.ru/) - a leading Russian cloud provider offering comprehensive cloud solutions and services.
+
+**Made with ❤️ by the Cloud.ru team**

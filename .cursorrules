@@ -1,0 +1,68 @@
+# Правила для Cursor AI в проекте Cloudhood
+
+## Контекст проекта
+Cloudhood - это браузерное расширение для управления HTTP заголовками запросов, построенное на React + TypeScript + Effector с архитектурой Feature-Sliced Design.
+
+## Архитектура
+- **Feature-Sliced Design (FSD)**: Строго следуйте правилам импортов между слоями
+- **Effector**: Используется для управления состоянием (stores, events, effects)
+- **React**: UI компоненты с хуками useUnit для подключения к Effector
+- **Chrome Extension API**: Declarative Net Request для управления заголовками
+
+## Структура проекта
+```
+src/
+├── app/          # Инициализация приложения
+├── pages/        # Страницы (композиция виджетов)
+├── widgets/      # UI блоки высокого уровня
+├── features/     # Пользовательские функции
+├── entities/     # Бизнес-сущности
+└── shared/       # Общие ресурсы
+```
+
+## Правила импортов FSD
+- Можно импортировать только из нижележащих слоев
+- Нельзя импортировать из вышележащих слоев
+- Горизонтальные импорты только через shared
+- Используйте алиасы путей: #app, #pages, #widgets, #features, #entities, #shared
+
+## Паттерны Effector
+- Stores: `$` префикс (например, `$requestProfiles`)
+- Events: `createEvent()` для действий пользователя
+- Effects: `createEffect()` для асинхронных операций
+- Sample: для реактивности между stores и events
+- Attach: для эффектов с параметрами
+
+## Стиль кода
+- Используйте TypeScript строго
+- Добавляйте комментарии к сложной логике
+- Следуйте существующим паттернам в проекте
+- Используйте Emotion для стилизации
+- Логируйте важные операции через logger
+
+## Часто используемые запросы
+- "Как работает Feature-Sliced Design в этом проекте?"
+- "Покажи все Effector stores в проекте"
+- "Где обрабатываются HTTP заголовки?"
+- "Как добавить новую функцию в архитектуру FSD?"
+
+## Тестирование
+- Unit тесты для утилит в shared/utils/__tests__/
+- E2E тесты в tests/e2e/ с Playwright
+- Запуск: `pnpm test:unit` и `pnpm test:e2e`
+
+## Сборка
+- Chrome: `pnpm dev:chrome` / `pnpm build:chromium`
+- Firefox: `pnpm dev:firefox` / `pnpm build:firefox`
+- Все браузеры: `pnpm build`
+
+## Отладка
+- Используйте logger из shared/utils/logger
+- Chrome DevTools для Service Worker и Popup
+- Firefox DevTools через about:debugging
+
+## Документация
+- PROJECT_MAP.md - подробная карта проекта
+- CURSOR_GUIDE.md - руководство по работе с Cursor
+- ARCHITECTURE_DIAGRAMS.md - диаграммы архитектуры
+- DEVELOPER_GUIDE.md - руководство разработчика
