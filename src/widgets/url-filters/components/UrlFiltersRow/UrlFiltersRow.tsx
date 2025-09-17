@@ -59,7 +59,7 @@ export function UrlFiltersRow(props: UrlFilter) {
       <Tooltip
         tip={(() => {
           if (!isValueFormatVerified) {
-            return 'Incorrect format for header value';
+            return 'Incorrect format for filter value';
           }
           if (urlFilterValidation.warnings.length > 0) {
             return urlFilterValidation.warnings.join('\n');

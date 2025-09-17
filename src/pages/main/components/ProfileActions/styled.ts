@@ -10,8 +10,7 @@ export const Content = styled.div`
 
   overflow-y: auto;
 
-  padding: 8px 8px 0;
-  gap: 20px;
+  padding: 0 8px 0;
 `;
 
 export const StyledBackdrop = styled.div`
