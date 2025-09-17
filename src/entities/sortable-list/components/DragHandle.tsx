@@ -17,7 +17,7 @@ export function DragHandle({
   attributes,
   disabled = false,
   icon = <DragIndicatorSVG />,
-  size = 'm',
+  size = 's',
 }: DragHandleProps) {
   return (
     <span {...listeners} {...attributes} tabIndex={disabled ? -1 : 0}>

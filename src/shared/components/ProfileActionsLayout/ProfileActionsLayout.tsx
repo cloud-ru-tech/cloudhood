@@ -10,12 +10,12 @@ type ProfileActionsLayoutProps = {
 
 export function ProfileActionsLayout({ leftHeaderActions, rightHeaderActions, children }: ProfileActionsLayoutProps) {
   return (
-    <div>
+    <>
       <S.Header>
         <S.LeftHeaderActions>{leftHeaderActions}</S.LeftHeaderActions>
         <S.RightHeaderActions>{rightHeaderActions}</S.RightHeaderActions>
       </S.Header>
       <S.ContentWrapper>{children}</S.ContentWrapper>
-    </div>
+    </>
   );
 }

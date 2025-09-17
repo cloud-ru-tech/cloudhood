@@ -35,6 +35,7 @@
     "@snack-uikit/icons": "0.26.3",
     "@snack-uikit/list": "0.29.3",
     "@snack-uikit/modal": "0.16.3",
+    "@snack-uikit/tabs": "0.10.12",
     "@snack-uikit/toaster": "0.11.4",
     "@snack-uikit/toggles": "0.13.14",
     "@snack-uikit/tooltip": "0.17.2",

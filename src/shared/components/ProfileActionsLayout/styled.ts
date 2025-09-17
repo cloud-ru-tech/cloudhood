@@ -8,7 +8,7 @@ export const LeftHeaderActions = styled.div`
   color: ${themeVars.sys.neutral.textMain};
   display: flex;
   gap: 8px;
-  padding-left: 8px;
+  padding-left: 4px;
   align-items: center;
 `;
 
@@ -23,6 +23,12 @@ export const Header = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  /* stylelint-disable-next-line declaration-property-value-allowed-list */
+  z-index: 10;
+  background-color: ${themeVars.sys.neutral.background1Level};
 `;
 
 export const ContentWrapper = styled.div`

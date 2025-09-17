@@ -26,7 +26,7 @@ export function RequestHeadersActions() {
   const leftHeaderActions = (
     <>
       <AllRequestHeadersCheckbox />
-      Request headers
+      Profile headers
     </>
   );
 
