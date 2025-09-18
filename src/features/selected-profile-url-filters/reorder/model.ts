@@ -40,8 +40,12 @@ const reorderUrlFiltersFx = attach({
     const { active, target } = payload;
 
     const profile = profiles.find(p => p.id === selectedProfile);
-    const urlFilters = profile?.urlFilters ?? [];
 
+    if (!profile) {
+      return null;
+    }
+
+    const urlFilters = profile.urlFilters;
     const activeIndex = urlFilters.findIndex(filter => filter.id === active);
     const targetIndex = urlFilters.findIndex(filter => filter.id === target);
 
@@ -50,9 +54,9 @@ const reorderUrlFiltersFx = attach({
     }
 
     return {
-      id: selectedProfile,
-      ...(Boolean(profile?.name) && { name: profile?.name }),
-      requestHeaders: profile?.requestHeaders ?? [],
+      id: profile.id,
+      ...(profile.name && { name: profile.name }),
+      requestHeaders: profile.requestHeaders,
       urlFilters: arrayMove(urlFilters, activeIndex, targetIndex),
     };
   },
