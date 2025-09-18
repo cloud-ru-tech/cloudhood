@@ -2,81 +2,113 @@ import { expect, test } from './fixtures';
 
 test.describe('URL Filters', () => {
   /**
-   * Тест-кейс: Добавление и редактирование URL фильтра
+   * Тест-кейс: Добавление и редактирование URL фильтра с табами
    *
    * Цель: Проверить базовую функциональность работы с URL фильтрами -
-   * возможность ввода, редактирования и сохранения значений.
+   * возможность ввода, редактирования и сохранения значений в новой структуре с табами.
    *
    * Сценарий:
    * 1. Открываем popup расширения
-   * 2. Проверяем, что секция URL фильтров отображается
-   * 3. Проверяем наличие поля для ввода URL фильтра
-   * 4. Вводим URL фильтр
-   * 5. Проверяем сохранение значения
-   * 6. Изменяем значение фильтра
-   * 7. Проверяем, что новое значение сохранилось
+   * 2. Переключаемся на вкладку URL Filters
+   * 3. Проверяем, что секция URL фильтров отображается
+   * 4. Проверяем наличие поля для ввода URL фильтра
+   * 5. Вводим URL фильтр
+   * 6. Проверяем сохранение значения
+   * 7. Изменяем значение фильтра
+   * 8. Проверяем, что новое значение сохранилось
    */
-  test('should add and edit URL filter', async ({ page, extensionId }) => {
+  test('should add and edit URL filter with tabs', async ({ page, extensionId }) => {
     // Шаг 1: Открываем popup расширения
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Проверяем, что секция URL фильтров отображается
+    // Шаг 2: Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+    await expect(urlFiltersTab).toHaveAttribute('aria-selected', 'true');
+
+    // Ждем загрузки контента вкладки
+    await page.waitForTimeout(500);
+
+    // Шаг 3: Проверяем, что секция URL фильтров отображается
     const urlFiltersSection = page.locator('[data-test-id="url-filters-section"]');
     await expect(urlFiltersSection).toBeVisible({ timeout: 5000 });
 
-    // Шаг 3: Проверяем наличие поля для ввода URL фильтра
+    // Шаг 4: Проверяем наличие поля для ввода URL фильтра
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInput).toBeVisible({ timeout: 5000 });
 
-    // Шаг 4: Вводим URL фильтр
+    // Шаг 5: Вводим URL фильтр
     await urlFilterInput.fill('https://example.com/*');
 
-    // Шаг 5: Проверяем сохранение значения
+    // Шаг 6: Проверяем сохранение значения
     await expect(urlFilterInput).toHaveValue('https://example.com/*');
 
-    // Шаг 6: Изменяем значение фильтра
+    // Шаг 7: Изменяем значение фильтра
     await urlFilterInput.fill('*://api.example.com/*');
 
-    // Шаг 7: Проверяем, что новое значение сохранилось
+    // Шаг 8: Проверяем, что новое значение сохранилось
     await expect(urlFilterInput).toHaveValue('*://api.example.com/*');
   });
 
   /**
-   * Тест-кейс: Настройка URL фильтра с заголовками запросов
+   * Тест-кейс: Настройка URL фильтра с заголовками запросов с табами
    *
    * Цель: Проверить совместную работу URL фильтров и заголовков запросов -
-   * возможность настройки комплексной конфигурации.
+   * возможность настройки комплексной конфигурации в новой структуре с табами.
    *
    * Сценарий:
    * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса
-   * 3. Настраиваем URL фильтр
+   * 2. Добавляем заголовок запроса на вкладке Headers
+   * 3. Переключаемся на вкладку URL Filters и настраиваем фильтр
    * 4. Проверяем, что все значения сохранились
    * 5. Проверяем, что секция URL фильтров остается видимой
    */
-  test('should configure URL filter with request headers', async ({ page, extensionId }) => {
+  test('should configure URL filter with request headers with tabs', async ({ page, extensionId }) => {
     // Шаг 1: Открываем popup расширения
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Добавляем заголовок запроса
+    // Шаг 2: Добавляем заголовок запроса на вкладке Headers
+    const addHeaderButton = page
+      .locator('button')
+      .filter({ has: page.locator('svg') })
+      .first();
+    await addHeaderButton.click();
+
+    // Ждем появления полей заголовков
+    await page.waitForTimeout(500);
+
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');
     const headerValueField = page.locator('[data-test-id="header-value-input"] input');
 
     await headerNameField.fill('X-Test-Header');
     await headerValueField.fill('test-value');
 
-    // Шаг 3: Настраиваем URL фильтр
+    // Шаг 3: Переключаемся на вкладку URL Filters и настраиваем фильтр
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://httpbin.org/*');
 
     // Шаг 4: Проверяем, что все значения сохранились
-    await expect(headerNameField).toHaveValue('X-Test-Header');
-    await expect(headerValueField).toHaveValue('test-value');
+    // Сначала проверяем URL фильтр на текущей вкладке
     await expect(urlFilterInput).toHaveValue('https://httpbin.org/*');
 
+    // Затем переключаемся обратно на Headers и проверяем заголовки
+    const headersTab = page.locator('[role="tab"]:has-text("Headers")');
+    await headersTab.click();
+
+    // Ждем появления элементов после переключения вкладки
+    await expect(headerNameField).toBeVisible({ timeout: 5000 });
+    await expect(headerValueField).toBeVisible({ timeout: 5000 });
+
+    await expect(headerNameField).toHaveValue('X-Test-Header');
+    await expect(headerValueField).toHaveValue('test-value');
+
     // Шаг 5: Проверяем, что секция URL фильтров остается видимой
+    await urlFiltersTab.click();
     await expect(page.locator('[data-test-id="url-filters-section"]')).toBeVisible();
   });
 
@@ -97,9 +129,13 @@ test.describe('URL Filters', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Шаг 2: Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
 
-    // Шаг 2: Тестируем различные паттерны URL фильтров
+    // Шаг 3: Тестируем различные паттерны URL фильтров
     const testPatterns = [
       'https://example.com/*', // HTTPS с wildcard путем
       '*://api.example.com/*', // Любой протокол с поддоменом
@@ -110,7 +146,7 @@ test.describe('URL Filters', () => {
       'https://api.*.com/v1/*', // Wildcard в середине домена
     ];
 
-    // Шаг 3: Проверяем каждый паттерн
+    // Шаг 4: Проверяем каждый паттерн
     for (const pattern of testPatterns) {
       await urlFilterInput.fill(pattern);
       await expect(urlFilterInput).toHaveValue(pattern);
@@ -137,6 +173,13 @@ test.describe('URL Filters', () => {
     // Шаг 1: Открываем popup расширения
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
+
+    // Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
+    // Ждем загрузки контента вкладки
+    await page.waitForTimeout(500);
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
 
@@ -169,6 +212,13 @@ test.describe('URL Filters', () => {
     // Шаг 1: Открываем popup расширения
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
+
+    // Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
+    // Ждем загрузки контента вкладки
+    await page.waitForTimeout(500);
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
 
@@ -210,6 +260,13 @@ test.describe('URL Filters', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
+    // Ждем загрузки контента вкладки
+    await page.waitForTimeout(500);
+
     // Шаг 2: Заполняем первый URL фильтр
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://api.example.com/*');
@@ -250,6 +307,13 @@ test.describe('URL Filters', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
+    // Ждем загрузки контента вкладки
+    await page.waitForTimeout(500);
+
     // Шаг 2: Заполняем URL фильтр
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://example.com/*');
@@ -268,33 +332,42 @@ test.describe('URL Filters', () => {
   });
 
   /**
-   * Тест-кейс: Персистентность URL фильтров
+   * Тест-кейс: Персистентность URL фильтров с табами
    *
    * Цель: Проверить, что URL фильтры сохраняются между сессиями
-   * и корректно восстанавливаются.
+   * и корректно восстанавливаются в новой структуре с табами.
    *
    * Сценарий:
    * 1. Открываем popup расширения
-   * 2. Заполняем URL фильтр
-   * 3. Перезагружаем страницу
-   * 4. Проверяем, что фильтр восстановился
+   * 2. Переключаемся на вкладку URL Filters
+   * 3. Заполняем URL фильтр
+   * 4. Перезагружаем страницу
+   * 5. Проверяем, что фильтр восстановился
    */
-  test('should persist URL filters across sessions', async ({ page, extensionId }) => {
+  test('should persist URL filters across sessions with tabs', async ({ page, extensionId }) => {
     // Шаг 1: Открываем popup расширения
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Заполняем URL фильтр
+    // Шаг 2: Переключаемся на вкладку URL Filters
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    await urlFiltersTab.click();
+
+    // Шаг 3: Заполняем URL фильтр
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://persistent.example.com/*');
     await expect(urlFilterInput).toHaveValue('https://persistent.example.com/*');
 
-    // Шаг 3: Перезагружаем страницу
+    // Шаг 4: Перезагружаем страницу
     await page.reload();
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 4: Проверяем, что фильтр восстановился
+    // Шаг 5: Проверяем, что фильтр восстановился
+    await urlFiltersTab.click();
+
+    // Ждем появления элементов после перезагрузки
+    await expect(urlFilterInput).toBeVisible({ timeout: 10000 });
     await expect(urlFilterInput).toHaveValue('https://persistent.example.com/*');
   });
 });
