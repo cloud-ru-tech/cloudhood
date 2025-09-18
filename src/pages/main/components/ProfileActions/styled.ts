@@ -22,6 +22,7 @@ export const StyledBackdrop = styled.div`
   width: 100%;
   height: 100%;
   display: none;
+  pointer-events: none;
 
   &[data-open] {
     display: block;
