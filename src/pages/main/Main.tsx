@@ -9,7 +9,7 @@ import { Header } from '#widgets/header';
 import { LazyModals } from '#widgets/modals';
 import { Sidebar } from '#widgets/sidebar';
 
-import { RequestHeadersActions } from './components/RequestHeadersActions';
+import { ProfileActions } from './components/ProfileActions';
 import * as S from './styled';
 
 export function MainPage() {
@@ -33,7 +33,7 @@ export function MainPage() {
 
         <Divider orientation='horizontal' />
 
-        <RequestHeadersActions />
+        <ProfileActions />
 
         <LazyModals />
       </S.Content>

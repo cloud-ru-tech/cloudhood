@@ -1,4 +1,3 @@
-
 import { Tooltip } from '@snack-uikit/tooltip';
 
 import { selectedRequestProfileIdChanged } from '#entities/request-profile/model';
@@ -25,12 +24,9 @@ export function SetRequestProfile({ profileId, index, isSelected, profileName }:
       onClick={handleClick}
       color={color.font}
       backgroundColor={color.background}
+      data-test-id='profile-select'
     >
-      <Tooltip
-        tip={profileName}
-        placement='right'
-        {...(profileName ? {} : { open: false })}
-      >
+      <Tooltip tip={profileName} placement='right' {...(profileName ? {} : { open: false })}>
         {profileNameAbbreviation.length === 0 ? index + 1 : profileNameAbbreviation}
       </Tooltip>
     </S.Circle>
