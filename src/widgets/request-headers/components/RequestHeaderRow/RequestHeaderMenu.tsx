@@ -55,7 +55,7 @@ export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
         },
       ]}
     >
-      <ButtonFunction size='s' icon={<KebabSVG />} disabled={isPaused} />
+      <ButtonFunction size='s' data-test-id='request-header-menu-button' icon={<KebabSVG />} disabled={isPaused} />
     </S.StyledDroplist>
   );
 }

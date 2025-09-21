@@ -2,6 +2,7 @@ import { useUnit } from 'effector-react';
 
 import { ButtonFunction } from '@snack-uikit/button';
 import { PlusSVG, TrashSVG } from '@snack-uikit/icons';
+import { Typography } from '@snack-uikit/typography';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { $isProfileRemoveAvailable } from '#entities/request-profile/model';
@@ -26,13 +27,24 @@ export function RequestHeadersActions() {
   const leftHeaderActions = (
     <>
       <AllRequestHeadersCheckbox />
+      <Typography.SansTitleM data-test-id='profile-headers-section'>Profile headers</Typography.SansTitleM>
     </>
   );
 
   const rightHeaderActions = (
     <>
-      <ButtonFunction disabled={isPaused} icon={<PlusSVG />} onClick={handleAddRequestHeader} />
-      <ButtonFunction icon={<TrashSVG />} disabled={isPaused || !isProfileRemoveAvailable} onClick={handleRemove} />
+      <ButtonFunction
+        disabled={isPaused}
+        data-test-id='add-request-header-button'
+        icon={<PlusSVG />}
+        onClick={handleAddRequestHeader}
+      />
+      <ButtonFunction
+        data-test-id='remove-request-header-button'
+        icon={<TrashSVG />}
+        disabled={isPaused || !isProfileRemoveAvailable}
+        onClick={handleRemove}
+      />
     </>
   );
 
