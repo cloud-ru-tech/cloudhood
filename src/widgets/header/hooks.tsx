@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
 
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
+import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
 import { $isProfileRemoveAvailable, profileAdded } from '#entities/request-profile/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
@@ -14,7 +15,7 @@ type UseActionsProps = {
 };
 
 export function useActions({ onClose }: UseActionsProps) {
-  const [isProfileRemoveAvailable] = useUnit([$isProfileRemoveAvailable]);
+  const [isProfileRemoveAvailable, activeTab] = useUnit([$isProfileRemoveAvailable, $activeProfileActionsTab]);
 
   const handleAddProfile = useCallback(() => {
     profileAdded();
@@ -43,8 +44,11 @@ export function useActions({ onClose }: UseActionsProps) {
 
   const handleAddUrlFilter = useCallback(() => {
     profileUrlFiltersAdded();
+    if (activeTab !== 'url-filters') {
+      profileActionsTabChanged('url-filters');
+    }
     onClose();
-  }, [onClose]);
+  }, [onClose, activeTab]);
 
   return useMemo(
     () => [
