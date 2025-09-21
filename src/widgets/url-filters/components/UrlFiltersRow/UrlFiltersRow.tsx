@@ -17,6 +17,7 @@ import { validateUrlFilter } from '#shared/utils/createUrlCondition';
 import { validateHeaderValue } from '#shared/utils/headers';
 
 import * as S from './styled';
+import { UrlFiltersMenu } from './UrlFiltersMenu';
 
 export function UrlFiltersRow(props: UrlFilter) {
   const { disabled, value, id } = props;
@@ -91,6 +92,7 @@ export function UrlFiltersRow(props: UrlFilter) {
         icon={<CrossSVG />}
         onClick={() => selectedProfileUrlFiltersRemoved([id])}
       />
+      <UrlFiltersMenu {...props} />
     </S.Wrapper>
   );
 }
