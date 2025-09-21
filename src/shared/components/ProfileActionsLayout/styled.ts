@@ -3,8 +3,6 @@ import styled from '@emotion/styled';
 import { themeVars } from '@snack-uikit/figma-tokens';
 
 export const LeftHeaderActions = styled.div`
-  ${themeVars.sans.title.m}
-
   color: ${themeVars.sys.neutral.textMain};
   display: flex;
   gap: 8px;

@@ -4,6 +4,7 @@ import { ButtonFunction } from '@snack-uikit/button';
 import { themeVars } from '@snack-uikit/figma-tokens';
 import { InfoFilledSVG, PlusSVG } from '@snack-uikit/icons';
 import { Tooltip } from '@snack-uikit/tooltip';
+import { Typography } from '@snack-uikit/typography';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
@@ -24,7 +25,7 @@ export function UrlFiltersActions() {
   const leftHeaderActions = (
     <>
       <AllUrlFiltersCheckbox />
-      <span data-test-id='url-filters-section'>Request URL filters</span>
+      <Typography.SansTitleM data-test-id='url-filters-section'>Request URL filters</Typography.SansTitleM>
       <Tooltip
         tip={
           <S.Ul>
