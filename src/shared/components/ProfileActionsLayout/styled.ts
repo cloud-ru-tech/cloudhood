@@ -19,21 +19,30 @@ export const RightHeaderActions = styled.div`
   align-items: center;
 `;
 
+export const Container = styled.div`
+  display: grid;
+  grid-template-areas:
+    'header'
+    'content';
+  grid-template-rows: auto 1fr;
+  height: 100%;
+`;
+
 export const Header = styled.div`
+  grid-area: header;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   padding: 10px 0;
   position: sticky;
   top: 0;
-  /* stylelint-disable-next-line declaration-property-value-allowed-list */
-  z-index: 10;
   background-color: ${themeVars.sys.neutral.background1Level};
 `;
 
 export const ContentWrapper = styled.div`
+  grid-area: content;
   display: flex;
   flex-direction: column;
-  flex: 0;
   gap: 20px;
+  overflow-y: auto;
 `;
