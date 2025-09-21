@@ -2,20 +2,20 @@ import { useUnit } from 'effector-react';
 
 import { ButtonFunction } from '@snack-uikit/button';
 import { themeVars } from '@snack-uikit/figma-tokens';
-import { InfoFilledSVG, PlusSVG, TrashSVG } from '@snack-uikit/icons';
+import { InfoFilledSVG, PlusSVG } from '@snack-uikit/icons';
 import { Tooltip } from '@snack-uikit/tooltip';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
-import { selectedProfileAllUrlFiltersRemoved } from '#features/selected-profile-url-filters/remove-all/model';
 import { ProfileActionsLayout } from '#shared/components';
 import { UrlFilters } from '#widgets/url-filters';
 
 import { AllUrlFiltersCheckbox } from './AllUrlFiltersCheckbox';
+import { RemoveAllUrlFilters } from './RemoveAllUrlFilters';
 import * as S from './styled';
 
 export function UrlFiltersActions() {
-  const [isPaused, handleRemove] = useUnit([$isPaused, selectedProfileAllUrlFiltersRemoved]);
+  const [isPaused] = useUnit([$isPaused]);
 
   const handleAddUrlFilter = () => {
     profileUrlFiltersAdded();
@@ -47,7 +47,7 @@ export function UrlFiltersActions() {
   const rightHeaderActions = (
     <>
       <ButtonFunction disabled={isPaused} icon={<PlusSVG />} onClick={handleAddUrlFilter} />
-      <ButtonFunction icon={<TrashSVG />} disabled={isPaused} onClick={handleRemove} />
+      <RemoveAllUrlFilters />
     </>
   );
 
