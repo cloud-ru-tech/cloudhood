@@ -27,24 +27,6 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
   // Ensure build directory exists
   mkdirSync(outDir, { recursive: true });
 
-  // Copy manifest file
-  let manifestSrc: string;
-  if (isDev) {
-    manifestSrc = 'manifest.dev.json';
-  } else {
-    manifestSrc = targetBrowser === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json';
-  }
-
-  const manifestDest = resolve(outDir, 'manifest.json');
-  logger.info({ manifestSrc, manifestDest }, 'Copying manifest');
-
-  if (existsSync(manifestSrc)) {
-    copyFileSync(manifestSrc, manifestDest);
-    logger.info('Manifest copied successfully');
-  } else {
-    logger.warn({ manifestSrc }, 'Manifest source not found');
-  }
-
   // Copy index.html as popup.html
   const indexSrc = resolve(outDir, 'src/index.html');
   const popupDest = resolve(outDir, 'popup.html');
@@ -76,8 +58,20 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
 
   // Copy background.bundle.js from the separate build
   const backgroundBundleSrc = resolve(outDir, 'background.bundle.js');
+  const backgroundBundleDest = resolve(outDir, 'background.bundle.js');
+
   if (existsSync(backgroundBundleSrc)) {
     // File already exists from the separate build
+    logger.info('Background bundle already exists in target directory');
+  } else {
+    // Try to copy from root build directory
+    const rootBackgroundSrc = resolve(process.cwd(), 'build/background.bundle.js');
+    if (existsSync(rootBackgroundSrc)) {
+      copyFileSync(rootBackgroundSrc, backgroundBundleDest);
+      logger.info('Background bundle copied from root build directory');
+    } else {
+      logger.warn('Background bundle not found in root build directory');
+    }
   }
 
   // Ensure img directory exists and copy assets
@@ -93,6 +87,24 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
       const destFile = resolve(imgDest, file);
       copyFileSync(srcFile, destFile);
     });
+  }
+
+  // Copy manifest file LAST to ensure it's available only when everything is ready
+  let manifestSrc: string;
+  if (isDev) {
+    manifestSrc = 'manifest.dev.json';
+  } else {
+    manifestSrc = targetBrowser === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json';
+  }
+
+  const manifestDest = resolve(outDir, 'manifest.json');
+  logger.info({ manifestSrc, manifestDest }, 'Copying manifest');
+
+  if (existsSync(manifestSrc)) {
+    copyFileSync(manifestSrc, manifestDest);
+    logger.info('Manifest copied successfully');
+  } else {
+    logger.warn({ manifestSrc }, 'Manifest source not found');
   }
 };
 
