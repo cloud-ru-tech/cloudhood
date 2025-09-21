@@ -46,6 +46,33 @@ function isValidRE2Regex(regex: string): boolean {
 export function validateUrlFilter(filter: string): { isValid: boolean; warnings: string[] } {
   const warnings: string[] = [];
 
+  // Валидация входных данных
+  if (!filter || typeof filter !== 'string') {
+    return {
+      isValid: false,
+      warnings: ['Filter must be a non-empty string'],
+    };
+  }
+
+  if (filter.length > 1000) {
+    return {
+      isValid: false,
+      warnings: ['Filter length exceeds maximum allowed length of 1000 characters'],
+    };
+  }
+
+  if (
+    filter.split('').some(char => {
+      const code = char.charCodeAt(0);
+      return (code >= 0x00 && code <= 0x1f) || (code >= 0x7f && code <= 0x9f);
+    })
+  ) {
+    return {
+      isValid: false,
+      warnings: ['Filter contains invalid control characters'],
+    };
+  }
+
   // Проверяем паттерн *://domain/* - может не работать для поддоменов
   if (filter.includes('*://') && filter.includes('/*')) {
     const domainMatch = filter.match(/\*:\/\/([^/*]+)\/\*/);
@@ -81,6 +108,26 @@ export function validateUrlFilter(filter: string): { isValid: boolean; warnings:
 }
 
 export function createUrlCondition(filter: string): { urlFilter?: string; regexFilter?: string } {
+  // Валидация входных данных
+  if (!filter || typeof filter !== 'string') {
+    throw new Error('Filter must be a non-empty string');
+  }
+
+  // Проверяем максимальную длину фильтра для предотвращения ReDoS атак
+  if (filter.length > 1000) {
+    throw new Error('Filter length exceeds maximum allowed length of 1000 characters');
+  }
+
+  // Проверяем наличие потенциально опасных символов
+  if (
+    filter.split('').some(char => {
+      const code = char.charCodeAt(0);
+      return (code >= 0x00 && code <= 0x1f) || (code >= 0x7f && code <= 0x9f);
+    })
+  ) {
+    throw new Error('Filter contains invalid control characters');
+  }
+
   // Если фильтр содержит *:// - это регулярное выражение
   if (filter.includes('*://')) {
     const regexFilter = convertToRegexFilter(filter);
