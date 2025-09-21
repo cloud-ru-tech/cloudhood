@@ -113,9 +113,8 @@ describe('createUrlCondition', () => {
   });
 
   describe('Граничные случаи', () => {
-    it('должен обрабатывать пустую строку', () => {
-      const result = createUrlCondition('');
-      expect(result).toEqual({ urlFilter: '' });
+    it('должен выбрасывать ошибку для пустой строки', () => {
+      expect(() => createUrlCondition('')).toThrow('Filter must be a non-empty string');
     });
 
     it('должен обрабатывать строку только с звездочкой', () => {
@@ -154,6 +153,103 @@ describe('createUrlCondition', () => {
       const result = validateUrlFilter('example.com');
       expect(result.isValid).toBe(true);
       expect(result.warnings).toHaveLength(0);
+    });
+  });
+
+  describe('Валидация входных данных', () => {
+    describe('createUrlCondition', () => {
+      it('должен выбрасывать ошибку для пустой строки', () => {
+        expect(() => createUrlCondition('')).toThrow('Filter must be a non-empty string');
+      });
+
+      it('должен выбрасывать ошибку для null', () => {
+        expect(() => createUrlCondition(null as unknown as string)).toThrow('Filter must be a non-empty string');
+      });
+
+      it('должен выбрасывать ошибку для undefined', () => {
+        expect(() => createUrlCondition(undefined as unknown as string)).toThrow('Filter must be a non-empty string');
+      });
+
+      it('должен выбрасывать ошибку для не-строки', () => {
+        expect(() => createUrlCondition(123 as unknown as string)).toThrow('Filter must be a non-empty string');
+        expect(() => createUrlCondition({} as unknown as string)).toThrow('Filter must be a non-empty string');
+        expect(() => createUrlCondition([] as unknown as string)).toThrow('Filter must be a non-empty string');
+      });
+
+      it('должен выбрасывать ошибку для слишком длинной строки', () => {
+        const longFilter = 'a'.repeat(1001);
+        expect(() => createUrlCondition(longFilter)).toThrow(
+          'Filter length exceeds maximum allowed length of 1000 characters',
+        );
+      });
+
+      it('должен выбрасывать ошибку для строки с управляющими символами', () => {
+        expect(() => createUrlCondition('example.com\x00')).toThrow('Filter contains invalid control characters');
+        expect(() => createUrlCondition('example.com\x1F')).toThrow('Filter contains invalid control characters');
+        expect(() => createUrlCondition('example.com\x7F')).toThrow('Filter contains invalid control characters');
+        expect(() => createUrlCondition('example.com\x9F')).toThrow('Filter contains invalid control characters');
+      });
+
+      it('должен принимать валидные строки', () => {
+        expect(() => createUrlCondition('example.com')).not.toThrow();
+        expect(() => createUrlCondition('https://example.com/*')).not.toThrow();
+        expect(() => createUrlCondition('*://example.com/*')).not.toThrow();
+      });
+    });
+
+    describe('validateUrlFilter', () => {
+      it('должен возвращать ошибку для пустой строки', () => {
+        const result = validateUrlFilter('');
+        expect(result.isValid).toBe(false);
+        expect(result.warnings).toContain('Filter must be a non-empty string');
+      });
+
+      it('должен возвращать ошибку для null', () => {
+        const result = validateUrlFilter(null as unknown as string);
+        expect(result.isValid).toBe(false);
+        expect(result.warnings).toContain('Filter must be a non-empty string');
+      });
+
+      it('должен возвращать ошибку для undefined', () => {
+        const result = validateUrlFilter(undefined as unknown as string);
+        expect(result.isValid).toBe(false);
+        expect(result.warnings).toContain('Filter must be a non-empty string');
+      });
+
+      it('должен возвращать ошибку для не-строки', () => {
+        const result1 = validateUrlFilter(123 as unknown as string);
+        expect(result1.isValid).toBe(false);
+        expect(result1.warnings).toContain('Filter must be a non-empty string');
+
+        const result2 = validateUrlFilter({} as unknown as string);
+        expect(result2.isValid).toBe(false);
+        expect(result2.warnings).toContain('Filter must be a non-empty string');
+      });
+
+      it('должен возвращать ошибку для слишком длинной строки', () => {
+        const longFilter = 'a'.repeat(1001);
+        const result = validateUrlFilter(longFilter);
+        expect(result.isValid).toBe(false);
+        expect(result.warnings).toContain('Filter length exceeds maximum allowed length of 1000 characters');
+      });
+
+      it('должен возвращать ошибку для строки с управляющими символами', () => {
+        const result1 = validateUrlFilter('example.com\x00');
+        expect(result1.isValid).toBe(false);
+        expect(result1.warnings).toContain('Filter contains invalid control characters');
+
+        const result2 = validateUrlFilter('example.com\x1F');
+        expect(result2.isValid).toBe(false);
+        expect(result2.warnings).toContain('Filter contains invalid control characters');
+      });
+
+      it('должен принимать валидные строки', () => {
+        const result1 = validateUrlFilter('example.com');
+        expect(result1.isValid).toBe(true);
+
+        const result2 = validateUrlFilter('https://example.com/*');
+        expect(result2.isValid).toBe(true);
+      });
     });
   });
 });
