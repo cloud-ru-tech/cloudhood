@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from 'child_process';
-import { existsSync, watch } from 'fs';
+import { existsSync, watch, copyFileSync } from 'fs';
 import { WebSocketServer } from 'ws';
 import pino from 'pino';
 
@@ -26,6 +26,7 @@ let clients = new Set();
 let viteProcess = null;
 let backgroundViteProcess = null;
 let reloadTimeout = null;
+let rootWatcher = null;
 
 function createWebSocketServer() {
   try {
@@ -204,6 +205,31 @@ function startFileWatcher() {
 
   logger.info(`👀 Watching for changes in ${WATCH_DIR}`);
 
+  // Also watch root build directory for background.bundle.js
+  const rootBuildDir = 'build';
+  if (existsSync(rootBuildDir)) {
+    logger.info(`👀 Also watching root build directory: ${rootBuildDir}`);
+
+    rootWatcher = watch(rootBuildDir, (eventType, filename) => {
+      if (filename === 'background.bundle.js') {
+        logger.info(`📁 Root build file changed: ${filename}`);
+
+        // Copy background.bundle.js to chrome directory
+        const src = `${rootBuildDir}/background.bundle.js`;
+        const dest = `${WATCH_DIR}/background.bundle.js`;
+
+        if (existsSync(src)) {
+          copyFileSync(src, dest);
+          logger.info('📋 Background bundle copied to chrome directory');
+        }
+      }
+    });
+
+    rootWatcher.on('error', (error) => {
+      logger.error(`❌ Root build watcher error: ${error.message}`);
+    });
+  }
+
   const watcher = watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
     if (filename && (filename.endsWith('.js') || filename.endsWith('.html') || filename.endsWith('.json'))) {
         logger.info(`📁 File changed: ${filename}`);
@@ -214,22 +240,42 @@ function startFileWatcher() {
       }
 
       reloadTimeout = setTimeout(() => {
-        // Проверяем, что манифест доступен перед отправкой сигнала
-        if (existsSync(`${WATCH_DIR}/manifest.json`)) {
+        // Проверяем готовность всех критических файлов перед отправкой сигнала
+        const criticalFiles = [
+          `${WATCH_DIR}/manifest.json`,
+          `${WATCH_DIR}/popup.bundle.js`,
+          `${WATCH_DIR}/background.bundle.js`
+        ];
+
+        const allFilesReady = criticalFiles.every(file => existsSync(file));
+
+        if (allFilesReady) {
           notifyClients();
         } else {
-          logger.warn('⚠️ Manifest not ready, delaying reload...');
-          // Повторяем проверку через 500мс
-          setTimeout(() => {
-            if (existsSync(`${WATCH_DIR}/manifest.json`)) {
+          logger.warn('⚠️ Critical files not ready, delaying reload...');
+          // Повторяем проверку с экспоненциальным backoff
+          let attempts = 0;
+          const maxAttempts = 10; // Увеличиваем количество попыток
+
+          const checkFiles = () => {
+            attempts++;
+            const ready = criticalFiles.every(file => existsSync(file));
+
+            if (ready) {
               notifyClients();
+            } else if (attempts < maxAttempts) {
+              const delay = Math.min(500 * Math.pow(2, attempts - 1), 3000); // Увеличиваем максимальную задержку
+              logger.warn(`⚠️ Attempt ${attempts}/${maxAttempts}, retrying in ${delay}ms...`);
+              setTimeout(checkFiles, delay);
             } else {
-              logger.error('❌ Manifest still not available, skipping reload');
+              logger.error('❌ Critical files still not available after maximum attempts, skipping reload');
             }
-          }, 500);
+          };
+
+          setTimeout(checkFiles, 1000); // Увеличиваем начальную задержку
         }
         reloadTimeout = null;
-      }, 1500); // Увеличили до 1.5 секунд для большей стабильности
+      }, 3000); // Увеличили до 3 секунд для большей стабильности
     }
   });
 
@@ -260,6 +306,11 @@ function cleanup() {
 
   if (wss) {
     wss.close();
+  }
+
+  // Close root watcher if it exists
+  if (rootWatcher) {
+    rootWatcher.close();
   }
 
   process.exit(0);
