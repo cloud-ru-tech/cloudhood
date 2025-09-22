@@ -55,18 +55,17 @@ export function ImportModal() {
 
   return (
     <ModalCustom open onClose={handleImportModalClosed}>
+      <ModalCustom.Header
+        title={'Import profile'}
+        titleTooltip={
+          <>
+            {TOOLTIP_TITLE}
+
+            <pre>{JSON.stringify(TOOLTIP_JSON_FORMAT, null, 2)}</pre>
+          </>
+        }
+      />
       <S.DropZone onFilesUpload={handleProfileLoaded} description='Drop files to upload'>
-        <ModalCustom.Header
-          title={'Import profile'}
-          titleTooltip={
-            <>
-              {TOOLTIP_TITLE}
-
-              <pre>{JSON.stringify(TOOLTIP_JSON_FORMAT, null, 2)}</pre>
-            </>
-          }
-        />
-
         <ModalCustom.Body
           content={
             <FieldTextArea

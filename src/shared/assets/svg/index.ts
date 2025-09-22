@@ -1,4 +1,5 @@
 export { DragIndicatorSVG } from './DragIndicator';
+export { DuplicateSVG } from './Duplicate';
 export { EditSVG } from './Edit';
 export { FileOpenSVG } from './FileOpen';
 export { PauseSVG } from './Pause';

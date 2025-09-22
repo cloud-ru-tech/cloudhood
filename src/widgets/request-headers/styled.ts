@@ -6,4 +6,5 @@ export const Wrapper = styled.div`
 
   gap: 8px;
   align-items: flex-end;
+  padding-bottom: 16px;
 `;

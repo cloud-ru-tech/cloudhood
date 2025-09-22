@@ -19,15 +19,17 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
     iconPath,
     badgeText,
     isPaused,
-    activeRulesCount
+    activeRulesCount,
   });
 
   logger.debug('Setting icon badge:', { isPaused, activeRulesCount, iconPath, badgeText });
 
   try {
-    // Используем относительный путь к иконке
-    logger.debug('Using relative icon path:', iconPath);
-    await browserAction.setIcon({ path: iconPath });
+    // Используем абсолютный путь к иконке через runtime.getURL
+    const absoluteIconPath = browser.runtime.getURL(iconPath);
+    logger.debug('Using absolute icon path:', absoluteIconPath);
+
+    await browserAction.setIcon({ path: absoluteIconPath });
     await browserAction.setBadgeText({ text: badgeText });
     logger.debug('Icon badge set successfully');
   } catch (err) {
@@ -39,5 +41,22 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
       activeRulesCount,
       errorMessage: err instanceof Error ? err.message : String(err),
     });
+
+    // Fallback: попробуем использовать относительный путь
+    try {
+      logger.debug('Trying fallback with relative path:', iconPath);
+      await browserAction.setIcon({ path: iconPath });
+      await browserAction.setBadgeText({ text: badgeText });
+      logger.debug('Icon badge set successfully with fallback');
+    } catch (fallbackErr) {
+      logger.error('Fallback also failed:', fallbackErr);
+      // В крайнем случае просто устанавливаем текст без иконки
+      try {
+        await browserAction.setBadgeText({ text: badgeText });
+        logger.debug('Badge text set without icon');
+      } catch (textErr) {
+        logger.error('Failed to set badge text:', textErr);
+      }
+    }
   }
 }
