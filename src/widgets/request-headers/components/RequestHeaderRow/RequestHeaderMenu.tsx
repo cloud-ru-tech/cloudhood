@@ -9,7 +9,7 @@ import { RequestHeader } from '#entities/request-profile/types';
 import { selectedProfileRequestHeaderCleared } from '#features/selected-profile-request-headers/clear/model';
 import { selectedProfileRequestHeaderCopied } from '#features/selected-profile-request-headers/copy/model';
 import { selectedProfileRequestHeaderDuplicated } from '#features/selected-profile-request-headers/duplicate/model';
-import { SwitchAccountSVG } from '#shared/assets/svg';
+import { DuplicateSVG } from '#shared/assets/svg';
 
 import * as S from './styled';
 
@@ -38,7 +38,7 @@ export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
         {
           id: 'duplicate-value',
           content: { option: 'Duplicate' },
-          beforeContent: <SwitchAccountSVG />,
+          beforeContent: <DuplicateSVG />,
           onClick: () => handleDuplicate(id),
         },
         {
@@ -55,7 +55,7 @@ export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
         },
       ]}
     >
-      <ButtonFunction size='s' icon={<KebabSVG />} disabled={isPaused} />
+      <ButtonFunction size='s' data-test-id='request-header-menu-button' icon={<KebabSVG />} disabled={isPaused} />
     </S.StyledDroplist>
   );
 }

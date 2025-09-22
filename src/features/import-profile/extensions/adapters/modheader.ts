@@ -23,5 +23,6 @@ export function modheaderImportAdapter(data: ModHeaderImportData) {
         disabled: !enabled,
       };
     }),
+    urlFilters: [],
   }));
 }

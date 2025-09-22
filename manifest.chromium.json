@@ -13,6 +13,7 @@
   "icons": {
     "16": "img/main-icon-16.jpg",
     "32": "img/main-icon-32.jpg",
+    "38": "img/main-icon-38.png",
     "48": "img/main-icon-48.jpg",
     "128": "img/main-icon-128.jpg"
   },
@@ -31,5 +32,11 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob:; style-src 'self' 'nonce-cloudhood-extension-style-nonce';"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["img/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

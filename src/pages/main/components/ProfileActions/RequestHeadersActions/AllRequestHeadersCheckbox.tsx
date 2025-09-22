@@ -8,5 +8,12 @@ import { $isAllEnabled, toggleAllProfileRequestHeaders } from '#features/toggle-
 export function AllRequestHeadersCheckbox() {
   const { isAllEnabled, isPaused } = useUnit({ isAllEnabled: $isAllEnabled, isPaused: $isPaused });
 
-  return <Checkbox disabled={isPaused} checked={isAllEnabled} onChange={toggleAllProfileRequestHeaders} />;
+  return (
+    <Checkbox
+      data-test-id='all-request-headers-checkbox'
+      disabled={isPaused}
+      checked={isAllEnabled}
+      onChange={toggleAllProfileRequestHeaders}
+    />
+  );
 }

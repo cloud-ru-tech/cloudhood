@@ -18,6 +18,7 @@ export const TitleWrapper = styled.div`
   display: flex;
   flex-grow: 1;
   min-width: 0;
+  max-width: 400px;
 `;
 
 export const ButtonWrapper = styled.div`

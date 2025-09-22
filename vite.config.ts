@@ -1,21 +1,31 @@
-import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 
 import react from '@vitejs/plugin-react';
+import pino from 'pino';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string): void => {
+import { extensionReloadPlugin } from './src/utils/extension-reload-plugin';
+
+// Настройка логгера
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname',
+    },
+  },
+});
+
+const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev: boolean = false): void => {
+  logger.info({ outDir }, 'Copying browser extension files');
+
   // Ensure build directory exists
   mkdirSync(outDir, { recursive: true });
-
-  // Copy manifest file
-  const manifestSrc = targetBrowser === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json';
-  const manifestDest = resolve(outDir, 'manifest.json');
-
-  if (existsSync(manifestSrc)) {
-    copyFileSync(manifestSrc, manifestDest);
-  }
 
   // Copy index.html as popup.html
   const indexSrc = resolve(outDir, 'src/index.html');
@@ -24,15 +34,88 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string): void 
   if (existsSync(indexSrc)) {
     copyFileSync(indexSrc, popupDest);
   }
+
+  // Copy background.html as background.html
+  const backgroundSrc = resolve(outDir, 'src/background.html');
+  const backgroundDest = resolve(outDir, 'background.html');
+
+  if (existsSync(backgroundSrc)) {
+    copyFileSync(backgroundSrc, backgroundDest);
+  }
+
+  // Copy files from source directory if they exist
+  const srcDir = resolve(outDir, 'src');
+  if (existsSync(srcDir)) {
+    const files = readdirSync(srcDir);
+    files.forEach((file: string) => {
+      if (file.endsWith('.html')) {
+        const srcFile = resolve(srcDir, file);
+        const destFile = resolve(outDir, file);
+        copyFileSync(srcFile, destFile);
+      }
+    });
+  }
+
+  // Copy background.bundle.js from the separate build
+  const backgroundBundleSrc = resolve(outDir, 'background.bundle.js');
+  const backgroundBundleDest = resolve(outDir, 'background.bundle.js');
+
+  if (existsSync(backgroundBundleSrc)) {
+    // File already exists from the separate build
+    logger.info('Background bundle already exists in target directory');
+  } else {
+    // Try to copy from root build directory
+    const rootBackgroundSrc = resolve(process.cwd(), 'build/background.bundle.js');
+    if (existsSync(rootBackgroundSrc)) {
+      copyFileSync(rootBackgroundSrc, backgroundBundleDest);
+      logger.info('Background bundle copied from root build directory');
+    } else {
+      logger.warn('Background bundle not found in root build directory');
+    }
+  }
+
+  // Ensure img directory exists and copy assets
+  const imgSrc = resolve(outDir, 'src/assets/img');
+  const imgDest = resolve(outDir, 'img');
+
+  if (existsSync(imgSrc)) {
+    mkdirSync(imgDest, { recursive: true });
+
+    const files = readdirSync(imgSrc);
+    files.forEach((file: string) => {
+      const srcFile = resolve(imgSrc, file);
+      const destFile = resolve(imgDest, file);
+      copyFileSync(srcFile, destFile);
+    });
+  }
+
+  // Copy manifest file LAST to ensure it's available only when everything is ready
+  let manifestSrc: string;
+  if (isDev) {
+    manifestSrc = 'manifest.dev.json';
+  } else {
+    manifestSrc = targetBrowser === 'firefox' ? 'manifest.firefox.json' : 'manifest.chromium.json';
+  }
+
+  const manifestDest = resolve(outDir, 'manifest.json');
+  logger.info({ manifestSrc, manifestDest }, 'Copying manifest');
+
+  if (existsSync(manifestSrc)) {
+    copyFileSync(manifestSrc, manifestDest);
+    logger.info('Manifest copied successfully');
+  } else {
+    logger.warn({ manifestSrc }, 'Manifest source not found');
+  }
 };
 
-const browserExtensionPlugin = (): Plugin => ({
+const browserExtensionPlugin = (isDev: boolean = false): Plugin => ({
   name: 'browser-extension-build',
   writeBundle(options: { dir?: string }) {
     const targetBrowser = process.env.BROWSER || 'chrome';
     const outDir = options.dir || `build/${targetBrowser}`;
 
-    copyBrowserExtensionFiles(targetBrowser, outDir);
+    logger.info({ outDir }, 'Browser extension plugin: copying files');
+    copyBrowserExtensionFiles(targetBrowser, outDir, isDev);
   },
 });
 
@@ -48,7 +131,12 @@ export default defineConfig(({ mode }) => {
     tsconfigPaths(),
   ];
 
-  plugins.push(browserExtensionPlugin());
+  // Add auto-reload plugin only in dev mode
+  if (!isProduction) {
+    plugins.push(extensionReloadPlugin());
+  }
+
+  plugins.push(browserExtensionPlugin(!isProduction));
 
   return {
     plugins,
@@ -62,6 +150,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: !isProduction,
       chunkSizeWarningLimit: 1000,
       minify: isProduction ? 'terser' : false,
+
       terserOptions: isProduction
         ? {
             compress: {
@@ -73,7 +162,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           popup: resolve(__dirname, 'src/index.html'),
-          background: resolve(__dirname, 'src/background.ts'),
         },
         output: {
           entryFileNames: chunk => {
@@ -92,8 +180,15 @@ export default defineConfig(({ mode }) => {
             }
             return '[name].[ext]';
           },
-          manualChunks: undefined, // Полностью отключаем разделение для диагностики
+          manualChunks: id => {
+            // Для popup - создаем чанки
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+            return undefined;
+          },
         },
+        external: [],
       },
     },
     server: {
@@ -101,5 +196,6 @@ export default defineConfig(({ mode }) => {
     },
     assetsInclude: ['**/*.otf', '**/*.ttf', '**/*.woff', '**/*.woff2'],
     publicDir: 'src/assets',
+    copyPublicDir: true,
   };
 });

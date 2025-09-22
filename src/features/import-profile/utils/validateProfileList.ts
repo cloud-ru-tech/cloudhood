@@ -82,5 +82,6 @@ export function generateProfileList(profileList: Profile[], existingProfileList:
       ...header,
       id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
     })),
+    urlFilters: profile.urlFilters || [],
   }));
 }

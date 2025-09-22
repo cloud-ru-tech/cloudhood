@@ -68,7 +68,7 @@ export function ProfileNameField() {
             showClearButton={false}
           />
         ) : (
-          <S.Title text={profileName} />
+          <S.Title text={profileName} maxLines={1} />
         )}
       </S.TitleWrapper>
 

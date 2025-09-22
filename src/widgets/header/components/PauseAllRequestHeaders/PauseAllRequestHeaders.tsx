@@ -14,6 +14,7 @@ export function PauseAllRequestHeaders() {
       icon={!isPaused ? <PauseSVG /> : <PlayArrowSVG />}
       onClick={handleToggle}
       size='m'
+      data-test-id='pause-button'
     />
   );
 }

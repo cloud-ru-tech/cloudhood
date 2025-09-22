@@ -2,25 +2,11 @@ import styled from '@emotion/styled';
 
 import { themeVars } from '@snack-uikit/figma-tokens';
 
-export const Content = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 8px;
-
-  overflow-y: auto;
-
-  padding: 8px 8px 0;
-`;
-
 export const LeftHeaderActions = styled.div`
-  ${themeVars.sans.title.m}
-
   color: ${themeVars.sys.neutral.textMain};
   display: flex;
   gap: 8px;
-  padding-left: 8px;
+  padding-left: 4px;
   align-items: center;
 `;
 
@@ -31,23 +17,30 @@ export const RightHeaderActions = styled.div`
   align-items: center;
 `;
 
-export const StyledBackdrop = styled.div`
-  position: fixed;
-  top: 64px;
-  left: 52px;
-  background: ${themeVars.sys.neutral.textMain};
-  opacity: 0.3;
-  width: 100%;
+export const Container = styled.div`
+  display: grid;
+  grid-template-areas:
+    'header'
+    'content';
+  grid-template-rows: auto 1fr;
   height: 100%;
-  display: none;
-
-  &[data-open] {
-    display: block;
-  }
 `;
 
 export const Header = styled.div`
+  grid-area: header;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  background-color: ${themeVars.sys.neutral.background1Level};
+`;
+
+export const ContentWrapper = styled.div`
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
 `;

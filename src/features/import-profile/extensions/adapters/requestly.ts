@@ -37,5 +37,6 @@ export function requestlyImportAdapter(data: RequestlyImportData) {
         .filter(Boolean);
       return headers;
     }),
+    urlFilters: [],
   }));
 }

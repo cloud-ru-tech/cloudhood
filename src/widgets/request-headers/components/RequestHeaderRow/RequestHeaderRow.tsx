@@ -10,10 +10,10 @@ import { Tooltip } from '@snack-uikit/tooltip';
 
 import { $isPaused } from '#entities/is-paused/model';
 import type { RequestHeader } from '#entities/request-profile/types';
+import { DragHandle } from '#entities/sortable-list';
 import { DELIMITER, NEW_ROW } from '#features/selected-profile-request-headers/paste/constant';
 import { selectedProfileRequestHeadersPasted } from '#features/selected-profile-request-headers/paste/model';
 import { selectedProfileRequestHeadersRemoved } from '#features/selected-profile-request-headers/remove/model';
-import { DragHandle } from '#features/selected-profile-request-headers/reorder/components';
 import { selectedProfileRequestHeadersUpdated } from '#features/selected-profile-request-headers/update/model';
 import { validateHeaderName, validateHeaderValue } from '#shared/utils/headers';
 
@@ -67,7 +67,12 @@ export function RequestHeaderRow(props: RequestHeader) {
       <S.LeftHeaderActions>
         <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
 
-        <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} />
+        <Checkbox
+          data-test-id='request-header-checkbox'
+          disabled={isPaused}
+          checked={!disabled}
+          onChange={handleChecked}
+        />
 
         <Tooltip
           open={headerNameFocused && name.length > 0 && !isNameFormatVerified}
@@ -75,6 +80,7 @@ export function RequestHeaderRow(props: RequestHeader) {
           placement='top'
         >
           <FieldText
+            data-test-id='header-name-input'
             size='m'
             value={name}
             placeholder='Header name'
@@ -104,6 +110,7 @@ export function RequestHeaderRow(props: RequestHeader) {
           onKeyDown={handleKeyPress}
           showClearButton={false}
           disabled={isPaused}
+          data-test-id='header-value-input'
           validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
         />
       </Tooltip>
@@ -111,6 +118,7 @@ export function RequestHeaderRow(props: RequestHeader) {
       <ButtonFunction
         disabled={isPaused}
         size='s'
+        data-test-id='remove-request-header-button'
         icon={<CrossSVG />}
         onClick={() => selectedProfileRequestHeadersRemoved([id])}
       />
