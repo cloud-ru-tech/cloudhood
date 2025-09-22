@@ -9,7 +9,7 @@ import { UrlFilter } from '#entities/request-profile/types';
 import { selectedProfileUrlFilterCleared } from '#features/selected-profile-url-filters/clear/model';
 import { selectedProfileUrlFilterCopied } from '#features/selected-profile-url-filters/copy/model';
 import { selectedProfileUrlFilterDuplicated } from '#features/selected-profile-url-filters/duplicate/model';
-import { SwitchAccountSVG } from '#shared/assets/svg';
+import { DuplicateSVG } from '#shared/assets/svg';
 
 import * as S from './styled';
 
@@ -38,7 +38,7 @@ export function UrlFiltersMenu({ id, value }: UrlFilter) {
         {
           id: 'duplicate-value',
           content: { option: 'Duplicate' },
-          beforeContent: <SwitchAccountSVG />,
+          beforeContent: <DuplicateSVG />,
           onClick: () => handleDuplicate(id),
         },
         {

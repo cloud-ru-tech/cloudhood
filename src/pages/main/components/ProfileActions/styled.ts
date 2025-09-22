@@ -11,6 +11,10 @@ export const Content = styled.div`
   overflow-y: auto;
 
   padding: 0 8px 0;
+
+  [class*='ScrollContainer'] {
+    overflow-x: hidden;
+  }
 `;
 
 export const StyledBackdrop = styled.div`

@@ -69,9 +69,8 @@ export function ImportFromExtensionModal() {
 
   return (
     <ModalCustom open onClose={handleImportFromExtensionModalClosed}>
+      <ModalCustom.Header title={'Import from other extension'} />
       <S.DropZone onFilesUpload={handleProfileLoaded} description='Drop files to upload'>
-        <ModalCustom.Header title={'Import from other extension'} />
-
         <ModalCustom.Body
           content={
             <S.Wrapper>
