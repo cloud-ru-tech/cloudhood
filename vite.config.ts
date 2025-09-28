@@ -57,21 +57,14 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
   }
 
   // Copy background.bundle.js from the separate build
-  const backgroundBundleSrc = resolve(outDir, 'background.bundle.js');
+  const backgroundBundleSrc = resolve(process.cwd(), 'build/background.bundle.js');
   const backgroundBundleDest = resolve(outDir, 'background.bundle.js');
 
   if (existsSync(backgroundBundleSrc)) {
-    // File already exists from the separate build
-    logger.info('Background bundle already exists in target directory');
+    copyFileSync(backgroundBundleSrc, backgroundBundleDest);
+    logger.info('Background bundle copied from root build directory');
   } else {
-    // Try to copy from root build directory
-    const rootBackgroundSrc = resolve(process.cwd(), 'build/background.bundle.js');
-    if (existsSync(rootBackgroundSrc)) {
-      copyFileSync(rootBackgroundSrc, backgroundBundleDest);
-      logger.info('Background bundle copied from root build directory');
-    } else {
-      logger.warn('Background bundle not found in root build directory');
-    }
+    logger.warn('Background bundle not found in root build directory');
   }
 
   // Ensure img directory exists and copy assets
