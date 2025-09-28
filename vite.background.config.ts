@@ -9,10 +9,10 @@ export default defineConfig({
   base: './',
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
-    'process.env.BROWSER': JSON.stringify('chrome'),
+    'process.env.BROWSER': JSON.stringify(process.env.BROWSER || 'chrome'),
   },
   build: {
-    outDir: 'build/chrome',
+    outDir: `build/${process.env.BROWSER || 'chrome'}`,
     sourcemap: true, // Включаем sourcemap для разработки
     minify: false, // Отключаем минификацию для разработки
     rollupOptions: {
