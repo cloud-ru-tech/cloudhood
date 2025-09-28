@@ -75,7 +75,10 @@ jobs:
       - name: Build Firefox extension
         env:
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
-        run: pnpm run build:firefox
+        run: |
+          # FIREFOX_EXTENSION_ID is required for local builds to add extension ID to manifest
+          # In GitHub Actions, this variable is automatically set from secrets
+          pnpm run build:firefox
         shell: bash
 
       - name: Pack Firefox build folder to ZIP-file

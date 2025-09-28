@@ -12,6 +12,18 @@ This extension allows users to control request headers that will be embedded in 
 
 Header overrides are managed in a Chrome extension popup (a simple react app), stored in Chrome local storage, and applied to upstream page requests using the updateDynamicRules function of chrome's declarativeNetRequest dynamic request rules.
 
+## Development
+
+### Local Build
+
+For local Firefox builds, set the `FIREFOX_EXTENSION_ID` environment variable:
+
+```bash
+FIREFOX_EXTENSION_ID= pnpm run build:firefox
+```
+
+**Note**: This variable is not needed for GitHub Actions builds as it's automatically set from secrets.
+
 ## Testing
 
 You can get a test build for each pull-request in its comments. [Example](https://github.com/cloud-ru-tech/cloudhood/pull/1#issuecomment-1713810507).

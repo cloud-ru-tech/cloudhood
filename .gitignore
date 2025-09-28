@@ -37,3 +37,4 @@ cloudhood-firefox-sources-v*.zip
 
 # development
 .dev-profiles
+.env

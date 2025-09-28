@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 import react from '@vitejs/plugin-react';
@@ -93,6 +93,26 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
 
   if (existsSync(manifestSrc)) {
     copyFileSync(manifestSrc, manifestDest);
+
+    // Add extension ID for Firefox
+    if (targetBrowser === 'firefox' && !isDev) {
+      const extensionId = process.env.FIREFOX_EXTENSION_ID;
+      if (extensionId) {
+        const manifestContent = JSON.parse(readFileSync(manifestDest, 'utf-8'));
+        if (!manifestContent.browser_specific_settings) {
+          manifestContent.browser_specific_settings = {
+            gecko: {
+              id: extensionId,
+            },
+          };
+          writeFileSync(manifestDest, JSON.stringify(manifestContent, null, 2), 'utf-8');
+          logger.info({ extensionId }, 'Added extension ID to Firefox manifest');
+        }
+      } else {
+        logger.warn('FIREFOX_EXTENSION_ID environment variable not set');
+      }
+    }
+
     logger.info('Manifest copied successfully');
   } else {
     logger.warn({ manifestSrc }, 'Manifest source not found');
