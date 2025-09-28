@@ -19,7 +19,7 @@ Header overrides are managed in a Chrome extension popup (a simple react app), s
 For local Firefox builds, set the `FIREFOX_EXTENSION_ID` environment variable:
 
 ```bash
-FIREFOX_EXTENSION_ID= pnpm run build:firefox
+FIREFOX_EXTENSION_ID=your-extension-id@example.com pnpm run build:firefox
 ```
 
 **Note**: This variable is not needed for GitHub Actions builds as it's automatically set from secrets.
