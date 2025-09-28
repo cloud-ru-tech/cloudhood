@@ -9,7 +9,7 @@
     "build:license-validator": "cd ./.license-validator && pnpm build",
     "check-license": "pnpx ./.license-validator -i",
     "build:chromium": "BROWSER=chrome vite build && BROWSER=chrome vite build --config vite.background.config.ts",
-    "build:firefox": "BROWSER=firefox vite build",
+    "build:firefox": "BROWSER=firefox vite build && BROWSER=firefox vite build --config vite.background.config.ts",
     "build:firefox-sources": "node scripts/build-firefox-sources.mjs",
     "build": "pnpm build:chromium && pnpm build:firefox",
     "dev:chrome": "node scripts/dev-server.mjs",
