@@ -22,7 +22,6 @@
     "declarativeNetRequestFeedback",
     "tabs",
     "contextMenus",
-    "webRequest",
     "activeTab"
   ],
   "host_permissions": [
