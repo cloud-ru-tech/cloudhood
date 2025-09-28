@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Cloudhood",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -29,7 +29,9 @@
     "<all_urls>"
   ],
   "background": {
-    "scripts": ["background.bundle.js"]
+    "scripts": [
+      "background.bundle.js"
+    ]
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob: moz-extension:; style-src 'self' 'nonce-cloudhood-extension-style-nonce'; connect-src 'self' data: blob: moz-extension:;"
