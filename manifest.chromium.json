@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Cloudhood",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "action": {
     "icon": "img/main-icon-38.png",
     "default_popup": "popup.html",
@@ -35,8 +35,12 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["img/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "img/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
