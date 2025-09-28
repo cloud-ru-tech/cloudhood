@@ -19,7 +19,7 @@ export default defineConfig({
       input: resolve(__dirname, 'src/background.ts'),
       output: {
         entryFileNames: 'background.bundle.js',
-        format: 'iife', // Используем IIFE формат для service worker
+        format: 'iife', // Используем IIFE формат для background script
         inlineDynamicImports: true, // Встраиваем все динамические импорты
       },
       external: [],
