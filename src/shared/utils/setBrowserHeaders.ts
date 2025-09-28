@@ -110,7 +110,7 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     ({ disabled, name, value }) => !disabled && validateHeader(name, value),
   );
 
-  // Убираем лишнюю строку и исправляем логирование
+  // Remove extra line and fix logging
   logger.info('URL filters from profile:', selectedProfileUrlFilters);
 
   const activeUrlFilters = selectedProfileUrlFilters

@@ -29,5 +29,4 @@ export const $selectedProfileUrlFilters = combine(
   { skipVoid: false },
 );
 
-sample({ clock: profileUrlFiltersAdded, target: urlFiltersAddedFx });
 sample({ clock: urlFiltersAddedFx.doneData, target: profileUpdated });

@@ -1,4 +1,4 @@
-import { closestCenter, CollisionDetection, DndContext, Modifier,SensorDescriptor } from '@dnd-kit/core';
+import { closestCenter, CollisionDetection, DndContext, Modifier, SensorDescriptor } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 import { ReactNode } from 'react';
@@ -23,7 +23,7 @@ export function useSortableList() {
     items,
     sensors = [],
     collisionDetection = closestCenter,
-    modifiers = []
+    modifiers = [],
   }: UseSortableListProps) {
     return (
       <DndContext
