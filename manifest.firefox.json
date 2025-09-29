@@ -20,8 +20,6 @@
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
-    "tabs",
-    "contextMenus",
     "activeTab"
   ],
   "host_permissions": [
