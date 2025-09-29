@@ -21,9 +21,7 @@
   "permissions": [
     "storage",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
-    "tabs",
-    "contextMenus"
+    "declarativeNetRequestFeedback"
   ],
   "background": {
     "service_worker": "background.bundle.js"
