@@ -16,7 +16,7 @@ const urlFiltersAddedFx = attach({
 
     return {
       ...profile,
-      urlFilters: [...profile.urlFilters, { id: generateId(), disabled: false, value: '' }],
+      urlFilters: [...(profile.urlFilters ?? []), { id: generateId(), disabled: false, value: '' }],
     };
   },
 });
