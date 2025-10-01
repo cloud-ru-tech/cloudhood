@@ -25,11 +25,16 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
   logger.debug('Setting icon badge:', { isPaused, activeRulesCount, iconPath, badgeText });
 
   try {
-    // Используем абсолютный путь к иконке через runtime.getURL
-    const absoluteIconPath = browser.runtime.getURL(iconPath);
-    logger.debug('Using absolute icon path:', absoluteIconPath);
+    // В Chrome Manifest V3 нужно использовать объект с размерами иконок
+    const iconDetails = {
+      path: {
+        38: iconPath,
+      },
+    };
 
-    await browserAction.setIcon({ path: absoluteIconPath });
+    logger.debug('Using icon details:', iconDetails);
+
+    await browserAction.setIcon(iconDetails);
     await browserAction.setBadgeText({ text: badgeText });
     logger.debug('Icon badge set successfully');
   } catch (err) {
@@ -42,9 +47,9 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
       errorMessage: err instanceof Error ? err.message : String(err),
     });
 
-    // Fallback: попробуем использовать относительный путь
+    // Fallback: попробуем использовать простой путь
     try {
-      logger.debug('Trying fallback with relative path:', iconPath);
+      logger.debug('Trying fallback with simple path:', iconPath);
       await browserAction.setIcon({ path: iconPath });
       await browserAction.setBadgeText({ text: badgeText });
       logger.debug('Icon badge set successfully with fallback');
