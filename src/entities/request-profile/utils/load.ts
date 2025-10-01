@@ -25,7 +25,15 @@ export async function loadProfilesFromStorageApi() {
     const response = (await browser.storage.local.get([BrowserStorageKey.Profiles])) as Record<string, unknown>;
     const profiles: Profile[] | null = JSON.parse((response[BrowserStorageKey.Profiles] as string) ?? 'null');
 
-    return profiles ?? DEFAULT_REQUEST_HEADERS;
+    if (profiles) {
+      const normalizedProfiles = profiles.map(profile => ({
+        ...profile,
+        urlFilters: profile?.urlFilters ?? [],
+      }));
+      return normalizedProfiles;
+    }
+
+    return DEFAULT_REQUEST_HEADERS;
   } catch (e) {
     console.error(e);
   }

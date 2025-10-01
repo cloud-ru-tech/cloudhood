@@ -47,7 +47,12 @@ export function UrlFiltersActions() {
 
   const rightHeaderActions = (
     <>
-      <ButtonFunction disabled={isPaused} icon={<PlusSVG />} onClick={handleAddUrlFilter} />
+      <ButtonFunction
+        disabled={isPaused}
+        icon={<PlusSVG />}
+        onClick={handleAddUrlFilter}
+        data-test-id='add-url-filter-button'
+      />
       <RemoveAllUrlFilters />
     </>
   );
