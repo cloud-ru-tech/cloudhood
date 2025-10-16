@@ -91,6 +91,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      vite-plugin-static-copy:
+        specifier: 3.1.4
+        version: 3.1.4(vite@5.4.20(@types/node@24.7.1)(terser@5.43.1))
     devDependencies:
       '@cloud-ru/eslint-config':
         specifier: 2.1.1
@@ -4392,6 +4395,10 @@ packages:
     resolution: {integrity: sha512-y3b8Kpd8OAN444hxfBbFfj1FY/RjtTd8tzYwhUqNYXx0fXx2iX4maP4Qr6qhIKbQXI02wTLAda4fYUbDagTUFw==}
     engines: {node: '>=6'}
 
+  p-map@7.0.3:
+    resolution: {integrity: sha512-VkndIv2fIB99swvQoA65bm+fsmt6UNdGeIB0oxBs+WhAhdh08QA04JXpI7rbB9r08/nkbysKoya9rtDERYOYMA==}
+    engines: {node: '>=18'}
+
   p-retry@6.2.1:
     resolution: {integrity: sha512-hEt02O4hUct5wtwg4H4KcWgDdm+l1bOaEy/hWzd8xtXB9BqxTWBBhb+2ImAtH4Cv4rPjV76xN3Zumqk3k3AhhQ==}
     engines: {node: '>=16.17'}
@@ -5601,6 +5608,12 @@ packages:
     resolution: {integrity: sha512-/8iMryv46J3aK13iUXsei5G/A3CUlW4665THCPS+K8xAaqrVWiGB4RfXMQXCLjpK9P2eK//BczrVkn5JLAk6DA==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
+
+  vite-plugin-static-copy@3.1.4:
+    resolution: {integrity: sha512-iCmr4GSw4eSnaB+G8zc2f4dxSuDjbkjwpuBLLGvQYR9IW7rnDzftnUjOH5p4RYR+d4GsiBqXRvzuFhs5bnzVyw==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0
 
   vite-plugin-svgr@4.5.0:
     resolution: {integrity: sha512-W+uoSpmVkSmNOGPSsDCWVW/DDAyv+9fap9AZXBvWiQqrboJ08j2vh0tFxTD/LjwqwAd3yYSVJgm54S/1GhbdnA==}
@@ -10802,6 +10815,8 @@ snapshots:
 
   p-map@2.1.0: {}
 
+  p-map@7.0.3: {}
+
   p-retry@6.2.1:
     dependencies:
       '@types/retry': 0.12.2
@@ -12116,6 +12131,14 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vite-plugin-static-copy@3.1.4(vite@5.4.20(@types/node@24.7.1)(terser@5.43.1)):
+    dependencies:
+      chokidar: 3.6.0
+      p-map: 7.0.3
+      picocolors: 1.1.1
+      tinyglobby: 0.2.15
+      vite: 5.4.20(@types/node@24.7.1)(terser@5.43.1)
 
   vite-plugin-svgr@4.5.0(rollup@4.52.4)(typescript@5.9.2)(vite@5.4.20(@types/node@24.7.1)(terser@5.43.1)):
     dependencies:
