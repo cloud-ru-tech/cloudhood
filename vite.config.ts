@@ -4,6 +4,7 @@ import { resolve } from 'path';
 import react from '@vitejs/plugin-react';
 import pino from 'pino';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { extensionReloadPlugin } from './src/utils/extension-reload-plugin';
@@ -138,6 +139,14 @@ export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     react({
       jsxRuntime: 'automatic',
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'node_modules/@snack-uikit/icons/dist/esm/sprite/svg/sprite.symbol.svg',
+          dest: ''
+        }
+      ]
     }),
     tsconfigPaths(),
   ];
