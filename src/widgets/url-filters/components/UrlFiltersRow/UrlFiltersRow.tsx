@@ -72,7 +72,6 @@ export function UrlFiltersRow(props: UrlFilter) {
       >
         <FieldText
           size='m'
-          inputMode='text'
           value={value}
           placeholder='.*://url.domain/.*'
           onChange={handleChange}

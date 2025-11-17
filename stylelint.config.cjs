@@ -1,12 +1,10 @@
-import config from '@cloud-ru/ft-config-stylelint';
+const config = require('@cloud-ru/ft-config-stylelint');
 
-// eslint-disable-next-line import/no-default-export
-export default {
+module.exports = {
   ...config,
   overrides: [
     {
       files: ['**/*.css'],
-      customSyntax: 'postcss',
     },
     {
       files: ['**/*.ts', '**/*.tsx'],
@@ -14,3 +12,4 @@ export default {
     },
   ],
 };
+

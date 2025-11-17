@@ -92,7 +92,6 @@ export function RequestHeaderRow(props: RequestHeader) {
             showClearButton={false}
             disabled={isPaused}
             validationState={name.length > 0 && !isNameFormatVerified ? 'error' : 'default'}
-            inputMode='text'
           />
         </Tooltip>
       </S.LeftHeaderActions>
@@ -113,7 +112,6 @@ export function RequestHeaderRow(props: RequestHeader) {
           disabled={isPaused}
           data-test-id='header-value-input'
           validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
-          inputMode='text'
         />
       </Tooltip>
 
