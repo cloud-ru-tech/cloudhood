@@ -66,7 +66,6 @@ export function ProfileNameField() {
             onKeyDown={onKeyDown}
             onBlur={handleBlur}
             showClearButton={false}
-            inputMode='text'
           />
         ) : (
           <S.Title text={profileName} maxLines={1} />
@@ -80,6 +79,7 @@ export function ProfileNameField() {
           ref={buttonRef}
           onClick={toggleEdit}
           icon={isEdited ? <CheckSVG /> : <EditSVG />}
+          data-test-id='profile-name-edit-button'
         />
       </S.ButtonWrapper>
     </S.Row>

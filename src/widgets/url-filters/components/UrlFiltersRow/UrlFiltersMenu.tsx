@@ -55,7 +55,7 @@ export function UrlFiltersMenu({ id, value }: UrlFilter) {
         },
       ]}
     >
-      <ButtonFunction size='s' icon={<KebabSVG />} disabled={isPaused} />
+      <ButtonFunction size='s' icon={<KebabSVG />} disabled={isPaused} data-test-id='url-filter-menu-button' />
     </S.StyledDroplist>
   );
 }

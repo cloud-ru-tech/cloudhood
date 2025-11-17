@@ -33,7 +33,12 @@ export function Header() {
           <PauseAllRequestHeaders />
 
           <S.StyledDroplist open={isOpen} onOpenChange={setIsOpen} placement='bottom-end' size='m' items={actions}>
-            <ButtonFunction appearance='neutral' size='m' icon={<KebabSVG />} />
+            <ButtonFunction
+              appearance='neutral'
+              size='m'
+              icon={<KebabSVG />}
+              data-test-id='profile-actions-menu-button'
+            />
           </S.StyledDroplist>
         </S.Actions>
       </S.Wrapper>
