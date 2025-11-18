@@ -1,12 +1,13 @@
 import browser from 'webextension-polyfill';
 
-import type { Profile, RequestHeader } from '#entities/request-profile/types';
+import type { Profile, RequestHeader, ResponseOverride } from '#entities/request-profile/types';
 
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { setIconBadge } from './shared/utils/setIconBadge';
+import { getOverrideRules } from './shared/utils/createOverrideRules';
 import { enableExtensionReload } from './utils/extension-reload';
 
 logger.configure({
@@ -36,7 +37,7 @@ logger.info('🔍 About to check storage contents...');
     logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
 
     // Логируем количество профилей, если они есть
-    let activeHeadersCount = 0;
+    let activeRulesCount = 0;
     if (result[BrowserStorageKey.Profiles]) {
       try {
         const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
@@ -44,11 +45,15 @@ logger.info('🔍 About to check storage contents...');
         if (profiles.length > 0) {
           logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
 
-          // Подсчитываем активные заголовки для badge
+          // Подсчитываем активные правила для badge
           const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
           if (selectedProfile) {
-            activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
+            const activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
+            const activeOverridesCount = selectedProfile.responseOverrides?.filter((o: ResponseOverride) => !o.disabled).length || 0;
+            activeRulesCount = activeHeadersCount + activeOverridesCount;
             logger.info(`  - Active headers count: ${activeHeadersCount}`);
+            logger.info(`  - Active overrides count: ${activeOverridesCount}`);
+            logger.info(`  - Total active rules count: ${activeRulesCount}`);
           }
         }
       } catch (error) {
@@ -61,8 +66,8 @@ logger.info('🔍 About to check storage contents...');
 
     // Устанавливаем badge на основе данных из storage
     const isPaused = (result[BrowserStorageKey.IsPaused] as boolean) || false;
-    await setIconBadge({ isPaused, activeRulesCount: activeHeadersCount });
-    logger.info(`🏷️ Badge set: paused=${isPaused}, activeRules=${activeHeadersCount}`);
+    await setIconBadge({ isPaused, activeRulesCount });
+    logger.info(`🏷️ Badge set: paused=${isPaused}, activeRules=${activeRulesCount}`);
   } catch (error) {
     logger.error('Failed to check storage on background script load:', error);
   }

@@ -39,11 +39,12 @@ export const $profileExportString = combine(
     return JSON.stringify(
       profiles
         .filter(({ id }) => selectedExportProfileIdList.includes(id))
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
-        .map(({ id, requestHeaders, ...rest }) => ({
+        .map(({ id, requestHeaders, responseOverrides, ...rest }) => ({
           ...rest,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
           requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
+          ...(responseOverrides && {
+            responseOverrides: responseOverrides.map(({ id, ...overrideRest }) => overrideRest),
+          }),
         })) || [],
     );
   },

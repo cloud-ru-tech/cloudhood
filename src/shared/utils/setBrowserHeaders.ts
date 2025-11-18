@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
+import { getOverrideRules } from './createOverrideRules';
 import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
@@ -105,12 +106,14 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
 
   const selectedProfileHeaders = profile?.requestHeaders ?? [];
   const selectedProfileUrlFilters = profile?.urlFilters ?? [];
+  const selectedProfileResponseOverrides = profile?.responseOverrides ?? [];
 
   const activeHeaders = selectedProfileHeaders.filter(
     ({ disabled, name, value }) => !disabled && validateHeader(name, value),
   );
 
-  // Remove extra line and fix logging
+  const activeResponseOverrides = selectedProfileResponseOverrides.filter(({ disabled }) => !disabled);
+
   logger.info('URL filters from profile:', selectedProfileUrlFilters);
 
   const activeUrlFilters = selectedProfileUrlFilters
@@ -118,19 +121,27 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     .map(({ value }) => value.trim());
 
   logger.info('Active URL filters:', activeUrlFilters);
+  logger.info('Active response overrides:', activeResponseOverrides);
 
-  // Добавляем более заметное логирование
   logger.debug('🔍 Profile data:', {
     profileId: selectedProfile,
     headersCount: selectedProfileHeaders.length,
     activeHeadersCount: activeHeaders.length,
     urlFiltersCount: selectedProfileUrlFilters.length,
     activeUrlFiltersCount: activeUrlFilters.length,
+    responseOverridesCount: selectedProfileResponseOverrides.length,
+    activeResponseOverridesCount: activeResponseOverrides.length,
   });
 
-  const addRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
+  const headerRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
     ? activeHeaders.flatMap(header => getRulesForHeader(header, activeUrlFilters))
     : [];
+
+  const overrideRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
+    ? getOverrideRules(activeResponseOverrides)
+    : [];
+
+  const addRules = [...headerRules, ...overrideRules];
 
   const removeRuleIds = currentRules.map(item => item.id);
 
@@ -161,7 +172,7 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     logger.info('Rules updated successfully');
     logger.groupEnd();
 
-    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
+    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length + activeResponseOverrides.length });
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
   }

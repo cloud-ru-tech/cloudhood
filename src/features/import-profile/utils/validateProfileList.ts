@@ -83,5 +83,9 @@ export function generateProfileList(profileList: Profile[], existingProfileList:
       id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
     })),
     urlFilters: profile.urlFilters || [],
+    responseOverrides: (profile.responseOverrides || []).map(override => ({
+      ...override,
+      id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
+    })),
   }));
 }
