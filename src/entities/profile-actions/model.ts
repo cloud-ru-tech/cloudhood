@@ -2,7 +2,7 @@ import { createEvent, createStore } from 'effector';
 
 import { selectedRequestProfileIdChanged } from '#entities/request-profile/model/selected-request-profile';
 
-export type ProfileActionsTab = 'headers' | 'url-filters';
+export type ProfileActionsTab = 'headers' | 'url-filters' | 'overrides';
 
 export const profileActionsTabChanged = createEvent<ProfileActionsTab>();
 

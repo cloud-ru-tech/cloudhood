@@ -1,12 +1,13 @@
 import browser from 'webextension-polyfill';
 
-import type { Profile, RequestHeader } from '#entities/request-profile/types';
+import type { Profile, RequestHeader, ResponseOverride } from '#entities/request-profile/types';
 
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { setIconBadge } from './shared/utils/setIconBadge';
+import { getOverrideRules } from './shared/utils/createOverrideRules';
 import { enableExtensionReload } from './utils/extension-reload';
 
 logger.configure({
