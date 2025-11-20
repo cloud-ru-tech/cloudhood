@@ -15,6 +15,36 @@ const setupClipboardMock = async (page: Page) => {
   });
 };
 
+const addRequestHeader = async (page: Page, name: string, value: string) => {
+  const headerNameInputs = page.locator('[data-test-id="header-name-input"] input');
+  const headerValueInputs = page.locator('[data-test-id="header-value-input"] input');
+  const initialIndex = await headerNameInputs.count();
+
+  const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
+  await addHeaderButton.click();
+
+  const headerNameField = headerNameInputs.nth(initialIndex);
+  const headerValueField = headerValueInputs.nth(initialIndex);
+  await expect(headerNameField).toBeVisible();
+  await headerNameField.fill(name);
+  await headerValueField.fill(value);
+
+  return { headerNameField, headerValueField, headerIndex: initialIndex };
+};
+
+const openHeaderMenuAndSelectAction = async (page: Page, actionName: string, headerIndex = 0) => {
+  // Открываем меню действий заголовка
+  const menuButton = page.locator('[data-test-id="request-header-menu-button"]').nth(headerIndex);
+  await expect(menuButton).toBeVisible();
+  await expect(menuButton).toBeEnabled();
+  await menuButton.click();
+
+  // Выбираем опцию из меню
+  const actionOption = page.getByRole('menuitem', { name: actionName });
+  await expect(actionOption).toBeVisible();
+  await actionOption.click();
+};
+
 test.describe('Request Headers Actions', () => {
   /**
    * Тест-кейс: Удаление всех заголовков запросов
@@ -36,22 +66,8 @@ test.describe('Request Headers Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Добавляем несколько заголовков
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    const headerNameField1 = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField1 = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField1.fill('X-Header-1');
-    await headerValueField1.fill('value-1');
-
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    const headerNameField2 = page.locator('[data-test-id="header-name-input"] input').nth(1);
-    const headerValueField2 = page.locator('[data-test-id="header-value-input"] input').nth(1);
-    await headerNameField2.fill('X-Header-2');
-    await headerValueField2.fill('value-2');
+    await addRequestHeader(page, 'X-Header-1', 'value-1');
+    await addRequestHeader(page, 'X-Header-2', 'value-2');
 
     // Проверяем, что заголовки добавлены
     const headersCountBefore = await page.locator('[data-test-id="header-name-input"] input').count();
@@ -62,30 +78,33 @@ test.describe('Request Headers Actions', () => {
     // Важно: кнопка удаления становится disabled для пустых заголовков,
     // поэтому удаляем только enabled кнопки
     const removeButtons = page.locator('[data-test-id="remove-request-header-button"]');
-    const removeButtonsCount = await removeButtons.count();
+    let removeButtonsCount = await removeButtons.count();
 
     // Удаляем все заголовки (удаляем с конца, чтобы индексы не сбивались)
     // Удаляем только enabled кнопки
-    for (let i = removeButtonsCount - 1; i >= 0; i--) {
-      const removeButton = removeButtons.nth(i);
-      const isVisible = await removeButton.isVisible();
-      const isEnabled = await removeButton.isEnabled();
+    while (removeButtonsCount > 0) {
+      const removeButton = removeButtons.nth(removeButtonsCount - 1);
 
-      if (isVisible && isEnabled) {
-        await removeButton.click();
-        await page.waitForTimeout(500);
-
-        // После удаления заголовка, количество кнопок может измениться
-        // Проверяем, остались ли еще кнопки
-        const currentCount = await page.locator('[data-test-id="remove-request-header-button"]').count();
-        if (currentCount === 0) {
-          break;
-        }
+      // Пропускаем скрытые или disabled кнопки (они относятся к пустым строкам)
+      const isVisible = await removeButton.isVisible().catch(() => false);
+      const isDisabled = await removeButton.isDisabled().catch(() => true);
+      if (!isVisible || isDisabled) {
+        removeButtonsCount -= 1;
+        continue;
       }
-    }
 
-    // Ждем удаления
-    await page.waitForTimeout(1000);
+      // Ждем уменьшения количества кнопок после удаления
+      const previousCount = removeButtonsCount;
+      await removeButton.click();
+
+      // Ждем, пока количество кнопок уменьшится
+      await expect(async () => {
+        const currentCount = await removeButtons.count();
+        return currentCount < previousCount || currentCount === 0;
+      }).toPass();
+
+      removeButtonsCount = await removeButtons.count();
+    }
 
     // Проверяем, что все заголовки удалены
     // После удаления всех заголовков может остаться одно пустое поле или поля исчезнут
@@ -111,32 +130,18 @@ test.describe('Request Headers Actions', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем заголовок запроса
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    // Заполняем заголовок
-    const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField.fill('X-Clear-Test-Header');
-    await headerValueField.fill('clear-test-value');
+    // Добавляем и заполняем заголовок
+    const { headerNameField, headerValueField, headerIndex } = await addRequestHeader(
+      page,
+      'X-Clear-Test-Header',
+      'clear-test-value',
+    );
 
     // Проверяем, что значение заполнено
     await expect(headerValueField).toHaveValue('clear-test-value');
 
-    // Открываем меню действий заголовка
-    const menuButton = page.locator('[data-test-id="request-header-menu-button"]').first();
-    await menuButton.click();
-    await page.waitForTimeout(500);
-
-    // Выбираем опцию "Clear Value"
-    const clearOption = page.locator('[role="menuitem"]:has-text("Clear Value")');
-    await expect(clearOption).toBeVisible();
-    await clearOption.click();
-
-    // Ждем очистки
-    await page.waitForTimeout(1000);
+    // Выбираем "Clear Value" в меню
+    await openHeaderMenuAndSelectAction(page, 'Clear Value', headerIndex);
 
     // Проверяем, что значение очищено
     await expect(headerValueField).toHaveValue('');
@@ -161,32 +166,18 @@ test.describe('Request Headers Actions', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем заголовок запроса
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    // Заполняем заголовок
-    const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField.fill('X-Duplicate-Test-Header');
-    await headerValueField.fill('duplicate-test-value');
+    // Добавляем и заполняем заголовок запроса
+    const { headerIndex: duplicateHeaderIndex } = await addRequestHeader(
+      page,
+      'X-Duplicate-Test-Header',
+      'duplicate-test-value',
+    );
 
     // Проверяем количество заголовков до дублирования
     const headersCountBefore = await page.locator('[data-test-id="header-name-input"] input').count();
 
-    // Открываем меню действий заголовка
-    const menuButton = page.locator('[data-test-id="request-header-menu-button"]').first();
-    await menuButton.click();
-    await page.waitForTimeout(500);
-
-    // Выбираем опцию "Duplicate"
-    const duplicateOption = page.locator('[role="menuitem"]:has-text("Duplicate")');
-    await expect(duplicateOption).toBeVisible();
-    await duplicateOption.click();
-
-    // Ждем дублирования
-    await page.waitForTimeout(1000);
+    // Открываем меню и выбираем опцию "Duplicate"
+    await openHeaderMenuAndSelectAction(page, 'Duplicate', duplicateHeaderIndex);
 
     // Проверяем, что количество заголовков увеличилось
     const headersCountAfter = await page.locator('[data-test-id="header-name-input"] input').count();
@@ -218,29 +209,11 @@ test.describe('Request Headers Actions', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем заголовок запроса
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
+    // Добавляем и заполняем заголовок запроса
+    const { headerIndex: copyHeaderIndex } = await addRequestHeader(page, 'X-Copy-Test-Header', 'copy-test-value');
 
-    // Заполняем заголовок
-    const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField.fill('X-Copy-Test-Header');
-    await headerValueField.fill('copy-test-value');
-
-    // Открываем меню действий заголовка
-    const menuButton = page.locator('[data-test-id="request-header-menu-button"]').first();
-    await menuButton.click();
-    await page.waitForTimeout(500);
-
-    // Выбираем опцию "Copy"
-    const copyOption = page.locator('[role="menuitem"]:has-text("Copy")');
-    await expect(copyOption).toBeVisible();
-    await copyOption.click();
-
-    // Ждем копирования
-    await page.waitForTimeout(1000);
+    // Открываем меню и выбираем опцию "Copy"
+    await openHeaderMenuAndSelectAction(page, 'Copy', copyHeaderIndex);
 
     // Проверяем, что заголовок скопирован в буфер обмена
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
@@ -265,22 +238,8 @@ test.describe('Request Headers Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Добавляем несколько заголовков
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    const headerNameField1 = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField1 = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField1.fill('X-Copy-All-1');
-    await headerValueField1.fill('value-1');
-
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    const headerNameField2 = page.locator('[data-test-id="header-name-input"] input').nth(1);
-    const headerValueField2 = page.locator('[data-test-id="header-value-input"] input').nth(1);
-    await headerNameField2.fill('X-Copy-All-2');
-    await headerValueField2.fill('value-2');
+    await addRequestHeader(page, 'X-Copy-All-1', 'value-1');
+    await addRequestHeader(page, 'X-Copy-All-2', 'value-2');
 
     // Находим кнопку копирования всех активных заголовков (кнопка с CopySVG в header)
     // Кнопка находится в header, перед кнопкой паузы
@@ -288,9 +247,6 @@ test.describe('Request Headers Actions', () => {
     const copyAllButton = headerActions.locator('button').first();
     await expect(copyAllButton).toBeVisible();
     await copyAllButton.click();
-
-    // Ждем копирования
-    await page.waitForTimeout(1000);
 
     // Проверяем, что заголовки скопированы в буфер обмена
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());

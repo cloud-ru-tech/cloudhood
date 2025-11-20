@@ -27,31 +27,50 @@ const openThemeMenu = async (page: Page) => {
   }).toPass({ timeout: 5000, intervals: [200, 400] });
 };
 
-const selectThemeOption = async (page: Page, option: ThemeOption) => {
-  const optionLabel = THEME_LABEL_MAP[option];
-  for (let attempt = 0; attempt < 3; attempt++) {
-    await openThemeMenu(page);
-    const optionLocator = page.getByRole('menuitem', { name: optionLabel, exact: true });
-    try {
-      await expect(optionLocator).toBeVisible({ timeout: 4000 });
-      await optionLocator.click();
-      await page.waitForTimeout(300);
-      return;
-    } catch (error) {
-      if (attempt === 2) {
-        throw error;
-      }
-      await page.waitForTimeout(300);
-    }
-  }
-};
-
 const waitForBodyTheme = async (page: Page, theme: 'light' | 'dark') => {
   await page.waitForFunction(
     expectedTheme => Array.from(document.body.classList).some(cls => cls.includes(expectedTheme)),
     theme,
     { timeout: 5000 },
   );
+};
+
+const waitForThemeChange = async (page: Page, option: ThemeOption) => {
+  if (option === 'system') {
+    const prefersDarkMode = await page.evaluate(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+    await waitForBodyTheme(page, prefersDarkMode ? 'dark' : 'light');
+    return;
+  }
+
+  await waitForBodyTheme(page, option);
+};
+
+const MAX_MENU_OPEN_RETRIES = 3;
+const selectThemeOption = async (page: Page, option: ThemeOption) => {
+  const optionLabel = THEME_LABEL_MAP[option];
+  for (let attempt = 0; attempt < MAX_MENU_OPEN_RETRIES; attempt++) {
+    await openThemeMenu(page);
+    const optionLocator = page.getByRole('menuitem', { name: optionLabel, exact: true });
+    const menuContainer = page.locator('[data-floating-ui-portal] [role="menu"]');
+    try {
+      await expect(optionLocator).toBeVisible({ timeout: 4000 });
+      await optionLocator.click();
+      await waitForThemeChange(page, option);
+      // Закрываем меню после выбора, чтобы курсор вернулся на кнопку
+      await page.keyboard.press('Escape');
+      // Ждем закрытия выпадающего меню после выбора опции
+      await expect(menuContainer).toBeHidden({ timeout: 3000 });
+      return;
+    } catch (error) {
+      if (attempt === 2) {
+        throw error;
+      }
+      // Убеждаемся, что меню закрылось, прежде чем повторить попытку
+      await expect(menuContainer)
+        .toBeHidden({ timeout: 1000 })
+        .catch(() => {});
+    }
+  }
 };
 
 test.describe('General Features', () => {
@@ -83,31 +102,31 @@ test.describe('General Features', () => {
     // Добавляем заголовок запроса
     const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
     await addHeaderButton.click();
-    await page.waitForTimeout(1000);
 
     // Заполняем заголовок
     const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
     const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
+    await expect(headerNameField).toBeVisible();
     await headerNameField.fill('X-Icon-Test-Header');
     await headerValueField.fill('icon-test-value');
 
-    // Ждем обновления badge
-    await page.waitForTimeout(2000);
-
-    // Проверяем badge через service worker
+    // Проверяем badge через service worker, дожидаясь обновления значения
     try {
-      const badgeText = await background.evaluate(
-        () =>
-          new Promise<string>(resolve => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (chrome as any).action.getBadgeText({}, (text: string) => {
-              resolve(text || '');
-            });
-          }),
-      );
-
-      // Badge должен показывать количество активных заголовков (минимум 1)
-      expect(badgeText).toBeTruthy();
+      await expect
+        .poll(
+          async () =>
+            await background.evaluate(
+              () =>
+                new Promise<string>(resolve => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (chrome as any).action.getBadgeText({}, (text: string) => {
+                    resolve(text || '');
+                  });
+                }),
+            ),
+          { timeout: 4000 },
+        )
+        .toBeTruthy();
     } catch {
       // Если не удалось проверить badge, это не критично для теста
       // В headless режиме badge может быть недоступен
@@ -116,22 +135,23 @@ test.describe('General Features', () => {
     // Включаем режим паузы
     const pauseButton = page.locator('[data-test-id="pause-button"]');
     await pauseButton.click();
-    await page.waitForTimeout(2000);
-
     // Проверяем, что иконка изменилась на paused (через проверку badge, который должен быть пустым)
     try {
-      const badgeTextAfterPause = await background.evaluate(
-        () =>
-          new Promise<string>(resolve => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (chrome as any).action.getBadgeText({}, (text: string) => {
-              resolve(text || '');
-            });
-          }),
-      );
-
-      // При паузе badge должен быть пустым
-      expect(badgeTextAfterPause).toBe('');
+      await expect
+        .poll(
+          async () =>
+            await background.evaluate(
+              () =>
+                new Promise<string>(resolve => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (chrome as any).action.getBadgeText({}, (text: string) => {
+                    resolve(text || '');
+                  });
+                }),
+            ),
+          { timeout: 4000 },
+        )
+        .toBe('');
     } catch {
       // Если не удалось проверить badge, это не критично для теста
       // В headless режиме badge может быть недоступен
@@ -191,14 +211,9 @@ test.describe('General Features', () => {
     await expect(githubButton).toBeVisible({ timeout: 10000 });
     await expect(githubButton).toBeEnabled();
 
-    // В headless режиме window.open может работать по-другому
-    // Проверяем, что кнопка имеет правильный обработчик клика
-    // и что URL корректный через проверку атрибутов или через перехват навигации
+    // В headless режиме window.open может работать по-другому, поэтому отслеживаем появление новой вкладки
     const pagePromise = context.waitForEvent('page', { timeout: 10000 }).catch(() => null);
     await githubButton.click();
-
-    // Ждем немного для открытия страницы
-    await page.waitForTimeout(2000);
 
     // Проверяем, открылась ли новая страница
     const newPage = await pagePromise;
