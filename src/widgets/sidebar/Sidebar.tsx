@@ -57,10 +57,15 @@ export function Sidebar() {
               { id: ThemeMode.System, content: { option: 'System' }, beforeContent: <LaptopPhoneSVG /> },
             ]}
           >
-            <ButtonFunction size='m' icon={<ThemeContrastSVG />} />
+            <ButtonFunction size='m' icon={<ThemeContrastSVG />} data-test-id='theme-toggle-button' />
           </Droplist>
 
-          <ButtonFunction onClick={handleGithubIconClick} size='m' icon={<GithubIcon />} />
+          <ButtonFunction
+            onClick={handleGithubIconClick}
+            size='m'
+            icon={<GithubIcon />}
+            data-test-id='github-link-button'
+          />
         </S.IconButtonBottomWrapper>
       </S.IconButtonWrapper>
     </S.Wrapper>

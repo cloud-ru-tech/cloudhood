@@ -57,6 +57,7 @@ export function ImportModal() {
     <ModalCustom open onClose={handleImportModalClosed}>
       <ModalCustom.Header
         title={'Import profile'}
+        data-test-id='import-profile-modal-title'
         titleTooltip={
           <>
             {TOOLTIP_TITLE}
@@ -77,6 +78,7 @@ export function ImportModal() {
               minRows={4}
               maxRows={4}
               error={errorMessage ?? undefined}
+              data-test-id='import-profile-json-textarea'
             />
           }
         />
