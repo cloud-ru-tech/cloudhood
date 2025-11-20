@@ -74,6 +74,7 @@ export function ExportModal() {
             minRows={4}
             maxRows={4}
             size='m'
+            data-test-id='export-profile-json-textarea'
           />
         </S.Wrapper>
       }
