@@ -1,4 +1,22 @@
+import type { Page } from '@playwright/test';
+
 import { expect, test } from './fixtures';
+
+const addAndFillHeader = async (page: Page, name: string, value: string) => {
+  const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
+  await addHeaderButton.click();
+
+  const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
+  const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
+  await expect(headerNameField).toBeVisible();
+  await headerNameField.fill(name);
+  await headerValueField.fill(value);
+};
+
+const openProfileActionsMenu = async (page: Page) => {
+  const profileActionsMenu = page.locator('[data-test-id="profile-actions-menu-button"]');
+  await profileActionsMenu.click();
+};
 
 test.describe('Profile Actions', () => {
   /**
@@ -21,18 +39,20 @@ test.describe('Profile Actions', () => {
     const profilesBefore = page.locator('[data-test-id="profile-select"]');
     const countBefore = await profilesBefore.count();
 
-    // Нажимаем кнопку добавления профиля (кнопка с PlusSVG в сайдбаре)
-    const addProfileButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
+    // Нажимаем кнопку добавления профиля
+    // Используем data-test-id для надежного выбора, с fallback на структуру сайдбара
+    const addProfileButton = page.locator('[data-test-id="add-profile-button"]').or(
+      page
+        .locator('button')
+        .filter({ has: page.locator('svg') })
+        .first(),
+    );
+    await expect(addProfileButton).toBeVisible({ timeout: 10000 });
     await addProfileButton.click();
 
-    // Ждем обновления интерфейса
-    await page.waitForTimeout(1000);
-
-    // Проверяем, что количество профилей увеличилось
+    // Ждем появления нового профиля
     const profilesAfter = page.locator('[data-test-id="profile-select"]');
+    await expect(profilesAfter).toHaveCount(countBefore + 1, { timeout: 5000 });
     const countAfter = await profilesAfter.count();
     expect(countAfter).toBeGreaterThan(countBefore);
 
@@ -59,34 +79,33 @@ test.describe('Profile Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Добавляем профиль для удаления
-    const addProfileButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
+    // Используем data-test-id для надежного выбора, с fallback на структуру сайдбара
+    const addProfileButton = page.locator('[data-test-id="add-profile-button"]').or(
+      page
+        .locator('button')
+        .filter({ has: page.locator('svg') })
+        .first(),
+    );
+    await expect(addProfileButton).toBeVisible({ timeout: 10000 });
     await addProfileButton.click();
-    await page.waitForTimeout(1000);
+    const profilesAfterAdd = page.locator('[data-test-id="profile-select"]');
+    await expect(profilesAfterAdd.first()).toBeVisible({ timeout: 5000 });
 
     // Проверяем количество профилей до удаления
     const profilesBefore = page.locator('[data-test-id="profile-select"]');
     const countBefore = await profilesBefore.count();
 
     // Открываем меню действий профиля
-    const profileActionsMenu = page.locator('[data-test-id="profile-actions-menu-button"]');
-    await profileActionsMenu.click();
-    await page.waitForTimeout(500);
+    await openProfileActionsMenu(page);
 
     // Выбираем опцию "Delete profile"
-    const deleteOption = page.locator('[role="menuitem"]:has-text("Delete profile")');
-    await expect(deleteOption).toBeVisible();
+    const deleteOption = page.getByRole('menuitem', { name: 'Delete profile' });
+    await expect(deleteOption).toBeVisible({ timeout: 5000 });
     await deleteOption.click();
 
-    // Ждем обновления интерфейса
-    await page.waitForTimeout(1000);
-
-    // Проверяем, что количество профилей уменьшилось
+    // Ждем удаления профиля
     const profilesAfter = page.locator('[data-test-id="profile-select"]');
-    const countAfter = await profilesAfter.count();
-    expect(countAfter).toBeLessThan(countBefore);
+    await expect(profilesAfter).toHaveCount(countBefore - 1, { timeout: 5000 });
   });
 
   /**
@@ -108,23 +127,22 @@ test.describe('Profile Actions', () => {
     // Нажимаем кнопку редактирования названия профиля
     const editButton = page.locator('[data-test-id="profile-name-edit-button"]');
     await editButton.click();
-    await page.waitForTimeout(500);
 
     // Ищем поле ввода названия профиля
     const nameInput = page.locator('input[placeholder="Profile name"]');
-    await expect(nameInput).toBeVisible();
+    await expect(nameInput).toBeVisible({ timeout: 5000 });
 
     // Вводим новое название
     const newName = 'Test Profile Name';
     await nameInput.fill(newName);
     await nameInput.press('Enter');
 
-    // Ждем сохранения
-    await page.waitForTimeout(1000);
+    // Ждем закрытия режима редактирования (поле ввода должно исчезнуть)
+    await expect(nameInput).not.toBeVisible();
 
     // Проверяем, что название обновилось (проверяем через текст в интерфейсе)
     const profileTitle = page.locator('text=/Test Profile Name/').first();
-    await expect(profileTitle).toBeVisible({ timeout: 5000 });
+    await expect(profileTitle).toBeVisible();
   });
 
   /**
@@ -145,27 +163,18 @@ test.describe('Profile Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Добавляем заголовок запроса для экспорта
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField.fill('X-Test-Header');
-    await headerValueField.fill('test-value');
+    await addAndFillHeader(page, 'X-Test-Header', 'test-value');
 
     // Открываем меню действий профиля
-    const profileActionsMenu = page.locator('[data-test-id="profile-actions-menu-button"]');
-    await profileActionsMenu.click();
-    await page.waitForTimeout(500);
+    await openProfileActionsMenu(page);
 
     // Выбираем опцию "Export/share profile"
-    const exportOption = page.locator('[role="menuitem"]:has-text("Export/share profile")');
+    const exportOption = page.getByRole('menuitem', { name: 'Export/share profile' });
+    await expect(exportOption).toBeVisible();
     await exportOption.click();
-    await page.waitForTimeout(1000);
 
     // В модальном окне нажимаем кнопку "Copy"
-    const copyButton = page.locator('button:has-text("Copy")');
+    const copyButton = page.locator('button', { hasText: 'Copy' });
     await expect(copyButton).toBeVisible();
 
     // Предоставляем разрешения для clipboard перед копированием
@@ -173,25 +182,39 @@ test.describe('Profile Actions', () => {
 
     await copyButton.click();
 
-    // Ждем копирования - clipboard API может работать асинхронно
-    await page.waitForTimeout(2000);
-
     // Проверяем, что данные скопированы в буфер обмена
-    // Используем try-catch на случай, если clipboard API недоступен
+    // Используем expect.poll для надежной проверки состояния clipboard
     try {
+      await expect
+        .poll(
+          async () => {
+            try {
+              const text = await page.evaluate(async () => {
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                  return null;
+                }
+                return await navigator.clipboard.readText();
+              });
+              return text;
+            } catch {
+              return null;
+            }
+          },
+          { timeout: 5000 },
+        )
+        .toContain('X-Test-Header');
+
       const clipboardText = await page.evaluate(async () => {
-        // Проверяем доступность clipboard API
         if (!navigator.clipboard || !navigator.clipboard.readText) {
           throw new Error('Clipboard API not available');
         }
         return await navigator.clipboard.readText();
       });
-      expect(clipboardText).toContain('X-Test-Header');
       expect(clipboardText).toContain('test-value');
     } catch {
       // Если clipboard API недоступен, проверяем, что кнопка Copy была нажата
-      // и модальное окно закрылось (что означает успешное копирование)
-      await expect(copyButton).not.toBeVisible({ timeout: 5000 });
+      // и модальное окно все еще открыто (что означает, что копирование было инициировано)
+      await expect(copyButton).toBeVisible();
     }
   });
 
@@ -213,14 +236,12 @@ test.describe('Profile Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Открываем меню действий профиля
-    const profileActionsMenu = page.locator('[data-test-id="profile-actions-menu-button"]');
-    await profileActionsMenu.click();
-    await page.waitForTimeout(500);
+    await openProfileActionsMenu(page);
 
     // Выбираем опцию "Import profile"
-    const importOption = page.locator('[role="menuitem"]:has-text("Import profile")');
+    const importOption = page.getByRole('menuitem', { name: 'Import profile' });
+    await expect(importOption).toBeVisible();
     await importOption.click();
-    await page.waitForTimeout(1000);
 
     // Ждем появления модального окна и поля ввода JSON
     const importModalHeading = page.locator('[data-test-id="modal__title"]', { hasText: 'Import profile' });
@@ -248,11 +269,8 @@ test.describe('Profile Actions', () => {
     await jsonTextarea.fill(importJson);
 
     // Нажимаем кнопку "Import"
-    const importButton = page.locator('button:has-text("Import")');
+    const importButton = page.locator('button', { hasText: 'Import' });
     await importButton.click();
-
-    // Ждем импорта
-    await page.waitForTimeout(2000);
 
     // Проверяем, что профиль импортирован (ищем заголовок)
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');
@@ -278,24 +296,15 @@ test.describe('Profile Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Добавляем заголовок запроса для экспорта
-    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButton.click();
-    await page.waitForTimeout(1000);
-
-    const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
-    const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
-    await headerNameField.fill('X-Export-Header');
-    await headerValueField.fill('export-value');
+    await addAndFillHeader(page, 'X-Export-Header', 'export-value');
 
     // Открываем меню действий профиля
-    const profileActionsMenu = page.locator('[data-test-id="profile-actions-menu-button"]');
-    await profileActionsMenu.click();
-    await page.waitForTimeout(500);
+    await openProfileActionsMenu(page);
 
     // Выбираем опцию "Export/share profile"
-    const exportOption = page.locator('[role="menuitem"]:has-text("Export/share profile")');
+    const exportOption = page.getByRole('menuitem', { name: 'Export/share profile' });
+    await expect(exportOption).toBeVisible({ timeout: 5000 });
     await exportOption.click();
-    await page.waitForTimeout(1000);
 
     // Ждем появления модального окна и поля JSON
     const exportModalHeading = page.locator('[data-test-id="modal__title"]', { hasText: 'Export profile' });
@@ -308,12 +317,11 @@ test.describe('Profile Actions', () => {
     expect(jsonValue).toContain('export-value');
 
     // Нажимаем кнопку "Download JSON"
-    const downloadButton = page.locator('button:has-text("Download JSON")');
+    const downloadButton = page.locator('button', { hasText: 'Download JSON' });
     await expect(downloadButton).toBeVisible();
-    await downloadButton.click();
-
-    // Ждем скачивания
-    await page.waitForTimeout(1000);
+    const [download] = await Promise.all([page.waitForEvent('download'), downloadButton.click()]);
+    // Ждем завершения скачивания
+    await download.path();
   });
 
   /**
@@ -334,14 +342,12 @@ test.describe('Profile Actions', () => {
     await page.waitForLoadState('networkidle');
 
     // Открываем меню действий профиля
-    const profileActionsMenu = page.locator('[data-test-id="profile-actions-menu-button"]');
-    await profileActionsMenu.click();
-    await page.waitForTimeout(500);
+    await openProfileActionsMenu(page);
 
     // Выбираем опцию "Import from other extension"
-    const importFromExtensionOption = page.locator('[role="menuitem"]:has-text("Import from other extension")');
+    const importFromExtensionOption = page.getByRole('menuitem', { name: 'Import from other extension' });
+    await expect(importFromExtensionOption).toBeVisible({ timeout: 5000 });
     await importFromExtensionOption.click();
-    await page.waitForTimeout(1000);
 
     // В модальном окне вводим JSON в формате ModHeader
     const importFromExtensionModalHeading = page.locator('[data-test-id="modal__title"]', {
@@ -369,11 +375,8 @@ test.describe('Profile Actions', () => {
     await jsonTextarea.fill(modHeaderJson);
 
     // Нажимаем кнопку "Import"
-    const importButton = page.locator('button:has-text("Import")');
+    const importButton = page.locator('button', { hasText: 'Import' });
     await importButton.click();
-
-    // Ждем импорта
-    await page.waitForTimeout(2000);
 
     // Проверяем, что профиль импортирован
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');

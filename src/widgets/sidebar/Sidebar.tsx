@@ -41,7 +41,7 @@ export function Sidebar() {
       </S.ProfilesWrapper>
 
       <S.IconButtonWrapper>
-        <ButtonFunction onClick={handleAddProfile} size='m' icon={<PlusSVG />} />
+        <ButtonFunction onClick={handleAddProfile} size='m' icon={<PlusSVG />} data-test-id='add-profile-button' />
 
         <S.IconButtonBottomWrapper>
           <Droplist
