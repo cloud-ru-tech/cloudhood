@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
-import { getOverrideRules } from './createOverrideRules';
+import { getCspRules } from './createCspRules';
 import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
@@ -137,11 +137,16 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     ? activeHeaders.flatMap(header => getRulesForHeader(header, activeUrlFilters))
     : [];
 
-  const overrideRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
-    ? getOverrideRules(activeResponseOverrides)
-    : [];
+  const overrideRules: browser.DeclarativeNetRequest.Rule[] = [];
 
-  const addRules = [...headerRules, ...overrideRules];
+  // We apply CSP rules globally because we need to strip CSP from the initiator page,
+  // which might be different from the request target (matched by urlFilters).
+  // For now, we only need CSP rules if we were using data URI redirects, but we are moving to injection.
+  // However, keeping them doesn't hurt and might help with other restrictions.
+  const cspRules: browser.DeclarativeNetRequest.Rule[] =
+    !isPaused && activeResponseOverrides.length > 0 ? getCspRules([]) : [];
+
+  const addRules = [...headerRules, ...overrideRules, ...cspRules];
 
   const removeRuleIds = currentRules.map(item => item.id);
 

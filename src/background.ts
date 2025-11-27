@@ -7,7 +7,6 @@ import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { setIconBadge } from './shared/utils/setIconBadge';
-import { getOverrideRules } from './shared/utils/createOverrideRules';
 import { enableExtensionReload } from './utils/extension-reload';
 
 logger.configure({
@@ -48,8 +47,10 @@ logger.info('🔍 About to check storage contents...');
           // Подсчитываем активные правила для badge
           const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
           if (selectedProfile) {
-            const activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
-            const activeOverridesCount = selectedProfile.responseOverrides?.filter((o: ResponseOverride) => !o.disabled).length || 0;
+            const activeHeadersCount =
+              selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
+            const activeOverridesCount =
+              selectedProfile.responseOverrides?.filter((o: ResponseOverride) => !o.disabled).length || 0;
             activeRulesCount = activeHeadersCount + activeOverridesCount;
             logger.info(`  - Active headers count: ${activeHeadersCount}`);
             logger.info(`  - Active overrides count: ${activeOverridesCount}`);
