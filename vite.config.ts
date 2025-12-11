@@ -145,6 +145,14 @@ export default defineConfig(({ mode }) => {
         {
           src: 'node_modules/@snack-uikit/icons/dist/esm/sprite/svg/sprite.symbol.svg',
           dest: ''
+        },
+        {
+          src: 'src/assets/mock-requests.js',
+          dest: ''
+        },
+        {
+          src: 'src/assets/content-script.js',
+          dest: ''
         }
       ]
     }),

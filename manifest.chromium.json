@@ -31,10 +31,24 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob:; style-src 'self' 'nonce-cloudhood-extension-style-nonce';"
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["mock-requests.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
   "web_accessible_resources": [
     {
       "resources": [
-        "img/*"
+        "img/*",
+        "mock-requests.js"
       ],
       "matches": [
         "<all_urls>"
