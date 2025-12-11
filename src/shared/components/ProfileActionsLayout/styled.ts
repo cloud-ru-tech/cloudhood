@@ -31,7 +31,8 @@ export const Header = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 7px 0;
+  margin: 3px 0;
   position: sticky;
   top: 0;
   background-color: ${themeVars.sys.neutral.background1Level};
@@ -42,5 +43,4 @@ export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow-y: auto;
 `;
