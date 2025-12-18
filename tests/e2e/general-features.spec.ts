@@ -220,7 +220,9 @@ test.describe('General Features', () => {
 
     if (newPage) {
       // Если новая страница открылась, проверяем URL
-      await newPage.waitForLoadState('networkidle');
+      // Ждём, пока URL будет содержать github.com (не ждём полной загрузки страницы,
+      // так как GitHub может долго загружаться и иметь постоянные сетевые запросы)
+      await newPage.waitForURL(/github\.com.*cloud-ru-tech.*cloudhood/, { timeout: 15000 });
       const url = newPage.url();
       expect(url).toContain('github.com');
       expect(url).toContain('cloud-ru-tech');
