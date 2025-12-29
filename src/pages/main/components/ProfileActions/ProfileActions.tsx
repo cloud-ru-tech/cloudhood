@@ -6,9 +6,8 @@ import { $isPaused } from '#entities/is-paused/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
 import { 
   $selectedProfileActiveRequestHeadersCount, 
-  $selectedProfileActiveUrlFiltersCount,
-  $selectedProfileActiveResponseOverridesCount
-} from '#entities/request-profile/model';
+  $selectedProfileActiveResponseOverridesCount,
+  $selectedProfileActiveUrlFiltersCount} from '#entities/request-profile/model';
 import { getCounterProps } from '#shared/utils/getCounterProps';
 
 import { OverridesActions } from './OverridesActions';

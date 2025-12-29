@@ -1,10 +1,16 @@
 import browser from 'webextension-polyfill';
 
+import type { ResponseOverride } from '#entities/request-profile/types';
+
 import { createUrlCondition } from './createUrlCondition';
 
 const CSP_RULE_ID_OFFSET = 200000;
 
-export function getCspRules(urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
+export function getOverrideRules(responseOverrides: ResponseOverride[]): browser.DeclarativeNetRequest.Rule[] {
+  if (responseOverrides.length === 0) {
+    return [];
+  }
+
   const action = {
     type: 'modifyHeaders' as const,
     responseHeaders: [
@@ -15,7 +21,9 @@ export function getCspRules(urlFilters: string[]): browser.DeclarativeNetRequest
 
   const resourceTypes = ['main_frame', 'sub_frame'] as browser.DeclarativeNetRequest.ResourceType[];
 
-  if (urlFilters.length === 0) {
+  const uniqueUrlPatterns = [...new Set(responseOverrides.map(o => o.urlPattern).filter(Boolean))];
+
+  if (uniqueUrlPatterns.length === 0) {
     return [
       {
         id: CSP_RULE_ID_OFFSET,
@@ -28,8 +36,8 @@ export function getCspRules(urlFilters: string[]): browser.DeclarativeNetRequest
     ];
   }
 
-  return urlFilters.map((urlFilter, index) => {
-    const urlCondition = createUrlCondition(urlFilter);
+  return uniqueUrlPatterns.map((urlPattern, index) => {
+    const urlCondition = createUrlCondition(urlPattern);
     return {
       id: CSP_RULE_ID_OFFSET + index,
       priority: 1,

@@ -9,7 +9,7 @@
         type: 'CLOUDHOOD_UPDATE_OVERRIDES',
         overrides,
       },
-      '*',
+      window.location.origin,
     );
   }
 
@@ -33,7 +33,7 @@
           } else if (Array.isArray(profilesData)) {
             profiles = profilesData;
           }
-        } catch (e) {
+        } catch {
           // ignore
         }
 

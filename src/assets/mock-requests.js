@@ -20,15 +20,10 @@
     if (event.source !== window) return;
 
     if (event.data?.type === 'CLOUDHOOD_UPDATE_OVERRIDES') {
-      try {
-        activeOverrides = event.data.overrides.map((o) => ({
-          urlPattern: new RegExp(o.urlPattern),
-          responseContent: o.responseContent,
-        }));
-        // console.debug('[Cloudhood] Overrides updated:', activeOverrides.length);
-      } catch (e) {
-        console.error('[Cloudhood] Failed to parse overrides:', e);
-      }
+      activeOverrides = event.data.overrides.map((o) => ({
+        urlPattern: o.urlPattern,
+        responseContent: o.responseContent,
+      }));
     }
   });
 
@@ -46,23 +41,30 @@
       url = String(input);
     }
 
-    const override = activeOverrides.find(o => o.urlPattern.test(url));
+    const override = activeOverrides.find(o => url.includes(o.urlPattern));
 
     if (override) {
-      log(`Mocked Fetch: ${url}`, {
-        url,
-        response: JSON.parse(override.responseContent),
-        originalInput: input,
-        originalInit: init
-      });
+      try {
+        const parsedResponse = JSON.parse(override.responseContent);
+        
+        log(`Mocked Fetch: ${url}`, {
+          url,
+          response: parsedResponse,
+          originalInput: input,
+          originalInit: init
+        });
 
-      return new Response(override.responseContent, {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'content-type': 'application/json',
-        }
-      });
+        return new Response(override.responseContent, {
+          status: 200,
+          statusText: 'OK',
+          headers: {
+            'content-type': 'application/json',
+          }
+        });
+      } catch (error) {
+        console.warn('[Cloudhood] Invalid JSON in override for URL:', url, error);
+        return originalFetch(input, init);
+      }
     }
 
     return originalFetch(input, init);
@@ -74,53 +76,59 @@
       this._method = method;
       this._url = url.toString();
 
-      this._override = activeOverrides.find(o => o.urlPattern.test(this._url));
+      this._override = activeOverrides.find(o => this._url.includes(o.urlPattern));
 
       super.open(method, url, async, username, password);
     }
 
     send(body) {
       if (this._override) {
-        log(`Mocked XHR: ${this._url}`, {
-          url: this._url,
-          method: this._method,
-          response: JSON.parse(this._override.responseContent),
-          body
-        });
-
-        setTimeout(() => {
-          const responseData = this._override.responseContent;
-
-          Object.defineProperty(this, 'readyState', { value: 4, writable: false });
-          Object.defineProperty(this, 'status', { value: 200, writable: false });
-          Object.defineProperty(this, 'statusText', { value: 'OK', writable: false });
-          Object.defineProperty(this, 'responseText', { value: responseData, writable: false });
-          Object.defineProperty(this, 'response', { value: responseData, writable: false });
-          Object.defineProperty(this, 'responseURL', { value: this._url, writable: false });
-
-          this.dispatchEvent(new Event('readystatechange'));
-
-          const progressEvent = new ProgressEvent('load', {
-            loaded: responseData.length,
-            total: responseData.length,
-            lengthComputable: true
+        try {
+          const parsedResponse = JSON.parse(this._override.responseContent);
+          
+          log(`Mocked XHR: ${this._url}`, {
+            url: this._url,
+            method: this._method,
+            response: parsedResponse,
+            body
           });
 
-          this.dispatchEvent(progressEvent);
-          this.dispatchEvent(new ProgressEvent('loadend'));
+          setTimeout(() => {
+            const responseData = this._override.responseContent;
 
-          if (this.onreadystatechange) {
-            this.onreadystatechange(new Event('readystatechange'));
-          }
-          if (this.onload) {
-            this.onload(progressEvent);
-          }
-          if (this.onloadend) {
-            this.onloadend(new ProgressEvent('loadend'));
-          }
-        }, 10);
+            Object.defineProperty(this, 'readyState', { value: 4, writable: false });
+            Object.defineProperty(this, 'status', { value: 200, writable: false });
+            Object.defineProperty(this, 'statusText', { value: 'OK', writable: false });
+            Object.defineProperty(this, 'responseText', { value: responseData, writable: false });
+            Object.defineProperty(this, 'response', { value: responseData, writable: false });
+            Object.defineProperty(this, 'responseURL', { value: this._url, writable: false });
 
-        return;
+            this.dispatchEvent(new Event('readystatechange'));
+
+            const progressEvent = new ProgressEvent('load', {
+              loaded: responseData.length,
+              total: responseData.length,
+              lengthComputable: true
+            });
+
+            this.dispatchEvent(progressEvent);
+            this.dispatchEvent(new ProgressEvent('loadend'));
+
+            if (this.onreadystatechange) {
+              this.onreadystatechange(new Event('readystatechange'));
+            }
+            if (this.onload) {
+              this.onload(progressEvent);
+            }
+            if (this.onloadend) {
+              this.onloadend(new ProgressEvent('loadend'));
+            }
+          }, 10);
+
+          return;
+        } catch (error) {
+          console.warn('[Cloudhood] Invalid JSON in override for XHR URL:', this._url, error);
+        }
       }
 
       super.send(body);

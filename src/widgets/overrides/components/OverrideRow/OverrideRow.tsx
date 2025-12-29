@@ -54,7 +54,7 @@ export function OverrideRow(props: ResponseOverride) {
           data-test-id='url-pattern-input'
           size='m'
           value={urlPattern}
-          placeholder='URL Regex'
+          placeholder='URL Pattern'
           onChange={handleChange('urlPattern')}
           onKeyDown={handleKeyPress}
           showClearButton={false}
