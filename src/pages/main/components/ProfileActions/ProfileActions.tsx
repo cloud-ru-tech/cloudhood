@@ -4,19 +4,24 @@ import { Tabs } from '@snack-uikit/tabs';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
-import { $selectedProfileActiveRequestHeadersCount, $selectedProfileActiveUrlFiltersCount } from '#entities/request-profile/model';
+import { 
+  $selectedProfileActiveRequestHeadersCount, 
+  $selectedProfileActiveResponseOverridesCount,
+  $selectedProfileActiveUrlFiltersCount} from '#entities/request-profile/model';
 import { getCounterProps } from '#shared/utils/getCounterProps';
 
+import { OverridesActions } from './OverridesActions';
 import { RequestHeadersActions } from './RequestHeadersActions';
 import * as S from './styled';
 import { UrlFiltersActions } from './UrlFiltersActions';
 
 export function ProfileActions() {
-  const [isPaused, activeTab, activeRequestHeadersCount, activeUrlFiltersCount] = useUnit([
+  const [isPaused, activeTab, activeRequestHeadersCount, activeUrlFiltersCount, activeResponseOverridesCount] = useUnit([
     $isPaused,
     $activeProfileActionsTab,
     $selectedProfileActiveRequestHeadersCount,
-    $selectedProfileActiveUrlFiltersCount
+    $selectedProfileActiveUrlFiltersCount,
+    $selectedProfileActiveResponseOverridesCount
   ]);
 
   return (
@@ -33,12 +38,20 @@ export function ProfileActions() {
             counter={getCounterProps(activeUrlFiltersCount)}
             value='url-filters'
           />
+          <Tabs.Tab
+            label='Overrides'
+            counter={getCounterProps(activeResponseOverridesCount)}
+            value='overrides'
+          />
         </Tabs.TabBar>
         <Tabs.TabContent value='headers'>
           <RequestHeadersActions />
         </Tabs.TabContent>
         <Tabs.TabContent value='url-filters'>
           <UrlFiltersActions />
+        </Tabs.TabContent>
+        <Tabs.TabContent value='overrides'>
+          <OverridesActions />
         </Tabs.TabContent>
       </Tabs>
 
