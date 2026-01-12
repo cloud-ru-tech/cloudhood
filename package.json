@@ -18,6 +18,7 @@
     "lint": "npx eslint ./src",
     "lint:css": "npx stylelint \"./src/**/*.{css,styled.ts}\" --config stylelint.config.cjs",
     "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
+    "prepare": "husky",
     "reinstall": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "test:e2e": "HEADLESS=false playwright test",
     "test:e2e:ci": "HEADLESS=true playwright test --reporter=line --max-failures=2"
@@ -50,13 +51,13 @@
     "vite-plugin-static-copy": "3.1.4"
   },
   "devDependencies": {
-    "@cloud-ru/eslint-config": "2.1.1",
-    "@cloud-ru/ft-config-husky": "1.2.0",
-    "@cloud-ru/ft-config-stylelint": "2.0.0",
+    "@cloud-ru/eslint-config": "3.0.0",
+    "@cloud-ru/ft-config-commit-message": "1.1.2",
+    "@cloud-ru/ft-config-stylelint": "3.0.0",
     "@cloud-ru/ft-config-vitest": "1.2.2",
     "@crxjs/vite-plugin": "^2.0.2",
     "@eslint/compat": "1.2.9",
-    "@playwright/test": "1.53.1",
+    "@playwright/test": "1.57.0",
     "@svgr/webpack": "8.1.0",
     "@types/node": "24.0.10",
     "@types/react": "18.3.1",
@@ -66,8 +67,9 @@
     "@vitejs/plugin-react": "^4.5.2",
     "chokidar": "4.0.3",
     "concurrently": "9.2.0",
-    "eslint-plugin-effector": "0.15.0",
+    "eslint-plugin-effector": "0.16.0",
     "fs-extra": "11.3.0",
+    "husky": "^9.1.6",
     "jsdom": "26.1.0",
     "postcss-styled-syntax": "0.7.1",
     "prettier": "3.5.3",
@@ -78,6 +80,12 @@
     "vite-tsconfig-paths": "5.1.4",
     "webextension-polyfill": "0.12.0",
     "ws": "8.18.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.27.2",
+      "glob": "10.5.0"
+    }
   },
   "packageManager": "pnpm@10.10.0",
   "engines": {
