@@ -139,20 +139,14 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     logger.info('Remove rule IDs:', removeRuleIds);
     logger.info('Add rules:', addRules);
 
-    if (removeRuleIds.length > 0) {
+    // Атомарное обновление правил: удаляем старые и добавляем новые в одной операции
+    // Это предотвращает ситуацию, когда старые правила удалены, а новые еще не добавлены
+    if (removeRuleIds.length > 0 || addRules.length > 0) {
       await browser.declarativeNetRequest.updateDynamicRules({
         removeRuleIds,
-        addRules: [],
-      });
-      logger.debug('Old rules removed');
-    }
-
-    if (addRules.length > 0) {
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [],
         addRules,
       });
-      logger.debug('New rules added');
+      logger.debug('Rules updated atomically');
     }
 
     const updatedRules = await browser.declarativeNetRequest.getDynamicRules();

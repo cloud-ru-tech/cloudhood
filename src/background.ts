@@ -76,6 +76,10 @@ if (process.env.NODE_ENV === 'development') {
 
 const BADGE_COLOR = '#ffffff';
 
+// Дебаунс для обновления заголовков при частых переключениях вкладок
+let tabUpdateTimeout: ReturnType<typeof setTimeout> | null = null;
+const TAB_UPDATE_DEBOUNCE_MS = 100;
+
 async function notify(message: ServiceWorkerEvent) {
   logger.debug('Received message:', message);
 
@@ -208,26 +212,89 @@ browser.runtime.onInstalled.addListener(async details => {
   }
 });
 
+// Дебаунс для обновления заголовков при активации вкладки
+let tabActivationTimeout: ReturnType<typeof setTimeout> | null = null;
+const TAB_ACTIVATION_DEBOUNCE_MS = 50;
+
 browser.tabs.onActivated.addListener(async activeInfo => {
   logger.debug('Tab activated:', activeInfo);
 
-  const result = await browser.storage.local.get([
-    BrowserStorageKey.Profiles,
-    BrowserStorageKey.SelectedProfile,
-    BrowserStorageKey.IsPaused,
-  ]);
+  // Очищаем предыдущий таймаут для дебаунса
+  if (tabActivationTimeout) {
+    clearTimeout(tabActivationTimeout);
+  }
 
-  logger.debug('Tab activation storage data:', result);
+  // Дебаунс для избежания множественных вызовов при быстрых переключениях вкладок
+  tabActivationTimeout = setTimeout(async () => {
+    const result = await browser.storage.local.get([
+      BrowserStorageKey.Profiles,
+      BrowserStorageKey.SelectedProfile,
+      BrowserStorageKey.IsPaused,
+    ]);
 
-  if (Object.keys(result).length) {
-    logger.info('📱 Tab activated, updating headers');
-    try {
-      await setBrowserHeaders(result);
-    } catch (error) {
-      logger.error('Failed to set browser headers on tab activation:', error);
+    logger.debug('Tab activation storage data:', result);
+
+    if (Object.keys(result).length) {
+      logger.info('📱 Tab activated, updating headers');
+      try {
+        await setBrowserHeaders(result);
+      } catch (error) {
+        logger.error('Failed to set browser headers on tab activation:', error);
+      }
+    } else {
+      logger.debug('No storage data found on tab activation');
     }
-  } else {
-    logger.debug('No storage data found on tab activation');
+    tabActivationTimeout = null;
+  }, TAB_ACTIVATION_DEBOUNCE_MS);
+});
+
+// Обработчик обновления вкладок для гарантированного обновления заголовков
+// Особенно важно для Firefox, где background script может перезагружаться
+// Также важно при частых переключениях вкладок и перезагрузках страниц (CTRL + R)
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  // Обновляем заголовки при завершении загрузки страницы или при изменении URL
+  // Это гарантирует, что правила применятся даже если background script был неактивен
+  const isPageLoaded = changeInfo.status === 'complete';
+  const isUrlChanged = changeInfo.url !== undefined && changeInfo.url !== null;
+  const isValidUrl =
+    tab.url &&
+    !tab.url.startsWith('chrome-extension://') &&
+    !tab.url.startsWith('moz-extension://') &&
+    !tab.url.startsWith('about:') &&
+    !tab.url.startsWith('chrome://') &&
+    !tab.url.startsWith('moz-extension://');
+
+  if ((isPageLoaded || isUrlChanged) && isValidUrl) {
+    // Очищаем предыдущий таймаут для дебаунса
+    if (tabUpdateTimeout) {
+      clearTimeout(tabUpdateTimeout);
+    }
+
+    // Дебаунс для избежания множественных вызовов при быстрых переключениях вкладок
+    tabUpdateTimeout = setTimeout(async () => {
+      logger.debug('Tab updated (page loaded/URL changed):', {
+        tabId,
+        url: tab.url,
+        status: changeInfo.status,
+        urlChanged: isUrlChanged,
+      });
+
+      const result = await browser.storage.local.get([
+        BrowserStorageKey.Profiles,
+        BrowserStorageKey.SelectedProfile,
+        BrowserStorageKey.IsPaused,
+      ]);
+
+      if (Object.keys(result).length) {
+        logger.info('🌐 Page loaded/URL changed, ensuring headers are up to date');
+        try {
+          await setBrowserHeaders(result);
+        } catch (error) {
+          logger.error('Failed to set browser headers on page load/URL change:', error);
+        }
+      }
+      tabUpdateTimeout = null;
+    }, TAB_UPDATE_DEBOUNCE_MS);
   }
 });
 
