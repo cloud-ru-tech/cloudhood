@@ -26,7 +26,9 @@ let clients = new Set();
 let viteProcess = null;
 let backgroundViteProcess = null;
 let reloadTimeout = null;
-let rootWatcher = null;
+let mainBuildReady = false;
+let backgroundBuildReady = false;
+let isCheckingFiles = false;
 
 function createWebSocketServer() {
   try {
@@ -94,11 +96,70 @@ function notifyClients() {
   }
 }
 
+function checkAndReload() {
+  // Защита от множественных одновременных вызовов
+  if (isCheckingFiles) {
+    return;
+  }
+  
+  isCheckingFiles = true;
+  
+  // Даем время файловой системе записать файлы
+  setTimeout(() => {
+    // Проверяем готовность всех критических файлов перед отправкой сигнала
+    const criticalFiles = [
+      `${WATCH_DIR}/manifest.json`,
+      `${WATCH_DIR}/popup.bundle.js`,
+      `${WATCH_DIR}/background.bundle.js`
+    ];
+
+    const missingFiles = criticalFiles.filter(file => !existsSync(file));
+    const allFilesReady = missingFiles.length === 0;
+
+    if (allFilesReady) {
+      notifyClients();
+      mainBuildReady = false;
+      backgroundBuildReady = false;
+      isCheckingFiles = false;
+    } else {
+      logger.warn(`⚠️ Critical files not ready, missing: ${missingFiles.map(f => f.split('/').pop()).join(', ')}`);
+      // Повторяем проверку с экспоненциальным backoff
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      const checkFiles = () => {
+        attempts++;
+        const stillMissing = criticalFiles.filter(file => !existsSync(file));
+        const ready = stillMissing.length === 0;
+
+        if (ready) {
+          notifyClients();
+          mainBuildReady = false;
+          backgroundBuildReady = false;
+          isCheckingFiles = false;
+        } else if (attempts < maxAttempts) {
+          const delay = Math.min(500 * Math.pow(2, attempts - 1), 3000);
+          logger.warn(`⚠️ Attempt ${attempts}/${maxAttempts}, retrying in ${delay}ms... Missing: ${stillMissing.map(f => f.split('/').pop()).join(', ')}`);
+          setTimeout(checkFiles, delay);
+        } else {
+          logger.error(`❌ Critical files still not available after maximum attempts, skipping reload. Missing: ${stillMissing.map(f => f.split('/').pop()).join(', ')}`);
+          mainBuildReady = false;
+          backgroundBuildReady = false;
+          isCheckingFiles = false;
+        }
+      };
+
+      setTimeout(checkFiles, 500);
+    }
+  }, 1000); // Увеличиваем задержку для записи файлов на диск
+}
+
 function startViteBuild() {
   if (viteProcess) {
     viteProcess.kill();
   }
 
+  mainBuildReady = false;
   logger.info('🚀 Starting Vite build process...');
 
   viteProcess = spawn('npx', ['vite', 'build', '--watch', '--mode', 'development'], {
@@ -113,6 +174,15 @@ function startViteBuild() {
         output.split('\n').forEach(line => {
           if (line.trim()) {
             logger.info(line);
+            // Отслеживаем завершение сборки popup
+            if (line.includes('built in') && !line.includes('[BG]')) {
+              mainBuildReady = true;
+              logger.info('✅ Main build completed');
+              // Если обе сборки готовы, проверяем файлы
+              if (mainBuildReady && backgroundBuildReady) {
+                setTimeout(checkAndReload, 500);
+              }
+            }
           }
         });
       }
@@ -150,6 +220,7 @@ function startBackgroundViteBuild() {
     backgroundViteProcess.kill();
   }
 
+  backgroundBuildReady = false;
   logger.info('🚀 Starting Background Vite build process...');
 
   backgroundViteProcess = spawn('npx', ['vite', 'build', '--watch', '--config', 'vite.background.config.ts'], {
@@ -164,6 +235,15 @@ function startBackgroundViteBuild() {
         output.split('\n').forEach(line => {
           if (line.trim()) {
             logger.info(`[BG] ${line}`);
+            // Отслеживаем завершение сборки background
+            if (line.includes('built in')) {
+              backgroundBuildReady = true;
+              logger.info('✅ Background build completed');
+              // Если обе сборки готовы, проверяем файлы
+              if (mainBuildReady && backgroundBuildReady) {
+                setTimeout(checkAndReload, 500);
+              }
+            }
           }
         });
       }
@@ -205,34 +285,9 @@ function startFileWatcher() {
 
   logger.info(`👀 Watching for changes in ${WATCH_DIR}`);
 
-  // Also watch root build directory for background.bundle.js
-  const rootBuildDir = 'build';
-  if (existsSync(rootBuildDir)) {
-    logger.info(`👀 Also watching root build directory: ${rootBuildDir}`);
-
-    rootWatcher = watch(rootBuildDir, (eventType, filename) => {
-      if (filename === 'background.bundle.js') {
-        logger.info(`📁 Root build file changed: ${filename}`);
-
-        // Copy background.bundle.js to chrome directory
-        const src = `${rootBuildDir}/background.bundle.js`;
-        const dest = `${WATCH_DIR}/background.bundle.js`;
-
-        if (existsSync(src)) {
-          copyFileSync(src, dest);
-          logger.info('📋 Background bundle copied to chrome directory');
-        }
-      }
-    });
-
-    rootWatcher.on('error', (error) => {
-      logger.error(`❌ Root build watcher error: ${error.message}`);
-    });
-  }
-
   const watcher = watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
     if (filename && (filename.endsWith('.js') || filename.endsWith('.html') || filename.endsWith('.json'))) {
-        logger.info(`📁 File changed: ${filename}`);
+      logger.info(`📁 File changed: ${filename}`);
 
       // Дебаунс для предотвращения множественных перезагрузок
       if (reloadTimeout) {
@@ -240,42 +295,14 @@ function startFileWatcher() {
       }
 
       reloadTimeout = setTimeout(() => {
-        // Проверяем готовность всех критических файлов перед отправкой сигнала
-        const criticalFiles = [
-          `${WATCH_DIR}/manifest.json`,
-          `${WATCH_DIR}/popup.bundle.js`,
-          `${WATCH_DIR}/background.bundle.js`
-        ];
-
-        const allFilesReady = criticalFiles.every(file => existsSync(file));
-
-        if (allFilesReady) {
-          notifyClients();
+        // Проверяем файлы только если обе сборки завершены
+        if (mainBuildReady && backgroundBuildReady) {
+          checkAndReload();
         } else {
-          logger.warn('⚠️ Critical files not ready, delaying reload...');
-          // Повторяем проверку с экспоненциальным backoff
-          let attempts = 0;
-          const maxAttempts = 10; // Увеличиваем количество попыток
-
-          const checkFiles = () => {
-            attempts++;
-            const ready = criticalFiles.every(file => existsSync(file));
-
-            if (ready) {
-              notifyClients();
-            } else if (attempts < maxAttempts) {
-              const delay = Math.min(500 * Math.pow(2, attempts - 1), 3000); // Увеличиваем максимальную задержку
-              logger.warn(`⚠️ Attempt ${attempts}/${maxAttempts}, retrying in ${delay}ms...`);
-              setTimeout(checkFiles, delay);
-            } else {
-              logger.error('❌ Critical files still not available after maximum attempts, skipping reload');
-            }
-          };
-
-          setTimeout(checkFiles, 1000); // Увеличиваем начальную задержку
+          logger.info(`⏳ Waiting for builds to complete... Main: ${mainBuildReady}, Background: ${backgroundBuildReady}`);
         }
         reloadTimeout = null;
-      }, 3000); // Увеличили до 3 секунд для большей стабильности
+      }, 1000);
     }
   });
 
@@ -308,11 +335,6 @@ function cleanup() {
     wss.close();
   }
 
-  // Close root watcher if it exists
-  if (rootWatcher) {
-    rootWatcher.close();
-  }
-
   process.exit(0);
 }
 
@@ -325,6 +347,13 @@ createWebSocketServer();
 startViteBuild();
 startBackgroundViteBuild();
 startFileWatcher();
+
+// Начальная проверка файлов после небольшой задержки для первой сборки
+setTimeout(() => {
+  if (mainBuildReady && backgroundBuildReady) {
+    checkAndReload();
+  }
+}, 5000);
 
 logger.info('✅ Development server is running!');
 logger.info('📝 Press Ctrl+C to stop');

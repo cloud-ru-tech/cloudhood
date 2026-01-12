@@ -95,23 +95,73 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
   if (existsSync(manifestSrc)) {
     copyFileSync(manifestSrc, manifestDest);
 
-    // Add extension ID for Firefox
-    if (targetBrowser === 'firefox' && !isDev) {
-      const extensionId = process.env.FIREFOX_EXTENSION_ID;
-      if (extensionId) {
-        const manifestContent = JSON.parse(readFileSync(manifestDest, 'utf-8'));
-        if (!manifestContent.browser_specific_settings) {
-          manifestContent.browser_specific_settings = {
-            gecko: {
-              id: extensionId,
-            },
-          };
-          writeFileSync(manifestDest, JSON.stringify(manifestContent, null, 2), 'utf-8');
-          logger.info({ extensionId }, 'Added extension ID to Firefox manifest');
-        }
-      } else {
-        logger.warn('FIREFOX_EXTENSION_ID environment variable not set');
+    // For Firefox, convert service_worker to scripts format
+    if (targetBrowser === 'firefox') {
+      const manifestContent = JSON.parse(readFileSync(manifestDest, 'utf-8'));
+
+      // Convert background.service_worker to background.scripts for Firefox
+      if (manifestContent.background?.service_worker) {
+        const serviceWorkerPath = manifestContent.background.service_worker;
+        manifestContent.background = {
+          scripts: [serviceWorkerPath],
+        };
+        logger.info('Converted background.service_worker to background.scripts for Firefox');
       }
+
+      // Update CSP for Firefox if needed (add moz-extension: support)
+      if (manifestContent.content_security_policy?.extension_pages) {
+        let csp = manifestContent.content_security_policy.extension_pages;
+        if (!csp.includes('moz-extension:')) {
+          // Update img-src to include moz-extension:
+          if (csp.includes("img-src 'self'")) {
+            csp = csp.replace(/img-src 'self'([^;]*);/, (match: string, rest: string) => {
+              if (!rest.includes('moz-extension:')) {
+                return `img-src 'self'${rest} moz-extension:;`;
+              }
+              return match;
+            });
+          }
+
+          // Update connect-src to include moz-extension: and preserve ws://localhost for dev
+          if (csp.includes("connect-src 'self'")) {
+            csp = csp.replace(/connect-src 'self'([^;]*);/, (match: string, rest: string) => {
+              let updated = rest;
+              if (!updated.includes('moz-extension:')) {
+                updated += ' moz-extension:';
+              }
+              if (!updated.includes('data:')) {
+                updated += ' data:';
+              }
+              if (!updated.includes('blob:')) {
+                updated += ' blob:';
+              }
+              return `connect-src 'self'${updated};`;
+            });
+          }
+
+          manifestContent.content_security_policy.extension_pages = csp;
+          logger.info('Updated CSP for Firefox compatibility');
+        }
+      }
+
+      // Add extension ID for production Firefox builds
+      if (!isDev) {
+        const extensionId = process.env.FIREFOX_EXTENSION_ID;
+        if (extensionId) {
+          if (!manifestContent.browser_specific_settings) {
+            manifestContent.browser_specific_settings = {
+              gecko: {
+                id: extensionId,
+              },
+            };
+            logger.info({ extensionId }, 'Added extension ID to Firefox manifest');
+          }
+        } else {
+          logger.warn('FIREFOX_EXTENSION_ID environment variable not set');
+        }
+      }
+
+      writeFileSync(manifestDest, JSON.stringify(manifestContent, null, 2), 'utf-8');
     }
 
     logger.info('Manifest copied successfully');
@@ -144,9 +194,9 @@ export default defineConfig(({ mode }) => {
       targets: [
         {
           src: 'node_modules/@snack-uikit/icons/dist/esm/sprite/svg/sprite.symbol.svg',
-          dest: ''
-        }
-      ]
+          dest: '',
+        },
+      ],
     }),
     tsconfigPaths(),
   ];
@@ -167,6 +217,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: `build/${targetBrowser}`,
+      emptyOutDir: false, // Не очищать папку при сборке, чтобы не удалять background.bundle.js
       sourcemap: !isProduction,
       chunkSizeWarningLimit: 1000,
       minify: isProduction ? 'terser' : false,
