@@ -57,7 +57,16 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
   });
 }
 
-export async function setBrowserHeaders(result: Record<string, unknown>) {
+type SetBrowserHeadersMeta = {
+  /** Monotonic apply id from background queue */
+  applyId?: number;
+  /** Why this apply happened (storage.onChanged, onActivated, reload, startup, etc) */
+  reason?: string;
+  /** Optional storage fingerprint computed by caller for correlation */
+  storageFingerprint?: string;
+};
+
+export async function setBrowserHeaders(result: Record<string, unknown>, meta: SetBrowserHeadersMeta = {}) {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
   // Validate data from storage
@@ -82,6 +91,9 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
   }
 
   logger.debug('Storage data validation:', {
+    applyId: meta.applyId,
+    reason: meta.reason,
+    storageFingerprint: meta.storageFingerprint,
     profilesCount: profiles.length,
     selectedProfile,
     isPaused,
@@ -136,23 +148,22 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
 
   try {
     logger.group('Updating dynamic rules', true);
+    logger.info('Apply meta:', meta);
     logger.info('Remove rule IDs:', removeRuleIds);
     logger.info('Add rules:', addRules);
 
-    if (removeRuleIds.length > 0) {
+    // IMPORTANT:
+    // Apply rules atomically in a single updateDynamicRules call.
+    // Two-step remove→add is prone to race conditions when multiple triggers fire concurrently
+    // (often more noticeable on Windows due to timing/latency differences).
+    if (removeRuleIds.length > 0 || addRules.length > 0) {
       await browser.declarativeNetRequest.updateDynamicRules({
         removeRuleIds,
-        addRules: [],
-      });
-      logger.debug('Old rules removed');
-    }
-
-    if (addRules.length > 0) {
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [],
         addRules,
       });
-      logger.debug('New rules added');
+      logger.debug('Dynamic rules updated (atomic)');
+    } else {
+      logger.debug('No dynamic rules to update');
     }
 
     const updatedRules = await browser.declarativeNetRequest.getDynamicRules();
