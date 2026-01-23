@@ -2,11 +2,9 @@ export enum BrowserStorageKey {
   Profiles = 'requestHeaderProfilesV1',
   SelectedProfile = 'selectedHeaderProfileV1',
   IsPaused = 'isPausedV1',
+  /** Monotonic version meta for any header-config change */
+  HeadersConfigMeta = 'headersConfigMetaV1',
   ThemeMode = 'themeMode',
-}
-
-export enum ServiceWorkerEvent {
-  Reload = 'reload',
 }
 
 export enum Extensions {
