@@ -136,8 +136,20 @@ async function applyHeadersFromStorageQueue(reason: string) {
   lastRequestedReason = reason;
   applyPending = true;
 
-  if (applyInProgress) return;
+  logger.debug('📥 applyHeadersFromStorageQueue called:', {
+    reason,
+    applyInProgress,
+    applyPending,
+    lastAppliedStorageFingerprint,
+    lastAppliedMeta,
+  });
+
+  if (applyInProgress) {
+    logger.debug('⏳ Apply already in progress, queued for later');
+    return;
+  }
   applyInProgress = true;
+  logger.debug('🔒 Apply lock acquired');
 
   try {
     while (applyPending) {
@@ -166,32 +178,67 @@ async function applyHeadersFromStorageQueue(reason: string) {
       });
 
       try {
-        if (!isNewerMeta(meta, lastAppliedMeta)) {
-          logger.info('Apply skipped (stale meta):', { applyId, headersConfigMeta: meta, lastAppliedMeta });
+        const isNewer = isNewerMeta(meta, lastAppliedMeta);
+        const isSameFingerprint = lastAppliedStorageFingerprint === fp;
+
+        logger.debug('🔍 Apply decision check:', {
+          applyId,
+          isNewerMeta: isNewer,
+          isSameFingerprint,
+          meta,
+          lastAppliedMeta,
+          fp,
+          lastAppliedStorageFingerprint,
+        });
+
+        if (!isNewer) {
+          logger.warn('⏭️ Apply skipped (stale meta):', {
+            applyId,
+            reason: `meta.seq=${meta.seq} <= lastApplied.seq=${lastAppliedMeta.seq}, meta.updatedAt=${meta.updatedAt} <= lastApplied.updatedAt=${lastAppliedMeta.updatedAt}`,
+            headersConfigMeta: meta,
+            lastAppliedMeta,
+          });
           continue;
         }
-        if (lastAppliedStorageFingerprint === fp) {
+        if (isSameFingerprint) {
           // Meta changed but effective config didn't. Still advance meta to avoid replaying.
+          const prevMeta = { ...lastAppliedMeta };
           lastAppliedMeta = meta;
-          logger.info('Apply skipped (no effective changes):', {
+          logger.info('⏭️ Apply skipped (no effective changes):', {
             applyId,
             storageFingerprint: fp,
             headersConfigMeta: meta,
+            prevMeta,
+            note: 'Meta advanced to prevent replay',
           });
         } else {
+          const prevFp = lastAppliedStorageFingerprint;
+          const prevMeta = { ...lastAppliedMeta };
+
           await setBrowserHeaders(result, { applyId, reason: lastRequestedReason, storageFingerprint: fp });
+
           lastAppliedStorageFingerprint = fp;
           lastAppliedMeta = meta;
-          logger.info('Apply done:', { applyId, elapsedMsTotal: Date.now() - startedAt });
+
+          logger.info('✅ Apply done:', {
+            applyId,
+            elapsedMsTotal: Date.now() - startedAt,
+            fingerprintChange: `${prevFp} → ${fp}`,
+            metaChange: `seq:${prevMeta.seq}→${meta.seq}, updatedAt:${prevMeta.updatedAt}→${meta.updatedAt}`,
+          });
         }
       } catch (error) {
-        logger.error('Apply failed:', { applyId, error });
+        logger.error('❌ Apply failed:', { applyId, error });
       } finally {
         logger.groupEnd();
       }
     }
   } finally {
     applyInProgress = false;
+    logger.debug('🔓 Apply lock released:', {
+      lastAppliedStorageFingerprint,
+      lastAppliedMeta,
+    });
   }
 }
 
@@ -231,17 +278,35 @@ browser.runtime.onStartup.addListener(async function () {
     logger.info('🚀 Storage data found, setting browser headers on startup');
     try {
       const fp = storageFingerprint(result);
+      const applyId = ++applyCounter;
+
+      logger.debug('🔧 Direct apply (onStartup) starting:', {
+        applyId,
+        fp,
+        prevFp: lastAppliedStorageFingerprint,
+        prevMeta: lastAppliedMeta,
+      });
+
       await setBrowserHeaders(result, {
-        applyId: ++applyCounter,
+        applyId,
         reason: 'runtime.onStartup',
         storageFingerprint: fp,
       });
+
       // Sync queue state after direct call to prevent duplicate applies
+      const prevFp = lastAppliedStorageFingerprint;
+      const prevMeta = { ...lastAppliedMeta };
       lastAppliedStorageFingerprint = fp;
       const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
       if (isNewerMeta(meta, lastAppliedMeta)) {
         lastAppliedMeta = meta;
       }
+
+      logger.info('🔄 Queue state synced after onStartup:', {
+        applyId,
+        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
+        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
+      });
     } catch (error) {
       logger.error('Failed to set browser headers on startup:', error);
     }
@@ -251,18 +316,40 @@ browser.runtime.onStartup.addListener(async function () {
 });
 
 browser.storage.onChanged.addListener(async (changes, areaName) => {
-  logger.debug('Storage changes detected in area:', areaName, changes);
+  logger.debug('Storage changes detected in area:', areaName);
 
   if (areaName === 'local') {
-    const relevantChanges = [
+    const relevantKeys = [
       BrowserStorageKey.Profiles,
       BrowserStorageKey.SelectedProfile,
       BrowserStorageKey.IsPaused,
       BrowserStorageKey.HeadersConfigMeta,
-    ].some(key => Object.keys(changes).includes(key));
+    ];
+    const changedKeys = Object.keys(changes);
+    const relevantChangedKeys = relevantKeys.filter(key => changedKeys.includes(key));
 
-    if (relevantChanges) {
-      logger.info('📝 Relevant storage changes detected, updating headers');
+    if (relevantChangedKeys.length > 0) {
+      // Log details about what changed
+      const changeDetails: Record<string, { hadOldValue: boolean; hasNewValue: boolean }> = {};
+      for (const key of relevantChangedKeys) {
+        const change = changes[key];
+        changeDetails[key] = {
+          hadOldValue: change?.oldValue !== undefined,
+          hasNewValue: change?.newValue !== undefined,
+        };
+      }
+
+      logger.info('📝 Relevant storage changes detected:', {
+        changedKeys: relevantChangedKeys,
+        changeDetails,
+        currentQueueState: {
+          lastAppliedStorageFingerprint,
+          lastAppliedMeta,
+          applyInProgress,
+          applyPending,
+        },
+      });
+
       await applyHeadersFromStorageQueue('storage.onChanged');
     }
   }
@@ -305,17 +392,36 @@ browser.runtime.onInstalled.addListener(async details => {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
     try {
       const fp = storageFingerprint(result);
+      const applyId = ++applyCounter;
+
+      logger.debug('🔧 Direct apply (onInstalled) starting:', {
+        applyId,
+        reason: details.reason,
+        fp,
+        prevFp: lastAppliedStorageFingerprint,
+        prevMeta: lastAppliedMeta,
+      });
+
       await setBrowserHeaders(result, {
-        applyId: ++applyCounter,
+        applyId,
         reason: `runtime.onInstalled:${details.reason}`,
         storageFingerprint: fp,
       });
+
       // Sync queue state after direct call to prevent duplicate applies
+      const prevFp = lastAppliedStorageFingerprint;
+      const prevMeta = { ...lastAppliedMeta };
       lastAppliedStorageFingerprint = fp;
       const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
       if (isNewerMeta(meta, lastAppliedMeta)) {
         lastAppliedMeta = meta;
       }
+
+      logger.info('🔄 Queue state synced after onInstalled:', {
+        applyId,
+        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
+        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
+      });
     } catch (error) {
       logger.error('Failed to set browser headers on install/update:', error);
     }
