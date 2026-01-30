@@ -202,6 +202,7 @@ browser.runtime.onStartup.addListener(async function () {
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
     BrowserStorageKey.IsPaused,
+    BrowserStorageKey.HeadersConfigMeta,
   ]);
 
   // Detailed logging of storage contents on startup
@@ -229,11 +230,18 @@ browser.runtime.onStartup.addListener(async function () {
   if (Object.keys(result).length) {
     logger.info('🚀 Storage data found, setting browser headers on startup');
     try {
+      const fp = storageFingerprint(result);
       await setBrowserHeaders(result, {
         applyId: ++applyCounter,
         reason: 'runtime.onStartup',
-        storageFingerprint: storageFingerprint(result),
+        storageFingerprint: fp,
       });
+      // Sync queue state after direct call to prevent duplicate applies
+      lastAppliedStorageFingerprint = fp;
+      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
+      if (isNewerMeta(meta, lastAppliedMeta)) {
+        lastAppliedMeta = meta;
+      }
     } catch (error) {
       logger.error('Failed to set browser headers on startup:', error);
     }
@@ -267,6 +275,7 @@ browser.runtime.onInstalled.addListener(async details => {
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
     BrowserStorageKey.IsPaused,
+    BrowserStorageKey.HeadersConfigMeta,
   ]);
 
   // Detailed logging of storage contents on install/update
@@ -295,11 +304,18 @@ browser.runtime.onInstalled.addListener(async details => {
   if (Object.keys(result).length) {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
     try {
+      const fp = storageFingerprint(result);
       await setBrowserHeaders(result, {
         applyId: ++applyCounter,
         reason: `runtime.onInstalled:${details.reason}`,
-        storageFingerprint: storageFingerprint(result),
+        storageFingerprint: fp,
       });
+      // Sync queue state after direct call to prevent duplicate applies
+      lastAppliedStorageFingerprint = fp;
+      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
+      if (isNewerMeta(meta, lastAppliedMeta)) {
+        lastAppliedMeta = meta;
+      }
     } catch (error) {
       logger.error('Failed to set browser headers on install/update:', error);
     }
