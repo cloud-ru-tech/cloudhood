@@ -228,7 +228,16 @@ async function applyHeadersFromStorageQueue(reason: string) {
           });
         }
       } catch (error) {
-        logger.error('❌ Apply failed:', { applyId, error });
+        logger.error('❌ Apply failed (state NOT updated, will retry on next change):', {
+          applyId,
+          error,
+          stateRemains: {
+            lastAppliedStorageFingerprint,
+            lastAppliedMeta,
+          },
+          attemptedFingerprint: fp,
+          attemptedMeta: meta,
+        });
       } finally {
         logger.groupEnd();
       }
@@ -308,7 +317,10 @@ browser.runtime.onStartup.addListener(async function () {
         metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
       });
     } catch (error) {
-      logger.error('Failed to set browser headers on startup:', error);
+      logger.error('❌ Failed to set browser headers on startup (queue state NOT synced):', {
+        error,
+        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
+      });
     }
   } else {
     logger.info('📭 No storage data found on startup - extension will start with default settings');
@@ -423,7 +435,10 @@ browser.runtime.onInstalled.addListener(async details => {
         metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
       });
     } catch (error) {
-      logger.error('Failed to set browser headers on install/update:', error);
+      logger.error('❌ Failed to set browser headers on install/update (queue state NOT synced):', {
+        error,
+        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
+      });
     }
   } else {
     logger.info('📭 No storage data found on install/update - extension will start with default settings');
