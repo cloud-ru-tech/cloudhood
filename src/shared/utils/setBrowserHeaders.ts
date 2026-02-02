@@ -8,6 +8,13 @@ import { validateHeader } from './headers';
 import { logger } from './logger';
 import { setIconBadge } from './setIconBadge';
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 200;
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
   const allResourceTypes = [
     'main_frame',
@@ -157,11 +164,28 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     // Two-step remove→add is prone to race conditions when multiple triggers fire concurrently
     // (often more noticeable on Windows due to timing/latency differences).
     if (removeRuleIds.length > 0 || addRules.length > 0) {
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds,
-        addRules,
-      });
-      logger.debug('Dynamic rules updated (atomic)');
+      // Retry logic for transient DNR API errors (e.g., "Internal error while updating dynamic rules")
+      let lastError: unknown = null;
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          await browser.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds,
+            addRules,
+          });
+          logger.debug(`Dynamic rules updated (atomic, attempt ${attempt})`);
+          lastError = null;
+          break;
+        } catch (err) {
+          lastError = err;
+          logger.warn(`DNR updateDynamicRules failed (attempt ${attempt}/${MAX_RETRIES}):`, err);
+          if (attempt < MAX_RETRIES) {
+            await sleep(RETRY_DELAY_MS * attempt); // Exponential backoff
+          }
+        }
+      }
+      if (lastError) {
+        throw lastError;
+      }
     } else {
       logger.debug('No dynamic rules to update');
     }
@@ -175,5 +199,9 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
+    logger.groupEnd();
+    // CRITICAL: Re-throw to prevent caller from updating lastAppliedStorageFingerprint/lastAppliedMeta
+    // If we swallow the error, the queue state becomes desynchronized with actual DNR rules
+    throw err;
   }
 }
