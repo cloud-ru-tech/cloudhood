@@ -168,9 +168,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
-
       - name: Download Chrome build artifact
         uses: actions/download-artifact@v4
         with:
@@ -181,8 +178,11 @@ jobs:
           mkdir -p build/chrome
           unzip -o cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip -d build/chrome
 
-      - name: Run E2E tests
-        run: xvfb-run --auto-servernum pnpm test:e2e:ci
+      - name: Build Playwright screenshot image
+        run: docker compose -f docker-compose.screenshots.yml build screenshots
+
+      - name: Run E2E tests in container
+        run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:ci"
 
   pre-publish:
     needs: [pr-build, e2e-test]

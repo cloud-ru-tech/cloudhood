@@ -25,7 +25,12 @@
     "test:e2e:screenshots": "playwright test screenshots.spec.ts",
     "test:e2e:screenshots:update": "playwright test screenshots.spec.ts --update-snapshots",
     "test:e2e:screenshots:chrome": "playwright test screenshots.spec.ts --project=chrome-extension",
-    "test:e2e:screenshots:firefox": "playwright test screenshots.spec.ts --project=firefox-extension"
+    "test:e2e:screenshots:firefox": "playwright test screenshots.spec.ts --project=firefox-extension",
+    "docker:screenshots:build": "docker compose -f docker-compose.screenshots.yml build screenshots",
+    "test:e2e:screenshots:docker": "docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc \"pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e:screenshots\"",
+    "test:e2e:screenshots:docker:update": "docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc \"pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e:screenshots:update\"",
+    "test:e2e:screenshots:check": "pnpm test:e2e:screenshots:docker",
+    "test:e2e:screenshots:generate": "pnpm test:e2e:screenshots:docker:update"
   },
   "dependencies": {
     "@cloud-ru/ft-config-lint-staged": "1.1.2",

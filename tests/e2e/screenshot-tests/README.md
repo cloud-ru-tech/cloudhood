@@ -66,6 +66,27 @@ createScreenshotTest({
 
 ## Running Tests
 
+### Snapshot generation (Docker)
+
+```bash
+# One command: builds Chrome + Firefox and updates snapshots in Docker
+pnpm test:e2e:screenshots:generate
+```
+
+```bash
+# Verifies current snapshots without updating them
+pnpm test:e2e:screenshots:check
+```
+
+### Local verification (Docker, matches CI)
+
+```bash
+# One command: builds Chrome + Firefox and checks snapshots in Docker
+pnpm test:e2e:screenshots:check
+```
+
+### Local runs
+
 ```bash
 # All screenshot tests
 pnpm test:e2e:screenshots

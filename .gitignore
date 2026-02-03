@@ -41,3 +41,4 @@ cloudhood-firefox-sources-v*.zip
 test-results/
 .cursor/
 .cursorrules
+.pnpm-store

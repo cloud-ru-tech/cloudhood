@@ -2,7 +2,7 @@
     font-family: 'SB Sans Interface';
     font-weight: 300;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
     src: url('../assets/fonts/SBSansUI-Light.otf') format('opentype');
 }
 
@@ -10,7 +10,7 @@
     font-family: 'SB Sans Interface';
     font-weight: normal;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
     src: url('../assets/fonts/SBSansUI-Regular.otf') format('opentype');
 }
 
@@ -18,7 +18,7 @@
     font-family: 'SB Sans Interface';
     font-weight: 600;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
     src: url('../assets/fonts/SBSansUI-Semibold.otf') format('opentype');
 }
 
@@ -26,7 +26,7 @@
     font-family: 'SB Sans Interface';
     font-weight: bold;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
     src: url('../assets/fonts/SBSansUI-Bold.otf') format('opentype');
 }
 
@@ -34,7 +34,7 @@
     font-family: 'SB Sans Text Mono';
     font-weight: bold;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
     src: url('../assets/fonts/SBSansTextMono-Bold.otf') format('opentype');
 }
 
@@ -42,7 +42,7 @@
     font-family: 'SB Sans Text Mono';
     font-weight: normal;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
     src: url('../assets/fonts/SBSansTextMono-Regular.otf') format('opentype');
 }
 

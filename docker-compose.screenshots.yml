@@ -1,0 +1,18 @@
+services:
+  screenshots:
+    build:
+      context: .
+      dockerfile: docker/screenshots/Dockerfile
+    working_dir: /app
+    environment:
+      - CI=1
+      - HEADLESS=true
+      - PLATFORM=linux
+    volumes:
+      - .:/app:cached
+      - playwright-node-modules:/app/node_modules
+      - playwright-test-results:/app/test-results
+
+volumes:
+  playwright-node-modules:
+  playwright-test-results:
