@@ -20,27 +20,27 @@ const openProfileActionsMenu = async (page: Page) => {
 
 test.describe('Profile Actions', () => {
   /**
-   * Тест-кейс: Добавление нового профиля
+   * Test case: Add a new profile
    *
-   * Цель: Проверить возможность добавления нового профиля через кнопку в сайдбаре.
+   * Goal: Verify that a new profile can be added via the sidebar button.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Проверяем количество существующих профилей
-   * 3. Нажимаем кнопку добавления профиля
-   * 4. Проверяем, что появился новый профиль
-   * 5. Проверяем, что новый профиль выбран
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Check the number of existing profiles
+   * 3. Click the add profile button
+   * 4. Verify that a new profile appears
+   * 5. Verify that the new profile is selected
    */
   test('should add new profile', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Проверяем количество профилей до добавления
+    // Check the number of profiles before adding
     const profilesBefore = page.locator('[data-test-id="profile-select"]');
     const countBefore = await profilesBefore.count();
 
-    // Нажимаем кнопку добавления профиля
-    // Используем data-test-id для надежного выбора, с fallback на структуру сайдбара
+    // Click the add profile button
+    // Use data-test-id for reliable selection, with a fallback to the sidebar structure
     const addProfileButton = page.locator('[data-test-id="add-profile-button"]').or(
       page
         .locator('button')
@@ -50,36 +50,36 @@ test.describe('Profile Actions', () => {
     await expect(addProfileButton).toBeVisible({ timeout: 10000 });
     await addProfileButton.click();
 
-    // Ждем появления нового профиля
+    // Wait for the new profile to appear
     const profilesAfter = page.locator('[data-test-id="profile-select"]');
     await expect(profilesAfter).toHaveCount(countBefore + 1, { timeout: 5000 });
     const countAfter = await profilesAfter.count();
     expect(countAfter).toBeGreaterThan(countBefore);
 
-    // Проверяем, что новый профиль выбран
+    // Verify that the new profile is selected
     const newProfile = profilesAfter.last();
     await expect(newProfile).toHaveAttribute('data-selected', 'true');
   });
 
   /**
-   * Тест-кейс: Удаление профиля
+   * Test case: Delete a profile
    *
-   * Цель: Проверить возможность удаления профиля через меню действий.
+   * Goal: Verify that a profile can be deleted via the actions menu.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Проверяем количество существующих профилей
-   * 3. Открываем меню действий профиля
-   * 4. Выбираем опцию "Delete profile"
-   * 5. Подтверждаем удаление (если требуется)
-   * 6. Проверяем, что профиль удален
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Check the number of existing profiles
+   * 3. Open the profile actions menu
+   * 4. Select "Delete profile"
+   * 5. Confirm deletion (if required)
+   * 6. Verify that the profile is deleted
    */
   test('should delete profile', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем профиль для удаления
-    // Используем data-test-id для надежного выбора, с fallback на структуру сайдбара
+    // Add a profile to delete
+    // Use data-test-id for reliable selection, with a fallback to the sidebar structure
     const addProfileButton = page.locator('[data-test-id="add-profile-button"]').or(
       page
         .locator('button')
@@ -91,99 +91,99 @@ test.describe('Profile Actions', () => {
     const profilesAfterAdd = page.locator('[data-test-id="profile-select"]');
     await expect(profilesAfterAdd.first()).toBeVisible({ timeout: 5000 });
 
-    // Проверяем количество профилей до удаления
+    // Check the number of profiles before deletion
     const profilesBefore = page.locator('[data-test-id="profile-select"]');
     const countBefore = await profilesBefore.count();
 
-    // Открываем меню действий профиля
+    // Open the profile actions menu
     await openProfileActionsMenu(page);
 
-    // Выбираем опцию "Delete profile"
+    // Select "Delete profile"
     const deleteOption = page.getByRole('menuitem', { name: 'Delete profile' });
     await expect(deleteOption).toBeVisible({ timeout: 5000 });
     await deleteOption.click();
 
-    // Ждем удаления профиля
+    // Wait for the profile to be removed
     const profilesAfter = page.locator('[data-test-id="profile-select"]');
     await expect(profilesAfter).toHaveCount(countBefore - 1, { timeout: 5000 });
   });
 
   /**
-   * Тест-кейс: Редактирование названия профиля
+   * Test case: Edit a profile name
    *
-   * Цель: Проверить возможность редактирования названия профиля.
+   * Goal: Verify that a profile name can be edited.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Нажимаем кнопку редактирования названия профиля
-   * 3. Вводим новое название
-   * 4. Сохраняем изменения (Enter или клик на кнопку)
-   * 5. Проверяем, что название обновилось
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Click the profile name edit button
+   * 3. Enter a new name
+   * 4. Save changes (Enter or click the button)
+   * 5. Verify that the name was updated
    */
   test('should edit profile name', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Нажимаем кнопку редактирования названия профиля
+    // Click the profile name edit button
     const editButton = page.locator('[data-test-id="profile-name-edit-button"]');
     await editButton.click();
 
-    // Ищем поле ввода названия профиля
+    // Find the profile name input field
     const nameInput = page.locator('input[placeholder="Profile name"]');
     await expect(nameInput).toBeVisible({ timeout: 5000 });
 
-    // Вводим новое название
+    // Enter a new name
     const newName = 'Test Profile Name';
     await nameInput.fill(newName);
     await nameInput.press('Enter');
 
-    // Ждем закрытия режима редактирования (поле ввода должно исчезнуть)
+    // Wait for edit mode to close (input should disappear)
     await expect(nameInput).not.toBeVisible();
 
-    // Проверяем, что название обновилось (проверяем через текст в интерфейсе)
+    // Verify that the name was updated (check UI text)
     const profileTitle = page.locator('text=/Test Profile Name/').first();
     await expect(profileTitle).toBeVisible();
   });
 
   /**
-   * Тест-кейс: Копирование профиля в clipboard
+   * Test case: Copy a profile to the clipboard
    *
-   * Цель: Проверить возможность копирования профиля в буфер обмена через экспорт.
+   * Goal: Verify that a profile can be copied to the clipboard via export.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса
-   * 3. Открываем меню действий профиля
-   * 4. Выбираем опцию "Export/share profile"
-   * 5. В модальном окне нажимаем кнопку "Copy"
-   * 6. Проверяем, что данные скопированы (проверяем через clipboard API)
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add a request header
+   * 3. Open the profile actions menu
+   * 4. Select "Export/share profile"
+   * 5. Click "Copy" in the modal
+   * 6. Verify that the data was copied (via clipboard API)
    */
   test('should copy profile to clipboard', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем заголовок запроса для экспорта
+    // Add a request header for export
     await addAndFillHeader(page, 'X-Test-Header', 'test-value');
 
-    // Открываем меню действий профиля
+    // Open the profile actions menu
     await openProfileActionsMenu(page);
 
-    // Выбираем опцию "Export/share profile"
+    // Select "Export/share profile"
     const exportOption = page.getByRole('menuitem', { name: 'Export/share profile' });
     await expect(exportOption).toBeVisible();
     await exportOption.click();
 
-    // В модальном окне нажимаем кнопку "Copy"
+    // Click "Copy" in the modal
     const copyButton = page.locator('button', { hasText: 'Copy' });
     await expect(copyButton).toBeVisible();
 
-    // Предоставляем разрешения для clipboard перед копированием
+    // Grant clipboard permissions before copying
     await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
 
     await copyButton.click();
 
-    // Проверяем, что данные скопированы в буфер обмена
-    // Используем expect.poll для надежной проверки состояния clipboard
+    // Verify that data was copied to the clipboard
+    // Use expect.poll for reliable clipboard state checks
     try {
       await expect
         .poll(
@@ -212,38 +212,38 @@ test.describe('Profile Actions', () => {
       });
       expect(clipboardText).toContain('test-value');
     } catch {
-      // Если clipboard API недоступен, проверяем, что кнопка Copy была нажата
-      // и модальное окно все еще открыто (что означает, что копирование было инициировано)
+      // If clipboard API is unavailable, verify that the Copy button was clicked
+      // and the modal is still open (meaning copying was initiated)
       await expect(copyButton).toBeVisible();
     }
   });
 
   /**
-   * Тест-кейс: Импорт профиля
+   * Test case: Import a profile
    *
-   * Цель: Проверить возможность импорта профиля из JSON.
+   * Goal: Verify that a profile can be imported from JSON.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Открываем меню действий профиля
-   * 3. Выбираем опцию "Import profile"
-   * 4. В модальном окне вводим JSON с профилем
-   * 5. Нажимаем кнопку "Import"
-   * 6. Проверяем, что профиль импортирован
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Open the profile actions menu
+   * 3. Select "Import profile"
+   * 4. Enter profile JSON in the modal
+   * 5. Click "Import"
+   * 6. Verify that the profile was imported
    */
   test('should import profile', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Открываем меню действий профиля
+    // Open the profile actions menu
     await openProfileActionsMenu(page);
 
-    // Выбираем опцию "Import profile"
+    // Select "Import profile"
     const importOption = page.getByRole('menuitem', { name: 'Import profile' });
     await expect(importOption).toBeVisible();
     await importOption.click();
 
-    // Ждем появления модального окна и поля ввода JSON
+    // Wait for the modal and JSON input to appear
     const importModalHeading = page.locator('[data-test-id="modal__title"]', { hasText: 'Import profile' });
     await expect(importModalHeading).toBeVisible({ timeout: 10000 });
 
@@ -268,45 +268,45 @@ test.describe('Profile Actions', () => {
 
     await jsonTextarea.fill(importJson);
 
-    // Нажимаем кнопку "Import"
+    // Click "Import"
     const importButton = page.locator('button', { hasText: 'Import' });
     await importButton.click();
 
-    // Проверяем, что профиль импортирован (ищем заголовок)
+    // Verify that the profile was imported (check header input)
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');
     await expect(headerNameField.first()).toHaveValue('X-Imported-Header', { timeout: 5000 });
   });
 
   /**
-   * Тест-кейс: Экспорт профиля
+   * Test case: Export a profile
    *
-   * Цель: Проверить возможность экспорта профиля в JSON файл.
+   * Goal: Verify that a profile can be exported to a JSON file.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса
-   * 3. Открываем меню действий профиля
-   * 4. Выбираем опцию "Export/share profile"
-   * 5. В модальном окне проверяем наличие JSON
-   * 6. Нажимаем кнопку "Download JSON"
-   * 7. Проверяем, что файл скачан (через событие download)
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add a request header
+   * 3. Open the profile actions menu
+   * 4. Select "Export/share profile"
+   * 5. Check JSON presence in the modal
+   * 6. Click "Download JSON"
+   * 7. Verify that the file is downloaded (via download event)
    */
   test('should export profile', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем заголовок запроса для экспорта
+    // Add a request header for export
     await addAndFillHeader(page, 'X-Export-Header', 'export-value');
 
-    // Открываем меню действий профиля
+    // Open the profile actions menu
     await openProfileActionsMenu(page);
 
-    // Выбираем опцию "Export/share profile"
+    // Select "Export/share profile"
     const exportOption = page.getByRole('menuitem', { name: 'Export/share profile' });
     await expect(exportOption).toBeVisible({ timeout: 5000 });
     await exportOption.click();
 
-    // Ждем появления модального окна и поля JSON
+    // Wait for the modal and JSON field to appear
     const exportModalHeading = page.locator('[data-test-id="modal__title"]', { hasText: 'Export profile' });
     await expect(exportModalHeading).toBeVisible({ timeout: 10000 });
 
@@ -316,40 +316,40 @@ test.describe('Profile Actions', () => {
     expect(jsonValue).toContain('X-Export-Header');
     expect(jsonValue).toContain('export-value');
 
-    // Нажимаем кнопку "Download JSON"
+    // Click "Download JSON"
     const downloadButton = page.locator('button', { hasText: 'Download JSON' });
     await expect(downloadButton).toBeVisible();
     const [download] = await Promise.all([page.waitForEvent('download'), downloadButton.click()]);
-    // Ждем завершения скачивания
+    // Wait for the download to finish
     await download.path();
   });
 
   /**
-   * Тест-кейс: Импорт профиля из другого приложения
+   * Test case: Import a profile from another app
    *
-   * Цель: Проверить возможность импорта профиля из другого расширения (ModHeader/Requestly).
+   * Goal: Verify that a profile can be imported from another extension (ModHeader/Requestly).
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Открываем меню действий профиля
-   * 3. Выбираем опцию "Import from other extension"
-   * 4. В модальном окне вводим JSON в формате другого расширения
-   * 5. Нажимаем кнопку "Import"
-   * 6. Проверяем, что профиль импортирован
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Open the profile actions menu
+   * 3. Select "Import from other extension"
+   * 4. Enter JSON in the other extension format in the modal
+   * 5. Click "Import"
+   * 6. Verify that the profile was imported
    */
   test('should import profile from other extension', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Открываем меню действий профиля
+    // Open the profile actions menu
     await openProfileActionsMenu(page);
 
-    // Выбираем опцию "Import from other extension"
+    // Select "Import from other extension"
     const importFromExtensionOption = page.getByRole('menuitem', { name: 'Import from other extension' });
     await expect(importFromExtensionOption).toBeVisible({ timeout: 5000 });
     await importFromExtensionOption.click();
 
-    // В модальном окне вводим JSON в формате ModHeader
+    // Enter ModHeader-format JSON in the modal
     const importFromExtensionModalHeading = page.locator('[data-test-id="modal__title"]', {
       hasText: 'Import from other extension',
     });
@@ -358,7 +358,7 @@ test.describe('Profile Actions', () => {
     const jsonTextarea = page.locator('[data-test-id="field-textarea__input"]').last();
     await expect(jsonTextarea).toBeVisible({ timeout: 10000 });
 
-    // Формат ModHeader
+    // ModHeader format
     const modHeaderJson = JSON.stringify([
       {
         name: 'ModHeader Profile',
@@ -374,11 +374,11 @@ test.describe('Profile Actions', () => {
 
     await jsonTextarea.fill(modHeaderJson);
 
-    // Нажимаем кнопку "Import"
+    // Click "Import"
     const importButton = page.locator('button', { hasText: 'Import' });
     await importButton.click();
 
-    // Проверяем, что профиль импортирован
+    // Verify that the profile was imported
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');
     await expect(headerNameField.first()).toBeVisible({ timeout: 5000 });
   });

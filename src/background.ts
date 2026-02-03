@@ -15,13 +15,13 @@ logger.configure({
   enabled: true,
 });
 
-// Простой тест для проверки работы background script
+// Simple check to verify background script execution
 logger.info('🎯 Background script loaded successfully!');
-// Дублируем в logger.debug для гарантии видимости
+// Duplicate in logger.debug to ensure visibility
 logger.debug('🎯 Background script loaded successfully! (debug)');
 logger.info('🔍 About to check storage contents...');
 
-// Проверяем storage сразу при загрузке background script
+// Check storage immediately on background script load
 (async () => {
   try {
     const result = await browser.storage.local.get([
@@ -35,7 +35,7 @@ logger.info('🔍 About to check storage contents...');
     logger.info('  - Selected Profile:', result[BrowserStorageKey.SelectedProfile] || 'None');
     logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
 
-    // Логируем количество профилей, если они есть
+    // Log profile count if present
     let activeHeadersCount = 0;
     if (result[BrowserStorageKey.Profiles]) {
       try {
@@ -44,7 +44,7 @@ logger.info('🔍 About to check storage contents...');
         if (profiles.length > 0) {
           logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
 
-          // Подсчитываем активные заголовки для badge
+          // Count active headers for the badge
           const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
           if (selectedProfile) {
             activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
@@ -59,7 +59,7 @@ logger.info('🔍 About to check storage contents...');
     logger.debug('Background script load storage data:', JSON.stringify(result, null, 2));
     logger.groupEnd();
 
-    // Устанавливаем badge на основе данных из storage
+    // Set the badge based on storage data
     const isPaused = (result[BrowserStorageKey.IsPaused] as boolean) || false;
     await setIconBadge({ isPaused, activeRulesCount: activeHeadersCount });
     logger.info(`🏷️ Badge set: paused=${isPaused}, activeRules=${activeHeadersCount}`);
@@ -103,14 +103,14 @@ browser.runtime.onStartup.addListener(async function () {
     BrowserStorageKey.IsPaused,
   ]);
 
-  // Детальное логирование содержимого storage при запуске
+  // Detailed logging of storage contents on startup
   logger.info('📦 Storage contents on startup:');
   logger.info('  - Profiles:', result[BrowserStorageKey.Profiles] ? 'Present' : 'Missing');
   logger.info('  - Selected Profile:', result[BrowserStorageKey.SelectedProfile] || 'None');
   logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
   logger.debug('Startup storage data:', JSON.stringify(result, null, 2));
 
-  // Логируем количество профилей, если они есть
+  // Log profile count if present
   if (result[BrowserStorageKey.Profiles]) {
     try {
       const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
@@ -173,7 +173,7 @@ browser.runtime.onInstalled.addListener(async details => {
     BrowserStorageKey.IsPaused,
   ]);
 
-  // Детальное логирование содержимого storage при установке/обновлении
+  // Detailed logging of storage contents on install/update
   logger.group('📦 Storage contents on install/update:', true);
   logger.info('  - Profiles:', result[BrowserStorageKey.Profiles] ? 'Present' : 'Missing');
   logger.info('  - Selected Profile:', result[BrowserStorageKey.SelectedProfile] || 'None');
@@ -181,7 +181,7 @@ browser.runtime.onInstalled.addListener(async details => {
   logger.debug('Install/update storage data:', JSON.stringify(result, null, 2));
   logger.groupEnd();
 
-  // Логируем количество профилей, если они есть
+  // Log profile count if present
   if (result[BrowserStorageKey.Profiles]) {
     try {
       const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);

@@ -8,7 +8,7 @@ import pino from 'pino';
 const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
 const WATCH_DIR = 'build/chrome';
 
-// Настройка логгера
+// Logger setup
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
@@ -60,14 +60,14 @@ function createWebSocketServer() {
 
     wss.on('error', (error) => {
       logger.error(`❌ Server error: ${error.message}`);
-      // Перезапускаем сервер через 1 секунду
+      // Restart the server after 1 second
       setTimeout(createWebSocketServer, 1000);
     });
 
     return true;
   } catch (error) {
     logger.error(`❌ Failed to create WebSocket server: ${error.message}`);
-    // Перезапускаем сервер через 2 секунды
+    // Restart the server after 2 seconds
     setTimeout(createWebSocketServer, 2000);
     return false;
   }
@@ -97,16 +97,16 @@ function notifyClients() {
 }
 
 function checkAndReload() {
-  // Защита от множественных одновременных вызовов
+  // Guard against multiple concurrent calls
   if (isCheckingFiles) {
     return;
   }
   
   isCheckingFiles = true;
   
-  // Даем время файловой системе записать файлы
+  // Give the file system time to flush files
   setTimeout(() => {
-    // Проверяем готовность всех критических файлов перед отправкой сигнала
+    // Check that all critical files are ready before sending a signal
     const criticalFiles = [
       `${WATCH_DIR}/manifest.json`,
       `${WATCH_DIR}/popup.bundle.js`,
@@ -123,7 +123,7 @@ function checkAndReload() {
       isCheckingFiles = false;
     } else {
       logger.warn(`⚠️ Critical files not ready, missing: ${missingFiles.map(f => f.split('/').pop()).join(', ')}`);
-      // Повторяем проверку с экспоненциальным backoff
+      // Retry with exponential backoff
       let attempts = 0;
       const maxAttempts = 10;
 
@@ -151,7 +151,7 @@ function checkAndReload() {
 
       setTimeout(checkFiles, 500);
     }
-  }, 1000); // Увеличиваем задержку для записи файлов на диск
+  }, 1000); // Increase delay to allow files to be written to disk
 }
 
 function startViteBuild() {
@@ -174,11 +174,11 @@ function startViteBuild() {
         output.split('\n').forEach(line => {
           if (line.trim()) {
             logger.info(line);
-            // Отслеживаем завершение сборки popup
+            // Track completion of the popup build
             if (line.includes('built in') && !line.includes('[BG]')) {
               mainBuildReady = true;
               logger.info('✅ Main build completed');
-              // Если обе сборки готовы, проверяем файлы
+              // If both builds are ready, check files
               if (mainBuildReady && backgroundBuildReady) {
                 setTimeout(checkAndReload, 500);
               }
@@ -202,14 +202,14 @@ function startViteBuild() {
     viteProcess.on('close', (code) => {
       if (code !== 0) {
         logger.error(`❌ Vite process exited with code ${code}`);
-        // Перезапускаем через 2 секунды
+        // Restart after 2 seconds
         setTimeout(startViteBuild, 2000);
       }
     });
 
     viteProcess.on('error', (error) => {
       logger.error(`❌ Vite process error: ${error.message}`);
-      // Перезапускаем через 2 секунды
+      // Restart after 2 seconds
       setTimeout(startViteBuild, 2000);
     });
   }
@@ -235,11 +235,11 @@ function startBackgroundViteBuild() {
         output.split('\n').forEach(line => {
           if (line.trim()) {
             logger.info(`[BG] ${line}`);
-            // Отслеживаем завершение сборки background
+            // Track completion of the background build
             if (line.includes('built in')) {
               backgroundBuildReady = true;
               logger.info('✅ Background build completed');
-              // Если обе сборки готовы, проверяем файлы
+              // If both builds are ready, check files
               if (mainBuildReady && backgroundBuildReady) {
                 setTimeout(checkAndReload, 500);
               }
@@ -263,14 +263,14 @@ function startBackgroundViteBuild() {
     backgroundViteProcess.on('close', (code) => {
       if (code !== 0) {
         logger.error(`❌ Background Vite process exited with code ${code}`);
-        // Перезапускаем через 2 секунды
+        // Restart after 2 seconds
         setTimeout(startBackgroundViteBuild, 2000);
       }
     });
 
     backgroundViteProcess.on('error', (error) => {
       logger.error(`❌ Background Vite process error: ${error.message}`);
-      // Перезапускаем через 2 секунды
+      // Restart after 2 seconds
       setTimeout(startBackgroundViteBuild, 2000);
     });
   }
@@ -289,13 +289,13 @@ function startFileWatcher() {
     if (filename && (filename.endsWith('.js') || filename.endsWith('.html') || filename.endsWith('.json'))) {
       logger.info(`📁 File changed: ${filename}`);
 
-      // Дебаунс для предотвращения множественных перезагрузок
+      // Debounce to prevent multiple reloads
       if (reloadTimeout) {
         clearTimeout(reloadTimeout);
       }
 
       reloadTimeout = setTimeout(() => {
-        // Проверяем файлы только если обе сборки завершены
+        // Check files only when both builds are finished
         if (mainBuildReady && backgroundBuildReady) {
           checkAndReload();
         } else {
@@ -308,14 +308,14 @@ function startFileWatcher() {
 
   watcher.on('error', (error) => {
     logger.error(`❌ File watcher error: ${error.message}`);
-    // Перезапускаем watcher через 1 секунду
+    // Restart the watcher after 1 second
     setTimeout(startFileWatcher, 1000);
   });
 
   return watcher;
 }
 
-// Обработка сигналов завершения
+// Handle shutdown signals
 function cleanup() {
   logger.info('🛑 Shutting down...');
 
@@ -348,7 +348,7 @@ startViteBuild();
 startBackgroundViteBuild();
 startFileWatcher();
 
-// Начальная проверка файлов после небольшой задержки для первой сборки
+// Initial file check after a short delay for the first build
 setTimeout(() => {
   if (mainBuildReady && backgroundBuildReady) {
     checkAndReload();

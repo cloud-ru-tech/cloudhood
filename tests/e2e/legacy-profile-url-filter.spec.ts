@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 
-// Типы для chrome API в тестах
+// Types for the chrome API in tests
 declare const chrome: {
   storage: {
     local: {
@@ -11,21 +11,21 @@ declare const chrome: {
 
 test.describe('Legacy Profile URL Filter', () => {
   /**
-   * Тест-кейс: Добавление URL фильтра в профиль без urlFilters (legacy данные)
+   * Test case: Add a URL filter to a profile without urlFilters (legacy data)
    *
-   * Цель: Проверить, что приложение корректно обрабатывает профили без urlFilters
-   * (legacy данные) и позволяет добавлять URL фильтры в таких профилях.
+   * Goal: Verify that the app correctly handles profiles without urlFilters
+   * (legacy data) and allows adding URL filters to such profiles.
    *
-   * Сценарий:
-   * 1. Инициализируем профиль с данными без urlFilters
-   * 2. Открываем popup расширения
-   * 3. Переключаемся на вкладку URL Filters
-   * 4. Добавляем URL фильтр
-   * 5. Проверяем, что фильтр добавился корректно
-   * 6. Проверяем, что данные сохранились
+   * Scenario:
+   * 1. Initialize a profile with data without urlFilters
+   * 2. Open the extension popup
+   * 3. Switch to the URL Filters tab
+   * 4. Add a URL filter
+   * 5. Verify that the filter is added correctly
+   * 6. Verify that the data is persisted
    */
   test('should add URL filter to profile without urlFilters (legacy data)', async ({ page, extensionId, context }) => {
-    // Шаг 1: Инициализируем профиль с legacy данными (БЕЗ urlFilters)
+    // Step 1: Initialize a profile with legacy data (WITHOUT urlFilters)
     const legacyProfile = [
       {
         id: 'legacy-profile-1',
@@ -38,11 +38,11 @@ test.describe('Legacy Profile URL Filter', () => {
             value: 'HCE-164',
           },
         ],
-        // urlFilters отсутствует - это legacy данные
+        // urlFilters is missing - this is legacy data
       },
     ];
 
-    // Настраиваем storage с legacy профилем через service worker
+    // Configure storage with the legacy profile via the service worker
     const background = context.serviceWorkers()[0];
     if (background) {
       await background.evaluate(
@@ -56,49 +56,49 @@ test.describe('Legacy Profile URL Filter', () => {
       );
     }
 
-    // Шаг 2: Открываем popup расширения
+    // Step 2: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 3: Переключаемся на вкладку URL Filters
+    // Step 3: Switch to the URL Filters tab
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTab.click();
     await expect(urlFiltersTab).toHaveAttribute('aria-selected', 'true');
 
-    // Шаг 4: Проверяем, что секция URL фильтров отображается
+    // Step 4: Verify that the URL filters section is visible
     const urlFiltersSection = page.locator('[data-test-id="url-filters-section"]');
     await expect(urlFiltersSection).toBeVisible({ timeout: 5000 });
 
-    // Шаг 5: Проверяем, что кнопка добавления URL фильтра видна
+    // Step 5: Verify that the add URL filter button is visible
     const addUrlFilterButton = page.locator('[data-test-id="add-url-filter-button"]');
     await expect(addUrlFilterButton).toBeVisible({ timeout: 5000 });
 
-    // Шаг 6: Кликаем на кнопку добавления URL фильтра
+    // Step 6: Click the add URL filter button
     await addUrlFilterButton.click();
 
-    // Шаг 7: Проверяем, что поле для URL фильтра появилось
+    // Step 7: Verify that the URL filter input appears
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input').first();
     await expect(urlFilterInput).toBeVisible({ timeout: 5000 });
 
-    // Шаг 8: Заполняем URL фильтр
+    // Step 8: Fill in the URL filter
     await urlFilterInput.fill('https://example.com/*');
 
-    // Шаг 9: Проверяем, что фильтр добавился корректно
+    // Step 9: Verify that the filter was added correctly
     await expect(urlFilterInput).toHaveValue('https://example.com/*');
 
-    // Проверяем, что появился хотя бы один URL фильтр
+    // Verify that at least one URL filter is present
     const urlFilterInputs = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInputs).toHaveCount(1);
 
-    // Шаг 10: Проверяем, что данные сохранились
-    // Перезагружаем страницу для проверки персистентности
+    // Step 10: Verify that the data is persisted
+    // Reload the page to check persistence
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Переключаемся обратно на URL Filters
+    // Switch back to URL Filters
     await urlFiltersTab.click();
 
-    // Проверяем, что URL фильтр сохранился
+    // Verify that the URL filter was saved
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input').first();
     await expect(urlFilterInputAfterReload).toBeVisible({ timeout: 5000 });
     await expect(urlFilterInputAfterReload).toHaveValue('https://example.com/*');

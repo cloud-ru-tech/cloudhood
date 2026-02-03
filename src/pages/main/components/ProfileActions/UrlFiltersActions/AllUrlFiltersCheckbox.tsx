@@ -11,5 +11,12 @@ export function AllUrlFiltersCheckbox() {
     isPaused: $isPaused,
   });
 
-  return <Checkbox disabled={isPaused} checked={isAllUrlFiltersEnabled} onChange={toggleAllProfileUrlFilters} />;
+  return (
+    <Checkbox
+      disabled={isPaused}
+      checked={isAllUrlFiltersEnabled}
+      onChange={toggleAllProfileUrlFilters}
+      data-test-id='all-url-filters-checkbox'
+    />
+  );
 }

@@ -39,10 +39,10 @@ export const $profileExportString = combine(
     return JSON.stringify(
       profiles
         .filter(({ id }) => selectedExportProfileIdList.includes(id))
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
         .map(({ id, requestHeaders, ...rest }) => ({
           ...rest,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- если модель будет расширять, то потенциально будет ошибка
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
           requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
         })) || [],
     );

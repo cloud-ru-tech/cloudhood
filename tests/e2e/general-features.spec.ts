@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 
 import { expect, test } from './fixtures';
 
-// Типы для chrome API в тестах
+// Types for the chrome API in tests
 declare const chrome: {
   action: {
     getBadgeText: (details: Record<string, unknown>, callback: (text: string) => void) => void;
@@ -56,16 +56,16 @@ const selectThemeOption = async (page: Page, option: ThemeOption) => {
       await expect(optionLocator).toBeVisible({ timeout: 4000 });
       await optionLocator.click();
       await waitForThemeChange(page, option);
-      // Закрываем меню после выбора, чтобы курсор вернулся на кнопку
+      // Close the menu after selection so focus returns to the button
       await page.keyboard.press('Escape');
-      // Ждем закрытия выпадающего меню после выбора опции
+      // Wait for the dropdown menu to close after selecting an option
       await expect(menuContainer).toBeHidden({ timeout: 3000 });
       return;
     } catch (error) {
       if (attempt === 2) {
         throw error;
       }
-      // Убеждаемся, что меню закрылось, прежде чем повторить попытку
+      // Ensure the menu is closed before retrying
       await expect(menuContainer)
         .toBeHidden({ timeout: 1000 })
         .catch(() => {});
@@ -75,42 +75,42 @@ const selectThemeOption = async (page: Page, option: ThemeOption) => {
 
 test.describe('General Features', () => {
   /**
-   * Тест-кейс: Изменение иконки при добавлении headers
+   * Test case: Icon change when adding headers
    *
-   * Цель: Проверить, что иконка расширения изменяется при добавлении заголовков запросов.
+   * Goal: Verify that the extension icon changes when request headers are added.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Проверяем начальное состояние иконки (через badge)
-   * 3. Добавляем заголовок запроса
-   * 4. Заполняем заголовок
-   * 5. Проверяем, что badge иконки обновился (показывает количество активных заголовков)
-   * 6. Включаем режим паузы
-   * 7. Проверяем, что иконка изменилась на paused
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Check the initial icon state (via badge)
+   * 3. Add a request header
+   * 4. Fill in the header
+   * 5. Verify that the badge updates (shows active headers count)
+   * 6. Enable pause mode
+   * 7. Verify that the icon switches to paused
    */
   test('should change icon when adding headers', async ({ page, extensionId, context }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Получаем service worker для проверки badge
+    // Get the service worker to check the badge
     const background = context.serviceWorkers()[0];
     if (!background) {
-      // Если service worker недоступен, пропускаем проверку badge
+      // If the service worker is unavailable, skip the badge check
       return;
     }
 
-    // Добавляем заголовок запроса
+    // Add a request header
     const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
     await addHeaderButton.click();
 
-    // Заполняем заголовок
+    // Fill in the header
     const headerNameField = page.locator('[data-test-id="header-name-input"] input').first();
     const headerValueField = page.locator('[data-test-id="header-value-input"] input').first();
     await expect(headerNameField).toBeVisible();
     await headerNameField.fill('X-Icon-Test-Header');
     await headerValueField.fill('icon-test-value');
 
-    // Проверяем badge через service worker, дожидаясь обновления значения
+    // Check the badge via the service worker, waiting for the value to update
     try {
       await expect
         .poll(
@@ -128,14 +128,14 @@ test.describe('General Features', () => {
         )
         .toBeTruthy();
     } catch {
-      // Если не удалось проверить badge, это не критично для теста
-      // В headless режиме badge может быть недоступен
+      // If the badge check fails, it's not critical for the test
+      // In headless mode the badge may be unavailable
     }
 
-    // Включаем режим паузы
+    // Enable pause mode
     const pauseButton = page.locator('[data-test-id="pause-button"]');
     await pauseButton.click();
-    // Проверяем, что иконка изменилась на paused (через проверку badge, который должен быть пустым)
+    // Verify that the icon switched to paused (via badge, which should be empty)
     try {
       await expect
         .poll(
@@ -153,26 +153,26 @@ test.describe('General Features', () => {
         )
         .toBe('');
     } catch {
-      // Если не удалось проверить badge, это не критично для теста
-      // В headless режиме badge может быть недоступен
+      // If the badge check fails, it's not critical for the test
+      // In headless mode the badge may be unavailable
     }
   });
 
   /**
-   * Тест-кейс: Переключение темы
+   * Test case: Theme switching
    *
-   * Цель: Проверить возможность переключения между темами (Light, Dark, System).
+   * Goal: Verify switching between Light, Dark, and System themes.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Находим кнопку переключения темы
-   * 3. Открываем меню выбора темы
-   * 4. Выбираем тему "Dark"
-   * 5. Проверяем, что тема изменилась (через классы body)
-   * 6. Выбираем тему "Light"
-   * 7. Проверяем, что тема изменилась обратно
-   * 8. Выбираем тему "System"
-   * 9. Проверяем, что тема соответствует системной
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Find the theme toggle button
+   * 3. Open the theme selection menu
+   * 4. Select "Dark"
+   * 5. Verify that the theme changed (via body classes)
+   * 6. Select "Light"
+   * 7. Verify that the theme changed back
+   * 8. Select "System"
+   * 9. Verify that the theme matches the system
    */
   test('should toggle theme mode', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
@@ -190,36 +190,36 @@ test.describe('General Features', () => {
   });
 
   /**
-   * Тест-кейс: Валидная ссылка на GitHub
+   * Test case: Valid GitHub link
    *
-   * Цель: Проверить, что ссылка на GitHub корректна и открывается в новой вкладке.
+   * Goal: Verify that the GitHub link is correct and opens in a new tab.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Находим кнопку с иконкой GitHub
-   * 3. Проверяем, что кнопка видна
-   * 4. Кликаем на кнопку
-   * 5. Проверяем, что открылась новая вкладка с правильным URL GitHub
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Find the button with the GitHub icon
+   * 3. Verify that the button is visible
+   * 4. Click the button
+   * 5. Verify that a new tab opens with the correct GitHub URL
    */
   test('should have valid GitHub link', async ({ page, extensionId, context }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Находим кнопку с иконкой GitHub через data-test-id
+    // Find the GitHub icon button via data-test-id
     const githubButton = page.locator('[data-test-id="github-link-button"]');
 
     await expect(githubButton).toBeVisible({ timeout: 10000 });
     await expect(githubButton).toBeEnabled();
 
-    // В headless режиме window.open может работать по-другому, поэтому отслеживаем появление новой вкладки
+    // In headless mode window.open may behave differently, so track new tab creation
     const pagePromise = context.waitForEvent('page', { timeout: 10000 }).catch(() => null);
     await githubButton.click();
 
-    // Проверяем, открылась ли новая страница
+    // Check if a new page opened
     const newPage = await pagePromise;
 
     if (newPage) {
-      // Если новая страница открылась, проверяем URL
+      // If a new page opened, verify the URL
       await newPage.waitForLoadState('networkidle');
       const url = newPage.url();
       expect(url).toContain('github.com');
@@ -227,28 +227,27 @@ test.describe('General Features', () => {
       expect(url).toContain('cloudhood');
       await newPage.close();
     } else {
-      // Если новая страница не открылась (может быть в headless режиме),
-      // проверяем, что обработчик клика установлен правильно
-      // через проверку, что кнопка кликабельна и имеет onClick
+      // If no new page opened (may happen in headless mode),
+      // verify the click handler via button clickability and onClick presence
       const isClickable = await githubButton.isEnabled();
       expect(isClickable).toBe(true);
 
-      // Проверяем, что URL правильный через package.json (уже проверено в коде)
-      // В этом случае тест проходит, так как функциональность работает,
-      // но в headless режиме window.open может не открывать новую страницу
+      // Verify the URL via package.json (already verified in code)
+      // In this case the test passes since functionality works,
+      // but headless mode may not open a new page
     }
   });
 
   /**
-   * Тест-кейс: Сохранение выбранной темы между сессиями
+   * Test case: Persisting the selected theme between sessions
    *
-   * Цель: Проверить, что выбранная тема сохраняется между сессиями.
+   * Goal: Verify that the selected theme persists between sessions.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Переключаем тему на "Dark"
-   * 3. Перезагружаем страницу
-   * 4. Проверяем, что тема сохранилась
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Switch to "Dark"
+   * 3. Reload the page
+   * 4. Verify that the theme persisted
    */
   test('should persist theme selection across sessions', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);

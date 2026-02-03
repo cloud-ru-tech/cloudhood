@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
-// Файлы и папки для исключения из исходников
+// Files and folders to exclude from sources
 const EXCLUDE_PATTERNS = [
   'node_modules',
   'dist',
@@ -31,7 +31,7 @@ const EXCLUDE_PATTERNS = [
   'tests',
 ];
 
-// Конкретные файлы для включения в корне проекта
+// Specific files to include at the project root
 const INCLUDE_FILES = [
   'package.json',
   'package-lock.json',
@@ -48,7 +48,7 @@ const INCLUDE_FILES = [
   'manifest.firefox.json',
 ];
 
-// Папки для включения
+// Directories to include
 const INCLUDE_DIRECTORIES = ['src', 'scripts'];
 
 function shouldExclude(filePath, relativePath) {
@@ -61,60 +61,60 @@ function shouldExclude(filePath, relativePath) {
 }
 
 async function createBuildInstructions() {
-  console.log('📝 Создаем инструкции по сборке...');
+  console.log('📝 Creating build instructions...');
 
-  const instructions = `# Инструкции по сборке CloudHood для Firefox
+  const instructions = `# CloudHood Firefox Build Instructions
 
-## Системные требования
+## System Requirements
 
-- Node.js версии 18 или выше
-- pnpm версии 10.10.0 или выше
+- Node.js 18 or higher
+- pnpm 10.10.0 or higher
 
-## Установка зависимостей
+## Install Dependencies
 
 \`\`\`bash
 pnpm install
 \`\`\`
 
-## Сборка расширения
+## Build the Extension
 
-Для сборки расширения для Firefox выполните:
+To build the Firefox extension, run:
 
 \`\`\`bash
 pnpm build:firefox
 \`\`\`
 
-Собранное расширение будет находиться в папке \`build/firefox/\`.
+The built extension will be located in \`build/firefox/\`.
 
-## Дополнительные команды
+## Additional Commands
 
-- \`pnpm lint\` - проверка кода на соответствие стандартам
-- \`pnpm test:unit\` - запуск юнит-тестов
-- \`pnpm start:firefox\` - запуск в режиме разработки для Firefox
-- \`pnpm build:chromium\` - сборка для Chromium/Chrome
+- \`pnpm lint\` - lint the codebase
+- \`pnpm test:unit\` - run unit tests
+- \`pnpm start:firefox\` - start Firefox development mode
+- \`pnpm build:chromium\` - build for Chromium/Chrome
 
-## Структура проекта
+## Project Structure
 
-- \`src/\` - исходный код расширения
-- \`scripts/\` - скрипты сборки
-- \`manifest.firefox.json\` - манифест для Firefox
-- \`manifest.chromium.json\` - манифест для Chromium
-- \`webpack.config.js\` - конфигурация Webpack
-- \`tsconfig.json\` - конфигурация TypeScript
+- \`src/\` - extension source code
+- \`scripts/\` - build scripts
+- \`manifest.firefox.json\` - Firefox manifest
+- \`manifest.chromium.json\` - Chromium manifest
+- \`webpack.config.js\` - Webpack configuration
+- \`tsconfig.json\` - TypeScript configuration
 
-## Файлы конфигурации
+## Configuration Files
 
-- \`lint-staged.config.mjs\` - конфигурация pre-commit хуков
-- \`stylelint.config.cjs\` - конфигурация StyleLint
-- \`vitest.config.ts\` - конфигурация тестов
+- \`lint-staged.config.mjs\` - pre-commit hooks configuration
+- \`stylelint.config.cjs\` - StyleLint configuration
+- \`vitest.config.ts\` - test configuration
 
-## Примечания
+## Notes
 
-Данный архив содержит полные исходные коды расширения CloudHood.
-Все зависимости указаны в package.json и устанавливаются автоматически при выполнении \`pnpm install\`.
+This archive contains the full CloudHood extension source code.
+All dependencies are listed in package.json and installed automatically when running \`pnpm install\`.
 
-Расширение поддерживает как Firefox, так и Chromium-браузеры.
-Используются отдельные манифесты для каждого типа браузера.
+The extension supports both Firefox and Chromium browsers.
+Separate manifests are used for each browser type.
 `;
 
   await fs.writeFile(path.join(PROJECT_ROOT, 'BUILD_INSTRUCTIONS.md'), instructions);
@@ -122,21 +122,21 @@ pnpm build:firefox
 }
 
 async function createSourcesArchive() {
-  console.log('📦 Создаем архив с исходниками...');
+  console.log('📦 Creating source archive...');
 
   const archiveName = `cloudhood-firefox-sources.zip`;
   const archivePath = path.join(PROJECT_ROOT, archiveName);
 
   try {
-    // Удаляем старый архив если есть
+    // Remove the old archive if it exists
     if (await fs.pathExists(archivePath)) {
       await fs.remove(archivePath);
     }
 
-    // Создаем список файлов для архива
+    // Build the list of files to archive
     const filesToArchive = [];
 
-    // Добавляем основные файлы
+    // Add primary files
     for (const file of INCLUDE_FILES) {
       const filePath = path.join(PROJECT_ROOT, file);
       if (await fs.pathExists(filePath)) {
@@ -144,7 +144,7 @@ async function createSourcesArchive() {
       }
     }
 
-    // Добавляем папки
+    // Add directories
     for (const dir of INCLUDE_DIRECTORIES) {
       const dirPath = path.join(PROJECT_ROOT, dir);
       if (await fs.pathExists(dirPath)) {
@@ -152,7 +152,7 @@ async function createSourcesArchive() {
       }
     }
 
-    // Добавляем конфигурационные файлы
+    // Add configuration files
     const rootFiles = await fs.readdir(PROJECT_ROOT);
     for (const file of rootFiles) {
       const filePath = path.join(PROJECT_ROOT, file);
@@ -174,47 +174,47 @@ async function createSourcesArchive() {
       }
     }
 
-    // Добавляем BUILD_INSTRUCTIONS.md
+    // Add BUILD_INSTRUCTIONS.md
     filesToArchive.push('BUILD_INSTRUCTIONS.md');
 
-    // Создаем zip архив
+    // Create the zip archive
     const filesList = filesToArchive.join(' ');
     execSync(`cd "${PROJECT_ROOT}" && zip -r "${archiveName}" ${filesList}`, {
       stdio: 'inherit',
     });
 
-    console.log(`✓ Архив создан: ${archiveName}`);
-    console.log(`📍 Путь: ${archivePath}`);
+    console.log(`✓ Archive created: ${archiveName}`);
+    console.log(`📍 Path: ${archivePath}`);
 
-    // Показываем размер архива
+    // Show archive size
     const stats = await fs.stat(archivePath);
     const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-    console.log(`📊 Размер архива: ${sizeMB} MB`);
+    console.log(`📊 Archive size: ${sizeMB} MB`);
   } catch (error) {
-    console.error('❌ Ошибка при создании архива:', error.message);
+    console.error('❌ Error creating archive:', error.message);
     process.exit(1);
   }
 }
 
 async function validateSources() {
-  console.log('🔍 Проверяем файлы проекта...');
+  console.log('🔍 Checking project files...');
 
   const requiredFiles = ['package.json', 'src', 'scripts', 'manifest.firefox.json'];
 
   for (const file of requiredFiles) {
     const filePath = path.join(PROJECT_ROOT, file);
     if (!(await fs.pathExists(filePath))) {
-      console.error(`❌ Отсутствует обязательный файл: ${file}`);
+      console.error(`❌ Missing required file: ${file}`);
       process.exit(1);
     }
   }
 
-  console.log('✓ Все обязательные файлы присутствуют');
+  console.log('✓ All required files are present');
 }
 
 async function main() {
   try {
-    console.log('🚀 Начинаем сборку архива исходников для Firefox Store...\n');
+    console.log('🚀 Starting source archive build for Firefox Store...\n');
 
     await createBuildInstructions();
     console.log('');
@@ -225,13 +225,13 @@ async function main() {
     await createSourcesArchive();
     console.log('');
 
-    // Удаляем BUILD_INSTRUCTIONS.md после создания архива
+    // Remove BUILD_INSTRUCTIONS.md after creating the archive
     await fs.remove(path.join(PROJECT_ROOT, 'BUILD_INSTRUCTIONS.md'));
 
-    console.log('✅ Сборка архива исходников завершена успешно!');
-    console.log('🔍 Архив готов для отправки в Firefox Store');
+    console.log('✅ Source archive build completed successfully!');
+    console.log('🔍 The archive is ready for submission to Firefox Store');
   } catch (error) {
-    console.error('❌ Ошибка при сборке исходников:', error);
+    console.error('❌ Error building sources:', error);
     process.exit(1);
   }
 }

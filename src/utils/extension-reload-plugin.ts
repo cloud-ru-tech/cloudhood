@@ -3,10 +3,10 @@ import type { Plugin } from 'vite';
 export const extensionReloadPlugin = (): Plugin => {
   let notifyClients: ((file?: string) => void) | null = null;
 
-  // Функция для отправки уведомления через WebSocket
+  // Function to send a notification via WebSocket
   const sendReloadNotification = (file?: string) => {
     try {
-      // Используем встроенный WebSocket браузера
+      // Use the built-in browser WebSocket
       const WebSocket = globalThis.WebSocket || require('ws');
       const port = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
       const ws = new WebSocket(`ws://localhost:${port}`);
@@ -17,10 +17,10 @@ export const extensionReloadPlugin = (): Plugin => {
       };
 
       ws.onerror = () => {
-        // Игнорируем ошибки подключения - сервер может быть не запущен
+        // Ignore connection errors - the server may not be running
       };
     } catch (_error) {
-      // Игнорируем ошибки - сервер может быть не запущен
+      // Ignore errors - the server may not be running
     }
   };
 
@@ -36,13 +36,13 @@ export const extensionReloadPlugin = (): Plugin => {
     },
 
     buildEnd() {
-      // Уведомляем о завершении сборки
+      // Notify on build completion
       if (notifyClients && process.env.NODE_ENV === 'development') {
         setTimeout(() => {
           notifyClients?.();
           // eslint-disable-next-line no-console
           console.log('🔄 Extension build completed - reload signal sent');
-        }, 100); // Небольшая задержка для завершения записи файлов
+        }, 100); // Small delay to let file writes finish
       }
     },
 

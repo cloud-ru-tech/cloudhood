@@ -33,13 +33,13 @@ const addRequestHeader = async (page: Page, name: string, value: string) => {
 };
 
 const openHeaderMenuAndSelectAction = async (page: Page, actionName: string, headerIndex = 0) => {
-  // Открываем меню действий заголовка
+  // Open the header actions menu
   const menuButton = page.locator('[data-test-id="request-header-menu-button"]').nth(headerIndex);
   await expect(menuButton).toBeVisible();
   await expect(menuButton).toBeEnabled();
   await menuButton.click();
 
-  // Выбираем опцию из меню
+  // Select an option from the menu
   const actionOption = page.getByRole('menuitem', { name: actionName });
   await expect(actionOption).toBeVisible();
   await actionOption.click();
@@ -47,45 +47,45 @@ const openHeaderMenuAndSelectAction = async (page: Page, actionName: string, hea
 
 test.describe('Request Headers Actions', () => {
   /**
-   * Тест-кейс: Удаление всех заголовков запросов
+   * Test case: Removing all request headers
    *
-   * Цель: Проверить возможность удаления всех заголовков запросов.
-   * Примечание: В текущей реализации кнопка "remove-request-header-button" удаляет профиль,
-   * а не все заголовки. Для удаления всех заголовков нужно удалить каждый заголовок по отдельности
-   * или удалить профиль. Этот тест проверяет удаление профиля, что приводит к удалению всех заголовков.
+   * Goal: Verify that all request headers can be removed.
+   * Note: In the current implementation, the "remove-request-header-button" deletes the profile,
+   * not all headers. To remove all headers, each header must be removed individually or the profile
+   * must be deleted. This test removes headers one by one to ensure all headers are removed.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем несколько заголовков запросов
-   * 3. Проверяем, что заголовки добавлены
-   * 4. Удаляем каждый заголовок по отдельности через кнопку удаления
-   * 5. Проверяем, что все заголовки удалены
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add several request headers
+   * 3. Verify that the headers were added
+   * 4. Remove each header individually using the delete button
+   * 5. Verify that all headers are removed
    */
   test('should remove all request headers', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем несколько заголовков
+    // Add multiple headers
     await addRequestHeader(page, 'X-Header-1', 'value-1');
     await addRequestHeader(page, 'X-Header-2', 'value-2');
 
-    // Проверяем, что заголовки добавлены
+    // Verify that headers were added
     const headersCountBefore = await page.locator('[data-test-id="header-name-input"] input').count();
     expect(headersCountBefore).toBeGreaterThanOrEqual(2);
 
-    // Удаляем каждый заголовок по отдельности
-    // Кнопка удаления находится в каждой строке заголовка
-    // Важно: кнопка удаления становится disabled для пустых заголовков,
-    // поэтому удаляем только enabled кнопки
+    // Remove each header individually
+    // The delete button is in each header row
+    // Important: the delete button becomes disabled for empty headers,
+    // so only remove enabled buttons
     const removeButtons = page.locator('[data-test-id="remove-request-header-button"]');
     let removeButtonsCount = await removeButtons.count();
 
-    // Удаляем все заголовки (удаляем с конца, чтобы индексы не сбивались)
-    // Удаляем только enabled кнопки
+    // Remove all headers (start from the end to avoid index shifts)
+    // Remove only enabled buttons
     while (removeButtonsCount > 0) {
       const removeButton = removeButtons.nth(removeButtonsCount - 1);
 
-      // Пропускаем скрытые или disabled кнопки (они относятся к пустым строкам)
+      // Skip hidden or disabled buttons (they belong to empty rows)
       const isVisible = await removeButton.isVisible().catch(() => false);
       const isDisabled = await removeButton.isDisabled().catch(() => true);
       if (!isVisible || isDisabled) {
@@ -93,11 +93,11 @@ test.describe('Request Headers Actions', () => {
         continue;
       }
 
-      // Ждем уменьшения количества кнопок после удаления
+      // Wait for the number of buttons to decrease after deletion
       const previousCount = removeButtonsCount;
       await removeButton.click();
 
-      // Ждем, пока количество кнопок уменьшится
+      // Wait until the number of buttons decreases
       await expect(async () => {
         const currentCount = await removeButtons.count();
         return currentCount < previousCount || currentCount === 0;
@@ -106,84 +106,84 @@ test.describe('Request Headers Actions', () => {
       removeButtonsCount = await removeButtons.count();
     }
 
-    // Проверяем, что все заголовки удалены
-    // После удаления всех заголовков может остаться одно пустое поле или поля исчезнут
+    // Verify that all headers are removed
+    // After removing all headers, one empty field may remain or fields may disappear
     const headersCountAfter = await page.locator('[data-test-id="header-name-input"] input').count();
-    // Проверяем, что количество заголовков уменьшилось
+    // Verify that the number of headers decreased
     expect(headersCountAfter).toBeLessThan(headersCountBefore);
   });
 
   /**
-   * Тест-кейс: Очистка значения заголовка запроса
+   * Test case: Clearing a request header value
    *
-   * Цель: Проверить возможность очистки значения заголовка через меню действий.
+   * Goal: Verify that a header value can be cleared via the actions menu.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса
-   * 3. Заполняем заголовок
-   * 4. Открываем меню действий заголовка
-   * 5. Выбираем опцию "Clear Value"
-   * 6. Проверяем, что значение очищено
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add a request header
+   * 3. Fill in the header
+   * 4. Open the header actions menu
+   * 5. Select "Clear Value"
+   * 6. Verify that the value is cleared
    */
   test('should clear request header value', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем и заполняем заголовок
+    // Add and fill a header
     const { headerNameField, headerValueField, headerIndex } = await addRequestHeader(
       page,
       'X-Clear-Test-Header',
       'clear-test-value',
     );
 
-    // Проверяем, что значение заполнено
+    // Verify that the value is filled in
     await expect(headerValueField).toHaveValue('clear-test-value');
 
-    // Выбираем "Clear Value" в меню
+    // Select "Clear Value" in the menu
     await openHeaderMenuAndSelectAction(page, 'Clear Value', headerIndex);
 
-    // Проверяем, что значение очищено
+    // Verify that the value is cleared
     await expect(headerValueField).toHaveValue('');
-    // Проверяем, что имя заголовка осталось
+    // Verify that the header name remains
     await expect(headerNameField).toHaveValue('X-Clear-Test-Header');
   });
 
   /**
-   * Тест-кейс: Дублирование заголовка запроса
+   * Test case: Duplicating a request header
    *
-   * Цель: Проверить возможность дублирования заголовка запроса через меню действий.
+   * Goal: Verify that a request header can be duplicated via the actions menu.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса
-   * 3. Заполняем заголовок
-   * 4. Открываем меню действий заголовка
-   * 5. Выбираем опцию "Duplicate"
-   * 6. Проверяем, что появился дублированный заголовок
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add a request header
+   * 3. Fill in the header
+   * 4. Open the header actions menu
+   * 5. Select "Duplicate"
+   * 6. Verify that the duplicated header appears
    */
   test('should duplicate request header', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем и заполняем заголовок запроса
+    // Add and fill a request header
     const { headerIndex: duplicateHeaderIndex } = await addRequestHeader(
       page,
       'X-Duplicate-Test-Header',
       'duplicate-test-value',
     );
 
-    // Проверяем количество заголовков до дублирования
+    // Check header count before duplication
     const headersCountBefore = await page.locator('[data-test-id="header-name-input"] input').count();
 
-    // Открываем меню и выбираем опцию "Duplicate"
+    // Open the menu and select "Duplicate"
     await openHeaderMenuAndSelectAction(page, 'Duplicate', duplicateHeaderIndex);
 
-    // Проверяем, что количество заголовков увеличилось
+    // Verify that the header count increased
     const headersCountAfter = await page.locator('[data-test-id="header-name-input"] input').count();
     expect(headersCountAfter).toBe(headersCountBefore + 1);
 
-    // Проверяем, что дублированный заголовок появился последним и имеет те же значения
+    // Verify that the duplicated header is last and has the same values
     const duplicatedHeaderIndex = headersCountAfter - 1;
     const duplicatedHeaderName = page.locator('[data-test-id="header-name-input"] input').nth(duplicatedHeaderIndex);
     const duplicatedHeaderValue = page.locator('[data-test-id="header-value-input"] input').nth(duplicatedHeaderIndex);
@@ -192,63 +192,63 @@ test.describe('Request Headers Actions', () => {
   });
 
   /**
-   * Тест-кейс: Копирование заголовка запроса в буфер обмена
+   * Test case: Copying a request header to the clipboard
    *
-   * Цель: Проверить возможность копирования заголовка запроса в буфер обмена.
+   * Goal: Verify that a request header can be copied to the clipboard.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса
-   * 3. Заполняем заголовок
-   * 4. Открываем меню действий заголовка
-   * 5. Выбираем опцию "Copy"
-   * 6. Проверяем, что заголовок скопирован в буфер обмена
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add a request header
+   * 3. Fill in the header
+   * 4. Open the header actions menu
+   * 5. Select "Copy"
+   * 6. Verify that the header is copied to the clipboard
    */
   test('should copy request header to clipboard', async ({ page, extensionId }) => {
     await setupClipboardMock(page);
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем и заполняем заголовок запроса
+    // Add and fill a request header
     const { headerIndex: copyHeaderIndex } = await addRequestHeader(page, 'X-Copy-Test-Header', 'copy-test-value');
 
-    // Открываем меню и выбираем опцию "Copy"
+    // Open the menu and select "Copy"
     await openHeaderMenuAndSelectAction(page, 'Copy', copyHeaderIndex);
 
-    // Проверяем, что заголовок скопирован в буфер обмена
+    // Verify that the header is copied to the clipboard
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboardText).toBe('X-Copy-Test-Header: copy-test-value');
   });
 
   /**
-   * Тест-кейс: Копирование всех активных заголовков запросов
+   * Test case: Copying all active request headers
    *
-   * Цель: Проверить возможность копирования всех активных заголовков запросов в буфер обмена.
+   * Goal: Verify that all active request headers can be copied to the clipboard.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем несколько заголовков запросов
-   * 3. Заполняем заголовки
-   * 4. Нажимаем кнопку копирования всех активных заголовков
-   * 5. Проверяем, что заголовки скопированы в буфер обмена
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add multiple request headers
+   * 3. Fill in the headers
+   * 4. Click the button to copy all active headers
+   * 5. Verify that the headers are copied to the clipboard
    */
   test('should copy all active request headers to clipboard', async ({ page, extensionId }) => {
     await setupClipboardMock(page);
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Добавляем несколько заголовков
+    // Add multiple headers
     await addRequestHeader(page, 'X-Copy-All-1', 'value-1');
     await addRequestHeader(page, 'X-Copy-All-2', 'value-2');
 
-    // Находим кнопку копирования всех активных заголовков (кнопка с CopySVG в header)
-    // Кнопка находится в header, перед кнопкой паузы
+    // Find the button to copy all active headers (CopySVG button in the header)
+    // The button is in the header, before the pause button
     const headerActions = page.locator('[data-test-id="pause-button"]').locator('xpath=..');
     const copyAllButton = headerActions.locator('button').first();
     await expect(copyAllButton).toBeVisible();
     await copyAllButton.click();
 
-    // Проверяем, что заголовки скопированы в буфер обмена
+    // Verify that the headers are copied to the clipboard
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboardText).toContain('X-Copy-All-1: value-1');
     expect(clipboardText).toContain('X-Copy-All-2: value-2');

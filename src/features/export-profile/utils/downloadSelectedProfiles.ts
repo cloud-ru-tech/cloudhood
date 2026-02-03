@@ -5,7 +5,7 @@ export function downloadSelectedProfiles(profileExportString: string) {
   a.href = window.URL.createObjectURL(blob);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
-  const month = currentDate.getMonth() + 1; // Месяцы считаются с 0 (0 - январь, 11 - декабрь)
+  const month = currentDate.getMonth() + 1; // Months are zero-based (0 - January, 11 - December)
   const day = currentDate.getDate();
   const hours = currentDate.getHours();
   const minutes = currentDate.getMinutes();

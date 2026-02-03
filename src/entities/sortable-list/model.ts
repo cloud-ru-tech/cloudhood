@@ -36,7 +36,7 @@ export function createSortableListModel<T extends SortableItem, U>(config: Sorta
   const reorderItems = (payload: DragEndPayload) => {
     const { active, target } = payload;
 
-    // Логика переупорядочивания будет реализована в конкретных моделях
+    // Reordering logic is implemented in specific models
     return {
       active,
       target,

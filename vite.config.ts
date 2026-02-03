@@ -9,7 +9,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { extensionReloadPlugin } from './src/utils/extension-reload-plugin';
 
-// Настройка логгера
+// Logger setup
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
@@ -217,7 +217,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: `build/${targetBrowser}`,
-      emptyOutDir: false, // Не очищать папку при сборке, чтобы не удалять background.bundle.js
+      emptyOutDir: false, // Do not clear the folder during build to avoid deleting background.bundle.js
       sourcemap: !isProduction,
       chunkSizeWarningLimit: 1000,
       minify: isProduction ? 'terser' : false,
@@ -252,7 +252,7 @@ export default defineConfig(({ mode }) => {
             return '[name].[ext]';
           },
           manualChunks: id => {
-            // Для popup - создаем чанки
+            // Create chunks for the popup bundle
             if (id.includes('node_modules')) {
               return 'vendor';
             }

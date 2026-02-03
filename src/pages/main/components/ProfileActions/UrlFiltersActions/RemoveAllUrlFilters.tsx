@@ -33,6 +33,7 @@ export function RemoveAllUrlFilters() {
         icon={<TrashSVG />}
         disabled={isPaused || urlFilters.length === 0}
         onClick={() => setIsOpen(true)}
+        data-test-id='remove-all-url-filters-button'
       />
       <Modal
         open={isOpen}

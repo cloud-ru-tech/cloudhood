@@ -105,6 +105,12 @@ For E2E tests, always import the test fixtures:
 import { expect, test } from './fixtures';
 ```
 
+When new UI functionality is added, it must be covered by screenshot E2E tests. Add new scenarios under `tests/e2e/screenshot-tests/specs/` and update snapshots with:
+
+```bash
+pnpm test:e2e:screenshots:update
+```
+
 ## 🛠️ Development
 
 ### Development Commands

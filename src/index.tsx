@@ -22,7 +22,7 @@ const emotionCache = createCache({
   }),
 });
 
-// Включаем автоперезагрузку в dev режиме
+// Enable auto-reload in dev mode
 if (process.env.NODE_ENV === 'development') {
   enableExtensionReload();
   // eslint-disable-next-line no-console

@@ -25,7 +25,7 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
     'other',
   ] as browser.DeclarativeNetRequest.ResourceType[];
 
-  // Если URL фильтров нет, применяем заголовок ко всем URL
+  // If there are no URL filters, apply the header to all URLs
   if (urlFilters.length === 0) {
     return [
       {
@@ -35,7 +35,7 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
           requestHeaders: [{ header: header.name, value: header.value, operation: 'set' as const }],
         },
         condition: {
-          resourceTypes: allResourceTypes, // Применяется ко всем типам ресурсов
+          resourceTypes: allResourceTypes, // Applies to all resource types
         },
       },
     ];
@@ -60,7 +60,7 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
 export async function setBrowserHeaders(result: Record<string, unknown>) {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
-  // Валидация данных из storage
+  // Validate data from storage
   let profiles: Profile[] = [];
   let selectedProfile = '';
 
@@ -119,7 +119,7 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
 
   logger.info('Active URL filters:', activeUrlFilters);
 
-  // Добавляем более заметное логирование
+  // Add more visible logging
   logger.debug('🔍 Profile data:', {
     profileId: selectedProfile,
     headersCount: selectedProfileHeaders.length,

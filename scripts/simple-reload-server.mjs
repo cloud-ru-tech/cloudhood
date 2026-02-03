@@ -5,7 +5,7 @@ import pino from 'pino';
 const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 3333;
 const WATCH_DIR = 'build/chrome';
 
-// Настройка логгера
+// Logger setup
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
@@ -49,13 +49,13 @@ function createServer() {
       logger.error('❌ Server error:', error.message);
     });
 
-    // Отслеживаем изменения в папке build с дебаунсом
+    // Watch for changes in the build folder with debounce
     let reloadTimeout = null;
     const watcher = watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
       if (filename && (filename.endsWith('.js') || filename.endsWith('.html') || filename.endsWith('.json'))) {
         logger.info(`📁 File changed: ${filename}`);
 
-        // Дебаунс для предотвращения множественных перезагрузок
+        // Debounce to prevent multiple reloads
         if (reloadTimeout) {
           clearTimeout(reloadTimeout);
         }
@@ -63,18 +63,18 @@ function createServer() {
         reloadTimeout = setTimeout(() => {
           notifyClients();
           reloadTimeout = null;
-        }, 500); // Ждем 500мс после последнего изменения
+        }, 500); // Wait 500ms after the last change
       }
     });
 
     logger.info(`👀 Watching for changes in ${WATCH_DIR}`);
 
-    // Обработка ошибок watcher
+    // Handle watcher errors
     watcher.on('error', (error) => {
       logger.error('❌ File watcher error:', error.message);
     });
 
-    // Обработка сигналов завершения
+    // Handle shutdown signals
     process.on('SIGINT', () => {
       logger.info('🛑 Shutting down server...');
       watcher.close();

@@ -1,11 +1,11 @@
 import browser from 'webextension-polyfill';
 
 /**
- * Утилиты для работы с Content Security Policy
+ * Utilities for working with Content Security Policy
  */
 
 /**
- * Определяет текущий браузер
+ * Determines the current browser
  */
 export function getBrowserType(): 'chrome' | 'firefox' | 'unknown' {
   if (!browser) {
@@ -26,7 +26,7 @@ export function getBrowserType(): 'chrome' | 'firefox' | 'unknown' {
 }
 
 /**
- * Получает nonce из мета-тега или возвращает фиксированный
+ * Gets a nonce from the meta tag or returns a fixed value
  */
 export function getStyleNonce(): string {
   const FIXED_NONCE = 'cloudhood-extension-style-nonce';

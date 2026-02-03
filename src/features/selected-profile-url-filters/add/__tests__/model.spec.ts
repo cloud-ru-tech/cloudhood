@@ -62,7 +62,7 @@ describe('profileUrlFiltersAdded', () => {
   });
 
   it('should add new urlFilter to profile without urlFilters (legacy data)', async () => {
-    // Arrange - профиль без urlFilters как в старых данных
+    // Arrange - profile without urlFilters as in legacy data
     const mockProfiles: Partial<Profile>[] = [
       {
         id: 'profile1',
