@@ -1,7 +1,7 @@
 import { WebSocketServer } from 'ws';
 import pino from 'pino';
 
-// Настройка логгера
+// Logger setup
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
@@ -40,7 +40,7 @@ async function createServer() {
         logger.error('❌ WebSocket client error:', error.message);
       });
 
-      // Отправляем ping каждые 30 секунд для поддержания соединения
+      // Send a ping every 30 seconds to keep the connection alive
       const pingInterval = setInterval(() => {
         if (ws.readyState === 1) { // WebSocket.OPEN
           ws.ping();
@@ -66,7 +66,7 @@ async function createServer() {
       }
     });
 
-    // Обработка сигналов для корректного завершения
+    // Handle signals for graceful shutdown
     process.on('SIGINT', () => {
       isShuttingDown = true;
       logger.info('🛑 Shutting down WebSocket server...');
@@ -91,7 +91,7 @@ async function createServer() {
       }
     });
 
-    // Обработка необработанных исключений
+    // Handle uncaught exceptions
     process.on('uncaughtException', (error) => {
       logger.error('❌ Uncaught exception:', error.message);
       if (!isShuttingDown) {
@@ -120,7 +120,7 @@ async function createServer() {
   }
 }
 
-// Функция для отправки сигнала перезагрузки всем подключенным клиентам
+// Function to send a reload signal to all connected clients
 function notifyReload(file) {
   if (wss && wss.clients) {
     logger.info(`🔄 Sending reload signal to ${wss.clients.size} clients`);
@@ -136,8 +136,8 @@ function notifyReload(file) {
   }
 }
 
-// Экспортируем функцию для использования в других модулях
+// Export the function for use in other modules
 global.notifyReload = notifyReload;
 
-// Запускаем сервер
+// Start the server
 createServer();

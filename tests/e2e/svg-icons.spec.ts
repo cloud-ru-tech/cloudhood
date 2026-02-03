@@ -5,7 +5,7 @@ test.describe('SVG Icons Rendering', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Проверяем, что спрайт загружен (берем первый, если их несколько)
+    // Verify that the sprite is loaded (take the first if there are multiple)
     const spriteLocator = page.locator('#snack-uikit-sprite');
     await expect(async () => {
       const count = await spriteLocator.count();
@@ -16,7 +16,7 @@ test.describe('SVG Icons Rendering', () => {
     });
     const sprite = spriteLocator.first();
 
-    // Проверяем, что спрайт содержит символы (иконки)
+    // Verify that the sprite contains symbols (icons)
     const spriteSymbols = sprite.locator('symbol');
     const symbolCount = await spriteSymbols.count();
     expect(symbolCount).toBeGreaterThan(0);
@@ -24,14 +24,14 @@ test.describe('SVG Icons Rendering', () => {
     const expectIconVisible = async (iconName: string) => {
       const icon = page.locator(`svg[data-icon="${iconName}"]`).first();
       await expect(icon).toBeVisible();
-      // Проверяем, что иконка имеет размеры
+      // Verify that the icon has dimensions
       const boundingBox = await icon.boundingBox();
       expect(boundingBox).not.toBeNull();
       expect(boundingBox?.width).toBeGreaterThan(0);
       expect(boundingBox?.height).toBeGreaterThan(0);
     };
 
-    // Проверяем, что в кнопке есть видимый SVG (для иконок из спрайта)
+    // Verify that the button contains a visible SVG (for sprite icons)
     const expectButtonHasVisibleIcon = async (buttonLocator: ReturnType<typeof page.locator>) => {
       const svg = buttonLocator.locator('svg').first();
       await expect(svg).toBeVisible({ timeout: 3000 });
@@ -41,7 +41,7 @@ test.describe('SVG Icons Rendering', () => {
       expect(boundingBox?.height).toBeGreaterThan(0);
     };
 
-    // Проверка кастомных SVG иконок
+    // Check custom SVG icons
     const pauseButton = page.locator('[data-test-id="pause-button"]');
     await expect(pauseButton.locator('svg[data-icon="pause"]')).toBeVisible();
 
@@ -54,26 +54,26 @@ test.describe('SVG Icons Rendering', () => {
     const profileEditButton = page.locator('[data-test-id="profile-name-edit-button"]');
     await expect(profileEditButton.locator('svg[data-icon="edit"]')).toBeVisible();
 
-    // Проверка иконок из спрайта в меню действий профиля
+    // Check sprite icons in the profile actions menu
     const actionsMenuButton = page.locator('[data-test-id="profile-actions-menu-button"]');
     await expect(actionsMenuButton).toBeVisible();
 
-    // Проверяем, что кнопка меню имеет видимую иконку (KebabSVG из спрайта)
+    // Verify that the menu button has a visible icon (KebabSVG from the sprite)
     await expectButtonHasVisibleIcon(actionsMenuButton);
 
     await actionsMenuButton.click();
     await page.waitForTimeout(300);
 
-    // Проверяем иконки в выпадающем меню
+    // Check icons in the dropdown menu
     await expectIconVisible('file-open');
     await expectIconVisible('file-upload');
 
-    // Проверяем иконки из спрайта в меню (PlusSVG, TrashSVG, DownloadSVG, UploadSVG)
+    // Check sprite icons in the menu (PlusSVG, TrashSVG, DownloadSVG, UploadSVG)
     const menuItems = page.locator('[role="menuitem"], [role="option"]');
     const menuItemCount = await menuItems.count();
     expect(menuItemCount).toBeGreaterThan(0);
 
-    // Проверяем, что в меню есть видимые SVG иконки (из спрайта или inline)
+    // Verify that the menu has visible SVG icons (sprite or inline)
     for (let i = 0; i < Math.min(menuItemCount, 5); i++) {
       const menuItem = menuItems.nth(i);
       const svg = menuItem.locator('svg').first();
@@ -88,12 +88,12 @@ test.describe('SVG Icons Rendering', () => {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // Проверка иконок в секции заголовков
+    // Check icons in the headers section
     const headerCheckbox = page.locator('[data-test-id="request-header-checkbox"]').first();
     await expect(headerCheckbox).toBeVisible();
     await expectIconVisible('drag-indicator');
 
-    // Проверяем иконки из спрайта: PlusSVG и TrashSVG
+    // Check sprite icons: PlusSVG and TrashSVG
     const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]').first();
     await expect(addHeaderButton).toBeVisible();
     await expectButtonHasVisibleIcon(addHeaderButton);
@@ -102,25 +102,25 @@ test.describe('SVG Icons Rendering', () => {
     await expect(removeHeaderButton).toBeVisible();
     await expectButtonHasVisibleIcon(removeHeaderButton);
 
-    // Проверяем иконки в меню заголовка
+    // Check icons in the header menu
     const headerMenuButton = page.locator('[data-test-id="request-header-menu-button"]').first();
     await expect(headerMenuButton).toBeVisible();
 
-    // Проверяем, что кнопка меню имеет видимую иконку (KebabSVG из спрайта)
+    // Verify that the menu button has a visible icon (KebabSVG from the sprite)
     await expectButtonHasVisibleIcon(headerMenuButton);
 
     await headerMenuButton.click();
     await page.waitForTimeout(300);
 
-    // Проверяем кастомную иконку duplicate
+    // Check the custom duplicate icon
     await expectIconVisible('duplicate');
 
-    // Проверяем иконки из спрайта в меню (CopySVG, CrossSVG)
+    // Check sprite icons in the menu (CopySVG, CrossSVG)
     const headerMenuItems = page.locator('[role="menuitem"], [role="option"]');
     const headerMenuItemCount = await headerMenuItems.count();
     expect(headerMenuItemCount).toBeGreaterThan(0);
 
-    // Проверяем, что в меню есть видимые SVG иконки
+    // Verify that the menu has visible SVG icons
     for (let i = 0; i < Math.min(headerMenuItemCount, 3); i++) {
       const menuItem = headerMenuItems.nth(i);
       const svg = menuItem.locator('svg').first();
@@ -135,8 +135,8 @@ test.describe('SVG Icons Rendering', () => {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // Проверяем иконку CrossSVG на кнопке удаления строки заголовка
-    // Используем более специфичный селектор - кнопка внутри строки заголовка
+    // Check the CrossSVG icon on the header row delete button
+    // Use a more specific selector - the button inside the header row
     const headerRow = page.locator('[data-test-id="header-name-input"]').first().locator('..').locator('..');
     const removeHeaderRowButton = headerRow
       .locator('button')

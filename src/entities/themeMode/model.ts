@@ -56,13 +56,13 @@ const toggleThemeInDomAndStorageFx = createEffect(async (theme: ThemeMode) => {
   return theme;
 });
 
-// Загружаем last saved версию темы из хранилища
+// Load the last saved theme from storage
 sample({ clock: initApp, target: loadThemeModeFromStorageFx });
-// Подписываемся на изменение системной темы
+// Subscribe to system theme changes
 sample({ clock: initApp, source: $currentTheme, target: trackSystemThemeChangesFx });
-// Инициализируем тему в DOM на первую загрузку
+// Initialize the theme in the DOM on first load
 sample({ clock: initApp, source: $currentTheme, target: toggleThemeInDomFx });
-// при изменении темы обновляем DOM, сохраняем в storage
+// When the theme changes, update the DOM and save to storage
 sample({ source: $currentTheme, target: toggleThemeInDomAndStorageFx });
-// При изменении системной темы и пользователь выбрал явно режим "System" обновляем тему
+// When the system theme changes and the user selected "System", update the theme
 sample({ clock: systemThemeChanged, filter: $preferSystemTheme, target: toggleThemeInDomAndStorageFx });

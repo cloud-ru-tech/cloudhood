@@ -55,7 +55,7 @@ export function UrlFiltersRow(props: UrlFilter) {
   return (
     <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
       <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
-      <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} />
+      <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} data-test-id='url-filter-checkbox' />
 
       <Tooltip
         tip={(() => {

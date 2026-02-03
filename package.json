@@ -21,7 +21,11 @@
     "prepare": "husky",
     "reinstall": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "test:e2e": "HEADLESS=false playwright test",
-    "test:e2e:ci": "HEADLESS=true playwright test --reporter=line --max-failures=2"
+    "test:e2e:ci": "HEADLESS=true playwright test --reporter=line --max-failures=2",
+    "test:e2e:screenshots": "playwright test screenshots.spec.ts",
+    "test:e2e:screenshots:update": "playwright test screenshots.spec.ts --update-snapshots",
+    "test:e2e:screenshots:chrome": "playwright test screenshots.spec.ts --project=chrome-extension",
+    "test:e2e:screenshots:firefox": "playwright test screenshots.spec.ts --project=firefox-extension"
   },
   "dependencies": {
     "@cloud-ru/ft-config-lint-staged": "1.1.2",

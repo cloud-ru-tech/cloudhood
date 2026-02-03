@@ -4,38 +4,38 @@ import { useEffect } from 'react';
 declare const chrome: any;
 
 /**
- * SpriteLoader - компонент для загрузки и внедрения SVG-спрайтов в браузерном расширении
+ * SpriteLoader - loads and injects SVG sprites into the browser extension
  *
- * Решает проблему кросс-браузерности <use href> для внешних SVG-файлов:
- * - Chrome поддерживает <use href="sprite.svg#icon-name">
- * - Firefox требует внедрения спрайта в DOM
+ * Solves cross-browser <use href> handling for external SVG files:
+ * - Chrome supports <use href="sprite.svg#icon-name">
+ * - Firefox requires injecting the sprite into the DOM
  *
- * Компонент автоматически:
- * 1. Загружает sprite.symbol.svg из расширения
- * 2. Парсит SVG и внедряет его в DOM (невидимо)
- * 3. Позволяет всем <use href="#icon-name"> работать в обоих браузерах
+ * The component automatically:
+ * 1. Loads sprite.symbol.svg from the extension
+ * 2. Parses SVG and injects it into the DOM (hidden)
+ * 3. Allows all <use href="#icon-name"> to work in both browsers
  */
 export function SpriteLoader() {
   useEffect(() => {
     const loadAndInjectSprite = async () => {
       try {
-        // Проверяем, не загружен ли уже спрайт
+        // Check whether the sprite is already loaded
         if (document.querySelector('#snack-uikit-sprite')) {
           return;
         }
 
-        // Получаем URL спрайта
+        // Get the sprite URL
         let spriteUrl: string;
 
         try {
-          // Пытаемся использовать chrome.runtime.getURL
+          // Try to use chrome.runtime.getURL
           spriteUrl = chrome.runtime.getURL('sprite.symbol.svg');
         } catch {
-          // Fallback для случаев, когда chrome.runtime недоступен
+          // Fallback when chrome.runtime is unavailable
           spriteUrl = './sprite.symbol.svg';
         }
 
-        // Загружаем спрайт
+        // Load the sprite
         const response = await fetch(spriteUrl);
         if (!response.ok) {
           throw new Error(`Failed to load sprite: ${response.status}`);
@@ -43,7 +43,7 @@ export function SpriteLoader() {
 
         const svgText = await response.text();
 
-        // Парсим SVG
+        // Parse the SVG
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
         const svgElement = svgDoc.querySelector('svg');
@@ -52,7 +52,7 @@ export function SpriteLoader() {
           throw new Error('No SVG element found in sprite file');
         }
 
-        // Настраиваем SVG для внедрения
+        // Configure the SVG for injection
         svgElement.id = 'snack-uikit-sprite';
         svgElement.style.display = 'none';
         svgElement.style.position = 'absolute';
@@ -60,17 +60,17 @@ export function SpriteLoader() {
         svgElement.style.height = '0';
         svgElement.style.pointerEvents = 'none';
 
-        // Добавляем в начало body
+        // Insert at the beginning of the body
         document.body.insertBefore(svgElement, document.body.firstChild);
       } catch (_error) {
-        // Тихо игнорируем ошибки загрузки спрайта
-        // В production иконки все равно могут работать через fallback
+        // Silently ignore sprite loading errors
+        // In production, icons may still work via fallback
       }
     };
 
     loadAndInjectSprite();
 
-    // Очистка при размонтировании
+    // Cleanup on unmount
     return () => {
       const spriteElement = document.querySelector('#snack-uikit-sprite');
       if (spriteElement) {

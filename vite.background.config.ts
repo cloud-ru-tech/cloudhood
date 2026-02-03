@@ -13,18 +13,18 @@ export default defineConfig({
   },
   build: {
     outDir: `build/${process.env.BROWSER || 'chrome'}`,
-    sourcemap: true, // Включаем sourcemap для разработки
-    minify: false, // Отключаем минификацию для разработки
+    sourcemap: true, // Enable sourcemaps for development
+    minify: false, // Disable minification for development
     rollupOptions: {
       input: resolve(__dirname, 'src/background.ts'),
       output: {
         entryFileNames: 'background.bundle.js',
-        format: 'iife', // Используем IIFE формат для background script
-        inlineDynamicImports: true, // Встраиваем все динамические импорты
+        format: 'iife', // Use IIFE format for the background script
+        inlineDynamicImports: true, // Inline all dynamic imports
       },
       external: [],
     },
-    emptyOutDir: false, // Не очищать папку при сборке
+    emptyOutDir: false, // Do not clear the folder during build
   },
   assetsInclude: ['**/*.otf', '**/*.ttf', '**/*.woff', '**/*.woff2'],
 });

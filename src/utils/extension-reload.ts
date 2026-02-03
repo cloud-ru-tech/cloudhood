@@ -9,7 +9,7 @@ export const enableExtensionReload = (): void => {
     return;
   }
 
-  // Очищаем предыдущий таймаут переподключения
+  // Clear the previous reconnect timeout
   if (reconnectTimeout) {
     clearTimeout(reconnectTimeout);
     reconnectTimeout = null;
@@ -30,9 +30,9 @@ export const enableExtensionReload = (): void => {
           // eslint-disable-next-line no-console
           console.log('🔄 Reloading extension...');
 
-          // Добавляем небольшую задержку для завершения сборки
+          // Add a small delay to let the build finish
           setTimeout(() => {
-            // Проверяем доступность chrome.runtime.reload
+            // Check if chrome.runtime.reload is available
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const chromeAPI = (globalThis as any).chrome;
             if (chromeAPI && chromeAPI.runtime && chromeAPI.runtime.reload) {
@@ -40,19 +40,19 @@ export const enableExtensionReload = (): void => {
                 chromeAPI.runtime.reload();
               } catch (error) {
                 console.error('❌ Error during extension reload:', error);
-                // Fallback - перезагрузка через location
+                // Fallback - reload via location
                 if (typeof window !== 'undefined') {
                   window.location.reload();
                 }
               }
             } else {
               console.error('❌ chrome.runtime.reload is not available');
-              // Альтернативный способ - перезагрузка через location
+              // Alternative - reload via location
               if (typeof window !== 'undefined') {
                 window.location.reload();
               }
             }
-          }, 200); // Ждем 200мс для завершения записи файлов
+          }, 200); // Wait 200ms for file writes to finish
         }
       } catch (error) {
         console.error('❌ Error parsing WebSocket message:', error);
@@ -62,7 +62,7 @@ export const enableExtensionReload = (): void => {
     ws.onopen = () => {
       // eslint-disable-next-line no-console
       console.log('✅ Extension reload WebSocket connected successfully');
-      reconnectAttempts = 0; // Сбрасываем счетчик попыток при успешном подключении
+      reconnectAttempts = 0; // Reset attempts counter on successful connect
     };
 
     ws.onclose = event => {
@@ -71,7 +71,7 @@ export const enableExtensionReload = (): void => {
 
       if (process.env.NODE_ENV === 'development' && reconnectAttempts < maxReconnectAttempts) {
         reconnectAttempts++;
-        const delay = Math.min(1000 * reconnectAttempts, 5000); // Увеличиваем задержку, но не более 5 секунд
+        const delay = Math.min(1000 * reconnectAttempts, 5000); // Increase delay, but no more than 5 seconds
 
         // eslint-disable-next-line no-console
         console.log(`🔄 Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})`);

@@ -1,38 +1,38 @@
 /**
- * Создает условие для правила на основе URL фильтра
+ * Creates a condition for a rule based on a URL filter
  *
- * Логика:
- * - Если фильтр содержит *:// - использует regexFilter (регулярное выражение)
- * - Если фильтр содержит :// (но не *://) - использует urlFilter (wildcard)
- * - Если фильтр содержит * (но не *://) - использует urlFilter (wildcard)
- * - Для всех остальных случаев - использует urlFilter (строгое совпадение)
+ * Logic:
+ * - If the filter contains *:// - use regexFilter (regular expression)
+ * - If the filter contains :// (but not *://) - use urlFilter (wildcard)
+ * - If the filter contains * (but not *://) - use urlFilter (wildcard)
+ * - For all other cases - use urlFilter (strict match)
  *
- * Примеры:
- * - "example.com" -> urlFilter: "example.com" (строгое совпадение)
- * - "console-dev" -> urlFilter: "console-dev" (строгое совпадение)
+ * Examples:
+ * - "example.com" -> urlFilter: "example.com" (strict match)
+ * - "console-dev" -> urlFilter: "console-dev" (strict match)
  * - "https://example.com/*" -> urlFilter: "https://example.com/*" (wildcard)
  * - "star://example.com/*" -> regexFilter
  * - "star://console-devstar/*" -> regexFilter
  */
 /**
- * Преобразует паттерн с wildcards в валидное регулярное выражение RE2
+ * Converts a wildcard pattern into a valid RE2 regular expression
  */
 function convertToRegexFilter(pattern: string): string {
-  // Экранируем специальные символы RE2, кроме * и .
+  // Escape RE2 special characters except * and .
   const regex = pattern
-    .replace(/[+^${}()|[\]\\]/g, '\\$&') // Экранируем специальные символы (исключаем . и *)
-    .replace(/\./g, '\\.') // Экранируем точки
-    .replace(/\*/g, '.*'); // Заменяем * на .* (после экранирования точек)
+    .replace(/[+^${}()|[\]\\]/g, '\\$&') // Escape special characters (excluding . and *)
+    .replace(/\./g, '\\.') // Escape dots
+    .replace(/\*/g, '.*'); // Replace * with .* (after escaping dots)
 
   return regex;
 }
 
 /**
- * Проверяет, является ли регулярное выражение валидным для RE2
+ * Checks whether a regular expression is valid for RE2
  */
 function isValidRE2Regex(regex: string): boolean {
   try {
-    // Простая проверка на валидность регулярного выражения
+    // Basic validation for the regular expression
     new RegExp(regex);
     return true;
   } catch {
@@ -41,12 +41,12 @@ function isValidRE2Regex(regex: string): boolean {
 }
 
 /**
- * Проверяет потенциальные проблемы с URL фильтром и возвращает предупреждения
+ * Checks potential issues with a URL filter and returns warnings
  */
 export function validateUrlFilter(filter: string): { isValid: boolean; warnings: string[] } {
   const warnings: string[] = [];
 
-  // Валидация входных данных
+  // Validate input data
   if (!filter || typeof filter !== 'string') {
     return {
       isValid: false,
@@ -73,12 +73,12 @@ export function validateUrlFilter(filter: string): { isValid: boolean; warnings:
     };
   }
 
-  // Проверяем паттерн *://domain/* - может не работать для поддоменов
+  // Check *://domain/* - may not match subdomains
   if (filter.includes('*://') && filter.includes('/*')) {
     const domainMatch = filter.match(/\*:\/\/([^/*]+)\/\*/);
     if (domainMatch) {
       const domain = domainMatch[1];
-      // Если домен не содержит *, то он не будет соответствовать поддоменам
+      // If the domain does not contain *, it will not match subdomains
       if (!domain.includes('*')) {
         warnings.push(
           `Filter "${filter}" won't match subdomains. Use "*://${domain}*/*" to match subdomains like ${domain}-dev, ${domain}.cloud, etc.`,
@@ -87,12 +87,12 @@ export function validateUrlFilter(filter: string): { isValid: boolean; warnings:
     }
   }
 
-  // Проверяем паттерн *://domain/ (без звездочки в конце) - тоже может не работать для поддоменов
+  // Check *://domain/ (without trailing wildcard) - may not match subdomains
   if (filter.includes('*://') && filter.endsWith('/') && !filter.includes('/*')) {
     const domainMatch = filter.match(/\*:\/\/([^/]+)\/$/);
     if (domainMatch) {
       const domain = domainMatch[1];
-      // Если домен не содержит *, то он не будет соответствовать поддоменам
+      // If the domain does not contain *, it will not match subdomains
       if (!domain.includes('*')) {
         warnings.push(
           `Filter "${filter}" won't match subdomains. Use "*://${domain}*/*" to match subdomains like ${domain}-dev, ${domain}.cloud, etc.`,
@@ -108,17 +108,17 @@ export function validateUrlFilter(filter: string): { isValid: boolean; warnings:
 }
 
 export function createUrlCondition(filter: string): { urlFilter?: string; regexFilter?: string } {
-  // Валидация входных данных
+  // Validate input data
   if (!filter || typeof filter !== 'string') {
     throw new Error('Filter must be a non-empty string');
   }
 
-  // Проверяем максимальную длину фильтра для предотвращения ReDoS атак
+  // Check maximum filter length to prevent ReDoS attacks
   if (filter.length > 1000) {
     throw new Error('Filter length exceeds maximum allowed length of 1000 characters');
   }
 
-  // Проверяем наличие потенциально опасных символов
+  // Check for potentially dangerous characters
   if (
     filter.split('').some(char => {
       const code = char.charCodeAt(0);
@@ -128,30 +128,30 @@ export function createUrlCondition(filter: string): { urlFilter?: string; regexF
     throw new Error('Filter contains invalid control characters');
   }
 
-  // Если фильтр содержит *:// - это регулярное выражение
+  // If the filter contains *://, it is a regular expression
   if (filter.includes('*://')) {
     const regexFilter = convertToRegexFilter(filter);
 
-    // Проверяем валидность регулярного выражения
+    // Check regular expression validity
     if (isValidRE2Regex(regexFilter)) {
       return { regexFilter };
     }
 
-    // Если регулярное выражение невалидно, используем urlFilter как fallback
+    // If the regex is invalid, use urlFilter as a fallback
     console.warn(`Invalid regex pattern: ${regexFilter}, falling back to urlFilter`);
     return { urlFilter: filter };
   }
 
-  // Если фильтр содержит протокол без *://, используем urlFilter
+  // If the filter contains a protocol without *://, use urlFilter
   if (filter.includes('://')) {
     return { urlFilter: filter };
   }
 
-  // Если фильтр содержит wildcards (но не *://), используем urlFilter
+  // If the filter contains wildcards (but not *://), use urlFilter
   if (filter.includes('*')) {
     return { urlFilter: filter };
   }
 
-  // Для всех остальных случаев (простые домены, ключевые слова) применяем строго
+  // For all other cases (simple domains, keywords) apply strict match
   return { urlFilter: filter };
 }

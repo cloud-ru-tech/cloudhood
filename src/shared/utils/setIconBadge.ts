@@ -12,7 +12,7 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
   const iconPath = isPaused ? 'img/paused-icon-38.png' : 'img/main-icon-38.png';
   const badgeText = !isPaused && activeRulesCount > 0 ? activeRulesCount.toString() : '';
 
-  // Логируем информацию о расширении
+  // Log extension info
   logger.debug('Extension info:', {
     id: browser.runtime.id,
     getURL: browser.runtime.getURL(''),
@@ -25,7 +25,7 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
   logger.debug('Setting icon badge:', { isPaused, activeRulesCount, iconPath, badgeText });
 
   try {
-    // В Chrome Manifest V3 нужно использовать объект с размерами иконок
+    // In Chrome Manifest V3, use an object with icon sizes
     const iconDetails = {
       path: {
         38: iconPath,
@@ -47,7 +47,7 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
       errorMessage: err instanceof Error ? err.message : String(err),
     });
 
-    // Fallback: попробуем использовать простой путь
+    // Fallback: try using a simple path
     try {
       logger.debug('Trying fallback with simple path:', iconPath);
       await browserAction.setIcon({ path: iconPath });
@@ -55,7 +55,7 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
       logger.debug('Icon badge set successfully with fallback');
     } catch (fallbackErr) {
       logger.error('Fallback also failed:', fallbackErr);
-      // В крайнем случае просто устанавливаем текст без иконки
+      // As a last resort, set the badge text without an icon
       try {
         await browserAction.setBadgeText({ text: badgeText });
         logger.debug('Badge text set without icon');

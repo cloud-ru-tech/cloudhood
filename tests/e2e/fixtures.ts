@@ -21,14 +21,14 @@ export const test = base.extend<{
     await context.close();
   },
   extensionId: async ({ context }, use) => {
-    // Даем время расширению на инициализацию
+    // Give the extension time to initialize
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     let background;
     let attempts = 0;
     const maxAttempts = 10;
 
-    // Пытаемся получить service worker с повторными попытками
+    // Try to get the service worker with retries
     while (attempts < maxAttempts) {
       const serviceWorkers = context.serviceWorkers();
       if (serviceWorkers.length > 0) {
@@ -42,14 +42,14 @@ export const test = base.extend<{
       } catch {
         attempts++;
         if (attempts < maxAttempts) {
-          // Ждем немного перед следующей попыткой
+          // Wait a bit before the next attempt
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
     }
 
     if (!background) {
-      // Попробуем получить extension ID из контекста напрямую
+      // Try to get the extension ID directly from the context
       const pages = context.pages();
       for (const page of pages) {
         const url = page.url();
@@ -60,7 +60,7 @@ export const test = base.extend<{
         }
       }
 
-      // Попробуем создать новую страницу с расширением
+      // Try to open a new page with the extension
       try {
         const newPage = await context.newPage();
         await newPage.goto('chrome-extension://invalid/popup.html');
@@ -73,10 +73,10 @@ export const test = base.extend<{
         }
         await newPage.close();
       } catch (_error) {
-        // Игнорируем ошибки
+        // Ignore errors
       }
 
-      throw new Error(`Service worker не запустился после ${maxAttempts} попыток`);
+      throw new Error(`Service worker did not start after ${maxAttempts} attempts`);
     }
 
     const extensionId = background.url().split('/')[2];

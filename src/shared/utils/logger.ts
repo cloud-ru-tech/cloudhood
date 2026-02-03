@@ -6,14 +6,14 @@ export enum LogLevel {
 }
 
 /**
- * Конфигурация логгера
+ * Logger configuration
  */
 export type LoggerConfig = {
-  /** Минимальный уровень для вывода логов */
+  /** Minimum level for log output */
   minLevel: LogLevel;
-  /** Включить отображение временных меток */
+  /** Enable timestamp output */
   showTimestamp: boolean;
-  /** Включить логирование */
+  /** Enable logging */
   enabled: boolean;
 };
 

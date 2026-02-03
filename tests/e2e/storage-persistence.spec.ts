@@ -2,38 +2,38 @@ import { expect, test } from './fixtures';
 
 test.describe('Storage Persistence', () => {
   /**
-   * Тест-кейс: Восстановление профилей с заголовками и фильтрами при запуске с табами
+   * Test case: Restore profiles with headers and filters on startup with tabs
    *
-   * Цель: Проверить, что расширение корректно загружается с дефолтными значениями
-   * при первом запуске или когда storage пустой в новой структуре с табами.
+   * Goal: Verify that the extension loads with default values
+   * on first launch or when storage is empty in the new tabbed layout.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Проверяем, что все основные элементы интерфейса отображаются
-   * 3. Проверяем активную вкладку Headers
-   * 4. Проверяем, что поля заголовков имеют пустые значения по умолчанию
-   * 5. Переключаемся на вкладку URL Filters
-   * 6. Проверяем, что секция URL фильтров видна
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Verify that all main UI elements are visible
+   * 3. Verify the Headers tab is active
+   * 4. Verify that header fields are empty by default
+   * 5. Switch to the URL Filters tab
+   * 6. Verify that the URL filters section is visible
    */
   test('should restore profiles with headers and filters from storage on startup with tabs', async ({
     page,
     extensionId,
   }) => {
-    // Шаг 1: Переходим на страницу расширения
+    // Step 1: Navigate to the extension page
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Проверяем, что приложение загрузилось с дефолтными значениями
+    // Step 2: Verify the app loaded with default values
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
 
     await expect(headersTab).toBeVisible({ timeout: 5000 });
     await expect(urlFiltersTab).toBeVisible({ timeout: 5000 });
 
-    // Шаг 3: Проверяем активную вкладку Headers
+    // Step 3: Verify the Headers tab is active
     await expect(headersTab).toHaveAttribute('aria-selected', 'true');
 
-    // Шаг 4: Проверяем поля для заголовков запросов
+    // Step 4: Verify request header fields
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
@@ -42,57 +42,57 @@ test.describe('Storage Persistence', () => {
     await expect(headerNameInput).toHaveValue('');
     await expect(headerValueInput).toHaveValue('');
 
-    // Шаг 5: Переключаемся на вкладку URL Filters
+    // Step 5: Switch to the URL Filters tab
     await urlFiltersTab.click();
 
-    // Шаг 6: Проверяем поле для URL фильтра
+    // Step 6: Verify the URL filter field
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInput).toBeVisible();
     await expect(urlFilterInput).toHaveValue('');
 
-    // Проверяем, что кнопка паузы доступна
+    // Verify that the pause button is available
     const pauseButton = page.locator('[data-test-id="pause-button"]');
     await expect(pauseButton).toBeVisible();
   });
 
   /**
-   * Тест-кейс: Обработка пустого storage с табами
+   * Test case: Handle empty storage with tabs
    *
-   * Цель: Проверить, что приложение корректно работает когда storage пустой
-   * или содержит некорректные данные в новой структуре с табами.
+   * Goal: Verify that the app works correctly when storage is empty
+   * or contains invalid data in the new tabbed layout.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения (storage пустой)
-   * 2. Проверяем, что приложение не падает
-   * 3. Проверяем отображение табов
-   * 4. Проверяем, что отображаются дефолтные значения
-   * 5. Проверяем, что все элементы интерфейса доступны
+   * Scenario:
+   * 1. Open the extension popup (storage is empty)
+   * 2. Verify the app does not crash
+   * 3. Verify tab visibility
+   * 4. Verify default values are shown
+   * 5. Verify all UI elements are available
    */
   test('should handle empty storage gracefully with tabs', async ({ page, extensionId }) => {
-    // Шаг 1: Переходим на страницу расширения
+    // Step 1: Navigate to the extension page
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Проверяем, что приложение загрузилось с дефолтными значениями
+    // Step 2: Verify the app loaded with default values
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
 
     await expect(headersTab).toBeVisible({ timeout: 5000 });
     await expect(urlFiltersTab).toBeVisible({ timeout: 5000 });
 
-    // Шаг 3: Проверяем активную вкладку Headers
+    // Step 3: Verify the Headers tab is active
     await expect(headersTab).toHaveAttribute('aria-selected', 'true');
 
-    // Шаг 4: Проверяем, что есть пустой фильтр по умолчанию
-    // Сначала переключаемся на вкладку URL Filters
+    // Step 4: Verify there is an empty default filter
+    // First switch to the URL Filters tab
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInput).toBeVisible();
     await expect(urlFilterInput).toHaveValue('');
 
-    // Шаг 5: Проверяем, что поля заголовков доступны
-    // Переключаемся обратно на Headers
+    // Step 5: Verify that header fields are available
+    // Switch back to Headers
     await headersTab.click();
 
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
@@ -102,98 +102,98 @@ test.describe('Storage Persistence', () => {
   });
 
   /**
-   * Тест-кейс: Сохранение изменений данных в storage с табами
+   * Test case: Persist data changes to storage with tabs
    *
-   * Цель: Проверить, что изменения в UI корректно сохраняются в storage
-   * и восстанавливаются после перезагрузки в новой структуре с табами.
+   * Goal: Verify that UI changes are saved to storage
+   * and restored after reload in the new tabbed layout.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Добавляем заголовок запроса на вкладке Headers
-   * 3. Заполняем поля заголовков
-   * 4. Переключаемся на вкладку URL Filters и заполняем фильтр
-   * 5. Проверяем, что значения сохранились в UI
-   * 6. Перезагружаем страницу
-   * 7. Проверяем, что данные восстановились из storage
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Add a request header on the Headers tab
+   * 3. Fill in header fields
+   * 4. Switch to URL Filters and fill the filter
+   * 5. Verify values are saved in the UI
+   * 6. Reload the page
+   * 7. Verify that data is restored from storage
    */
   test('should persist data changes to storage with tabs', async ({ page, extensionId }) => {
-    // Шаг 1: Открываем popup расширения
+    // Step 1: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Добавляем заголовок запроса на вкладке Headers
+    // Step 2: Add a request header on the Headers tab
     const addHeaderButton = page
       .locator('button')
       .filter({ has: page.locator('svg') })
       .first();
     await addHeaderButton.click();
 
-    // Шаг 3: Заполняем поля заголовков
+    // Step 3: Fill header fields
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
     await headerNameInput.fill('X-Persistent-Header');
     await headerValueInput.fill('persistent-value');
 
-    // Шаг 4: Переключаемся на вкладку URL Filters и заполняем фильтр
+    // Step 4: Switch to URL Filters and fill the filter
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://persistent.example.com/*');
 
-    // Шаг 5: Проверяем, что значения сохранились в UI
-    // Сначала проверяем URL фильтр на текущей вкладке
+    // Step 5: Verify that values are saved in the UI
+    // First check the URL filter on the current tab
     await expect(urlFilterInput).toHaveValue('https://persistent.example.com/*');
 
-    // Затем переключаемся обратно на Headers и проверяем заголовки
+    // Then switch back to Headers and check headers
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
     await headersTab.click();
 
     await expect(headerNameInput).toHaveValue('X-Persistent-Header');
     await expect(headerValueInput).toHaveValue('persistent-value');
 
-    // Шаг 6: Перезагружаем страницу для проверки персистентности
+    // Step 6: Reload the page to check persistence
     await page.reload();
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 7: Проверяем, что данные сохранились после перезагрузки
-    // Сначала проверяем заголовки на вкладке Headers
+    // Step 7: Verify data persisted after reload
+    // First check headers on the Headers tab
     await expect(headerNameInput).toHaveValue('X-Persistent-Header');
     await expect(headerValueInput).toHaveValue('persistent-value');
 
-    // Переключаемся на вкладку URL Filters и проверяем там тоже
+    // Switch to URL Filters and check there too
     await urlFiltersTab.click();
     await expect(urlFilterInput).toHaveValue('https://persistent.example.com/*');
   });
 
   /**
-   * Тест-кейс: Восстановление состояния паузы из storage
+   * Test case: Restore paused state from storage
    *
-   * Цель: Проверить, что состояние паузы (включено/выключено) корректно
-   * сохраняется и восстанавливается.
+   * Goal: Verify that paused state (on/off) is persisted
+   * and restored correctly.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Включаем режим паузы
-   * 3. Проверяем, что поля стали недоступными
-   * 4. Перезагружаем страницу
-   * 5. Проверяем, что состояние паузы сохранилось
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Enable pause mode
+   * 3. Verify that fields are disabled
+   * 4. Reload the page
+   * 5. Verify that pause state persisted
    */
   test('should restore paused state from storage', async ({ page, extensionId }) => {
-    // Шаг 1: Открываем popup расширения
+    // Step 1: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Проверяем, что кнопка паузы доступна
+    // Step 2: Verify that the pause button is available
     const pauseButton = page.locator('[data-test-id="pause-button"]');
     await expect(pauseButton).toBeVisible();
 
-    // Шаг 3: Включаем режим паузы
+    // Step 3: Enable pause mode
     await pauseButton.click();
 
-    // Шаг 4: Проверяем, что поля ввода отключены
+    // Step 4: Verify that input fields are disabled
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
@@ -208,12 +208,12 @@ test.describe('Storage Persistence', () => {
       await expect(urlFilterInput).toBeDisabled();
     }
 
-    // Шаг 5: Перезагружаем страницу для проверки персистентности
+    // Step 5: Reload the page to check persistence
     await page.reload();
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 6: Проверяем, что состояние паузы сохранилось
+    // Step 6: Verify that the pause state persisted
     if (await headerNameInput.isVisible()) {
       await expect(headerNameInput).toBeDisabled();
     }
@@ -226,84 +226,84 @@ test.describe('Storage Persistence', () => {
   });
 
   /**
-   * Тест-кейс: Восстановление множественных профилей и переключение между ними
+   * Test case: Restore multiple profiles and switch between them
    *
-   * Цель: Проверить, что система профилей работает корректно - данные
-   * сохраняются для каждого профиля отдельно.
+   * Goal: Verify that the profile system works correctly - data is
+   * stored separately for each profile.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Заполняем данные в первом профиле
-   * 3. Проверяем, что данные сохранились
-   * 4. Добавляем новый профиль (если возможно через UI)
-   * 5. Проверяем переключение между профилями
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Fill data in the first profile
+   * 3. Verify that the data is saved
+   * 4. Add a new profile (if possible via UI)
+   * 5. Verify switching between profiles
    */
   test('should restore multiple profiles and allow switching between them', async ({ page, extensionId }) => {
-    // Шаг 1: Открываем popup расширения
+    // Step 1: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Добавляем заголовок запроса
+    // Step 2: Add a request header
     const addHeaderButton = page
       .locator('button')
       .filter({ has: page.locator('svg') })
       .first();
     await addHeaderButton.click();
 
-    // Ждем появления полей заголовков
+    // Wait for header fields to appear
     await page.waitForTimeout(500);
 
-    // Шаг 3: Заполняем данные в первом профиле
+    // Step 3: Fill data in the first profile
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
-    // Ждем появления элементов
+    // Wait for elements to appear
     await expect(headerNameInput).toBeVisible({ timeout: 10000 });
     await expect(headerValueInput).toBeVisible({ timeout: 10000 });
 
     await headerNameInput.fill('X-Env');
     await headerValueInput.fill('development');
 
-    // Переключаемся на URL Filters и заполняем фильтр
+    // Switch to URL Filters and fill the filter
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTab.click();
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://dev.example.com/*');
 
-    // Шаг 3: Проверяем, что данные сохранились
-    // Сначала проверяем URL фильтр на текущей вкладке
+    // Step 3: Verify that data is saved
+    // First check the URL filter on the current tab
     await expect(urlFilterInput).toHaveValue('https://dev.example.com/*');
 
-    // Затем переключаемся обратно на Headers и проверяем заголовки
+    // Then switch back to Headers and check headers
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
     await headersTab.click();
 
-    // Ждем появления элементов после переключения вкладки
+    // Wait for elements after switching tabs
     await expect(headerNameInput).toBeVisible({ timeout: 5000 });
     await expect(headerValueInput).toBeVisible({ timeout: 5000 });
 
     await expect(headerNameInput).toHaveValue('X-Env');
     await expect(headerValueInput).toHaveValue('development');
 
-    // Шаг 4: Проверяем селектор профилей (если доступен)
+    // Step 4: Verify the profile selector (if available)
     const profileSelect = page.locator('[data-test-id="profile-select"]').first();
     if (await profileSelect.isVisible()) {
       await expect(profileSelect).toBeVisible();
 
-      // Проверяем, что можно переключаться между профилями
+      // Verify that you can switch between profiles
       const profileOptions = page.locator('[data-test-id="profile-select"]');
       const profileCount = await profileOptions.count();
 
       if (profileCount > 1) {
-        // Переключаемся на второй профиль
+        // Switch to the second profile
         const secondProfile = page.locator('[data-test-id="profile-select"]').nth(1);
         await secondProfile.click();
 
-        // Ждем обновления интерфейса после переключения профиля
+        // Wait for UI updates after switching profiles
         await page.waitForTimeout(1000);
 
-        // Проверяем, что можно работать с новым профилем
-        // (данные могут не очищаться автоматически в тестовой среде)
+        // Verify that the new profile is usable
+        // (data may not be cleared automatically in the test environment)
         await expect(headerNameInput).toBeEnabled();
         await expect(headerValueInput).toBeEnabled();
       }
@@ -311,72 +311,72 @@ test.describe('Storage Persistence', () => {
   });
 
   /**
-   * Тест-кейс: Сохранение и восстановление сложных данных
+   * Test case: Save and restore complex data
    *
-   * Цель: Проверить работу с различными типами данных - специальные символы,
-   * длинные строки, различные форматы URL.
+   * Goal: Verify handling of different data types - special characters,
+   * long strings, and various URL formats.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Заполняем поля различными типами данных
-   * 3. Проверяем сохранение
-   * 4. Перезагружаем и проверяем восстановление
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Fill fields with different data types
+   * 3. Verify saving
+   * 4. Reload and verify restore
    */
   test('should handle complex data types in storage', async ({ page, extensionId }) => {
-    // Шаг 1: Открываем popup расширения
+    // Step 1: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Добавляем заголовок запроса
+    // Step 2: Add a request header
     const addHeaderButton = page
       .locator('button')
       .filter({ has: page.locator('svg') })
       .first();
     await addHeaderButton.click();
 
-    // Ждем появления полей заголовков
+    // Wait for header fields to appear
     await page.waitForTimeout(500);
 
-    // Шаг 3: Заполняем поля сложными данными
+    // Step 3: Fill fields with complex data
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
-    // Ждем появления элементов
+    // Wait for elements to appear
     await expect(headerNameInput).toBeVisible({ timeout: 10000 });
     await expect(headerValueInput).toBeVisible({ timeout: 10000 });
 
-    // Тестируем специальные символы в заголовке
+    // Test special characters in the header
     await headerNameInput.fill('X-Special-Header-123');
     await headerValueInput.fill('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
 
-    // Переключаемся на URL Filters и тестируем различные форматы URL
+    // Switch to URL Filters and test different URL formats
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTab.click();
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('*://api.example.com/v1/*');
 
-    // Шаг 3: Проверяем сохранение
-    // Сначала проверяем URL фильтр на текущей вкладке
+    // Step 3: Verify saving
+    // First check the URL filter on the current tab
     await expect(urlFilterInput).toHaveValue('*://api.example.com/v1/*');
 
-    // Затем переключаемся обратно на Headers и проверяем заголовки
+    // Then switch back to Headers and check headers
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
     await headersTab.click();
 
-    // Ждем появления элементов после переключения вкладки
+    // Wait for elements after switching tabs
     await expect(headerNameInput).toBeVisible({ timeout: 5000 });
     await expect(headerValueInput).toBeVisible({ timeout: 5000 });
 
     await expect(headerNameInput).toHaveValue('X-Special-Header-123');
     await expect(headerValueInput).toHaveValue('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
 
-    // Шаг 4: Проверяем, что данные сохранились в текущей сессии
-    // Перезагружаем страницу для проверки персистентности
+    // Step 4: Verify that data was saved in the current session
+    // Reload the page to check persistence
     await page.reload();
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // После перезагрузки нужно добавить заголовок заново для проверки
+    // After reload, add a header again for verification
     const addHeaderButtonAfterReload = page
       .locator('button')
       .filter({ has: page.locator('svg') })
@@ -390,11 +390,11 @@ test.describe('Storage Persistence', () => {
     await expect(headerNameInputAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerValueInputAfterReload).toBeVisible({ timeout: 10000 });
 
-    // Проверяем, что поля доступны для ввода (данные могут не сохраняться в тестовой среде)
+    // Verify fields are available for input (data may not persist in tests)
     await expect(headerNameInputAfterReload).toBeEnabled();
     await expect(headerValueInputAfterReload).toBeEnabled();
 
-    // Переключаемся на URL Filters и проверяем доступность
+    // Switch to URL Filters and check availability
     const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTabAfterReload.click();
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
@@ -402,59 +402,59 @@ test.describe('Storage Persistence', () => {
   });
 
   /**
-   * Тест-кейс: Проверка валидации данных при восстановлении
+   * Test case: Validate data on restore
    *
-   * Цель: Проверить, что приложение корректно обрабатывает некорректные
-   * данные из storage и не падает.
+   * Goal: Verify that the app handles invalid data from storage
+   * without crashing.
    *
-   * Сценарий:
-   * 1. Открываем popup расширения
-   * 2. Заполняем поля некорректными данными
-   * 3. Проверяем, что валидация работает
-   * 4. Перезагружаем и проверяем восстановление
+   * Scenario:
+   * 1. Open the extension popup
+   * 2. Fill fields with invalid data
+   * 3. Verify that validation works
+   * 4. Reload and verify restoration
    */
   test('should validate data on restore from storage', async ({ page, extensionId }) => {
-    // Шаг 1: Открываем popup расширения
+    // Step 1: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Шаг 2: Добавляем заголовок запроса
+    // Step 2: Add a request header
     const addHeaderButton = page
       .locator('button')
       .filter({ has: page.locator('svg') })
       .first();
     await addHeaderButton.click();
 
-    // Ждем появления полей заголовков
+    // Wait for header fields to appear
     await page.waitForTimeout(500);
 
-    // Шаг 3: Заполняем поля данными для проверки валидации
+    // Step 3: Fill fields with data for validation
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
-    // Ждем появления элементов
+    // Wait for elements to appear
     await expect(headerNameInput).toBeVisible({ timeout: 10000 });
     await expect(headerValueInput).toBeVisible({ timeout: 10000 });
 
-    // Тестируем валидацию заголовка (некорректные символы)
+    // Test header validation (invalid characters)
     await headerNameInput.fill('Invalid Header Name!');
     await headerValueInput.fill('valid-value');
 
-    // Переключаемся на URL Filters и тестируем валидацию фильтра
+    // Switch to URL Filters and test filter validation
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTab.click();
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('invalid-url-pattern');
 
-    // Шаг 3: Проверяем, что валидация работает (поля должны показывать ошибки)
-    // Это зависит от реализации валидации в приложении
+    // Step 3: Verify validation works (fields should show errors)
+    // This depends on the validation implementation
 
-    // Шаг 4: Перезагружаем и проверяем восстановление
+    // Step 4: Reload and verify restoration
     await page.reload();
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Снова добавляем заголовок после перезагрузки
+    // Add a header again after reload
     const addHeaderButtonAfterReload = page
       .locator('button')
       .filter({ has: page.locator('svg') })
@@ -464,13 +464,13 @@ test.describe('Storage Persistence', () => {
     const headerNameInputAfterReload = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInputAfterReload = page.locator('[data-test-id="header-value-input"] input');
 
-    // Проверяем, что поля доступны для ввода после перезагрузки
+    // Verify that fields are available for input after reload
     await expect(headerNameInputAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerValueInputAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerNameInputAfterReload).toBeEnabled();
     await expect(headerValueInputAfterReload).toBeEnabled();
 
-    // Переключаемся на URL Filters и проверяем доступность
+    // Switch to URL Filters and check availability
     const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTabAfterReload.click();
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
