@@ -10,9 +10,83 @@ import { setIconBadge } from './setIconBadge';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 200;
+const RECOVERY_DELAY_MS = 500;
 
 async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Attempts to recover from DNR API errors by clearing all rules first,
+ * then applying new rules in a separate call.
+ * This handles cases where Chrome has corrupted internal state or "ghost" rules.
+ */
+async function recoveryUpdateDynamicRules(
+  removeRuleIds: number[],
+  addRules: browser.DeclarativeNetRequest.Rule[],
+): Promise<{ success: boolean; error?: unknown }> {
+  logger.warn('🔧 DNR Recovery: Attempting recovery strategy...');
+
+  try {
+    // Step 1: Get current rules (for diagnostics)
+    const currentRules = await browser.declarativeNetRequest.getDynamicRules();
+    logger.info('🔧 DNR Recovery: Current rules before clear:', {
+      count: currentRules.length,
+      ids: currentRules.map(r => r.id),
+    });
+
+    // Step 2: Try to remove ALL rules we know about (both from getDynamicRules and our removeRuleIds)
+    const allIdsToRemove = [...new Set([...currentRules.map(r => r.id), ...removeRuleIds])];
+
+    if (allIdsToRemove.length > 0) {
+      logger.info('🔧 DNR Recovery: Removing all known rules:', { ids: allIdsToRemove });
+      try {
+        await browser.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: allIdsToRemove,
+          addRules: [],
+        });
+        logger.info('🔧 DNR Recovery: Rules removed successfully');
+      } catch (removeErr) {
+        logger.warn('🔧 DNR Recovery: Failed to remove rules, continuing anyway:', removeErr);
+      }
+    }
+
+    // Step 3: Wait for Chrome to stabilize
+    await sleep(RECOVERY_DELAY_MS);
+
+    // Step 4: Verify rules are cleared
+    const rulesAfterClear = await browser.declarativeNetRequest.getDynamicRules();
+    logger.info('🔧 DNR Recovery: Rules after clear:', {
+      count: rulesAfterClear.length,
+      ids: rulesAfterClear.map(r => r.id),
+    });
+
+    // Step 5: Add new rules in a separate call
+    if (addRules.length > 0) {
+      logger.info('🔧 DNR Recovery: Adding new rules:', {
+        count: addRules.length,
+        ids: addRules.map(r => r.id),
+      });
+      await browser.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: [],
+        addRules,
+      });
+      logger.info('🔧 DNR Recovery: New rules added successfully');
+    }
+
+    // Step 6: Verify final state
+    const finalRules = await browser.declarativeNetRequest.getDynamicRules();
+    logger.info('🔧 DNR Recovery: Final rules state:', {
+      count: finalRules.length,
+      ids: finalRules.map(r => r.id),
+      expected: addRules.length,
+    });
+
+    return { success: true };
+  } catch (error) {
+    logger.error('🔧 DNR Recovery: Recovery failed:', error);
+    return { success: false, error };
+  }
 }
 
 function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
@@ -164,6 +238,19 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     // Two-step remove→add is prone to race conditions when multiple triggers fire concurrently
     // (often more noticeable on Windows due to timing/latency differences).
     if (removeRuleIds.length > 0 || addRules.length > 0) {
+      // Enhanced diagnostics: log full rule details before update
+      logger.info('📊 DNR Update diagnostics:', {
+        removeRuleIds,
+        addRulesCount: addRules.length,
+        addRulesDetails: addRules.map(r => ({
+          id: r.id,
+          actionType: r.action.type,
+          hasUrlFilter: 'urlFilter' in (r.condition || {}),
+          hasRegexFilter: 'regexFilter' in (r.condition || {}),
+          condition: r.condition,
+        })),
+      });
+
       // Retry logic for transient DNR API errors (e.g., "Internal error while updating dynamic rules")
       let lastError: unknown = null;
       for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -183,6 +270,21 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
           }
         }
       }
+
+      // If atomic update failed, try recovery strategy
+      if (lastError) {
+        logger.warn('⚠️ Atomic DNR update failed after retries, attempting recovery...');
+        const recoveryResult = await recoveryUpdateDynamicRules(removeRuleIds, addRules);
+
+        if (recoveryResult.success) {
+          logger.info('✅ DNR Recovery successful!');
+          lastError = null;
+        } else {
+          logger.error('❌ DNR Recovery also failed:', recoveryResult.error);
+          // Keep the original error for the caller
+        }
+      }
+
       if (lastError) {
         throw lastError;
       }
@@ -191,9 +293,20 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     }
 
     const updatedRules = await browser.declarativeNetRequest.getDynamicRules();
-    logger.debug('Current active rules after update:', updatedRules);
+    logger.info('📊 Final DNR state:', {
+      activeRulesCount: updatedRules.length,
+      expectedRulesCount: addRules.length,
+      match: updatedRules.length === addRules.length,
+      activeRuleIds: updatedRules.map(r => r.id),
+      activeRulesDetails: updatedRules.map(r => ({
+        id: r.id,
+        actionType: r.action.type,
+        condition: r.condition,
+        requestHeaders: r.action.requestHeaders,
+      })),
+    });
 
-    logger.info('Rules updated successfully');
+    logger.info('✅ Rules updated successfully');
     logger.groupEnd();
 
     await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
