@@ -1,0 +1,81 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "pin",
+  "timezone": "Europe/Moscow",
+  "schedule": ["before 9am on monday"],
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10,
+  "packageRules": [
+    {
+      "description": "Snack UI Kit packages | Пакеты Snack UI Kit",
+      "matchPackagePatterns": ["^@snack-uikit/"],
+      "groupName": "snack-uikit",
+      "labels": ["dependencies", "ui"]
+    },
+    {
+      "description": "Cloud.ru packages | Пакеты Cloud.ru",
+      "matchPackagePatterns": ["^@cloud-ru/"],
+      "groupName": "cloud-ru",
+      "labels": ["dependencies", "cloud-ru"]
+    },
+    {
+      "description": "Effector ecosystem | Экосистема Effector",
+      "matchPackageNames": ["effector", "effector-react", "eslint-plugin-effector"],
+      "groupName": "effector",
+      "labels": ["dependencies", "state-management"]
+    },
+    {
+      "description": "React ecosystem | Экосистема React",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "react",
+      "labels": ["dependencies", "react"]
+    },
+    {
+      "description": "Emotion styling | Стилизация Emotion",
+      "matchPackagePatterns": ["^@emotion/"],
+      "groupName": "emotion",
+      "labels": ["dependencies", "styling"]
+    },
+    {
+      "description": "DnD Kit | Drag and Drop",
+      "matchPackagePatterns": ["^@dnd-kit/"],
+      "groupName": "dnd-kit",
+      "labels": ["dependencies", "dnd"]
+    },
+    {
+      "description": "Vite and plugins | Vite и плагины",
+      "matchPackagePatterns": ["vite", "^@vitejs/"],
+      "groupName": "vite",
+      "labels": ["dependencies", "build"]
+    },
+    {
+      "description": "TypeScript and types | TypeScript и типы",
+      "matchPackagePatterns": ["^@types/", "typescript"],
+      "groupName": "typescript",
+      "labels": ["dependencies", "types"]
+    },
+    {
+      "description": "Testing tools | Инструменты тестирования",
+      "matchPackageNames": ["@playwright/test", "jsdom"],
+      "groupName": "testing",
+      "labels": ["dependencies", "testing"]
+    },
+    {
+      "description": "Linting and formatting | Линтинг и форматирование",
+      "matchPackagePatterns": ["eslint", "stylelint", "prettier"],
+      "groupName": "linting",
+      "labels": ["dependencies", "linting"]
+    },
+  ],
+  "ignoreDeps": [],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  }
+}
