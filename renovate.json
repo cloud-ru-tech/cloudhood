@@ -9,6 +9,7 @@
   "rangeStrategy": "pin",
   "timezone": "Europe/Moscow",
   "schedule": ["before 9am on monday"],
+  "dependencyDashboardApproval": false,
   "prHourlyLimit": 5,
   "prConcurrentLimit": 10,
   "packageRules": [
@@ -71,7 +72,7 @@
       "matchPackagePatterns": ["eslint", "stylelint", "prettier"],
       "groupName": "linting",
       "labels": ["dependencies", "linting"]
-    },
+    }
   ],
   "ignoreDeps": [],
   "vulnerabilityAlerts": {
