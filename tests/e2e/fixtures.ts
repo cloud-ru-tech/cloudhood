@@ -1,3 +1,5 @@
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -13,12 +15,17 @@ export const test = base.extend<{
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
     const pathToExtension = path.join(__dirname, '..', '..', 'build', 'chrome');
-    const context = await chromium.launchPersistentContext('', {
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cloudhood-e2e-'));
+    const context = await chromium.launchPersistentContext(userDataDir, {
       channel: 'chromium',
       args: [`--disable-extensions-except=${pathToExtension}`, `--load-extension=${pathToExtension}`],
     });
-    await use(context);
-    await context.close();
+    try {
+      await use(context);
+    } finally {
+      await context.close();
+      fs.rmSync(userDataDir, { recursive: true, force: true });
+    }
   },
   extensionId: async ({ context }, use) => {
     // Даем время расширению на инициализацию
