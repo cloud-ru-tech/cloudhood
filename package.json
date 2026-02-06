@@ -74,7 +74,7 @@
     "@types/webextension-polyfill": "0.12.3",
     "@types/ws": "8.18.1",
     "@vitejs/plugin-react": "^4.5.2",
-    "chokidar": "4.0.3",
+    "chokidar": "5.0.0",
     "concurrently": "9.2.0",
     "eslint-plugin-effector": "0.16.0",
     "fs-extra": "11.3.0",
