@@ -88,7 +88,7 @@
     "vite-plugin-svgr": "4.3.0",
     "vite-tsconfig-paths": "5.1.4",
     "webextension-polyfill": "0.12.0",
-    "ws": "8.18.3"
+    "ws": "8.19.0"
   },
   "pnpm": {
     "overrides": {
