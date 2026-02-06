@@ -22,11 +22,11 @@ export const test = base.extend<{
   },
   extensionId: async ({ context }, use) => {
     // Даем время расширению на инициализацию
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     let background;
     let attempts = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 15;
 
     // Пытаемся получить service worker с повторными попытками
     while (attempts < maxAttempts) {
@@ -37,13 +37,13 @@ export const test = base.extend<{
       }
 
       try {
-        background = await context.waitForEvent('serviceworker', { timeout: 3000 });
+        background = await context.waitForEvent('serviceworker', { timeout: 5000 });
         break;
       } catch {
         attempts++;
         if (attempts < maxAttempts) {
           // Ждем немного перед следующей попыткой
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
     }

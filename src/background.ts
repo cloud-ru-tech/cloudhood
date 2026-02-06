@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 
-import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
+import { BrowserStorageKey } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
@@ -76,22 +76,179 @@ if (process.env.NODE_ENV === 'development') {
 
 const BADGE_COLOR = '#ffffff';
 
-async function notify(message: ServiceWorkerEvent) {
-  logger.debug('Received message:', message);
+function storageFingerprint(result: Record<string, unknown>): string {
+  const profiles = result[BrowserStorageKey.Profiles];
+  const selected = result[BrowserStorageKey.SelectedProfile];
+  const paused = result[BrowserStorageKey.IsPaused];
 
-  if (message === ServiceWorkerEvent.Reload) {
-    logger.info('🔄 Reloading headers configuration');
-
-    const result = await browser.storage.local.get([
-      BrowserStorageKey.Profiles,
-      BrowserStorageKey.SelectedProfile,
-      BrowserStorageKey.IsPaused,
-    ]);
-
-    logger.info('📦 Storage data for reload:', result);
-    await setBrowserHeaders(result);
+  // Keep it cheap and stable: correlate across logs without huge payloads.
+  // If profiles is a big JSON string, we don't want to log it fully.
+  let profilesStr = '';
+  if (typeof profiles === 'string') {
+    profilesStr = profiles;
+  } else if (profiles !== undefined) {
+    profilesStr = JSON.stringify(profiles);
   }
-  return undefined;
+  const selectedStr = typeof selected === 'string' ? selected : String(selected ?? '');
+  const pausedStr = paused === undefined ? '' : String(Boolean(paused));
+
+  // Simple FNV-1a 32-bit hash for correlation (no deps).
+  const input = `${selectedStr}|${pausedStr}|${profilesStr}`;
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+
+    hash = (hash * 0x01000193) >>> 0;
+  }
+  return `fnv1a32:${hash.toString(16)}:len:${input.length}`;
+}
+
+let applyInProgress = false;
+let applyPending = false;
+let applyCounter = 0;
+let lastRequestedReason = 'unknown';
+let lastAppliedStorageFingerprint: string | null = null;
+let lastAppliedMeta: { seq: number; updatedAt: number } = { seq: 0, updatedAt: 0 };
+
+function normalizeHeadersConfigMeta(value: unknown): { seq: number; updatedAt: number } {
+  if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const seq = typeof obj.seq === 'number' && Number.isFinite(obj.seq) ? obj.seq : 0;
+    const updatedAt = typeof obj.updatedAt === 'number' && Number.isFinite(obj.updatedAt) ? obj.updatedAt : 0;
+    return { seq, updatedAt };
+  }
+  if (typeof value === 'string') {
+    try {
+      return normalizeHeadersConfigMeta(JSON.parse(value) as unknown);
+    } catch {
+      return { seq: 0, updatedAt: 0 };
+    }
+  }
+  return { seq: 0, updatedAt: 0 };
+}
+
+function isNewerMeta(next: { seq: number; updatedAt: number }, prev: { seq: number; updatedAt: number }) {
+  if (next.seq !== prev.seq) return next.seq > prev.seq;
+  return next.updatedAt > prev.updatedAt;
+}
+
+async function applyHeadersFromStorageQueue(reason: string) {
+  lastRequestedReason = reason;
+  applyPending = true;
+
+  logger.debug('📥 applyHeadersFromStorageQueue called:', {
+    reason,
+    applyInProgress,
+    applyPending,
+    lastAppliedStorageFingerprint,
+    lastAppliedMeta,
+  });
+
+  if (applyInProgress) {
+    logger.debug('⏳ Apply already in progress, queued for later');
+    return;
+  }
+  applyInProgress = true;
+  logger.debug('🔒 Apply lock acquired');
+
+  try {
+    while (applyPending) {
+      applyPending = false;
+      const applyId = ++applyCounter;
+
+      const startedAt = Date.now();
+      const result = await browser.storage.local.get([
+        BrowserStorageKey.Profiles,
+        BrowserStorageKey.SelectedProfile,
+        BrowserStorageKey.IsPaused,
+        BrowserStorageKey.HeadersConfigMeta,
+      ]);
+      const fp = storageFingerprint(result);
+      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
+
+      logger.group('🧵 Headers apply (queued)', true);
+      logger.info('Apply request:', {
+        applyId,
+        reason: lastRequestedReason,
+        startedAt,
+        elapsedMsBeforeApply: Date.now() - startedAt,
+        storageFingerprint: fp,
+        headersConfigMeta: meta,
+        lastAppliedMeta,
+      });
+
+      try {
+        const isNewer = isNewerMeta(meta, lastAppliedMeta);
+        const isSameFingerprint = lastAppliedStorageFingerprint === fp;
+
+        logger.debug('🔍 Apply decision check:', {
+          applyId,
+          isNewerMeta: isNewer,
+          isSameFingerprint,
+          meta,
+          lastAppliedMeta,
+          fp,
+          lastAppliedStorageFingerprint,
+        });
+
+        if (!isNewer) {
+          logger.warn('⏭️ Apply skipped (stale meta):', {
+            applyId,
+            reason: `meta.seq=${meta.seq} <= lastApplied.seq=${lastAppliedMeta.seq}, meta.updatedAt=${meta.updatedAt} <= lastApplied.updatedAt=${lastAppliedMeta.updatedAt}`,
+            headersConfigMeta: meta,
+            lastAppliedMeta,
+          });
+          continue;
+        }
+        if (isSameFingerprint) {
+          // Meta changed but effective config didn't. Still advance meta to avoid replaying.
+          const prevMeta = { ...lastAppliedMeta };
+          lastAppliedMeta = meta;
+          logger.info('⏭️ Apply skipped (no effective changes):', {
+            applyId,
+            storageFingerprint: fp,
+            headersConfigMeta: meta,
+            prevMeta,
+            note: 'Meta advanced to prevent replay',
+          });
+        } else {
+          const prevFp = lastAppliedStorageFingerprint;
+          const prevMeta = { ...lastAppliedMeta };
+
+          await setBrowserHeaders(result, { applyId, reason: lastRequestedReason, storageFingerprint: fp });
+
+          lastAppliedStorageFingerprint = fp;
+          lastAppliedMeta = meta;
+
+          logger.info('✅ Apply done:', {
+            applyId,
+            elapsedMsTotal: Date.now() - startedAt,
+            fingerprintChange: `${prevFp} → ${fp}`,
+            metaChange: `seq:${prevMeta.seq}→${meta.seq}, updatedAt:${prevMeta.updatedAt}→${meta.updatedAt}`,
+          });
+        }
+      } catch (error) {
+        logger.error('❌ Apply failed (state NOT updated, will retry on next change):', {
+          applyId,
+          error,
+          stateRemains: {
+            lastAppliedStorageFingerprint,
+            lastAppliedMeta,
+          },
+          attemptedFingerprint: fp,
+          attemptedMeta: meta,
+        });
+      } finally {
+        logger.groupEnd();
+      }
+    }
+  } finally {
+    applyInProgress = false;
+    logger.debug('🔓 Apply lock released:', {
+      lastAppliedStorageFingerprint,
+      lastAppliedMeta,
+    });
+  }
 }
 
 browser.runtime.onStartup.addListener(async function () {
@@ -101,6 +258,7 @@ browser.runtime.onStartup.addListener(async function () {
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
     BrowserStorageKey.IsPaused,
+    BrowserStorageKey.HeadersConfigMeta,
   ]);
 
   // Детальное логирование содержимого storage при запуске
@@ -128,9 +286,41 @@ browser.runtime.onStartup.addListener(async function () {
   if (Object.keys(result).length) {
     logger.info('🚀 Storage data found, setting browser headers on startup');
     try {
-      await setBrowserHeaders(result);
+      const fp = storageFingerprint(result);
+      const applyId = ++applyCounter;
+
+      logger.debug('🔧 Direct apply (onStartup) starting:', {
+        applyId,
+        fp,
+        prevFp: lastAppliedStorageFingerprint,
+        prevMeta: lastAppliedMeta,
+      });
+
+      await setBrowserHeaders(result, {
+        applyId,
+        reason: 'runtime.onStartup',
+        storageFingerprint: fp,
+      });
+
+      // Sync queue state after direct call to prevent duplicate applies
+      const prevFp = lastAppliedStorageFingerprint;
+      const prevMeta = { ...lastAppliedMeta };
+      lastAppliedStorageFingerprint = fp;
+      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
+      if (isNewerMeta(meta, lastAppliedMeta)) {
+        lastAppliedMeta = meta;
+      }
+
+      logger.info('🔄 Queue state synced after onStartup:', {
+        applyId,
+        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
+        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
+      });
     } catch (error) {
-      logger.error('Failed to set browser headers on startup:', error);
+      logger.error('❌ Failed to set browser headers on startup (queue state NOT synced):', {
+        error,
+        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
+      });
     }
   } else {
     logger.info('📭 No storage data found on startup - extension will start with default settings');
@@ -138,28 +328,41 @@ browser.runtime.onStartup.addListener(async function () {
 });
 
 browser.storage.onChanged.addListener(async (changes, areaName) => {
-  logger.debug('Storage changes detected in area:', areaName, changes);
+  logger.debug('Storage changes detected in area:', areaName);
 
   if (areaName === 'local') {
-    const relevantChanges = [
+    const relevantKeys = [
       BrowserStorageKey.Profiles,
       BrowserStorageKey.SelectedProfile,
       BrowserStorageKey.IsPaused,
-    ].some(key => Object.keys(changes).includes(key));
+      BrowserStorageKey.HeadersConfigMeta,
+    ];
+    const changedKeys = Object.keys(changes);
+    const relevantChangedKeys = relevantKeys.filter(key => changedKeys.includes(key));
 
-    if (relevantChanges) {
-      logger.info('📝 Relevant storage changes detected, updating headers');
-      const result = await browser.storage.local.get([
-        BrowserStorageKey.Profiles,
-        BrowserStorageKey.SelectedProfile,
-        BrowserStorageKey.IsPaused,
-      ]);
-      logger.debug('Storage changes data:', result);
-      try {
-        await setBrowserHeaders(result);
-      } catch (error) {
-        logger.error('Failed to set browser headers on storage change:', error);
+    if (relevantChangedKeys.length > 0) {
+      // Log details about what changed
+      const changeDetails: Record<string, { hadOldValue: boolean; hasNewValue: boolean }> = {};
+      for (const key of relevantChangedKeys) {
+        const change = changes[key];
+        changeDetails[key] = {
+          hadOldValue: change?.oldValue !== undefined,
+          hasNewValue: change?.newValue !== undefined,
+        };
       }
+
+      logger.info('📝 Relevant storage changes detected:', {
+        changedKeys: relevantChangedKeys,
+        changeDetails,
+        currentQueueState: {
+          lastAppliedStorageFingerprint,
+          lastAppliedMeta,
+          applyInProgress,
+          applyPending,
+        },
+      });
+
+      await applyHeadersFromStorageQueue('storage.onChanged');
     }
   }
 });
@@ -171,6 +374,7 @@ browser.runtime.onInstalled.addListener(async details => {
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
     BrowserStorageKey.IsPaused,
+    BrowserStorageKey.HeadersConfigMeta,
   ]);
 
   // Детальное логирование содержимого storage при установке/обновлении
@@ -199,43 +403,51 @@ browser.runtime.onInstalled.addListener(async details => {
   if (Object.keys(result).length) {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
     try {
-      await setBrowserHeaders(result);
+      const fp = storageFingerprint(result);
+      const applyId = ++applyCounter;
+
+      logger.debug('🔧 Direct apply (onInstalled) starting:', {
+        applyId,
+        reason: details.reason,
+        fp,
+        prevFp: lastAppliedStorageFingerprint,
+        prevMeta: lastAppliedMeta,
+      });
+
+      await setBrowserHeaders(result, {
+        applyId,
+        reason: `runtime.onInstalled:${details.reason}`,
+        storageFingerprint: fp,
+      });
+
+      // Sync queue state after direct call to prevent duplicate applies
+      const prevFp = lastAppliedStorageFingerprint;
+      const prevMeta = { ...lastAppliedMeta };
+      lastAppliedStorageFingerprint = fp;
+      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
+      if (isNewerMeta(meta, lastAppliedMeta)) {
+        lastAppliedMeta = meta;
+      }
+
+      logger.info('🔄 Queue state synced after onInstalled:', {
+        applyId,
+        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
+        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
+      });
     } catch (error) {
-      logger.error('Failed to set browser headers on install/update:', error);
+      logger.error('❌ Failed to set browser headers on install/update (queue state NOT synced):', {
+        error,
+        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
+      });
     }
   } else {
     logger.info('📭 No storage data found on install/update - extension will start with default settings');
   }
 });
 
-browser.tabs.onActivated.addListener(async activeInfo => {
-  logger.debug('Tab activated:', activeInfo);
-
-  const result = await browser.storage.local.get([
-    BrowserStorageKey.Profiles,
-    BrowserStorageKey.SelectedProfile,
-    BrowserStorageKey.IsPaused,
-  ]);
-
-  logger.debug('Tab activation storage data:', result);
-
-  if (Object.keys(result).length) {
-    logger.info('📱 Tab activated, updating headers');
-    try {
-      await setBrowserHeaders(result);
-    } catch (error) {
-      logger.error('Failed to set browser headers on tab activation:', error);
-    }
-  } else {
-    logger.debug('No storage data found on tab activation');
-  }
-});
+// NOTE:
+// DNR dynamic rules are global. Re-applying rules on every tab switch is unnecessary and can
+// introduce races (e.g. user changes headers in popup, switches tabs before save completes).
+// If you ever introduce per-tab/per-site profiles, revisit this.
 
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
-
-browser.runtime.onMessage.addListener((message: unknown) => {
-  notify(message as ServiceWorkerEvent).catch(err => {
-    logger.error('Error handling message:', err);
-  });
-  return undefined;
-});
