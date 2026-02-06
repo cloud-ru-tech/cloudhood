@@ -19,7 +19,10 @@ export const $isPaused = createStore<boolean>(false)
   .on(toggleIsPaused, state => !state)
   .on(loadIsPausedFromStorageFx.doneData, (_, isPaused) => Boolean(isPaused));
 
+// Save isPaused only on explicit user action (toggleIsPaused), not on initial load from storage.
+// This prevents a save→onChanged→apply cycle when loading from storage.
 sample({
+  clock: toggleIsPaused,
   source: $isPaused,
   target: saveIsPausedToStorageFx,
 });

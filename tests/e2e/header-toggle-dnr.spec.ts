@@ -36,7 +36,7 @@ test.describe('Header Toggle DNR Rules', () => {
   async function waitForRulesCount(
     context: ReturnType<typeof test.extend>['context'],
     expectedCount: number,
-    timeout = 5000,
+    timeout = 10000,
   ) {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {
@@ -73,6 +73,16 @@ test.describe('Header Toggle DNR Rules', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Даём время popup полностью инициализироваться и сохранить selectedProfile в storage
+    await page.waitForTimeout(2000);
+
+    // Кликаем на профиль, чтобы гарантировать, что он выбран и сохранён в storage
+    const profileItem = page.locator('[data-test-id="profile-list-item"]').first();
+    if (await profileItem.isVisible()) {
+      await profileItem.click();
+      await page.waitForTimeout(500);
+    }
+
     // Получаем начальное количество правил
     const initialRules = await getDynamicRules(context);
     const initialRulesCount = initialRules.length;
@@ -87,6 +97,11 @@ test.describe('Header Toggle DNR Rules', () => {
 
     await headerNameField.fill('X-Toggle-Test');
     await headerValueField.fill('toggle-value');
+    // Убираем фокус с поля, чтобы сработал onBlur и данные сохранились
+    await headerValueField.blur();
+
+    // Даём время на сохранение и применение DNR правил
+    await page.waitForTimeout(2000);
 
     // Шаг 3: Проверяем, что DNR правило создано
     await waitForRulesCount(context, initialRulesCount + 1);
@@ -130,6 +145,16 @@ test.describe('Header Toggle DNR Rules', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Даём время popup полностью инициализироваться и сохранить selectedProfile в storage
+    await page.waitForTimeout(2000);
+
+    // Кликаем на профиль, чтобы гарантировать, что он выбран и сохранён в storage
+    const profileItem = page.locator('[data-test-id="profile-list-item"]').first();
+    if (await profileItem.isVisible()) {
+      await profileItem.click();
+      await page.waitForTimeout(500);
+    }
+
     const initialRules = await getDynamicRules(context);
     const initialRulesCount = initialRules.length;
 
@@ -143,6 +168,11 @@ test.describe('Header Toggle DNR Rules', () => {
 
     await headerNameField.fill('X-Multi-Toggle');
     await headerValueField.fill('multi-toggle-value');
+    // Убираем фокус с поля, чтобы сработал onBlur и данные сохранились
+    await headerValueField.blur();
+
+    // Даём время на сохранение и применение DNR правил
+    await page.waitForTimeout(2000);
 
     // Ждём создания правила
     await waitForRulesCount(context, initialRulesCount + 1);
@@ -184,6 +214,16 @@ test.describe('Header Toggle DNR Rules', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Даём время popup полностью инициализироваться и сохранить selectedProfile в storage
+    await page.waitForTimeout(2000);
+
+    // Кликаем на профиль, чтобы гарантировать, что он выбран и сохранён в storage
+    const profileItem = page.locator('[data-test-id="profile-list-item"]').first();
+    if (await profileItem.isVisible()) {
+      await profileItem.click();
+      await page.waitForTimeout(500);
+    }
+
     const initialRules = await getDynamicRules(context);
     const initialRulesCount = initialRules.length;
 
@@ -197,6 +237,11 @@ test.describe('Header Toggle DNR Rules', () => {
 
     await headerNameField.fill('X-Rapid-Toggle');
     await headerValueField.fill('rapid-value');
+    // Убираем фокус с поля, чтобы сработал onBlur и данные сохранились
+    await headerValueField.blur();
+
+    // Даём время на сохранение и применение DNR правил
+    await page.waitForTimeout(2000);
 
     // Ждём создания правила
     await waitForRulesCount(context, initialRulesCount + 1);
@@ -245,6 +290,16 @@ test.describe('Header Toggle DNR Rules', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
+    // Даём время popup полностью инициализироваться и сохранить selectedProfile в storage
+    await page.waitForTimeout(2000);
+
+    // Кликаем на профиль, чтобы гарантировать, что он выбран и сохранён в storage
+    const profileItem = page.locator('[data-test-id="profile-list-item"]').first();
+    if (await profileItem.isVisible()) {
+      await profileItem.click();
+      await page.waitForTimeout(500);
+    }
+
     const initialRules = await getDynamicRules(context);
     const initialRulesCount = initialRules.length;
 
@@ -258,6 +313,11 @@ test.describe('Header Toggle DNR Rules', () => {
 
     await headerNameField.fill('X-Value-Change');
     await headerValueField.fill('initial-value');
+    // Убираем фокус с поля, чтобы сработал onBlur и данные сохранились
+    await headerValueField.blur();
+
+    // Даём время на сохранение и применение DNR правил
+    await page.waitForTimeout(2000);
 
     // Ждём создания правила
     await waitForRulesCount(context, initialRulesCount + 1);

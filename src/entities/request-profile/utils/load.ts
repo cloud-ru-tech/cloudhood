@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { BrowserStorageKey } from '#shared/constants';
+import { setWithBumpedHeadersConfigMeta } from '#shared/utils/headersConfigMeta';
 
 import { DEFAULT_REQUEST_HEADERS } from '../constants';
 import { Profile } from '../types';
@@ -10,9 +11,18 @@ export async function loadSelectedProfileFromStorageApi(profiles: Profile[]) {
 
   try {
     const response = (await browser.storage.local.get([BrowserStorageKey.SelectedProfile])) as Record<string, unknown>;
-    const selectedProfile = (response[BrowserStorageKey.SelectedProfile] as string) ?? firstProfileKey;
+    const storedSelectedProfile = response[BrowserStorageKey.SelectedProfile] as string | undefined;
 
-    return selectedProfile;
+    if (storedSelectedProfile) {
+      return storedSelectedProfile;
+    }
+
+    // Если selectedProfile не сохранён в storage (первый запуск), сохраняем его
+    await setWithBumpedHeadersConfigMeta({
+      [BrowserStorageKey.SelectedProfile]: firstProfileKey,
+    });
+
+    return firstProfileKey;
   } catch (e) {
     console.error(e);
   }
@@ -32,6 +42,11 @@ export async function loadProfilesFromStorageApi() {
       }));
       return normalizedProfiles;
     }
+
+    // Если профили не сохранены в storage (первый запуск), сохраняем дефолтные профили
+    await setWithBumpedHeadersConfigMeta({
+      [BrowserStorageKey.Profiles]: JSON.stringify(DEFAULT_REQUEST_HEADERS),
+    });
 
     return DEFAULT_REQUEST_HEADERS;
   } catch (e) {
