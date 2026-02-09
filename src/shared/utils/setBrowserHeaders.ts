@@ -91,6 +91,36 @@ async function recoveryUpdateDynamicRules(
   }
 }
 
+/**
+ * Last-resort fallback: use session rules when dynamic rules API is completely broken.
+ * Session rules are ephemeral (lost on browser restart / SW termination) but use a
+ * different internal Chrome storage path, so they may work when dynamic rules don't.
+ */
+async function sessionRulesFallback(
+  removeSessionRuleIds: number[],
+  addRules: browser.DeclarativeNetRequest.Rule[],
+): Promise<{ success: boolean; error?: unknown }> {
+  logger.warn('🔄 Session rules fallback: dynamic rules API broken, trying session rules...');
+
+  try {
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: removeSessionRuleIds,
+      addRules,
+    });
+
+    const finalRules = await browser.declarativeNetRequest.getSessionRules();
+    logger.info('✅ Session rules fallback succeeded:', {
+      activeRulesCount: finalRules.length,
+      ids: finalRules.map(r => r.id),
+    });
+
+    return { success: true };
+  } catch (error) {
+    logger.error('❌ Session rules fallback also failed:', error);
+    return { success: false, error };
+  }
+}
+
 const allResourceTypes = [
   'main_frame',
   'sub_frame',
@@ -189,13 +219,25 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     hasIsPausedData: result[BrowserStorageKey.IsPaused] !== undefined,
   });
 
-  const currentRules = await browser.declarativeNetRequest.getDynamicRules();
+  const currentDynamicRules = await browser.declarativeNetRequest.getDynamicRules();
 
-  const profile = profiles.find(p => p.id === selectedProfile);
+  // Also read session rules — we may have leftover session rules from a previous fallback
+  let currentSessionRules: browser.DeclarativeNetRequest.Rule[] = [];
+  try {
+    currentSessionRules = await browser.declarativeNetRequest.getSessionRules();
+  } catch {
+    // getSessionRules may be unavailable in older browsers; ignore
+  }
 
-  if (!profile && selectedProfile) {
+  let profile = profiles.find(p => p.id === selectedProfile);
+
+  // Fallback to the first profile when selectedProfile is missing or doesn't match.
+  // This happens when SelectedProfile hasn't been written to storage yet (e.g. first run)
+  // or when it points to a deleted profile.
+  if (!profile && profiles.length > 0) {
+    profile = profiles[0];
     logger.warn(
-      `Profile with id "${selectedProfile}" not found in storage. Available profiles:`,
+      `Profile with id "${selectedProfile}" not found in storage, falling back to first profile "${profile.id}". Available profiles:`,
       profiles.map(p => ({ id: p.id, name: p.name })),
     );
   }
@@ -261,22 +303,28 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
 
   const addRules = [...headerRules, ...cookieRules];
 
-  const removeRuleIds = currentRules.map(item => item.id);
+  const removeDynamicRuleIds = currentDynamicRules.map(item => item.id);
+  const removeSessionRuleIds = currentSessionRules.map(item => item.id);
 
   try {
     logger.group('Updating dynamic rules', true);
     logger.info('Apply meta:', meta);
-    logger.info('Remove rule IDs:', removeRuleIds);
+    logger.info('Remove dynamic rule IDs:', removeDynamicRuleIds);
+    if (removeSessionRuleIds.length > 0) {
+      logger.info('Remove session rule IDs (leftover from previous fallback):', removeSessionRuleIds);
+    }
     logger.info('Add rules:', addRules);
 
     // IMPORTANT:
     // Apply rules atomically in a single updateDynamicRules call.
     // Two-step remove→add is prone to race conditions when multiple triggers fire concurrently
     // (often more noticeable on Windows due to timing/latency differences).
-    if (removeRuleIds.length > 0 || addRules.length > 0) {
+    let usedSessionFallback = false;
+
+    if (removeDynamicRuleIds.length > 0 || removeSessionRuleIds.length > 0 || addRules.length > 0) {
       // Enhanced diagnostics: log full rule details before update
       logger.info('📊 DNR Update diagnostics:', {
-        removeRuleIds,
+        removeDynamicRuleIds,
         addRulesCount: addRules.length,
         addRulesDetails: addRules.map(r => ({
           id: r.id,
@@ -292,7 +340,7 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
       for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
           await browser.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds,
+            removeRuleIds: removeDynamicRuleIds,
             addRules,
           });
           logger.debug(`Dynamic rules updated (atomic, attempt ${attempt})`);
@@ -310,14 +358,23 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
       // If atomic update failed, try recovery strategy
       if (lastError) {
         logger.warn('⚠️ Atomic DNR update failed after retries, attempting recovery...');
-        const recoveryResult = await recoveryUpdateDynamicRules(removeRuleIds, addRules);
+        const recoveryResult = await recoveryUpdateDynamicRules(removeDynamicRuleIds, addRules);
 
         if (recoveryResult.success) {
           logger.info('✅ DNR Recovery successful!');
           lastError = null;
         } else {
           logger.error('❌ DNR Recovery also failed:', recoveryResult.error);
-          // Keep the original error for the caller
+        }
+      }
+
+      // Last resort: session rules fallback when Chrome's dynamic rules DB is corrupted
+      if (lastError) {
+        const sessionResult = await sessionRulesFallback(removeSessionRuleIds, addRules);
+
+        if (sessionResult.success) {
+          usedSessionFallback = true;
+          lastError = null;
         }
       }
 
@@ -328,13 +385,38 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
       logger.debug('No dynamic rules to update');
     }
 
-    const updatedRules = await browser.declarativeNetRequest.getDynamicRules();
+    // If dynamic rules succeeded, clean up any leftover session rules from a previous fallback
+    if (!usedSessionFallback && removeSessionRuleIds.length > 0) {
+      try {
+        await browser.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: removeSessionRuleIds,
+          addRules: [],
+        });
+        logger.info('🧹 Cleaned up leftover session rules');
+      } catch {
+        // Non-critical: ignore cleanup failures
+      }
+    }
+
+    // Verify final state (check both dynamic and session rules)
+    const updatedDynamicRules = await browser.declarativeNetRequest.getDynamicRules();
+    let updatedSessionRules: browser.DeclarativeNetRequest.Rule[] = [];
+    try {
+      updatedSessionRules = await browser.declarativeNetRequest.getSessionRules();
+    } catch {
+      // ignore
+    }
+    const allActiveRules = [...updatedDynamicRules, ...updatedSessionRules];
+
     logger.info('📊 Final DNR state:', {
-      activeRulesCount: updatedRules.length,
+      dynamicRulesCount: updatedDynamicRules.length,
+      sessionRulesCount: updatedSessionRules.length,
+      totalActiveRulesCount: allActiveRules.length,
       expectedRulesCount: addRules.length,
-      match: updatedRules.length === addRules.length,
-      activeRuleIds: updatedRules.map(r => r.id),
-      activeRulesDetails: updatedRules.map(r => ({
+      match: allActiveRules.length === addRules.length,
+      usedSessionFallback,
+      activeRuleIds: allActiveRules.map(r => r.id),
+      activeRulesDetails: allActiveRules.map(r => ({
         id: r.id,
         actionType: r.action.type,
         condition: r.condition,
@@ -342,7 +424,11 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
       })),
     });
 
-    logger.info('✅ Rules updated successfully');
+    logger.info(
+      usedSessionFallback
+        ? '⚠️ Rules applied via session fallback (will be lost on browser restart — restart Chrome to fix dynamic rules)'
+        : '✅ Rules updated successfully',
+    );
     logger.groupEnd();
 
     const tabUrl = currentTabUrl;
