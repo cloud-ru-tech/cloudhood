@@ -4,6 +4,8 @@ export enum BrowserStorageKey {
   IsPaused = 'isPausedV1',
   /** Monotonic version meta for any header-config change */
   HeadersConfigMeta = 'headersConfigMetaV1',
+  /** Enable mirroring extension logs to the active tab console */
+  MirrorLogsToPageConsole = 'mirrorLogsToPageConsoleV1',
   ThemeMode = 'themeMode',
 }
 

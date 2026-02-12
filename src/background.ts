@@ -75,6 +75,85 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const BADGE_COLOR = '#ffffff';
+const PAGE_CONSOLE_LOG_MESSAGE_TYPE = 'cloudhood:page-console-log';
+const LOG_MIRROR_SOURCE = 'background';
+
+let mirrorLogsToPageConsole = false;
+let mirroredLogSeq = 0;
+
+function safeStringify(value: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(
+    value,
+    (_, currentValue) => {
+      if (currentValue instanceof Error) {
+        return {
+          name: currentValue.name,
+          message: currentValue.message,
+          stack: currentValue.stack,
+        };
+      }
+      if (currentValue && typeof currentValue === 'object') {
+        if (seen.has(currentValue as object)) {
+          return '[Circular]';
+        }
+        seen.add(currentValue as object);
+      }
+      return currentValue;
+    },
+    2,
+  );
+}
+
+function getConsoleMethodForLevel(level: LogLevel): 'log' | 'info' | 'warn' | 'error' {
+  switch (level) {
+    case LogLevel.DEBUG:
+      return 'log';
+    case LogLevel.INFO:
+      return 'info';
+    case LogLevel.WARN:
+      return 'warn';
+    case LogLevel.ERROR:
+      return 'error';
+    default:
+      return 'log';
+  }
+}
+
+async function updateMirrorLogsModeFromStorage(): Promise<void> {
+  try {
+    const result = await browser.storage.local.get([BrowserStorageKey.MirrorLogsToPageConsole]);
+    mirrorLogsToPageConsole = Boolean(result[BrowserStorageKey.MirrorLogsToPageConsole]);
+  } catch {
+    mirrorLogsToPageConsole = false;
+  }
+}
+
+logger.setExternalSink(async ({ level, message, args, timestamp }) => {
+  if (!mirrorLogsToPageConsole) return;
+
+  const activeTabs = await browser.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  });
+  const tabId = activeTabs[0]?.id;
+  if (!tabId) return;
+
+  await browser.tabs.sendMessage(tabId, {
+    type: PAGE_CONSOLE_LOG_MESSAGE_TYPE,
+    payload: {
+      seq: ++mirroredLogSeq,
+      source: LOG_MIRROR_SOURCE,
+      level,
+      consoleMethod: getConsoleMethodForLevel(level),
+      message,
+      args: args.map(item => safeStringify(item)),
+      timestamp,
+    },
+  });
+});
+
+updateMirrorLogsModeFromStorage().catch(() => undefined);
 
 function storageFingerprint(result: Record<string, unknown>): string {
   const profiles = result[BrowserStorageKey.Profiles];
@@ -136,13 +215,15 @@ async function applyHeadersFromStorageQueue(reason: string) {
   lastRequestedReason = reason;
   applyPending = true;
 
-  logger.debug('📥 applyHeadersFromStorageQueue called:', {
-    reason,
-    applyInProgress,
-    applyPending,
-    lastAppliedStorageFingerprint,
-    lastAppliedMeta,
-  });
+  logger.debug(
+    `📥 applyHeadersFromStorageQueue called: ${safeStringify({
+      reason,
+      applyInProgress,
+      applyPending,
+      lastAppliedStorageFingerprint,
+      lastAppliedMeta,
+    })}`,
+  );
 
   if (applyInProgress) {
     logger.debug('⏳ Apply already in progress, queued for later');
@@ -167,87 +248,119 @@ async function applyHeadersFromStorageQueue(reason: string) {
       const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
 
       logger.group('🧵 Headers apply (queued)', true);
-      logger.info('Apply request:', {
-        applyId,
-        reason: lastRequestedReason,
-        startedAt,
-        elapsedMsBeforeApply: Date.now() - startedAt,
-        storageFingerprint: fp,
-        headersConfigMeta: meta,
-        lastAppliedMeta,
-      });
+      logger.info(
+        `Apply request: ${safeStringify({
+          applyId,
+          reason: lastRequestedReason,
+          startedAt,
+          elapsedMsBeforeApply: Date.now() - startedAt,
+          storageFingerprint: fp,
+          headersConfigMeta: meta,
+          lastAppliedMeta,
+        })}`,
+      );
 
       try {
         const isNewer = isNewerMeta(meta, lastAppliedMeta);
         const isSameFingerprint = lastAppliedStorageFingerprint === fp;
 
-        logger.debug('🔍 Apply decision check:', {
-          applyId,
-          isNewerMeta: isNewer,
-          isSameFingerprint,
-          meta,
-          lastAppliedMeta,
-          fp,
-          lastAppliedStorageFingerprint,
-        });
-
-        if (!isNewer) {
-          logger.warn('⏭️ Apply skipped (stale meta):', {
+        logger.debug(
+          `🔍 Apply decision check: ${safeStringify({
             applyId,
-            reason: `meta.seq=${meta.seq} <= lastApplied.seq=${lastAppliedMeta.seq}, meta.updatedAt=${meta.updatedAt} <= lastApplied.updatedAt=${lastAppliedMeta.updatedAt}`,
-            headersConfigMeta: meta,
+            isNewerMeta: isNewer,
+            isSameFingerprint,
+            meta,
             lastAppliedMeta,
-          });
+            fp,
+            lastAppliedStorageFingerprint,
+          })}`,
+        );
+
+        if (isSameFingerprint) {
+          if (isNewer) {
+            // Meta changed but effective config didn't. Still advance meta to avoid replaying.
+            const prevMeta = { ...lastAppliedMeta };
+            lastAppliedMeta = meta;
+            logger.info(
+              `⏭️ Apply skipped (no effective changes): ${safeStringify({
+                applyId,
+                storageFingerprint: fp,
+                headersConfigMeta: meta,
+                prevMeta,
+                note: 'Meta advanced to prevent replay',
+              })}`,
+            );
+          } else {
+            logger.debug(
+              `⏭️ Apply skipped (exact duplicate): ${safeStringify({
+                applyId,
+                storageFingerprint: fp,
+                headersConfigMeta: meta,
+                lastAppliedMeta,
+              })}`,
+            );
+          }
           continue;
         }
-        if (isSameFingerprint) {
-          // Meta changed but effective config didn't. Still advance meta to avoid replaying.
-          const prevMeta = { ...lastAppliedMeta };
+
+        if (!isNewer) {
+          // Fallback: if fingerprint changed but meta did not advance, apply anyway.
+          // This protects against concurrent meta bumps producing equal/stale meta values.
+          logger.warn(
+            `⚠️ Meta is stale but fingerprint changed, forcing apply: ${safeStringify({
+              applyId,
+              storageFingerprint: fp,
+              headersConfigMeta: meta,
+              lastAppliedMeta,
+            })}`,
+          );
+        }
+
+        const prevFp = lastAppliedStorageFingerprint;
+        const prevMeta = { ...lastAppliedMeta };
+
+        await setBrowserHeaders(result, { applyId, reason: lastRequestedReason, storageFingerprint: fp });
+
+        lastAppliedStorageFingerprint = fp;
+        if (isNewer) {
           lastAppliedMeta = meta;
-          logger.info('⏭️ Apply skipped (no effective changes):', {
-            applyId,
-            storageFingerprint: fp,
-            headersConfigMeta: meta,
-            prevMeta,
-            note: 'Meta advanced to prevent replay',
-          });
-        } else {
-          const prevFp = lastAppliedStorageFingerprint;
-          const prevMeta = { ...lastAppliedMeta };
+        }
 
-          await setBrowserHeaders(result, { applyId, reason: lastRequestedReason, storageFingerprint: fp });
-
-          lastAppliedStorageFingerprint = fp;
-          lastAppliedMeta = meta;
-
-          logger.info('✅ Apply done:', {
+        logger.info(
+          `✅ Apply done: ${safeStringify({
             applyId,
             elapsedMsTotal: Date.now() - startedAt,
             fingerprintChange: `${prevFp} → ${fp}`,
-            metaChange: `seq:${prevMeta.seq}→${meta.seq}, updatedAt:${prevMeta.updatedAt}→${meta.updatedAt}`,
-          });
-        }
+            metaChange: isNewer
+              ? `seq:${prevMeta.seq}→${meta.seq}, updatedAt:${prevMeta.updatedAt}→${meta.updatedAt}`
+              : `unchanged (stale meta preserved: seq=${lastAppliedMeta.seq}, updatedAt=${lastAppliedMeta.updatedAt})`,
+          })}`,
+        );
       } catch (error) {
-        logger.error('❌ Apply failed (state NOT updated, will retry on next change):', {
-          applyId,
-          error,
-          stateRemains: {
-            lastAppliedStorageFingerprint,
-            lastAppliedMeta,
-          },
-          attemptedFingerprint: fp,
-          attemptedMeta: meta,
-        });
+        logger.error(
+          `❌ Apply failed (state NOT updated, will retry on next change): ${safeStringify({
+            applyId,
+            error,
+            stateRemains: {
+              lastAppliedStorageFingerprint,
+              lastAppliedMeta,
+            },
+            attemptedFingerprint: fp,
+            attemptedMeta: meta,
+          })}`,
+        );
       } finally {
         logger.groupEnd();
       }
     }
   } finally {
     applyInProgress = false;
-    logger.debug('🔓 Apply lock released:', {
-      lastAppliedStorageFingerprint,
-      lastAppliedMeta,
-    });
+    logger.debug(
+      `🔓 Apply lock released: ${safeStringify({
+        lastAppliedStorageFingerprint,
+        lastAppliedMeta,
+      })}`,
+    );
   }
 }
 
@@ -259,6 +372,7 @@ browser.runtime.onStartup.addListener(async function () {
     BrowserStorageKey.SelectedProfile,
     BrowserStorageKey.IsPaused,
     BrowserStorageKey.HeadersConfigMeta,
+    BrowserStorageKey.MirrorLogsToPageConsole,
   ]);
 
   // Detailed logging of storage contents on startup
@@ -284,43 +398,11 @@ browser.runtime.onStartup.addListener(async function () {
   logger.debug('Startup storage data:', result);
 
   if (Object.keys(result).length) {
-    logger.info('🚀 Storage data found, setting browser headers on startup');
+    logger.info('🚀 Storage data found, queueing browser headers apply on startup');
     try {
-      const fp = storageFingerprint(result);
-      const applyId = ++applyCounter;
-
-      logger.debug('🔧 Direct apply (onStartup) starting:', {
-        applyId,
-        fp,
-        prevFp: lastAppliedStorageFingerprint,
-        prevMeta: lastAppliedMeta,
-      });
-
-      await setBrowserHeaders(result, {
-        applyId,
-        reason: 'runtime.onStartup',
-        storageFingerprint: fp,
-      });
-
-      // Sync queue state after direct call to prevent duplicate applies
-      const prevFp = lastAppliedStorageFingerprint;
-      const prevMeta = { ...lastAppliedMeta };
-      lastAppliedStorageFingerprint = fp;
-      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
-      if (isNewerMeta(meta, lastAppliedMeta)) {
-        lastAppliedMeta = meta;
-      }
-
-      logger.info('🔄 Queue state synced after onStartup:', {
-        applyId,
-        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
-        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
-      });
+      await applyHeadersFromStorageQueue('runtime.onStartup');
     } catch (error) {
-      logger.error('❌ Failed to set browser headers on startup (queue state NOT synced):', {
-        error,
-        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
-      });
+      logger.error(`❌ Failed to queue/apply headers on startup: ${safeStringify({ error })}`);
     }
   } else {
     logger.info('📭 No storage data found on startup - extension will start with default settings');
@@ -337,6 +419,14 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
       BrowserStorageKey.IsPaused,
       BrowserStorageKey.HeadersConfigMeta,
     ];
+    if (Object.keys(changes).includes(BrowserStorageKey.MirrorLogsToPageConsole)) {
+      mirrorLogsToPageConsole = Boolean(changes[BrowserStorageKey.MirrorLogsToPageConsole]?.newValue);
+      logger.info(
+        `🪞 Mirror logs to page console mode changed: ${safeStringify({
+          enabled: mirrorLogsToPageConsole,
+        })}`,
+      );
+    }
     const changedKeys = Object.keys(changes);
     const relevantChangedKeys = relevantKeys.filter(key => changedKeys.includes(key));
 
@@ -351,16 +441,18 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
         };
       }
 
-      logger.info('📝 Relevant storage changes detected:', {
-        changedKeys: relevantChangedKeys,
-        changeDetails,
-        currentQueueState: {
-          lastAppliedStorageFingerprint,
-          lastAppliedMeta,
-          applyInProgress,
-          applyPending,
-        },
-      });
+      logger.info(
+        `📝 Relevant storage changes detected: ${safeStringify({
+          changedKeys: relevantChangedKeys,
+          changeDetails,
+          currentQueueState: {
+            lastAppliedStorageFingerprint,
+            lastAppliedMeta,
+            applyInProgress,
+            applyPending,
+          },
+        })}`,
+      );
 
       await applyHeadersFromStorageQueue('storage.onChanged');
     }
@@ -375,6 +467,7 @@ browser.runtime.onInstalled.addListener(async details => {
     BrowserStorageKey.SelectedProfile,
     BrowserStorageKey.IsPaused,
     BrowserStorageKey.HeadersConfigMeta,
+    BrowserStorageKey.MirrorLogsToPageConsole,
   ]);
 
   // Detailed logging of storage contents on install/update
@@ -401,44 +494,11 @@ browser.runtime.onInstalled.addListener(async details => {
   logger.debug('Install/update storage data:', result);
 
   if (Object.keys(result).length) {
-    logger.info('🔧 Storage data found, initializing browser headers on install/update');
+    logger.info('🔧 Storage data found, queueing browser headers apply on install/update');
     try {
-      const fp = storageFingerprint(result);
-      const applyId = ++applyCounter;
-
-      logger.debug('🔧 Direct apply (onInstalled) starting:', {
-        applyId,
-        reason: details.reason,
-        fp,
-        prevFp: lastAppliedStorageFingerprint,
-        prevMeta: lastAppliedMeta,
-      });
-
-      await setBrowserHeaders(result, {
-        applyId,
-        reason: `runtime.onInstalled:${details.reason}`,
-        storageFingerprint: fp,
-      });
-
-      // Sync queue state after direct call to prevent duplicate applies
-      const prevFp = lastAppliedStorageFingerprint;
-      const prevMeta = { ...lastAppliedMeta };
-      lastAppliedStorageFingerprint = fp;
-      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
-      if (isNewerMeta(meta, lastAppliedMeta)) {
-        lastAppliedMeta = meta;
-      }
-
-      logger.info('🔄 Queue state synced after onInstalled:', {
-        applyId,
-        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
-        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
-      });
+      await applyHeadersFromStorageQueue(`runtime.onInstalled:${details.reason}`);
     } catch (error) {
-      logger.error('❌ Failed to set browser headers on install/update (queue state NOT synced):', {
-        error,
-        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
-      });
+      logger.error(`❌ Failed to queue/apply headers on install/update: ${safeStringify({ error })}`);
     }
   } else {
     logger.info('📭 No storage data found on install/update - extension will start with default settings');

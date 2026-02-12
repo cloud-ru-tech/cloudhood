@@ -1,8 +1,9 @@
 import { useUnit } from 'effector-react';
 import { useCallback, useMemo } from 'react';
 
-import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
+import { CheckSVG, DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
 
+import { $mirrorLogsToPageConsole, mirrorLogsToPageConsoleToggled } from '#entities/mirror-logs/model';
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
 import { $isProfileRemoveAvailable, profileAdded } from '#entities/request-profile/model';
@@ -15,7 +16,11 @@ type UseActionsProps = {
 };
 
 export function useActions({ onClose }: UseActionsProps) {
-  const [isProfileRemoveAvailable, activeTab] = useUnit([$isProfileRemoveAvailable, $activeProfileActionsTab]);
+  const [isProfileRemoveAvailable, activeTab, mirrorLogsToPageConsole] = useUnit([
+    $isProfileRemoveAvailable,
+    $activeProfileActionsTab,
+    $mirrorLogsToPageConsole,
+  ]);
 
   const handleAddProfile = useCallback(() => {
     profileAdded();
@@ -50,6 +55,11 @@ export function useActions({ onClose }: UseActionsProps) {
     onClose();
   }, [onClose, activeTab]);
 
+  const handleToggleMirrorLogsToPageConsole = useCallback(() => {
+    mirrorLogsToPageConsoleToggled();
+    onClose();
+  }, [onClose]);
+
   return useMemo(
     () => [
       {
@@ -83,6 +93,14 @@ export function useActions({ onClose }: UseActionsProps) {
         onClick: handleExportModalOpened,
       },
       {
+        id: 'mirror-logs-page-console',
+        content: {
+          option: `Mirror logs to page console (${mirrorLogsToPageConsole ? 'On' : 'Off'})`,
+        },
+        beforeContent: mirrorLogsToPageConsole ? <CheckSVG /> : undefined,
+        onClick: handleToggleMirrorLogsToPageConsole,
+      },
+      {
         id: 'remove',
         content: { option: 'Delete profile' },
         beforeContent: <TrashSVG />,
@@ -98,6 +116,8 @@ export function useActions({ onClose }: UseActionsProps) {
       handleRemoveProfile,
       isProfileRemoveAvailable,
       handleAddUrlFilter,
+      handleToggleMirrorLogsToPageConsole,
+      mirrorLogsToPageConsole,
     ],
   );
 }
