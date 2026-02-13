@@ -21,53 +21,6 @@ logger.info('🎯 Background script loaded successfully!');
 logger.debug('🎯 Background script loaded successfully! (debug)');
 logger.info('🔍 About to check storage contents...');
 
-// Check storage immediately on background script load
-(async () => {
-  try {
-    const result = await browser.storage.local.get([
-      BrowserStorageKey.Profiles,
-      BrowserStorageKey.SelectedProfile,
-      BrowserStorageKey.IsPaused,
-    ]);
-
-    logger.group('📦 Storage contents on background script load:', true);
-    logger.info('  - Profiles:', result[BrowserStorageKey.Profiles] ? 'Present' : 'Missing');
-    logger.info('  - Selected Profile:', result[BrowserStorageKey.SelectedProfile] || 'None');
-    logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
-
-    // Log profile count if present
-    let activeHeadersCount = 0;
-    if (result[BrowserStorageKey.Profiles]) {
-      try {
-        const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
-        logger.info(`  - Profiles count: ${profiles.length}`);
-        if (profiles.length > 0) {
-          logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
-
-          // Count active headers for the badge
-          const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
-          if (selectedProfile) {
-            activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
-            logger.info(`  - Active headers count: ${activeHeadersCount}`);
-          }
-        }
-      } catch (error) {
-        logger.warn('  - Failed to parse profiles:', error);
-      }
-    }
-
-    logger.debug('Background script load storage data:', JSON.stringify(result, null, 2));
-    logger.groupEnd();
-
-    // Set the badge based on storage data
-    const isPaused = (result[BrowserStorageKey.IsPaused] as boolean) || false;
-    await setIconBadge({ isPaused, activeRulesCount: activeHeadersCount });
-    logger.info(`🏷️ Badge set: paused=${isPaused}, activeRules=${activeHeadersCount}`);
-  } catch (error) {
-    logger.error('Failed to check storage on background script load:', error);
-  }
-})();
-
 // Initialize auto-reload only in development mode
 if (process.env.NODE_ENV === 'development') {
   enableExtensionReload();
@@ -490,6 +443,61 @@ async function applyHeadersFromStorageQueue(reason: string) {
   }
 }
 
+async function checkStorageOnBackgroundLoad() {
+  try {
+    const result = await browser.storage.local.get([
+      BrowserStorageKey.Profiles,
+      BrowserStorageKey.SelectedProfile,
+      BrowserStorageKey.IsPaused,
+    ]);
+
+    logger.group('📦 Storage contents on background script load:', true);
+    logger.info('  - Profiles:', result[BrowserStorageKey.Profiles] ? 'Present' : 'Missing');
+    logger.info('  - Selected Profile:', result[BrowserStorageKey.SelectedProfile] || 'None');
+    logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
+
+    // Log profile count if present
+    let activeHeadersCount = 0;
+    if (result[BrowserStorageKey.Profiles]) {
+      try {
+        const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
+        logger.info(`  - Profiles count: ${profiles.length}`);
+        if (profiles.length > 0) {
+          logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
+
+          // Count active headers for the badge
+          const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
+          if (selectedProfile) {
+            activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
+            logger.info(`  - Active headers count: ${activeHeadersCount}`);
+          }
+        }
+      } catch (error) {
+        logger.warn('  - Failed to parse profiles:', error);
+      }
+    }
+
+    logger.debug('Background script load storage data:', JSON.stringify(result, null, 2));
+    logger.groupEnd();
+
+    // Set the badge based on storage data
+    const isPaused = (result[BrowserStorageKey.IsPaused] as boolean) || false;
+    await setIconBadge({ isPaused, activeRulesCount: activeHeadersCount });
+    logger.info(`🏷️ Badge set: paused=${isPaused}, activeRules=${activeHeadersCount}`);
+
+    // Service worker can restart after OS sleep/unlock while stale DNR rules remain active.
+    // Force reconciliation with storage on every worker boot.
+    try {
+      await applyHeadersFromStorageQueue('background.boot');
+      logger.info('🔄 Boot-time headers reconciliation completed');
+    } catch (error) {
+      logger.error(`❌ Boot-time headers reconciliation failed: ${safeStringify({ error })}`);
+    }
+  } catch (error) {
+    logger.error('Failed to check storage on background script load:', error);
+  }
+}
+
 async function runWatchdog(reason: string) {
   const now = Date.now();
   const millisSinceLastSuccess = lastSuccessfulApplyAt ? now - lastSuccessfulApplyAt : null;
@@ -527,6 +535,8 @@ async function runWatchdog(reason: string) {
 
   await applyHeadersFromStorageQueue(`watchdog:${trigger}:${reason}`);
 }
+
+checkStorageOnBackgroundLoad().catch(() => undefined);
 
 ensureWatchdogAlarm().catch(() => undefined);
 
