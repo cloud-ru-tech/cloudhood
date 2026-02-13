@@ -19,3 +19,7 @@ export enum ThemeMode {
   Dark = 'dark',
   System = 'system',
 }
+
+export enum RuntimeMessageType {
+  ExportDebugLogs = 'export-debug-logs',
+}

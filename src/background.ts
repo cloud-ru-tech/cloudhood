@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 
-import { BrowserStorageKey } from './shared/constants';
+import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
@@ -77,9 +77,25 @@ if (process.env.NODE_ENV === 'development') {
 const BADGE_COLOR = '#ffffff';
 const PAGE_CONSOLE_LOG_MESSAGE_TYPE = 'cloudhood:page-console-log';
 const LOG_MIRROR_SOURCE = 'background';
+const WATCHDOG_ALARM_NAME = 'cloudhood-headers-watchdog';
+const WATCHDOG_PERIOD_MINUTES = 3;
+const WATCHDOG_INITIAL_DELAY_MINUTES = 1;
+const MAX_APPLY_STALENESS_MS = 30 * 60 * 1000;
+const AUTO_HEAL_FAILURE_THRESHOLD = 3;
+const MAX_DEBUG_LOGS = 3000;
 
 let mirrorLogsToPageConsole = false;
 let mirroredLogSeq = 0;
+const workerBootId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const workerBootAt = Date.now();
+let debugLogSeq = 0;
+const debugLogsBuffer: Array<{
+  seq: number;
+  timestamp: number;
+  level: LogLevel;
+  message: string;
+  args: string[];
+}> = [];
 
 function safeStringify(value: unknown): string {
   const seen = new WeakSet<object>();
@@ -120,6 +136,17 @@ function getConsoleMethodForLevel(level: LogLevel): 'log' | 'info' | 'warn' | 'e
   }
 }
 
+function appendDebugLog(entry: { timestamp: number; level: LogLevel; message: string; args: string[] }) {
+  debugLogSeq += 1;
+  debugLogsBuffer.push({
+    seq: debugLogSeq,
+    ...entry,
+  });
+  if (debugLogsBuffer.length > MAX_DEBUG_LOGS) {
+    debugLogsBuffer.splice(0, debugLogsBuffer.length - MAX_DEBUG_LOGS);
+  }
+}
+
 async function updateMirrorLogsModeFromStorage(): Promise<void> {
   try {
     const result = await browser.storage.local.get([BrowserStorageKey.MirrorLogsToPageConsole]);
@@ -130,6 +157,14 @@ async function updateMirrorLogsModeFromStorage(): Promise<void> {
 }
 
 logger.setExternalSink(async ({ level, message, args, timestamp }) => {
+  const serializedArgs = args.map(item => safeStringify(item));
+  appendDebugLog({
+    timestamp,
+    level,
+    message,
+    args: serializedArgs,
+  });
+
   if (!mirrorLogsToPageConsole) return;
 
   const activeTabs = await browser.tabs.query({
@@ -147,7 +182,7 @@ logger.setExternalSink(async ({ level, message, args, timestamp }) => {
       level,
       consoleMethod: getConsoleMethodForLevel(level),
       message,
-      args: args.map(item => safeStringify(item)),
+      args: serializedArgs,
       timestamp,
     },
   });
@@ -188,6 +223,90 @@ let applyCounter = 0;
 let lastRequestedReason = 'unknown';
 let lastAppliedStorageFingerprint: string | null = null;
 let lastAppliedMeta: { seq: number; updatedAt: number } = { seq: 0, updatedAt: 0 };
+let lastApplyAttemptAt: number | null = null;
+let lastSuccessfulApplyAt: number | null = null;
+let lastApplyFailureAt: number | null = null;
+let consecutiveApplyFailures = 0;
+
+function getApplyHealthSnapshot() {
+  const now = Date.now();
+  return {
+    workerBootId,
+    workerUptimeMs: now - workerBootAt,
+    applyInProgress,
+    applyPending,
+    applyCounter,
+    lastRequestedReason,
+    lastApplyAttemptAt,
+    lastSuccessfulApplyAt,
+    lastApplyFailureAt,
+    consecutiveApplyFailures,
+    millisSinceLastSuccess: lastSuccessfulApplyAt ? now - lastSuccessfulApplyAt : null,
+    lastAppliedStorageFingerprint,
+    lastAppliedMeta,
+  };
+}
+
+async function buildDebugLogsExportPayload() {
+  const now = Date.now();
+  const storage = await browser.storage.local.get([
+    BrowserStorageKey.Profiles,
+    BrowserStorageKey.SelectedProfile,
+    BrowserStorageKey.IsPaused,
+    BrowserStorageKey.HeadersConfigMeta,
+    BrowserStorageKey.MirrorLogsToPageConsole,
+  ]);
+  let dynamicRules: browser.DeclarativeNetRequest.Rule[] = [];
+  let sessionRules: browser.DeclarativeNetRequest.Rule[] = [];
+
+  try {
+    dynamicRules = await browser.declarativeNetRequest.getDynamicRules();
+  } catch {
+    dynamicRules = [];
+  }
+  try {
+    sessionRules = await browser.declarativeNetRequest.getSessionRules();
+  } catch {
+    sessionRules = [];
+  }
+
+  return {
+    exportedAt: new Date(now).toISOString(),
+    worker: {
+      bootId: workerBootId,
+      bootedAt: new Date(workerBootAt).toISOString(),
+      uptimeMs: now - workerBootAt,
+    },
+    health: getApplyHealthSnapshot(),
+    storage,
+    dnr: {
+      dynamicRulesCount: dynamicRules.length,
+      sessionRulesCount: sessionRules.length,
+      dynamicRules,
+      sessionRules,
+    },
+    logs: debugLogsBuffer,
+  };
+}
+
+async function ensureWatchdogAlarm() {
+  try {
+    await browser.alarms.create(WATCHDOG_ALARM_NAME, {
+      delayInMinutes: WATCHDOG_INITIAL_DELAY_MINUTES,
+      periodInMinutes: WATCHDOG_PERIOD_MINUTES,
+    });
+    logger.info(
+      `🩺 Watchdog alarm configured: ${safeStringify({
+        name: WATCHDOG_ALARM_NAME,
+        delayInMinutes: WATCHDOG_INITIAL_DELAY_MINUTES,
+        periodInMinutes: WATCHDOG_PERIOD_MINUTES,
+        workerBootId,
+      })}`,
+    );
+  } catch (error) {
+    logger.error(`❌ Failed to configure watchdog alarm: ${safeStringify({ error })}`);
+  }
+}
 
 function normalizeHeadersConfigMeta(value: unknown): { seq: number; updatedAt: number } {
   if (value && typeof value === 'object') {
@@ -236,6 +355,7 @@ async function applyHeadersFromStorageQueue(reason: string) {
     while (applyPending) {
       applyPending = false;
       const applyId = ++applyCounter;
+      lastApplyAttemptAt = Date.now();
 
       const startedAt = Date.now();
       const result = await browser.storage.local.get([
@@ -334,9 +454,14 @@ async function applyHeadersFromStorageQueue(reason: string) {
             metaChange: isNewer
               ? `seq:${prevMeta.seq}→${meta.seq}, updatedAt:${prevMeta.updatedAt}→${meta.updatedAt}`
               : `unchanged (stale meta preserved: seq=${lastAppliedMeta.seq}, updatedAt=${lastAppliedMeta.updatedAt})`,
+            healthBeforeReset: getApplyHealthSnapshot(),
           })}`,
         );
+        consecutiveApplyFailures = 0;
+        lastSuccessfulApplyAt = Date.now();
       } catch (error) {
+        consecutiveApplyFailures += 1;
+        lastApplyFailureAt = Date.now();
         logger.error(
           `❌ Apply failed (state NOT updated, will retry on next change): ${safeStringify({
             applyId,
@@ -347,6 +472,7 @@ async function applyHeadersFromStorageQueue(reason: string) {
             },
             attemptedFingerprint: fp,
             attemptedMeta: meta,
+            healthAfterFailure: getApplyHealthSnapshot(),
           })}`,
         );
       } finally {
@@ -364,8 +490,49 @@ async function applyHeadersFromStorageQueue(reason: string) {
   }
 }
 
+async function runWatchdog(reason: string) {
+  const now = Date.now();
+  const millisSinceLastSuccess = lastSuccessfulApplyAt ? now - lastSuccessfulApplyAt : null;
+  const shouldForceByFailures = consecutiveApplyFailures >= AUTO_HEAL_FAILURE_THRESHOLD;
+  const shouldForceByStaleness =
+    millisSinceLastSuccess !== null &&
+    !applyInProgress &&
+    !applyPending &&
+    millisSinceLastSuccess > MAX_APPLY_STALENESS_MS;
+
+  logger.debug(
+    `🩺 Watchdog tick: ${safeStringify({
+      reason,
+      millisSinceLastSuccess,
+      shouldForceByFailures,
+      shouldForceByStaleness,
+      health: getApplyHealthSnapshot(),
+    })}`,
+  );
+
+  if (!shouldForceByFailures && !shouldForceByStaleness) return;
+
+  const trigger = shouldForceByFailures ? 'consecutive-failures' : 'staleness';
+  logger.warn(
+    `🩹 Watchdog auto-heal triggered: ${safeStringify({
+      reason,
+      trigger,
+      threshold: {
+        autoHealFailureThreshold: AUTO_HEAL_FAILURE_THRESHOLD,
+        maxApplyStalenessMs: MAX_APPLY_STALENESS_MS,
+      },
+      health: getApplyHealthSnapshot(),
+    })}`,
+  );
+
+  await applyHeadersFromStorageQueue(`watchdog:${trigger}:${reason}`);
+}
+
+ensureWatchdogAlarm().catch(() => undefined);
+
 browser.runtime.onStartup.addListener(async function () {
   logger.info('Extension startup triggered');
+  ensureWatchdogAlarm().catch(() => undefined);
 
   const result = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
@@ -459,8 +626,30 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
   }
 });
 
+browser.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name !== WATCHDOG_ALARM_NAME) return;
+  runWatchdog('alarms.onAlarm').catch(error => {
+    logger.error(`❌ Watchdog execution failed: ${safeStringify({ error })}`);
+  });
+});
+
+browser.runtime.onMessage.addListener((message: unknown) => {
+  if (!message || typeof message !== 'object') return undefined;
+
+  const payload = message as Record<string, unknown>;
+  if (payload.type !== RuntimeMessageType.ExportDebugLogs) return undefined;
+
+  return buildDebugLogsExportPayload()
+    .then(result => ({ ok: true, result }))
+    .catch(error => ({
+      ok: false,
+      error: safeStringify(error),
+    }));
+});
+
 browser.runtime.onInstalled.addListener(async details => {
   logger.info('Extension installed/updated:', details.reason);
+  ensureWatchdogAlarm().catch(() => undefined);
 
   const result = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
