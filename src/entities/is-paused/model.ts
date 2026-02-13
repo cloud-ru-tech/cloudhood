@@ -19,7 +19,10 @@ export const $isPaused = createStore<boolean>(false)
   .on(toggleIsPaused, state => !state)
   .on(loadIsPausedFromStorageFx.doneData, (_, isPaused) => Boolean(isPaused));
 
+// Save only on explicit user toggle, not on initial load from storage.
+// Same race-condition fix as in selected-request-profile.ts.
 sample({
+  clock: toggleIsPaused,
   source: $isPaused,
   target: saveIsPausedToStorageFx,
 });

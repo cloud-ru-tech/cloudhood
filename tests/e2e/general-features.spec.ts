@@ -220,7 +220,8 @@ test.describe('General Features', () => {
 
     if (newPage) {
       // If a new page opened, verify the URL
-      await newPage.waitForLoadState('networkidle');
+      // Using 'domcontentloaded' instead of 'networkidle' because GitHub has persistent background requests
+      await newPage.waitForLoadState('domcontentloaded');
       const url = newPage.url();
       expect(url).toContain('github.com');
       expect(url).toContain('cloud-ru-tech');

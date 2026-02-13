@@ -17,6 +17,13 @@ export type LoggerConfig = {
   enabled: boolean;
 };
 
+export type ExternalLogSink = (entry: {
+  level: LogLevel;
+  message: string;
+  args: unknown[];
+  timestamp: number;
+}) => void | Promise<void>;
+
 const defaultConfig: LoggerConfig = {
   minLevel: LogLevel.INFO,
   showTimestamp: true,
@@ -24,6 +31,7 @@ const defaultConfig: LoggerConfig = {
 };
 
 let currentConfig = { ...defaultConfig };
+let externalLogSink: ExternalLogSink | null = null;
 
 export function configureLogger(config: Partial<LoggerConfig>): void {
   currentConfig = { ...currentConfig, ...config };
@@ -36,6 +44,30 @@ export function disableLogger(): void {
 export function enableLogger(): void {
   currentConfig.enabled = true;
 }
+
+export function setExternalLogSink(sink: ExternalLogSink | null): void {
+  externalLogSink = sink;
+}
+
+function emitToExternalSink(level: LogLevel, message: string, args: unknown[]): void {
+  if (!externalLogSink) return;
+  try {
+    const maybePromise = externalLogSink({
+      level,
+      message,
+      args,
+      timestamp: Date.now(),
+    });
+    if (maybePromise && typeof (maybePromise as Promise<unknown>).then === 'function') {
+      (maybePromise as Promise<unknown>).catch(() => {
+        // Ignore external sink errors to avoid breaking main logging flow
+      });
+    }
+  } catch {
+    // Ignore external sink errors to avoid breaking main logging flow
+  }
+}
+
 function formatLogMessage(level: LogLevel, message: string): string {
   const timestamp = currentConfig.showTimestamp ? `[${new Date().toISOString()}] ` : '';
   return `${timestamp}[${level}] ${message}`;
@@ -52,24 +84,28 @@ export function logDebug(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.DEBUG)) {
     // eslint-disable-next-line no-console
     console.log(formatLogMessage(LogLevel.DEBUG, message), ...args);
+    emitToExternalSink(LogLevel.DEBUG, message, args);
   }
 }
 
 export function logInfo(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.INFO)) {
     console.info(formatLogMessage(LogLevel.INFO, message), ...args);
+    emitToExternalSink(LogLevel.INFO, message, args);
   }
 }
 
 export function logWarn(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.WARN)) {
     console.warn(formatLogMessage(LogLevel.WARN, message), ...args);
+    emitToExternalSink(LogLevel.WARN, message, args);
   }
 }
 
 export function logError(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.ERROR)) {
     console.error(formatLogMessage(LogLevel.ERROR, message), ...args);
+    emitToExternalSink(LogLevel.ERROR, message, args);
   }
 }
 
@@ -102,4 +138,5 @@ export const logger = {
   configure: configureLogger,
   enable: enableLogger,
   disable: disableLogger,
+  setExternalSink: setExternalLogSink,
 };

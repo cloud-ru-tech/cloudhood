@@ -8,6 +8,149 @@ import { validateHeader } from './headers';
 import { logger } from './logger';
 import { setIconBadge } from './setIconBadge';
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 200;
+const RECOVERY_DELAY_MS = 500;
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function safeStringify(value: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(
+    value,
+    (_, currentValue) => {
+      if (currentValue instanceof Error) {
+        return {
+          name: currentValue.name,
+          message: currentValue.message,
+          stack: currentValue.stack,
+        };
+      }
+      if (currentValue && typeof currentValue === 'object') {
+        if (seen.has(currentValue as object)) return '[Circular]';
+        seen.add(currentValue as object);
+      }
+      return currentValue;
+    },
+    2,
+  );
+}
+
+/**
+ * Attempts to recover from DNR API errors by clearing all rules first,
+ * then applying new rules in a separate call.
+ * This handles cases where Chrome has corrupted internal state or "ghost" rules.
+ */
+async function recoveryUpdateDynamicRules(
+  removeRuleIds: number[],
+  addRules: browser.DeclarativeNetRequest.Rule[],
+): Promise<{ success: boolean; error?: unknown }> {
+  logger.warn('🔧 DNR Recovery: Attempting recovery strategy...');
+
+  try {
+    // Step 1: Get current rules (for diagnostics)
+    const currentRules = await browser.declarativeNetRequest.getDynamicRules();
+    logger.info(
+      `🔧 DNR Recovery: Current rules before clear: ${safeStringify({
+        count: currentRules.length,
+        ids: currentRules.map(r => r.id),
+      })}`,
+    );
+
+    // Step 2: Try to remove ALL rules we know about (both from getDynamicRules and our removeRuleIds)
+    const allIdsToRemove = [...new Set([...currentRules.map(r => r.id), ...removeRuleIds])];
+
+    if (allIdsToRemove.length > 0) {
+      logger.info(`🔧 DNR Recovery: Removing all known rules: ${safeStringify({ ids: allIdsToRemove })}`);
+      try {
+        await browser.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: allIdsToRemove,
+          addRules: [],
+        });
+        logger.info('🔧 DNR Recovery: Rules removed successfully');
+      } catch (removeErr) {
+        logger.warn(`🔧 DNR Recovery: Failed to remove rules, continuing anyway: ${safeStringify(removeErr)}`);
+      }
+    }
+
+    // Step 3: Wait for Chrome to stabilize
+    await sleep(RECOVERY_DELAY_MS);
+
+    // Step 4: Verify rules are cleared
+    const rulesAfterClear = await browser.declarativeNetRequest.getDynamicRules();
+    logger.info(
+      `🔧 DNR Recovery: Rules after clear: ${safeStringify({
+        count: rulesAfterClear.length,
+        ids: rulesAfterClear.map(r => r.id),
+      })}`,
+    );
+
+    // Step 5: Add new rules in a separate call
+    if (addRules.length > 0) {
+      logger.info(
+        `🔧 DNR Recovery: Adding new rules: ${safeStringify({
+          count: addRules.length,
+          ids: addRules.map(r => r.id),
+        })}`,
+      );
+      await browser.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: [],
+        addRules,
+      });
+      logger.info('🔧 DNR Recovery: New rules added successfully');
+    }
+
+    // Step 6: Verify final state
+    const finalRules = await browser.declarativeNetRequest.getDynamicRules();
+    logger.info(
+      `🔧 DNR Recovery: Final rules state: ${safeStringify({
+        count: finalRules.length,
+        ids: finalRules.map(r => r.id),
+        expected: addRules.length,
+      })}`,
+    );
+
+    return { success: true };
+  } catch (error) {
+    logger.error(`🔧 DNR Recovery: Recovery failed: ${safeStringify(error)}`);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Last-resort fallback: use session rules when dynamic rules API is completely broken.
+ * Session rules are ephemeral (lost on browser restart / SW termination) but use a
+ * different internal Chrome storage path, so they may work when dynamic rules don't.
+ */
+async function sessionRulesFallback(
+  removeSessionRuleIds: number[],
+  addRules: browser.DeclarativeNetRequest.Rule[],
+): Promise<{ success: boolean; error?: unknown }> {
+  logger.warn('🔄 Session rules fallback: dynamic rules API broken, trying session rules...');
+
+  try {
+    await browser.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: removeSessionRuleIds,
+      addRules,
+    });
+
+    const finalRules = await browser.declarativeNetRequest.getSessionRules();
+    logger.info(
+      `✅ Session rules fallback succeeded: ${safeStringify({
+        activeRulesCount: finalRules.length,
+        ids: finalRules.map(r => r.id),
+      })}`,
+    );
+
+    return { success: true };
+  } catch (error) {
+    logger.error(`❌ Session rules fallback also failed: ${safeStringify(error)}`);
+    return { success: false, error };
+  }
+}
+
 function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
   const allResourceTypes = [
     'main_frame',
@@ -57,7 +200,16 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
   });
 }
 
-export async function setBrowserHeaders(result: Record<string, unknown>) {
+type SetBrowserHeadersMeta = {
+  /** Monotonic apply id from background queue */
+  applyId?: number;
+  /** Why this apply happened (storage.onChanged, onActivated, reload, startup, etc) */
+  reason?: string;
+  /** Optional storage fingerprint computed by caller for correlation */
+  storageFingerprint?: string;
+};
+
+export async function setBrowserHeaders(result: Record<string, unknown>, meta: SetBrowserHeadersMeta = {}) {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
   // Validate data from storage
@@ -81,27 +233,45 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     selectedProfile = selectedProfileData;
   }
 
-  logger.debug('Storage data validation:', {
-    profilesCount: profiles.length,
-    selectedProfile,
-    isPaused,
-    hasProfilesData: Boolean(result[BrowserStorageKey.Profiles]),
-    hasSelectedProfileData: Boolean(result[BrowserStorageKey.SelectedProfile]),
-    hasIsPausedData: result[BrowserStorageKey.IsPaused] !== undefined,
-  });
+  logger.debug(
+    `Storage data validation: ${safeStringify({
+      applyId: meta.applyId,
+      reason: meta.reason,
+      storageFingerprint: meta.storageFingerprint,
+      profilesCount: profiles.length,
+      selectedProfile,
+      isPaused,
+      hasProfilesData: Boolean(result[BrowserStorageKey.Profiles]),
+      hasSelectedProfileData: Boolean(result[BrowserStorageKey.SelectedProfile]),
+      hasIsPausedData: result[BrowserStorageKey.IsPaused] !== undefined,
+    })}`,
+  );
 
-  const currentRules = await browser.declarativeNetRequest.getDynamicRules();
+  const currentDynamicRules = await browser.declarativeNetRequest.getDynamicRules();
 
-  const profile = profiles.find(p => p.id === selectedProfile);
+  // Also read session rules — we may have leftover session rules from a previous fallback
+  let currentSessionRules: browser.DeclarativeNetRequest.Rule[] = [];
+  try {
+    currentSessionRules = await browser.declarativeNetRequest.getSessionRules();
+  } catch {
+    // getSessionRules may be unavailable in older browsers; ignore
+  }
 
-  if (!profile && selectedProfile) {
+  let profile = profiles.find(p => p.id === selectedProfile);
+
+  // Fallback to the first profile when selectedProfile is missing or doesn't match.
+  // This happens when SelectedProfile hasn't been written to storage yet (e.g. first run)
+  // or when it points to a deleted profile.
+  if (!profile && profiles.length > 0) {
+    profile = profiles[0];
     logger.warn(
-      `Profile with id "${selectedProfile}" not found in storage. Available profiles:`,
-      profiles.map(p => ({ id: p.id, name: p.name })),
+      `Profile with id "${selectedProfile}" not found in storage, falling back to first profile "${profile.id}". Available profiles: ${safeStringify(
+        profiles.map(p => ({ id: p.id, name: p.name })),
+      )}`,
     );
   }
 
-  logger.info('📋 Found profile:', profile);
+  logger.info(`📋 Found profile: ${safeStringify(profile)}`);
 
   const selectedProfileHeaders = profile?.requestHeaders ?? [];
   const selectedProfileUrlFilters = profile?.urlFilters ?? [];
@@ -111,58 +281,167 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
   );
 
   // Remove extra line and fix logging
-  logger.info('URL filters from profile:', selectedProfileUrlFilters);
+  logger.info(`URL filters from profile: ${safeStringify(selectedProfileUrlFilters)}`);
 
   const activeUrlFilters = selectedProfileUrlFilters
     .filter(({ disabled, value }) => !disabled && value.trim())
     .map(({ value }) => value.trim());
 
-  logger.info('Active URL filters:', activeUrlFilters);
+  logger.info(`Active URL filters: ${safeStringify(activeUrlFilters)}`);
 
   // Add more visible logging
-  logger.debug('🔍 Profile data:', {
-    profileId: selectedProfile,
-    headersCount: selectedProfileHeaders.length,
-    activeHeadersCount: activeHeaders.length,
-    urlFiltersCount: selectedProfileUrlFilters.length,
-    activeUrlFiltersCount: activeUrlFilters.length,
-  });
+  logger.debug(
+    `🔍 Profile data: ${safeStringify({
+      profileId: selectedProfile,
+      headersCount: selectedProfileHeaders.length,
+      activeHeadersCount: activeHeaders.length,
+      urlFiltersCount: selectedProfileUrlFilters.length,
+      activeUrlFiltersCount: activeUrlFilters.length,
+    })}`,
+  );
 
   const addRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
     ? activeHeaders.flatMap(header => getRulesForHeader(header, activeUrlFilters))
     : [];
 
-  const removeRuleIds = currentRules.map(item => item.id);
+  const removeDynamicRuleIds = currentDynamicRules.map(item => item.id);
+  const removeSessionRuleIds = currentSessionRules.map(item => item.id);
 
   try {
     logger.group('Updating dynamic rules', true);
-    logger.info('Remove rule IDs:', removeRuleIds);
-    logger.info('Add rules:', addRules);
+    logger.info(`Apply meta: ${safeStringify(meta)}`);
+    logger.info(`Remove dynamic rule IDs: ${safeStringify(removeDynamicRuleIds)}`);
+    if (removeSessionRuleIds.length > 0) {
+      logger.info(`Remove session rule IDs (leftover from previous fallback): ${safeStringify(removeSessionRuleIds)}`);
+    }
+    logger.info(`Add rules: ${safeStringify(addRules)}`);
 
-    if (removeRuleIds.length > 0) {
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds,
-        addRules: [],
-      });
-      logger.debug('Old rules removed');
+    // IMPORTANT:
+    // Apply rules atomically in a single updateDynamicRules call.
+    // Two-step remove→add is prone to race conditions when multiple triggers fire concurrently
+    // (often more noticeable on Windows due to timing/latency differences).
+    let usedSessionFallback = false;
+
+    if (removeDynamicRuleIds.length > 0 || removeSessionRuleIds.length > 0 || addRules.length > 0) {
+      // Enhanced diagnostics: log full rule details before update
+      logger.info(
+        `📊 DNR Update diagnostics: ${safeStringify({
+          removeDynamicRuleIds,
+          addRulesCount: addRules.length,
+          addRulesDetails: addRules.map(r => ({
+            id: r.id,
+            actionType: r.action.type,
+            hasUrlFilter: 'urlFilter' in (r.condition || {}),
+            hasRegexFilter: 'regexFilter' in (r.condition || {}),
+            condition: r.condition,
+          })),
+        })}`,
+      );
+
+      // Retry logic for transient DNR API errors (e.g., "Internal error while updating dynamic rules")
+      let lastError: unknown = null;
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          await browser.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds: removeDynamicRuleIds,
+            addRules,
+          });
+          logger.debug(`Dynamic rules updated (atomic, attempt ${attempt})`);
+          lastError = null;
+          break;
+        } catch (err) {
+          lastError = err;
+          logger.warn(`DNR updateDynamicRules failed (attempt ${attempt}/${MAX_RETRIES}): ${safeStringify(err)}`);
+          if (attempt < MAX_RETRIES) {
+            await sleep(RETRY_DELAY_MS * attempt); // Exponential backoff
+          }
+        }
+      }
+
+      // If atomic update failed, try recovery strategy
+      if (lastError) {
+        logger.warn('⚠️ Atomic DNR update failed after retries, attempting recovery...');
+        const recoveryResult = await recoveryUpdateDynamicRules(removeDynamicRuleIds, addRules);
+
+        if (recoveryResult.success) {
+          logger.info('✅ DNR Recovery successful!');
+          lastError = null;
+        } else {
+          logger.error(`❌ DNR Recovery also failed: ${safeStringify(recoveryResult.error)}`);
+        }
+      }
+
+      // Last resort: session rules fallback when Chrome's dynamic rules DB is corrupted
+      if (lastError) {
+        const sessionResult = await sessionRulesFallback(removeSessionRuleIds, addRules);
+
+        if (sessionResult.success) {
+          usedSessionFallback = true;
+          lastError = null;
+        }
+      }
+
+      if (lastError) {
+        throw lastError;
+      }
+    } else {
+      logger.debug('No dynamic rules to update');
     }
 
-    if (addRules.length > 0) {
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [],
-        addRules,
-      });
-      logger.debug('New rules added');
+    // If dynamic rules succeeded, clean up any leftover session rules from a previous fallback
+    if (!usedSessionFallback && removeSessionRuleIds.length > 0) {
+      try {
+        await browser.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: removeSessionRuleIds,
+          addRules: [],
+        });
+        logger.info('🧹 Cleaned up leftover session rules');
+      } catch {
+        // Non-critical: ignore cleanup failures
+      }
     }
 
-    const updatedRules = await browser.declarativeNetRequest.getDynamicRules();
-    logger.debug('Current active rules after update:', updatedRules);
+    // Verify final state (check both dynamic and session rules)
+    const updatedDynamicRules = await browser.declarativeNetRequest.getDynamicRules();
+    let updatedSessionRules: browser.DeclarativeNetRequest.Rule[] = [];
+    try {
+      updatedSessionRules = await browser.declarativeNetRequest.getSessionRules();
+    } catch {
+      // ignore
+    }
+    const allActiveRules = [...updatedDynamicRules, ...updatedSessionRules];
 
-    logger.info('Rules updated successfully');
+    logger.info(
+      `📊 Final DNR state: ${safeStringify({
+        dynamicRulesCount: updatedDynamicRules.length,
+        sessionRulesCount: updatedSessionRules.length,
+        totalActiveRulesCount: allActiveRules.length,
+        expectedRulesCount: addRules.length,
+        match: allActiveRules.length === addRules.length,
+        usedSessionFallback,
+        activeRuleIds: allActiveRules.map(r => r.id),
+        activeRulesDetails: allActiveRules.map(r => ({
+          id: r.id,
+          actionType: r.action.type,
+          condition: r.condition,
+          requestHeaders: r.action.requestHeaders,
+        })),
+      })}`,
+    );
+
+    logger.info(
+      usedSessionFallback
+        ? '⚠️ Rules applied via session fallback (will be lost on browser restart — restart Chrome to fix dynamic rules)'
+        : '✅ Rules updated successfully',
+    );
     logger.groupEnd();
 
     await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
   } catch (err) {
-    logger.error('Failed to update dynamic rules:', err);
+    logger.error(`Failed to update dynamic rules: ${safeStringify(err)}`);
+    logger.groupEnd();
+    // CRITICAL: Re-throw to prevent caller from updating lastAppliedStorageFingerprint/lastAppliedMeta
+    // If we swallow the error, the queue state becomes desynchronized with actual DNR rules
+    throw err;
   }
 }

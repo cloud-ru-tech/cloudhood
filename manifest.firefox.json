@@ -18,6 +18,7 @@
   },
   "permissions": [
     "storage",
+    "alarms",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
     "activeTab"
@@ -30,6 +31,17 @@
       "background.bundle.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "page-console-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob: moz-extension:; style-src 'self' 'nonce-cloudhood-extension-style-nonce'; connect-src 'self' data: blob: moz-extension:;"
   },
