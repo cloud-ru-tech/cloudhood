@@ -451,3 +451,16 @@ browser.runtime.onInstalled.addListener(async details => {
 // If you ever introduce per-tab/per-site profiles, revisit this.
 
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
+
+// Sync DNR rules on every service worker startup.
+//
+// MV3 service workers are killed by Chrome after ~30s of inactivity and restarted on demand.
+// onStartup only fires on browser start; onInstalled only fires on extension install/update.
+// Neither fires on a plain SW restart, so stale dynamic rules from the previous session
+// (which persist across SW restarts) would never be cleaned up until storage changes.
+//
+// By triggering an apply here, we reconcile DNR state with storage on every SW start.
+// The meta/fingerprint deduplication in applyHeadersFromStorageQueue prevents redundant applies.
+applyHeadersFromStorageQueue('sw-init').catch(err => {
+  logger.error('❌ Failed to apply headers on SW init:', err);
+});
