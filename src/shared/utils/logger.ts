@@ -48,28 +48,64 @@ function shouldLog(level: LogLevel): boolean {
   return levels.indexOf(level) >= levels.indexOf(currentConfig.minLevel);
 }
 
+type LogSinkEntry = {
+  level: LogLevel;
+  message: string;
+  args: unknown[];
+  timestamp: number;
+};
+
+type LogSink = (entry: LogSinkEntry) => void | Promise<void>;
+
+let externalLogSink: LogSink | null = null;
+
+export function setExternalLogSink(sink: LogSink | null): void {
+  externalLogSink = sink;
+}
+
+function emitToExternalSink(level: LogLevel, message: string, args: unknown[]): void {
+  if (!externalLogSink) return;
+  try {
+    const maybePromise = externalLogSink({
+      level,
+      message,
+      args,
+      timestamp: Date.now(),
+    });
+    if (maybePromise && typeof (maybePromise as Promise<unknown>).then === 'function') {
+      (maybePromise as Promise<unknown>).catch(() => {});
+    }
+  } catch {
+    // ignore sink errors
+  }
+}
+
 export function logDebug(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.DEBUG)) {
     // eslint-disable-next-line no-console
     console.log(formatLogMessage(LogLevel.DEBUG, message), ...args);
+    emitToExternalSink(LogLevel.DEBUG, message, args);
   }
 }
 
 export function logInfo(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.INFO)) {
     console.info(formatLogMessage(LogLevel.INFO, message), ...args);
+    emitToExternalSink(LogLevel.INFO, message, args);
   }
 }
 
 export function logWarn(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.WARN)) {
     console.warn(formatLogMessage(LogLevel.WARN, message), ...args);
+    emitToExternalSink(LogLevel.WARN, message, args);
   }
 }
 
 export function logError(message: string, ...args: unknown[]): void {
   if (shouldLog(LogLevel.ERROR)) {
     console.error(formatLogMessage(LogLevel.ERROR, message), ...args);
+    emitToExternalSink(LogLevel.ERROR, message, args);
   }
 }
 
@@ -102,4 +138,5 @@ export const logger = {
   configure: configureLogger,
   enable: enableLogger,
   disable: disableLogger,
+  setExternalSink: setExternalLogSink,
 };
