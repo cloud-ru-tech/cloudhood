@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 
-import { BrowserStorageKey } from './shared/constants';
+import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
@@ -75,6 +75,111 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const BADGE_COLOR = '#ffffff';
+const MAX_DEBUG_LOGS = 3000;
+
+const workerBootId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const workerBootAt = Date.now();
+let debugLogSeq = 0;
+const debugLogsBuffer: Array<{ seq: number; timestamp: number; level: string; message: string; args: string[] }> = [];
+
+let applyInProgress = false;
+let applyPending = false;
+let applyCounter = 0;
+let lastRequestedReason = 'unknown';
+let lastAppliedStorageFingerprint: string | null = null;
+let lastAppliedMeta: { seq: number; updatedAt: number } = { seq: 0, updatedAt: 0 };
+
+function safeStringify(value: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(
+    value,
+    (_, currentValue) => {
+      if (currentValue instanceof Error) {
+        return {
+          name: currentValue.name,
+          message: currentValue.message,
+          stack: currentValue.stack,
+        };
+      }
+      if (currentValue && typeof currentValue === 'object') {
+        if (seen.has(currentValue as object)) {
+          return '[Circular]';
+        }
+        seen.add(currentValue as object);
+      }
+      return currentValue;
+    },
+    2,
+  );
+}
+
+function appendDebugLog(entry: { timestamp: number; level: string; message: string; args: string[] }): void {
+  debugLogSeq += 1;
+  debugLogsBuffer.push({ seq: debugLogSeq, ...entry });
+  if (debugLogsBuffer.length > MAX_DEBUG_LOGS) {
+    debugLogsBuffer.splice(0, debugLogsBuffer.length - MAX_DEBUG_LOGS);
+  }
+}
+
+logger.setExternalSink(({ level, message, args, timestamp }) => {
+  const serializedArgs = args.map(item => safeStringify(item));
+  appendDebugLog({ timestamp, level, message, args: serializedArgs });
+});
+
+function getApplyHealthSnapshot() {
+  const now = Date.now();
+  return {
+    workerBootId,
+    workerUptimeMs: now - workerBootAt,
+    applyInProgress,
+    applyPending,
+    applyCounter,
+    lastRequestedReason,
+    lastAppliedStorageFingerprint,
+    lastAppliedMeta,
+  };
+}
+
+async function buildDebugLogsExportPayload() {
+  const now = Date.now();
+  const storage = await browser.storage.local.get([
+    BrowserStorageKey.Profiles,
+    BrowserStorageKey.SelectedProfile,
+    BrowserStorageKey.IsPaused,
+    BrowserStorageKey.HeadersConfigMeta,
+  ]);
+
+  let dynamicRules: unknown[] = [];
+  let sessionRules: unknown[] = [];
+  try {
+    dynamicRules = await browser.declarativeNetRequest.getDynamicRules();
+  } catch {
+    dynamicRules = [];
+  }
+  try {
+    sessionRules = await browser.declarativeNetRequest.getSessionRules();
+  } catch {
+    sessionRules = [];
+  }
+
+  return {
+    exportedAt: new Date(now).toISOString(),
+    worker: {
+      bootId: workerBootId,
+      bootedAt: new Date(workerBootAt).toISOString(),
+      uptimeMs: now - workerBootAt,
+    },
+    health: getApplyHealthSnapshot(),
+    storage,
+    dnr: {
+      dynamicRulesCount: dynamicRules.length,
+      sessionRulesCount: sessionRules.length,
+      dynamicRules,
+      sessionRules,
+    },
+    logs: debugLogsBuffer,
+  };
+}
 
 function storageFingerprint(result: Record<string, unknown>): string {
   const profiles = result[BrowserStorageKey.Profiles];
@@ -102,13 +207,6 @@ function storageFingerprint(result: Record<string, unknown>): string {
   }
   return `fnv1a32:${hash.toString(16)}:len:${input.length}`;
 }
-
-let applyInProgress = false;
-let applyPending = false;
-let applyCounter = 0;
-let lastRequestedReason = 'unknown';
-let lastAppliedStorageFingerprint: string | null = null;
-let lastAppliedMeta: { seq: number; updatedAt: number } = { seq: 0, updatedAt: 0 };
 
 function normalizeHeadersConfigMeta(value: unknown): { seq: number; updatedAt: number } {
   if (value && typeof value === 'object') {
@@ -325,6 +423,15 @@ browser.runtime.onStartup.addListener(async function () {
   } else {
     logger.info('📭 No storage data found on startup - extension will start with default settings');
   }
+});
+
+browser.runtime.onMessage.addListener((message: unknown) => {
+  if (!message || typeof message !== 'object') return undefined;
+  const payload = message as { type?: string };
+  if (payload.type !== RuntimeMessageType.ExportDebugLogs) return undefined;
+  return buildDebugLogsExportPayload()
+    .then(result => ({ ok: true, result }))
+    .catch(error => ({ ok: false, error: safeStringify(error) }));
 });
 
 browser.storage.onChanged.addListener(async (changes, areaName) => {

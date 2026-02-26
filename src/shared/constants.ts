@@ -7,6 +7,10 @@ export enum BrowserStorageKey {
   ThemeMode = 'themeMode',
 }
 
+export enum RuntimeMessageType {
+  ExportDebugLogs = 'export-debug-logs',
+}
+
 export enum Extensions {
   ModHeader = 'modheader',
   Requestly = 'requestly',
