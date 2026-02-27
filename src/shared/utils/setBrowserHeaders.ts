@@ -47,7 +47,15 @@ async function recoveryUpdateDynamicRules(
         });
         logger.info('🔧 DNR Recovery: Rules removed successfully');
       } catch (removeErr) {
-        logger.warn('🔧 DNR Recovery: Failed to remove rules, continuing anyway:', removeErr);
+        logger.warn('🔧 DNR Recovery: Batch removal failed, trying one-by-one:', removeErr);
+        for (const id of allIdsToRemove) {
+          try {
+            await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [id], addRules: [] });
+            logger.info('🔧 DNR Recovery: Removed rule:', id);
+          } catch (singleErr) {
+            logger.warn('🔧 DNR Recovery: Failed to remove rule:', { id, error: singleErr });
+          }
+        }
       }
     }
 
@@ -74,13 +82,24 @@ async function recoveryUpdateDynamicRules(
       logger.info('🔧 DNR Recovery: New rules added successfully');
     }
 
-    // Step 6: Verify final state
+    // Step 6: Verify final state actually matches expected
     const finalRules = await browser.declarativeNetRequest.getDynamicRules();
+    const expectedCount = addRules.length;
+    const actualCount = finalRules.length;
     logger.info('🔧 DNR Recovery: Final rules state:', {
-      count: finalRules.length,
+      count: actualCount,
       ids: finalRules.map(r => r.id),
-      expected: addRules.length,
+      expected: expectedCount,
     });
+
+    if (actualCount !== expectedCount) {
+      return {
+        success: false,
+        error: new Error(
+          `DNR Recovery: rules count mismatch after recovery: got ${actualCount}, expected ${expectedCount}`,
+        ),
+      };
+    }
 
     return { success: true };
   } catch (error) {
@@ -177,7 +196,15 @@ type SetBrowserHeadersMeta = {
   storageFingerprint?: string;
 };
 
-export async function setBrowserHeaders(result: Record<string, unknown>, meta: SetBrowserHeadersMeta = {}) {
+export type SetBrowserHeadersResult = {
+  /** Rule IDs that are still active in Chrome DNR but should have been removed (disabled headers) */
+  stuckRuleIds: number[];
+};
+
+export async function setBrowserHeaders(
+  result: Record<string, unknown>,
+  meta: SetBrowserHeadersMeta = {},
+): Promise<SetBrowserHeadersResult> {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
   // Validate data from storage
@@ -372,12 +399,17 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     }
     const allActiveRules = [...updatedDynamicRules, ...updatedSessionRules];
 
+    // Rules that are still active in Chrome but should have been removed (disabled headers stuck due to DNR API errors)
+    const expectedRuleIds = new Set(addRules.map(r => r.id));
+    const stuckRuleIds = allActiveRules.filter(r => !expectedRuleIds.has(r.id)).map(r => r.id);
+
     logger.info('📊 Final DNR state:', {
       dynamicRulesCount: updatedDynamicRules.length,
       sessionRulesCount: updatedSessionRules.length,
       totalActiveRulesCount: allActiveRules.length,
       expectedRulesCount: addRules.length,
       match: allActiveRules.length === addRules.length,
+      stuckRuleIds,
       usedSessionFallback,
       activeRuleIds: allActiveRules.map(r => r.id),
       activeRulesDetails: allActiveRules.map(r => ({
@@ -395,7 +427,9 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     );
     logger.groupEnd();
 
-    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
+    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length, hasDnrMismatch: stuckRuleIds.length > 0 });
+
+    return { stuckRuleIds };
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
     logger.groupEnd();
