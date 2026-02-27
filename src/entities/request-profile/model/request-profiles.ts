@@ -54,8 +54,6 @@ sample({
   target: selectedRequestProfileIdChanged,
 });
 
-sample({ source: $requestProfiles, target: profilesSavedToBrowserFx });
-
 const profileAddedFx = attach({
   source: $requestProfiles,
   effect: profiles => {
@@ -131,6 +129,20 @@ const profileMultiRemovedFx = attach({
 });
 sample({ clock: profileMultiRemoved, target: profileMultiRemovedFx });
 sample({ clock: profileMultiRemovedFx.doneData, target: $requestProfiles });
+
+// Save profiles only on explicit user actions, not on initial load from storage.
+// This prevents a save→onChanged→apply cycle when loading from storage.
+sample({
+  clock: [
+    profileAddedFx.doneData,
+    profileMultiAddedFx.doneData,
+    profileUpdatedFx.doneData,
+    profileRemovedFx.doneData,
+    profileMultiRemovedFx.doneData,
+  ],
+  source: $requestProfiles,
+  target: profilesSavedToBrowserFx,
+});
 
 // loading from browser cache
 sample({ clock: initApp, target: profilesLoadedFromStorageFx });
