@@ -3,7 +3,6 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 
 import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
-import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { setIconBadge } from './shared/utils/setIconBadge';
@@ -74,7 +73,6 @@ if (process.env.NODE_ENV === 'development') {
   logger.debug('Extension auto-reload enabled for development mode');
 }
 
-const BADGE_COLOR = '#ffffff';
 const MAX_DEBUG_LOGS = 3000;
 
 const workerBootId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -313,7 +311,14 @@ async function applyHeadersFromStorageQueue(reason: string) {
           const prevFp = lastAppliedStorageFingerprint;
           const prevMeta = { ...lastAppliedMeta };
 
-          await setBrowserHeaders(result, { applyId, reason: lastRequestedReason, storageFingerprint: fp });
+          const { stuckRuleIds } = await setBrowserHeaders(result, {
+            applyId,
+            reason: lastRequestedReason,
+            storageFingerprint: fp,
+          });
+          await browser.storage.local.set({
+            [BrowserStorageKey.DnrHealth]: { ok: stuckRuleIds.length === 0, stuckRuleIds, updatedAt: Date.now() },
+          });
 
           lastAppliedStorageFingerprint = fp;
           lastAppliedMeta = meta;
@@ -394,10 +399,17 @@ browser.runtime.onStartup.addListener(async function () {
         prevMeta: lastAppliedMeta,
       });
 
-      await setBrowserHeaders(result, {
+      const { stuckRuleIds: startupStuckRuleIds } = await setBrowserHeaders(result, {
         applyId,
         reason: 'runtime.onStartup',
         storageFingerprint: fp,
+      });
+      await browser.storage.local.set({
+        [BrowserStorageKey.DnrHealth]: {
+          ok: startupStuckRuleIds.length === 0,
+          stuckRuleIds: startupStuckRuleIds,
+          updatedAt: Date.now(),
+        },
       });
 
       // Sync queue state after direct call to prevent duplicate applies
@@ -521,10 +533,17 @@ browser.runtime.onInstalled.addListener(async details => {
         prevMeta: lastAppliedMeta,
       });
 
-      await setBrowserHeaders(result, {
+      const { stuckRuleIds: installedStuckRuleIds } = await setBrowserHeaders(result, {
         applyId,
         reason: `runtime.onInstalled:${details.reason}`,
         storageFingerprint: fp,
+      });
+      await browser.storage.local.set({
+        [BrowserStorageKey.DnrHealth]: {
+          ok: installedStuckRuleIds.length === 0,
+          stuckRuleIds: installedStuckRuleIds,
+          updatedAt: Date.now(),
+        },
       });
 
       // Sync queue state after direct call to prevent duplicate applies
@@ -556,8 +575,6 @@ browser.runtime.onInstalled.addListener(async details => {
 // DNR dynamic rules are global. Re-applying rules on every tab switch is unnecessary and can
 // introduce races (e.g. user changes headers in popup, switches tabs before save completes).
 // If you ever introduce per-tab/per-site profiles, revisit this.
-
-browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
 // Sync DNR rules on every service worker startup.
 //
