@@ -3,7 +3,6 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 
 import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
-import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserCookies } from './shared/utils/setBrowserCookies';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
@@ -85,7 +84,6 @@ if (process.env.NODE_ENV === 'development') {
   logger.debug('Extension auto-reload enabled for development mode');
 }
 
-const BADGE_COLOR = '#ffffff';
 const MAX_DEBUG_LOGS = 3000;
 
 const workerBootId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -325,7 +323,7 @@ async function applyHeadersFromStorageQueue(reason: string) {
           const prevMeta = { ...lastAppliedMeta };
           const currentTabUrl = await getCurrentTabUrl();
 
-          await Promise.all([
+          const [{ stuckRuleIds }] = await Promise.all([
             setBrowserHeaders(result, {
               applyId,
               reason: lastRequestedReason,
@@ -334,6 +332,9 @@ async function applyHeadersFromStorageQueue(reason: string) {
             }),
             setBrowserCookies(result),
           ]);
+          await browser.storage.local.set({
+            [BrowserStorageKey.DnrHealth]: { ok: stuckRuleIds.length === 0, stuckRuleIds, updatedAt: Date.now() },
+          });
 
           lastAppliedStorageFingerprint = fp;
           lastAppliedMeta = meta;
@@ -416,12 +417,21 @@ browser.runtime.onStartup.addListener(async function () {
       });
 
       await Promise.all([
-        setBrowserHeaders(result, {
-          applyId,
-          reason: 'runtime.onStartup',
-          storageFingerprint: fp,
-          currentTabUrl,
-        }),
+        (async () => {
+          const { stuckRuleIds: startupStuckRuleIds } = await setBrowserHeaders(result, {
+            applyId,
+            reason: 'runtime.onStartup',
+            storageFingerprint: fp,
+            currentTabUrl,
+          });
+          await browser.storage.local.set({
+            [BrowserStorageKey.DnrHealth]: {
+              ok: startupStuckRuleIds.length === 0,
+              stuckRuleIds: startupStuckRuleIds,
+              updatedAt: Date.now(),
+            },
+          });
+        })(),
         setBrowserCookies(result),
       ]);
 
@@ -548,12 +558,21 @@ browser.runtime.onInstalled.addListener(async details => {
       });
 
       await Promise.all([
-        setBrowserHeaders(result, {
-          applyId,
-          reason: `runtime.onInstalled:${details.reason}`,
-          storageFingerprint: fp,
-          currentTabUrl,
-        }),
+        (async () => {
+          const { stuckRuleIds: installedStuckRuleIds } = await setBrowserHeaders(result, {
+            applyId,
+            reason: `runtime.onInstalled:${details.reason}`,
+            storageFingerprint: fp,
+            currentTabUrl,
+          });
+          await browser.storage.local.set({
+            [BrowserStorageKey.DnrHealth]: {
+              ok: installedStuckRuleIds.length === 0,
+              stuckRuleIds: installedStuckRuleIds,
+              updatedAt: Date.now(),
+            },
+          });
+        })(),
         setBrowserCookies(result),
       ]);
 
@@ -629,8 +648,6 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
   }
 });
-
-browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
 // Sync DNR rules on every service worker startup.
 //
