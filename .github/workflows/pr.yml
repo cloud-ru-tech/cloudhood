@@ -43,7 +43,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 10.10.0
+          version: 10.30.3
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -76,7 +76,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 10.10.0
+          version: 10.30.3
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -157,7 +157,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 10.10.0
+          version: 10.30.3
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -191,7 +191,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 10.10.0
+          version: 10.30.3
 
       - name: Checkout
         uses: actions/checkout@v3
