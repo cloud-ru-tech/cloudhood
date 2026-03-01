@@ -82,7 +82,7 @@ jobs:
           zip -r ../../cloudhood-chrome.zip .
 
       - name: Upload Chrome build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-chrome
           path: cloudhood-chrome.zip

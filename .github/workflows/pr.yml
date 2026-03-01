@@ -55,7 +55,7 @@ jobs:
 
       - name: Archive test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: reports/unit/
@@ -127,19 +127,19 @@ jobs:
             cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
       - name: Upload Chrome build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}
           path: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
       - name: Upload Firefox build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}
           path: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
       - name: Upload Firefox sources artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}
           path: cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
@@ -169,7 +169,7 @@ jobs:
         run: pnpm install
 
       - name: Download Chrome build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
 
@@ -200,19 +200,19 @@ jobs:
         run: pnpm install -save-dev publish-browser-extension
 
       - name: Download Chrome build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
           path: dist/chrome
 
       - name: Download Firefox build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
           path: dist/firefox
 
       - name: Download Firefox sources artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}
           path: dist/firefox-sources
