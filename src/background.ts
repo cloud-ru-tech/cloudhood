@@ -585,6 +585,33 @@ browser.runtime.onInstalled.addListener(async details => {
 //
 // By triggering an apply here, we reconcile DNR state with storage on every SW start.
 // The meta/fingerprint deduplication in applyHeadersFromStorageQueue prevents redundant applies.
-applyHeadersFromStorageQueue('sw-init').catch(err => {
-  logger.error('❌ Failed to apply headers on SW init:', err);
-});
+//
+// IMPORTANT: Before starting the full apply (which reads storage first, ~200ms total),
+// we eagerly remove all current dynamic rules. This eliminates the window where a disabled
+// header from a previous SW session is still active as a stale DNR rule (e.g. after computer
+// unlock). The apply that follows will re-add only the currently enabled headers.
+async function clearDynamicRulesOnSwInit(): Promise<void> {
+  try {
+    const staleRules = await browser.declarativeNetRequest.getDynamicRules();
+    if (staleRules.length === 0) {
+      logger.debug('🧹 sw-init: no stale dynamic rules');
+      return;
+    }
+    logger.info('🧹 sw-init: clearing stale dynamic rules:', {
+      count: staleRules.length,
+      ids: staleRules.map(r => r.id),
+    });
+    await browser.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: staleRules.map(r => r.id),
+    });
+    logger.info('🧹 sw-init: stale dynamic rules cleared');
+  } catch (err) {
+    logger.warn('⚠️ sw-init: failed to clear stale dynamic rules (apply will handle it):', err);
+  }
+}
+
+clearDynamicRulesOnSwInit()
+  .then(() => applyHeadersFromStorageQueue('sw-init'))
+  .catch(err => {
+    logger.error('❌ Failed to apply headers on SW init:', err);
+  });
