@@ -610,8 +610,14 @@ async function clearDynamicRulesOnSwInit(): Promise<void> {
   }
 }
 
-clearDynamicRulesOnSwInit()
-  .then(() => applyHeadersFromStorageQueue('sw-init'))
-  .catch(err => {
+// Hold the apply lock during sw-init clear so any concurrent storage.onChanged events
+// queue up (applyPending=true) instead of racing with the DNR clear call.
+// Concurrent updateDynamicRules calls cause Chrome to throw "Internal error while updating
+// dynamic rules" and leave the DNR API broken for the rest of the session.
+applyInProgress = true;
+clearDynamicRulesOnSwInit().finally(() => {
+  applyInProgress = false;
+  applyHeadersFromStorageQueue('sw-init').catch(err => {
     logger.error('❌ Failed to apply headers on SW init:', err);
   });
+});
