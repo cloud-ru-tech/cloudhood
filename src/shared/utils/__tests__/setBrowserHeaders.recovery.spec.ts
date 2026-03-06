@@ -191,4 +191,133 @@ describe('setBrowserHeaders – DNR recovery', () => {
       await expect(promise).rejects.toThrow();
     });
   });
+
+  describe('stuck rule detection – only dynamic rules count', () => {
+    it('does not report session rule IDs as stuck even if they are not in addRules', async () => {
+      // A leftover counteracting session rule (id >= 1_000_000_000) exists from a previous apply.
+      // Dynamic rules are clean, so the apply should succeed and clean it up — stuckRuleIds must be [].
+      const counteractRule = {
+        id: 1_000_000_000,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: [{ header: 'cp-front-service-modals', operation: 'remove' }],
+        },
+        condition: { resourceTypes: ['main_frame'] },
+      };
+
+      mockDnr.getDynamicRules.mockResolvedValue([]); // no stuck dynamic rules
+      mockDnr.updateDynamicRules.mockResolvedValue(undefined);
+      mockDnr.getSessionRules
+        .mockResolvedValueOnce([counteractRule]) // initial read — will be cleaned up
+        .mockResolvedValue([]); // after cleanup
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(makeStorageWithDisabledHeader());
+      await vi.runAllTimersAsync();
+      const result = await promise;
+
+      expect(result.stuckRuleIds).toHaveLength(0);
+      expect(result.stuckRuleIds).not.toContain(1_000_000_000);
+    });
+
+    it('returns stuckRuleIds only for dynamic rules that were not removed', async () => {
+      mockDnr.getDynamicRules.mockResolvedValue([makeStaleRule()]);
+      mockDnr.updateDynamicRules.mockRejectedValue(CHROME_INTERNAL_ERROR);
+      // Session rules: empty before and after (fallback applies [])
+      mockDnr.getSessionRules.mockResolvedValue([]);
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(makeStorageWithDisabledHeader());
+      await vi.runAllTimersAsync();
+      const result = await promise;
+
+      expect(result.stuckRuleIds).toEqual([STALE_RULE_ID]);
+    });
+  });
+
+  describe('counteracting session rules for stuck disabled headers', () => {
+    it('adds a session remove rule to suppress a stuck disabled dynamic rule', async () => {
+      // All dynamic rule operations fail → stuck rule stays.
+      // Since the header is disabled (addRules=[]), the stuck rule has no session counterpart →
+      // a counteracting session rule with operation:"remove" must be added.
+      mockDnr.getDynamicRules.mockResolvedValue([makeStaleRule()]);
+      mockDnr.updateDynamicRules.mockRejectedValue(CHROME_INTERNAL_ERROR);
+      mockDnr.getSessionRules.mockResolvedValue([]);
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(makeStorageWithDisabledHeader());
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const counteractCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) => {
+        const arg = call[0] as {
+          addRules?: Array<{ id: number; action: { requestHeaders?: Array<{ operation: string; header: string }> } }>;
+        };
+        const { addRules } = arg;
+        return addRules?.some(
+          rule =>
+            rule.id >= 1_000_000_000 &&
+            rule.action.requestHeaders?.some(h => h.operation === 'remove' && h.header === 'cp-front-billing'),
+        );
+      });
+      expect(counteractCall).toBeDefined();
+    });
+
+    it('does not add a counteracting rule when the stuck header is already covered by the session fallback', async () => {
+      // Scenario: the user deleted a header (id=100, name="x-service") and added a new one
+      // with the same name but a fresh id=200. The old dynamic rule (id=100) is stuck.
+      // The session fallback applies the new enabled rule (id=200). Because "x-service" is
+      // already present in session rules, no additional counteract rule should be added.
+      const OLD_RULE_ID = 100;
+      const NEW_RULE_ID = 200;
+      const HEADER_NAME = 'x-service';
+
+      const stuckDynamicRule = {
+        id: OLD_RULE_ID,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: [{ header: HEADER_NAME, operation: 'set', value: 'old-value' }],
+        },
+        condition: { resourceTypes: ['main_frame'] },
+      };
+
+      const profile = {
+        id: 'profile-1',
+        requestHeaders: [{ id: NEW_RULE_ID, name: HEADER_NAME, value: 'new-value', disabled: false }],
+        urlFilters: [],
+      };
+      const storage = {
+        [BrowserStorageKey.IsPaused]: false,
+        [BrowserStorageKey.Profiles]: JSON.stringify([profile]),
+        [BrowserStorageKey.SelectedProfile]: 'profile-1',
+        [BrowserStorageKey.HeadersConfigMeta]: { seq: 10, updatedAt: Date.now() },
+      };
+
+      const sessionFallbackRule = {
+        id: NEW_RULE_ID,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: [{ header: HEADER_NAME, operation: 'set', value: 'new-value' }],
+        },
+        condition: { resourceTypes: ['main_frame'] },
+      };
+
+      mockDnr.getDynamicRules.mockResolvedValue([stuckDynamicRule]);
+      mockDnr.updateDynamicRules.mockRejectedValue(CHROME_INTERNAL_ERROR);
+      mockDnr.getSessionRules
+        .mockResolvedValueOnce([]) // initial read
+        .mockResolvedValue([sessionFallbackRule]); // after session fallback applied new-value rule
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(storage);
+      await vi.runAllTimersAsync();
+      await promise;
+
+      // No counteracting rule (id >= 1_000_000_000) should have been added
+      const counteractCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) =>
+        (call[0] as { addRules?: Array<{ id: number }> })?.addRules?.some(rule => rule.id >= 1_000_000_000),
+      );
+      expect(counteractCall).toBeUndefined();
+    });
+  });
 });
