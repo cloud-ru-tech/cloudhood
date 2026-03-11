@@ -12,6 +12,10 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 200;
 const RECOVERY_DELAY_MS = 500;
 
+// IDs >= COUNTERACT_BASE_ID are reserved for counteracting stuck dynamic rules.
+// Header IDs are generated in range [0, 999_999_999) — see generateId.ts.
+const COUNTERACT_BASE_ID = 1_000_000_000;
+
 async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -361,7 +365,13 @@ export async function setBrowserHeaders(
 
       // Last resort: session rules fallback when Chrome's dynamic rules DB is corrupted
       if (lastError) {
-        const sessionResult = await sessionRulesFallback(removeSessionRuleIds, addRules);
+        // Exclude counteracting rules (id >= COUNTERACT_BASE_ID) from the fallback removal.
+        // Counteracting rules cancel stuck dynamic rules that couldn't be removed — if we pass
+        // them to sessionRulesFallback it will delete them while the stuck dynamic rules remain,
+        // opening a window where the disabled header is transmitted. They are cleaned up later
+        // (in the counteracting-rules section below) once we know the full stuck-rule picture.
+        const fallbackRemoveSessionRuleIds = removeSessionRuleIds.filter(id => id < COUNTERACT_BASE_ID);
+        const sessionResult = await sessionRulesFallback(fallbackRemoveSessionRuleIds, addRules);
 
         if (sessionResult.success) {
           usedSessionFallback = true;
@@ -431,11 +441,8 @@ export async function setBrowserHeaders(
     await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length, hasDnrMismatch: stuckRuleIds.length > 0 });
 
     // Counteract stuck dynamic rules that are injecting headers which should be disabled.
-    // IDs >= COUNTERACT_BASE_ID are reserved for these rules and are never used for header IDs
-    // (header IDs are generated in range [0, 999_999_999) — see generateId.ts).
     // On the next successful apply these session rules are cleaned up automatically because
     // removeSessionRuleIds (computed from getSessionRules at the top) includes them.
-    const COUNTERACT_BASE_ID = 1_000_000_000;
     if (stuckRuleIds.length > 0) {
       const sessionRuleHeaderNames = new Set(
         updatedSessionRules.flatMap(r => r.action.requestHeaders?.map(h => h.header) ?? []),
