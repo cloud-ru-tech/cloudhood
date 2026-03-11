@@ -404,6 +404,7 @@ browser.runtime.onStartup.addListener(async function () {
 
   if (Object.keys(result).length) {
     logger.info('🚀 Storage data found, setting browser headers on startup');
+    // await applyHeadersFromStorageQueue('runtime.onStartup');
     try {
       const fp = storageFingerprint(result);
       const applyId = ++applyCounter;
@@ -544,6 +545,7 @@ browser.runtime.onInstalled.addListener(async details => {
 
   if (Object.keys(result).length) {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
+    // await applyHeadersFromStorageQueue(`runtime.onInstalled:${details.reason}`);
     try {
       const fp = storageFingerprint(result);
       const applyId = ++applyCounter;
