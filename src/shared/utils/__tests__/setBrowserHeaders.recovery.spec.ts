@@ -251,12 +251,17 @@ describe('setBrowserHeaders – DNR recovery', () => {
 
       const counteractCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) => {
         const arg = call[0] as {
-          addRules?: Array<{ id: number; action: { requestHeaders?: Array<{ operation: string; header: string }> } }>;
+          addRules?: Array<{
+            id: number;
+            priority?: number;
+            action: { requestHeaders?: Array<{ operation: string; header: string }> };
+          }>;
         };
         const { addRules } = arg;
         return addRules?.some(
           rule =>
             rule.id >= 1_000_000_000 &&
+            rule.priority === 2 &&
             rule.action.requestHeaders?.some(h => h.operation === 'remove' && h.header === 'cp-front-billing'),
         );
       });
@@ -268,6 +273,7 @@ describe('setBrowserHeaders – DNR recovery', () => {
       // counteracting rules (id >= 1_000_000_000). It would delete them while the stuck
       // dynamic rule remained, opening a window where the disabled header was transmitted.
       // Fix: counteracting rules are excluded from fallbackRemoveSessionRuleIds.
+      // The fallback is the one that receives addRules: [] — it must not remove the counteracting rule.
       const COUNTERACT_RULE_ID = 1_000_000_000;
       const existingCounteractRule = {
         id: COUNTERACT_RULE_ID,
@@ -288,16 +294,56 @@ describe('setBrowserHeaders – DNR recovery', () => {
       await vi.runAllTimersAsync();
       await promise;
 
-      // Must never call updateSessionRules with removeRuleIds containing the counteracting rule
-      const badRemoveCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) => {
-        const arg = call[0] as { removeRuleIds?: number[] };
-        return arg.removeRuleIds?.includes(COUNTERACT_RULE_ID);
+      // The fallback calls updateSessionRules with addRules: [] — that call must NOT remove the counteracting rule
+      const fallbackCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) => {
+        const arg = call[0] as { removeRuleIds?: number[]; addRules?: unknown[] };
+        return (arg.addRules?.length ?? 0) === 0;
       });
-      expect(badRemoveCall).toBeUndefined();
+      expect(fallbackCall).toBeDefined();
+      const fallbackArg = (fallbackCall as [unknown])[0] as { removeRuleIds?: number[] };
+      expect(fallbackArg.removeRuleIds).not.toContain(COUNTERACT_RULE_ID);
     });
 
-    it.skip('removes stale counteracting rule when the previously-disabled header becomes enabled', async () => {
-      // Changes commented out - test disabled
+    it('removes stale counteracting rule when the previously-disabled header becomes enabled', async () => {
+      // Scenario: header was disabled (counteracting rule added), user re-enables it.
+      // Dynamic rules succeed this time, so stuckRuleIds=[]. We must remove the old
+      // counteracting rule since the header is now enabled and no longer needs counteracting.
+      const COUNTERACT_RULE_ID = 1_000_000_000;
+      const existingCounteractRule = {
+        id: COUNTERACT_RULE_ID,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: [{ header: 'cp-front-billing', operation: 'remove' }],
+        },
+        condition: { resourceTypes: ['main_frame'] },
+      };
+
+      const profile = {
+        id: 'profile-1',
+        requestHeaders: [{ id: STALE_RULE_ID, name: 'cp-front-billing', value: 'RM-3945', disabled: false }],
+        urlFilters: [],
+      };
+      const storage = {
+        [BrowserStorageKey.IsPaused]: false,
+        [BrowserStorageKey.Profiles]: JSON.stringify([profile]),
+        [BrowserStorageKey.SelectedProfile]: 'profile-1',
+        [BrowserStorageKey.HeadersConfigMeta]: { seq: 11, updatedAt: Date.now() },
+      };
+
+      mockDnr.getDynamicRules.mockResolvedValue([]);
+      mockDnr.updateDynamicRules.mockResolvedValue(undefined);
+      mockDnr.getSessionRules.mockResolvedValueOnce([existingCounteractRule]).mockResolvedValue([]);
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(storage);
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const cleanupCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) => {
+        const arg = call[0] as { removeRuleIds?: number[]; addRules?: unknown[] };
+        return arg.removeRuleIds?.includes(COUNTERACT_RULE_ID) && (arg.addRules?.length ?? 0) === 0;
+      });
+      expect(cleanupCall).toBeDefined();
     });
 
     it('does not add a counteracting rule when the stuck header is already covered by the session fallback', async () => {
@@ -355,6 +401,35 @@ describe('setBrowserHeaders – DNR recovery', () => {
         (call[0] as { addRules?: Array<{ id: number }> })?.addRules?.some(rule => rule.id >= 1_000_000_000),
       );
       expect(counteractCall).toBeUndefined();
+    });
+
+    it('removes stale counteracting rules when stuckRuleIds is empty (recovered from previous broken session)', async () => {
+      // Scenario: previous apply left a counteracting rule, but dynamic rules have since been
+      // cleared (e.g. browser restart). Now stuckRuleIds=[], we must remove the stale counteracting rule.
+      const COUNTERACT_RULE_ID = 1_000_000_000;
+      const existingCounteractRule = {
+        id: COUNTERACT_RULE_ID,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: [{ header: 'cp-front-billing', operation: 'remove' }],
+        },
+        condition: { resourceTypes: ['main_frame'] },
+      };
+
+      mockDnr.getDynamicRules.mockResolvedValue([]);
+      mockDnr.updateDynamicRules.mockResolvedValue(undefined);
+      mockDnr.getSessionRules.mockResolvedValueOnce([existingCounteractRule]).mockResolvedValue([]);
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(makeStorageWithDisabledHeader());
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const cleanupCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) => {
+        const arg = call[0] as { removeRuleIds?: number[] };
+        return arg.removeRuleIds?.includes(COUNTERACT_RULE_ID);
+      });
+      expect(cleanupCall).toBeDefined();
     });
   });
 });
