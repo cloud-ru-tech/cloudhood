@@ -443,11 +443,13 @@ export async function setBrowserHeaders(
     // Counteract stuck dynamic rules that are injecting headers which should be disabled.
     // On the next successful apply these session rules are cleaned up automatically because
     // removeSessionRuleIds (computed from getSessionRules at the top) includes them.
+    const prevCounteractIds = updatedSessionRules.filter(r => r.id >= COUNTERACT_BASE_ID).map(r => r.id);
+    const counteractingRules: browser.DeclarativeNetRequest.Rule[] = [];
+
     if (stuckRuleIds.length > 0) {
       const sessionRuleHeaderNames = new Set(
         updatedSessionRules.flatMap(r => r.action.requestHeaders?.map(h => h.header) ?? []),
       );
-      const counteractingRules: browser.DeclarativeNetRequest.Rule[] = [];
       for (let i = 0; i < stuckRuleIds.length; i++) {
         const stuckRule = updatedDynamicRules.find(r => r.id === stuckRuleIds[i]);
         if (!stuckRule?.action.requestHeaders) continue;
@@ -457,6 +459,7 @@ export async function setBrowserHeaders(
         if (headersToRemove.length === 0) continue;
         counteractingRules.push({
           id: COUNTERACT_BASE_ID + i,
+          priority: 2,
           action: {
             type: 'modifyHeaders' as const,
             requestHeaders: headersToRemove.map(h => ({ header: h.header, operation: 'remove' as const })),
@@ -464,20 +467,24 @@ export async function setBrowserHeaders(
           condition: stuckRule.condition,
         });
       }
-      if (counteractingRules.length > 0) {
-        const prevCounteractIds = updatedSessionRules.filter(r => r.id >= COUNTERACT_BASE_ID).map(r => r.id);
-        try {
-          await browser.declarativeNetRequest.updateSessionRules({
-            removeRuleIds: prevCounteractIds,
-            addRules: counteractingRules,
-          });
+    }
+
+    if (prevCounteractIds.length > 0 || counteractingRules.length > 0) {
+      try {
+        await browser.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: prevCounteractIds,
+          addRules: counteractingRules,
+        });
+        if (counteractingRules.length > 0) {
           logger.info('🛡️ Added counteracting session rules for stuck dynamic rules:', {
             count: counteractingRules.length,
             headers: counteractingRules.flatMap(r => r.action.requestHeaders?.map(h => h.header) ?? []),
           });
-        } catch (err) {
-          logger.warn('⚠️ Failed to add counteracting session rules for stuck headers:', err);
+        } else if (prevCounteractIds.length > 0) {
+          logger.info('🧹 Cleaned up stale counteracting session rules');
         }
+      } catch (err) {
+        logger.warn('⚠️ Failed to update counteracting session rules:', err);
       }
     }
 

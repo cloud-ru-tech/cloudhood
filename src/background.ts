@@ -388,51 +388,7 @@ browser.runtime.onStartup.addListener(async function () {
 
   if (Object.keys(result).length) {
     logger.info('🚀 Storage data found, setting browser headers on startup');
-    // await applyHeadersFromStorageQueue('runtime.onStartup');
-    try {
-      const fp = storageFingerprint(result);
-      const applyId = ++applyCounter;
-
-      logger.debug('🔧 Direct apply (onStartup) starting:', {
-        applyId,
-        fp,
-        prevFp: lastAppliedStorageFingerprint,
-        prevMeta: lastAppliedMeta,
-      });
-
-      const { stuckRuleIds: startupStuckRuleIds } = await setBrowserHeaders(result, {
-        applyId,
-        reason: 'runtime.onStartup',
-        storageFingerprint: fp,
-      });
-      await browser.storage.local.set({
-        [BrowserStorageKey.DnrHealth]: {
-          ok: startupStuckRuleIds.length === 0,
-          stuckRuleIds: startupStuckRuleIds,
-          updatedAt: Date.now(),
-        },
-      });
-
-      // Sync queue state after direct call to prevent duplicate applies
-      const prevFp = lastAppliedStorageFingerprint;
-      const prevMeta = { ...lastAppliedMeta };
-      lastAppliedStorageFingerprint = fp;
-      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
-      if (isNewerMeta(meta, lastAppliedMeta)) {
-        lastAppliedMeta = meta;
-      }
-
-      logger.info('🔄 Queue state synced after onStartup:', {
-        applyId,
-        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
-        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
-      });
-    } catch (error) {
-      logger.error('❌ Failed to set browser headers on startup (queue state NOT synced):', {
-        error,
-        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
-      });
-    }
+    await applyHeadersFromStorageQueue('runtime.onStartup');
   } else {
     logger.info('📭 No storage data found on startup - extension will start with default settings');
   }
@@ -522,52 +478,7 @@ browser.runtime.onInstalled.addListener(async details => {
 
   if (Object.keys(result).length) {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
-    // await applyHeadersFromStorageQueue(`runtime.onInstalled:${details.reason}`);
-    try {
-      const fp = storageFingerprint(result);
-      const applyId = ++applyCounter;
-
-      logger.debug('🔧 Direct apply (onInstalled) starting:', {
-        applyId,
-        reason: details.reason,
-        fp,
-        prevFp: lastAppliedStorageFingerprint,
-        prevMeta: lastAppliedMeta,
-      });
-
-      const { stuckRuleIds: installedStuckRuleIds } = await setBrowserHeaders(result, {
-        applyId,
-        reason: `runtime.onInstalled:${details.reason}`,
-        storageFingerprint: fp,
-      });
-      await browser.storage.local.set({
-        [BrowserStorageKey.DnrHealth]: {
-          ok: installedStuckRuleIds.length === 0,
-          stuckRuleIds: installedStuckRuleIds,
-          updatedAt: Date.now(),
-        },
-      });
-
-      // Sync queue state after direct call to prevent duplicate applies
-      const prevFp = lastAppliedStorageFingerprint;
-      const prevMeta = { ...lastAppliedMeta };
-      lastAppliedStorageFingerprint = fp;
-      const meta = normalizeHeadersConfigMeta(result[BrowserStorageKey.HeadersConfigMeta]);
-      if (isNewerMeta(meta, lastAppliedMeta)) {
-        lastAppliedMeta = meta;
-      }
-
-      logger.info('🔄 Queue state synced after onInstalled:', {
-        applyId,
-        fingerprintChange: `${prevFp} → ${lastAppliedStorageFingerprint}`,
-        metaChange: `seq:${prevMeta.seq}→${lastAppliedMeta.seq}, updatedAt:${prevMeta.updatedAt}→${lastAppliedMeta.updatedAt}`,
-      });
-    } catch (error) {
-      logger.error('❌ Failed to set browser headers on install/update (queue state NOT synced):', {
-        error,
-        queueStateRemains: { lastAppliedStorageFingerprint, lastAppliedMeta },
-      });
-    }
+    await applyHeadersFromStorageQueue(`runtime.onInstalled:${details.reason}`);
   } else {
     logger.info('📭 No storage data found on install/update - extension will start with default settings');
   }
@@ -592,6 +503,9 @@ browser.runtime.onInstalled.addListener(async details => {
 // we eagerly remove all current dynamic rules. This eliminates the window where a disabled
 // header from a previous SW session is still active as a stale DNR rule (e.g. after computer
 // unlock). The apply that follows will re-add only the currently enabled headers.
+const SW_INIT_MAX_RETRIES = 3;
+const SW_INIT_RETRY_DELAY_MS = 200;
+
 async function clearDynamicRulesOnSwInit(): Promise<void> {
   try {
     const staleRules = await browser.declarativeNetRequest.getDynamicRules();
@@ -603,10 +517,28 @@ async function clearDynamicRulesOnSwInit(): Promise<void> {
       count: staleRules.length,
       ids: staleRules.map(r => r.id),
     });
-    await browser.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: staleRules.map(r => r.id),
-    });
-    logger.info('🧹 sw-init: stale dynamic rules cleared');
+
+    let lastError: unknown = null;
+    for (let attempt = 1; attempt <= SW_INIT_MAX_RETRIES; attempt++) {
+      try {
+        await browser.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: staleRules.map(r => r.id),
+        });
+        logger.info('🧹 sw-init: stale dynamic rules cleared');
+        return;
+      } catch (err) {
+        lastError = err;
+        logger.warn(
+          `⚠️ sw-init: failed to clear stale dynamic rules (attempt ${attempt}/${SW_INIT_MAX_RETRIES}):`,
+          err,
+        );
+        if (attempt < SW_INIT_MAX_RETRIES) {
+          const delay = SW_INIT_RETRY_DELAY_MS * attempt;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+    logger.warn('⚠️ sw-init: failed to clear stale dynamic rules after retries (apply will handle it):', lastError);
   } catch (err) {
     logger.warn('⚠️ sw-init: failed to clear stale dynamic rules (apply will handle it):', err);
   }
