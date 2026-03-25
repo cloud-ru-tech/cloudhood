@@ -54,9 +54,7 @@ const reorderUrlFiltersFx = attach({
     }
 
     return {
-      id: profile.id,
-      ...(profile.name && { name: profile.name }),
-      requestHeaders: profile.requestHeaders,
+      ...profile,
       urlFilters: arrayMove(urlFilters, activeIndex, targetIndex),
     };
   },

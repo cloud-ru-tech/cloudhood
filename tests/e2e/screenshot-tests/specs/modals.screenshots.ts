@@ -53,3 +53,16 @@ createScreenshotTest({
     await modals.waitForTitle('Remove all URL filters');
   },
 });
+
+createScreenshotTest({
+  area: 'modals',
+  name: 'cookies-delete-confirmation',
+  description: 'CloudHood Extension - Remove all request cookies confirmation',
+  setup: async popup => {
+    const modals = new ModalsPage(popup.page);
+    await popup.cookiesTab.activate();
+    await popup.cookiesTab.addCookie('session_id', 'abc123');
+    await popup.cookiesTab.openRemoveAllModal();
+    await modals.waitForTitle('Remove all request cookies');
+  },
+});

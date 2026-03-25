@@ -40,6 +40,7 @@ export function RequestHeadersActions() {
         icon={<PlusSVG />}
         onClick={onAddRequestHeader}
       />
+
       <ButtonFunction
         data-test-id='remove-request-header-button'
         icon={<TrashSVG />}

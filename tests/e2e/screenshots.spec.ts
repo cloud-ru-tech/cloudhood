@@ -1,3 +1,4 @@
+import './screenshot-tests/specs/cookies.screenshots';
 import './screenshot-tests/specs/general-ui.screenshots';
 import './screenshot-tests/specs/headers.screenshots';
 import './screenshot-tests/specs/modals.screenshots';

@@ -22,6 +22,14 @@ const selectors = {
   addHeaderButton: '[data-test-id="add-request-header-button"]',
   toggleAllHeadersButton: '[data-test-id="all-request-headers-checkbox"]',
   headerMenuButton: '[data-test-id="request-header-menu-button"]',
+  cookiesSection: '[data-test-id="profile-cookies-section"]',
+  cookieNameInput: '[data-test-id="cookie-name-input"] input',
+  cookieValueInput: '[data-test-id="cookie-value-input"] input',
+  cookieEnabledCheckbox: '[data-test-id="request-cookie-checkbox"]',
+  addCookieButton: '[data-test-id="add-request-cookie-button"]',
+  toggleAllCookiesButton: '[data-test-id="all-request-cookies-checkbox"]',
+  cookieMenuButton: '[data-test-id="request-cookie-menu-button"]',
+  removeAllCookiesButton: '[data-test-id="remove-all-request-cookies-button"]',
   urlFiltersSection: '[data-test-id="url-filters-section"]',
   urlFilterInput: '[data-test-id="url-filter-input"] input',
   urlFilterEnabledCheckbox: '[data-test-id="url-filter-checkbox"]',
@@ -81,6 +89,44 @@ const scenarios = [
     await addHeader('X-Menu', 'value');
     await click(selectors.headerMenuButton);
   }),
+  scenario('cookies', 'empty-state', async ({ activateCookies }) => {
+    await activateCookies();
+  }),
+  scenario('cookies', 'single-cookie', async ({ activateCookies, addCookie }) => {
+    await activateCookies();
+    await addCookie('session_id', 'abc123');
+  }),
+  scenario('cookies', 'multiple-cookies', async ({ activateCookies, addCookie }) => {
+    await activateCookies();
+    await addCookie('session_id', 'abc123');
+    await addCookie('theme', 'dark', 1);
+  }),
+  scenario('cookies', 'disabled-cookie', async ({ activateCookies, addCookie, click }) => {
+    await activateCookies();
+    await addCookie('disabled_cookie', 'value');
+    await click(selectors.cookieEnabledCheckbox);
+  }),
+  scenario('cookies', 'all-disabled', async ({ activateCookies, addCookie, click }) => {
+    await activateCookies();
+    await addCookie('first_cookie', 'value-1');
+    await addCookie('second_cookie', 'value-2', 1);
+    await click(selectors.toggleAllCookiesButton);
+  }),
+  scenario('cookies', 'name-validation-error', async ({ activateCookies, addCookie, blur }) => {
+    await activateCookies();
+    await addCookie('invalid name=', 'value');
+    await blur(selectors.cookieNameInput);
+  }),
+  scenario('cookies', 'value-validation-error', async ({ activateCookies, addCookie, blur }) => {
+    await activateCookies();
+    await addCookie('session_id', 'invalid;value');
+    await blur(selectors.cookieValueInput);
+  }),
+  scenario('cookies', 'cookie-menu-open', async ({ activateCookies, addCookie, click }) => {
+    await activateCookies();
+    await addCookie('menu_cookie', 'value');
+    await click(selectors.cookieMenuButton);
+  }),
   scenario('modals', 'export-modal', async ({ addHeader, click, clickMenuItem, waitText, blur }) => {
     await addHeader('X-Export', 'value');
     await click(selectors.profileActionsButton);
@@ -103,6 +149,12 @@ const scenarios = [
     await fill(selectors.urlFilterInput, 'https://remove.example.com/*');
     await removeAllUrlFilters();
     await waitText('Remove all URL filters');
+  }),
+  scenario('modals', 'cookies-delete-confirmation', async ({ activateCookies, addCookie, removeAllCookies, waitText }) => {
+    await activateCookies();
+    await addCookie('session_id', 'abc123');
+    await removeAllCookies();
+    await waitText('Remove all request cookies');
   }),
   scenario('profiles', 'single-profile', async ({ activateHeaders }) => {
     await activateHeaders();
@@ -238,9 +290,18 @@ function createBrowserHelpers(driver, popupUrl) {
     activateHeaders: async () => {
       await clickTab('Headers');
     },
+    activateCookies: async () => {
+      await clickTab('Request cookies');
+      await waitUntil(() => visible(selectors.cookiesSection), 'cookies section');
+    },
     activateUrlFilters: async () => {
       await clickTab('URL Filters');
       await waitUntil(() => visible(selectors.urlFiltersSection), 'URL filters section');
+    },
+    addCookie: async (name, value, index = 0) => {
+      await click(selectors.addCookieButton);
+      await fill(selectors.cookieNameInput, name, index);
+      await fill(selectors.cookieValueInput, value, index);
     },
     addHeader: async (name, value, index = 0) => {
       await click(selectors.addHeaderButton);
@@ -251,6 +312,9 @@ function createBrowserHelpers(driver, popupUrl) {
     click,
     clickMenuItem,
     fill,
+    removeAllCookies: async () => {
+      await click(selectors.removeAllCookiesButton);
+    },
     removeAllUrlFilters: async () => {
       if (await visible(selectors.removeAllUrlFiltersButton)) {
         await click(selectors.removeAllUrlFiltersButton);

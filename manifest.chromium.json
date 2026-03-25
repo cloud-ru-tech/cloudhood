@@ -24,7 +24,8 @@
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
-    "tabs"
+    "tabs",
+    "cookies"
   ],
   "background": {
     "service_worker": "background.bundle.js"

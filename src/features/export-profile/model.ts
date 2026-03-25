@@ -8,7 +8,7 @@ import { copyToClipboard } from '#shared/utils/copyToClipboard';
 import { COPY_RESULT_STATUS } from './constants';
 import { downloadSelectedProfiles } from './utils';
 
-export const $profileExportList = createStore<string[]>([]);
+export const $profileExportList = combine($requestProfiles, profiles => profiles.map(p => p.id));
 
 export const profileNameExportChanged = createEvent<string[]>();
 
@@ -21,7 +21,13 @@ const $selectedProfileExportList = createStore<string[]>([]).on(profileNameExpor
 export const $selectedExportProfileIdList = combine(
   $selectedProfileExportList,
   $profileExportList,
-  (selectedProfileName, profileIds) => profileIds.filter(profileId => selectedProfileName.includes(profileId)) || [],
+  $selectedRequestProfile,
+  (selectedProfileName, profileIds, currentProfileId) => {
+    // Until the user picks something explicitly, default to the currently selected profile.
+    const effectiveSelection = selectedProfileName.length > 0 ? selectedProfileName : [currentProfileId];
+
+    return profileIds.filter(profileId => effectiveSelection.includes(profileId)) || [];
+  },
   { skipVoid: false },
 );
 
@@ -40,10 +46,12 @@ export const $profileExportString = combine(
       profiles
         .filter(({ id }) => selectedExportProfileIdList.includes(id))
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
-        .map(({ id, requestHeaders, urlFilters, ...rest }) => ({
+        .map(({ id, requestHeaders, requestCookies, urlFilters, ...rest }) => ({
           ...rest,
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
           requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
+          requestCookies: (requestCookies ?? []).map(({ id, ...cookieRest }) => cookieRest),
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
           urlFilters: urlFilters?.map(({ id, ...filterRest }) => filterRest) || [],
         })) || [],
@@ -89,18 +97,6 @@ const profileExportCopyToClipboardFx = attach({
 const profileExportDownloadFileFx = attach({
   source: $profileExportString,
   effect: serializedProfiles => downloadSelectedProfiles(serializedProfiles),
-});
-
-sample({
-  source: $requestProfiles,
-  fn: profiles => profiles.map(p => p.id),
-  target: $profileExportList,
-});
-
-sample({
-  source: $selectedRequestProfile,
-  fn: selectedProfile => [selectedProfile],
-  target: $selectedProfileExportList,
 });
 
 sample({
