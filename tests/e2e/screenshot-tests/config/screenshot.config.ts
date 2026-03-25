@@ -11,6 +11,7 @@ export const SCREENSHOT_CONFIG = {
   selectors: {
     tabs: {
       headers: '[role="tab"]:has-text("Headers")',
+      cookies: '[role="tab"]:has-text("Request cookies")',
       urlFilters: '[role="tab"]:has-text("URL Filters")',
     },
     headers: {
@@ -22,6 +23,17 @@ export const SCREENSHOT_CONFIG = {
       toggleAllCheckbox: '[data-test-id="all-request-headers-checkbox"]',
       menuButton: '[data-test-id="request-header-menu-button"]',
       removeButton: '[data-test-id="remove-request-header-button"]',
+    },
+    cookies: {
+      section: '[data-test-id="profile-cookies-section"]',
+      addButton: '[data-test-id="add-request-cookie-button"]',
+      nameInput: '[data-test-id="cookie-name-input"] input',
+      valueInput: '[data-test-id="cookie-value-input"] input',
+      checkbox: '[data-test-id="request-cookie-checkbox"]',
+      toggleAllCheckbox: '[data-test-id="all-request-cookies-checkbox"]',
+      menuButton: '[data-test-id="request-cookie-menu-button"]',
+      removeButton: '[data-test-id="remove-request-cookie-button"]',
+      removeAllButton: '[data-test-id="remove-all-request-cookies-button"]',
     },
     urlFilters: {
       section: '[data-test-id="url-filters-section"]',

@@ -1,3 +1,4 @@
+export * from './cookies-tab.page';
 export * from './headers-tab.page';
 export * from './modals.page';
 export * from './popup.page';

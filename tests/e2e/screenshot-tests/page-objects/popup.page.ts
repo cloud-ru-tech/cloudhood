@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 
 import { SCREENSHOT_CONFIG, type Theme } from '../config/screenshot.config';
 import { ensureMenuClosed, safeClick, waitForNetworkIdle, waitForVisible } from '../utils';
+import { CookiesTabPage } from './cookies-tab.page';
 import { HeadersTabPage } from './headers-tab.page';
 import { SidebarPage } from './sidebar.page';
 import { UrlFiltersTabPage } from './url-filters-tab.page';
@@ -55,6 +56,10 @@ export class PopupPage {
 
   get headersTab() {
     return new HeadersTabPage(this.page);
+  }
+
+  get cookiesTab() {
+    return new CookiesTabPage(this.page);
   }
 
   get urlFiltersTab() {
