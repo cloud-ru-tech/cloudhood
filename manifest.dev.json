@@ -15,14 +15,8 @@
     "48": "img/main-icon-48.jpg",
     "128": "img/main-icon-128.jpg"
   },
-  "host_permissions": [
-    "<all_urls>"
-  ],
-  "permissions": [
-    "storage",
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
-  ],
+  "host_permissions": ["<all_urls>"],
+  "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestFeedback", "cookies"],
   "background": {
     "service_worker": "background.bundle.js"
   },
