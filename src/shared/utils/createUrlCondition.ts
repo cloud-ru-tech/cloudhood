@@ -17,7 +17,7 @@
 /**
  * Converts a wildcard pattern into a valid RE2 regular expression
  */
-function convertToRegexFilter(pattern: string): string {
+export function convertToRegexFilter(pattern: string): string {
   // Escape RE2 special characters except * and .
   const regex = pattern
     .replace(/[+^${}()|[\]\\]/g, '\\$&') // Escape special characters (excluding . and *)
