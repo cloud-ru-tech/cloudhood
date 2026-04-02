@@ -5,9 +5,6 @@ createScreenshotTest({
   area: 'modals',
   name: 'export-modal',
   description: 'CloudHood Extension - Export profile modal',
-  snapshotOptions: {
-    maxDiffPixels: 500,
-  },
   setup: async popup => {
     await popup.headersTab.addHeader('X-Export', 'value');
     await popup.sidebar.openProfileActionsMenu();
