@@ -219,8 +219,8 @@ test.describe('General Features', () => {
     const newPage = await pagePromise;
 
     if (newPage) {
-      // If a new page opened, verify the URL
-      await newPage.waitForLoadState('networkidle');
+      // GitHub keeps background requests alive; networkidle often never fires in CI.
+      await newPage.waitForLoadState('load');
       const url = newPage.url();
       expect(url).toContain('github.com');
       expect(url).toContain('cloud-ru-tech');
