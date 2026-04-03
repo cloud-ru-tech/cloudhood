@@ -72,6 +72,23 @@
       "matchPackagePatterns": ["eslint", "stylelint", "prettier"],
       "groupName": "linting",
       "labels": ["dependencies", "linting"]
+    },
+    {
+      "description": "Automerge patch and minor updates for devDependencies after CI passes",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge patch updates for dependencies after CI passes",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Disable automerge for @playwright/test — requires manual Docker image version sync in docker-compose.screenshots.yml",
+      "matchPackageNames": ["@playwright/test"],
+      "automerge": false
     }
   ],
   "ignoreDeps": [],
