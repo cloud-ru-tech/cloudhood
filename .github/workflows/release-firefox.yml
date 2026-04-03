@@ -103,7 +103,7 @@ jobs:
           path: cloudhood-firefox-sources.zip
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.set_latest_tag.outputs.latest_tag }}
           name: Firefox Release ${{ steps.set_latest_tag.outputs.latest_tag }}
