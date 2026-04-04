@@ -116,7 +116,7 @@ jobs:
         run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
 
       - name: Pull request artifacts
-        uses: gavv/pull-request-artifacts@v1.1.0
+        uses: gavv/pull-request-artifacts@v2.1.0
         with:
           commit: ${{ steps.set_short_sha.outputs.short_sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
