@@ -87,19 +87,19 @@ jobs:
         shell: bash
 
       - name: Upload Chrome build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-chrome
           path: cloudhood-chrome.zip
 
       - name: Upload Firefox build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-firefox
           path: cloudhood-firefox.zip
 
       - name: Upload Firefox sources artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudhood-firefox-sources
           path: cloudhood-firefox-sources.zip
@@ -120,19 +120,19 @@ jobs:
         run: pnpm install -g publish-browser-extension
 
       - name: Download Chrome build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-chrome
           path: ./
 
       - name: Download Firefox build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-firefox
           path: ./
 
       - name: Download Firefox sources artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudhood-firefox-sources
           path: ./
