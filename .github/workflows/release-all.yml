@@ -111,14 +111,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.10.0
-
-      - name: Install publish-browser-extension
-        run: pnpm install -g publish-browser-extension
-
       - name: Download Chrome build artifact
         uses: actions/download-artifact@v4
         with:
@@ -161,7 +153,7 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
         run: |
-          npx publish-browser-extension \
+          npx --yes publish-browser-extension@4.0.4 \
             --chrome-zip cloudhood-chrome.zip \
             --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
             --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
@@ -180,7 +172,7 @@ jobs:
 
           echo "Debug: Firefox extension ID is set: ${{ secrets.FIREFOX_EXTENSION_ID != '' }}"
 
-          npx publish-browser-extension \
+          npx --yes publish-browser-extension@4.0.4 \
             --firefox-zip cloudhood-firefox.zip \
             --firefox-sources-zip cloudhood-firefox-sources.zip \
             --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
