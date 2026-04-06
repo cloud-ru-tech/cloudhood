@@ -1,4 +1,5 @@
-const config = require('@cloud-ru/ft-config-stylelint');
+const imported = require('@cloud-ru/ft-config-stylelint');
+const config = imported.default ?? imported;
 
 module.exports = {
   ...config,

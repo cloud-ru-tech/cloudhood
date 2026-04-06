@@ -126,7 +126,7 @@ jobs:
 
           echo "Debug: Firefox extension ID is set: ${{ secrets.FIREFOX_EXTENSION_ID != '' }}"
 
-          npx publish-browser-extension \
+          npx --yes publish-browser-extension@4.0.4 \
             --firefox-zip cloudhood-firefox.zip \
             --firefox-sources-zip cloudhood-firefox-sources.zip \
             --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \

@@ -21,5 +21,5 @@ runs:
 
     - name: Run license validator
       run: |
-        pnpx @cloud-ru/ft-license-validator@latest
+        npx --yes @cloud-ru/ft-license-validator@1.3.0
       shell: bash

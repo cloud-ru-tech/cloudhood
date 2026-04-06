@@ -112,7 +112,7 @@ jobs:
 
           echo "Debug: Chrome extension ID is set: ${{ secrets.CHROME_EXTENSION_ID != '' }}"
 
-          npx publish-browser-extension \
+          npx --yes publish-browser-extension@4.0.4 \
             --chrome-zip cloudhood-chrome.zip \
             --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
             --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
