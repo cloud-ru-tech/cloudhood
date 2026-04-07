@@ -3,7 +3,7 @@ export const SCREENSHOT_CONFIG = {
   browsers: ['chrome', 'firefox'] as const,
   platform: process.env.PLATFORM || 'darwin',
   defaults: {
-    maxDiffPixelRatio: 0.01,
+    maxDiffPixelRatio: 0.005,
     timeout: 5000,
     threshold: 0.2,
   },
