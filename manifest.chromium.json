@@ -23,7 +23,8 @@
   "permissions": [
     "storage",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequestFeedback",
+    "tabs"
   ],
   "background": {
     "service_worker": "background.bundle.js"

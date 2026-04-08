@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
+import { countActiveHeadersForUrl } from './countActiveHeadersForUrl';
 import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
@@ -57,7 +58,7 @@ function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser
   });
 }
 
-export async function setBrowserHeaders(result: Record<string, unknown>) {
+export async function setBrowserHeaders(result: Record<string, unknown>, currentTabUrl?: string) {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
 
   // Validate data from storage
@@ -161,7 +162,8 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     logger.info('Rules updated successfully');
     logger.groupEnd();
 
-    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
+    const activeRulesCount = countActiveHeadersForUrl(activeHeaders, activeUrlFilters, currentTabUrl);
+    await setIconBadge({ isPaused, activeRulesCount });
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
   }
