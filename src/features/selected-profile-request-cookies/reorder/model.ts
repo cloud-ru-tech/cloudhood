@@ -4,7 +4,7 @@ import { attach, combine, sample } from 'effector';
 
 import {
   $requestProfiles,
-  $selectedProfileUrlFilters,
+  $selectedProfileRequestCookies,
   $selectedRequestProfile,
   profileUpdated,
 } from '#entities/request-profile/model';
@@ -18,23 +18,24 @@ import {
 } from '#entities/sortable-list';
 
 export const {
-  $flattenItems: $flattenUrlFilters,
-  $dragTarget: $dragTargetUrlFilters,
-  $raisedItem: $raisedUrlFilter,
+  $flattenItems: $flattenRequestCookies,
+  $dragTarget: $dragTargetRequestCookies,
+  $raisedItem: $raisedRequestCookie,
   reorderItems,
   itemsUpdated,
 } = createSortableListModel({
-  $items: $selectedProfileUrlFilters,
+  $items: $selectedProfileRequestCookies,
   $selectedItem: $selectedRequestProfile,
-  $allItems: $requestProfiles.map(profiles => profiles.map(profile => profile.urlFilters)),
+  $allItems: $requestProfiles.map(profiles => profiles.map(profile => profile.requestCookies ?? [])),
   itemsUpdated: profileUpdated,
 });
 
-export const $draggableUrlFilter = combine([$raisedUrlFilter, $selectedProfileUrlFilters], ([raisedId, filters]) =>
-  raisedId ? filters.find(filter => filter.id === raisedId) : null,
+export const $draggableRequestCookie = combine(
+  [$raisedRequestCookie, $selectedProfileRequestCookies],
+  ([raisedId, cookies]) => (raisedId ? cookies.find(cookie => cookie.id === raisedId) : null),
 );
 
-const reorderUrlFiltersFx = attach({
+const reorderRequestCookiesFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
   effect: ({ profiles, selectedProfile }, payload: { active: string | number; target: string | number }) => {
     const { active, target } = payload;
@@ -45,9 +46,9 @@ const reorderUrlFiltersFx = attach({
       return null;
     }
 
-    const urlFilters = profile.urlFilters;
-    const activeIndex = urlFilters.findIndex(filter => filter.id === active);
-    const targetIndex = urlFilters.findIndex(filter => filter.id === target);
+    const requestCookies = profile.requestCookies ?? [];
+    const activeIndex = requestCookies.findIndex(cookie => cookie.id === active);
+    const targetIndex = requestCookies.findIndex(cookie => cookie.id === target);
 
     if (activeIndex === -1 || targetIndex === -1) {
       return null;
@@ -55,7 +56,7 @@ const reorderUrlFiltersFx = attach({
 
     return {
       ...profile,
-      urlFilters: arrayMove(urlFilters, activeIndex, targetIndex),
+      requestCookies: arrayMove(requestCookies, activeIndex, targetIndex),
     };
   },
 });
@@ -64,19 +65,19 @@ sample({
   clock: dragStarted,
   filter: (event: DragStartEvent) => Boolean(event.active.id),
   fn: (event: DragStartEvent) => event.active.id as string | number,
-  target: $raisedUrlFilter,
+  target: $raisedRequestCookie,
 });
 
 sample({
   clock: dragOver,
   filter: (event: DragOverEvent) => Boolean(event.over?.id),
   fn: (event: DragOverEvent) => event.over?.id as string | number,
-  target: $dragTargetUrlFilters,
+  target: $dragTargetRequestCookies,
 });
 
-const urlFilterMoved = sample({
+const requestCookieMoved = sample({
   clock: dragEnded,
-  source: { active: $raisedUrlFilter, target: $dragTargetUrlFilters },
+  source: { active: $raisedRequestCookie, target: $dragTargetRequestCookies },
   filter(src: {
     active: SortableItemIdOrNull;
     target: SortableItemIdOrNull;
@@ -85,12 +86,12 @@ const urlFilterMoved = sample({
   },
 });
 
-sample({ clock: urlFilterMoved, target: reorderUrlFiltersFx });
+sample({ clock: requestCookieMoved, target: reorderRequestCookiesFx });
 sample({
-  clock: reorderUrlFiltersFx.doneData,
+  clock: reorderRequestCookiesFx.doneData,
   filter: Boolean,
   target: profileUpdated,
 });
 
-$dragTargetUrlFilters.reset(reorderUrlFiltersFx.finally);
-$raisedUrlFilter.reset(reorderUrlFiltersFx.finally);
+$dragTargetRequestCookies.reset(reorderRequestCookiesFx.finally);
+$raisedRequestCookie.reset(reorderRequestCookiesFx.finally);

@@ -40,10 +40,12 @@ export const $profileExportString = combine(
       profiles
         .filter(({ id }) => selectedExportProfileIdList.includes(id))
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
-        .map(({ id, requestHeaders, urlFilters, ...rest }) => ({
+        .map(({ id, requestHeaders, requestCookies, urlFilters, ...rest }) => ({
           ...rest,
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
           requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
+          requestCookies: (requestCookies ?? []).map(({ id, ...cookieRest }) => cookieRest),
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
           urlFilters: urlFilters?.map(({ id, ...filterRest }) => filterRest) || [],
         })) || [],
