@@ -82,6 +82,20 @@ function makeStorageWithDisabledHeader() {
 
 const CHROME_INTERNAL_ERROR = new Error('Internal error while updating dynamic rules.');
 
+function makeStorageWithEnabledHeader(id = STALE_RULE_ID, value = 'RM-3945') {
+  const profile = {
+    id: 'profile-1',
+    requestHeaders: [{ id, name: 'cp-front-billing', value, disabled: false }],
+    urlFilters: [],
+  };
+  return {
+    [BrowserStorageKey.IsPaused]: false,
+    [BrowserStorageKey.Profiles]: JSON.stringify([profile]),
+    [BrowserStorageKey.SelectedProfile]: 'profile-1',
+    [BrowserStorageKey.HeadersConfigMeta]: { seq: 10, updatedAt: Date.now() },
+  };
+}
+
 describe('setBrowserHeaders – DNR recovery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -228,6 +242,32 @@ describe('setBrowserHeaders – DNR recovery', () => {
       mockDnr.updateSessionRules.mockResolvedValue(undefined);
 
       const promise = setBrowserHeaders(makeStorageWithDisabledHeader());
+      await vi.runAllTimersAsync();
+      const result = await promise;
+
+      expect(result.stuckRuleIds).toEqual([STALE_RULE_ID]);
+    });
+
+    it('treats a dynamic rule with the expected id but stale header value as stuck', async () => {
+      const currentStaleRule = makeStaleRule();
+      const expectedSessionRule = {
+        id: STALE_RULE_ID,
+        priority: 2,
+        action: {
+          type: 'modifyHeaders',
+          requestHeaders: [{ header: 'cp-front-billing', operation: 'set', value: 'RM-4309' }],
+        },
+        condition: { resourceTypes: ['main_frame'] },
+      };
+
+      mockDnr.getDynamicRules.mockResolvedValue([currentStaleRule]);
+      mockDnr.updateDynamicRules.mockRejectedValue(CHROME_INTERNAL_ERROR);
+      mockDnr.getSessionRules
+        .mockResolvedValueOnce([]) // initial read
+        .mockResolvedValue([expectedSessionRule]); // after session fallback
+      mockDnr.updateSessionRules.mockResolvedValue(undefined);
+
+      const promise = setBrowserHeaders(makeStorageWithEnabledHeader(STALE_RULE_ID, 'RM-4309'));
       await vi.runAllTimersAsync();
       const result = await promise;
 
@@ -395,6 +435,13 @@ describe('setBrowserHeaders – DNR recovery', () => {
       const promise = setBrowserHeaders(storage);
       await vi.runAllTimersAsync();
       await promise;
+
+      const fallbackCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) =>
+        (call[0] as { addRules?: Array<{ id: number; priority?: number }> })?.addRules?.some(
+          rule => rule.id === NEW_RULE_ID,
+        ),
+      );
+      expect((fallbackCall?.[0] as { addRules?: Array<{ priority?: number }> }).addRules?.[0].priority).toBe(2);
 
       // No counteracting rule (id >= 1_000_000_000) should have been added
       const counteractCall = mockDnr.updateSessionRules.mock.calls.find((call: unknown[]) =>

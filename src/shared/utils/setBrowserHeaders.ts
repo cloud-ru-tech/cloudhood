@@ -15,6 +15,7 @@ const RECOVERY_DELAY_MS = 500;
 // IDs >= COUNTERACT_BASE_ID are reserved for counteracting stuck dynamic rules.
 // Header IDs are generated in range [0, 999_999_999) — see generateId.ts.
 const COUNTERACT_BASE_ID = 1_000_000_000;
+const SESSION_FALLBACK_PRIORITY = 2;
 
 async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -124,9 +125,17 @@ async function sessionRulesFallback(
   logger.warn('🔄 Session rules fallback: dynamic rules API broken, trying session rules...');
 
   try {
+    // Chrome may leave a broken dynamic rule alive with the same id as the new rule.
+    // Session rules with the default priority (1) do not reliably win over that stale
+    // dynamic rule, so fallback rules are promoted to priority 2.
+    const prioritizedAddRules = addRules.map(rule => ({
+      ...rule,
+      priority: Math.max(rule.priority ?? 1, SESSION_FALLBACK_PRIORITY),
+    }));
+
     await browser.declarativeNetRequest.updateSessionRules({
       removeRuleIds: removeSessionRuleIds,
-      addRules,
+      addRules: prioritizedAddRules,
     });
 
     const finalRules = await browser.declarativeNetRequest.getSessionRules();
@@ -140,6 +149,46 @@ async function sessionRulesFallback(
     logger.error('❌ Session rules fallback also failed:', error);
     return { success: false, error };
   }
+}
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(item => stableStringify(item)).join(',')}]`;
+  }
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, item]) => item !== undefined)
+      .sort(([a], [b]) => a.localeCompare(b));
+    return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${stableStringify(item)}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function ruleSignature(rule: browser.DeclarativeNetRequest.Rule): string {
+  // DNR rule ids are derived from header ids, so the id can remain stable while
+  // the header value changes. If Chrome fails to update the rule body, comparing
+  // ids alone would hide exactly the stale-header bug we are trying to recover from.
+  return stableStringify({
+    action: rule.action,
+    condition: rule.condition,
+    priority: rule.priority ?? 1,
+  });
+}
+
+function describeRuleForDiagnostics(rule: browser.DeclarativeNetRequest.Rule | undefined) {
+  if (!rule) return null;
+  return {
+    id: rule.id,
+    priority: rule.priority ?? 1,
+    actionType: rule.action.type,
+    requestHeaders: rule.action.requestHeaders?.map(header => ({
+      header: header.header,
+      operation: header.operation,
+      value: header.value,
+    })),
+    condition: rule.condition,
+    signature: ruleSignature(rule),
+  };
 }
 
 function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
@@ -409,10 +458,25 @@ export async function setBrowserHeaders(
     }
     const allActiveRules = [...updatedDynamicRules, ...updatedSessionRules];
 
-    // Rules that are still active in Chrome but should have been removed (disabled headers stuck due to DNR API errors).
+    // Rules that are still active in Chrome but should have been removed or replaced.
     // Only check dynamic rules — session rules are entirely under our control (fallback + counteracting).
-    const expectedRuleIds = new Set(addRules.map(r => r.id));
-    const stuckRuleIds = updatedDynamicRules.filter(r => !expectedRuleIds.has(r.id)).map(r => r.id);
+    //
+    // Compare the full rule body, not only ids. Chrome can fail to update a dynamic rule while
+    // leaving an old rule with the same id but stale header value behind; that must still be
+    // treated as a mismatch so the UI warns and the higher-priority session fallback wins.
+    const expectedRulesById = new Map(addRules.map(rule => [rule.id, ruleSignature(rule)]));
+    const expectedRuleDetailsById = new Map(addRules.map(rule => [rule.id, rule]));
+    const stuckRuleIds = updatedDynamicRules
+      .filter(rule => expectedRulesById.get(rule.id) !== ruleSignature(rule))
+      .map(rule => rule.id);
+    const stuckRuleDetails = updatedDynamicRules
+      .filter(rule => stuckRuleIds.includes(rule.id))
+      .map(rule => ({
+        ruleId: rule.id,
+        reason: expectedRulesById.has(rule.id) ? 'same-id-different-rule-body' : 'unexpected-rule-id',
+        actualDynamicRule: describeRuleForDiagnostics(rule),
+        expectedRule: describeRuleForDiagnostics(expectedRuleDetailsById.get(rule.id)),
+      }));
 
     logger.info('📊 Final DNR state:', {
       dynamicRulesCount: updatedDynamicRules.length,
@@ -421,6 +485,7 @@ export async function setBrowserHeaders(
       expectedRulesCount: addRules.length,
       match: allActiveRules.length === addRules.length,
       stuckRuleIds,
+      stuckRuleDetails,
       usedSessionFallback,
       activeRuleIds: allActiveRules.map(r => r.id),
       activeRulesDetails: allActiveRules.map(r => ({
