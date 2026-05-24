@@ -87,7 +87,7 @@
     "vite-plugin-svgr": "4.3.0",
     "vite-tsconfig-paths": "5.1.4",
     "webextension-polyfill": "0.12.0",
-    "ws": "8.20.0"
+    "ws": "8.20.1"
   },
   "pnpm": {
     "overrides": {
@@ -100,6 +100,7 @@
       "minimatch": "9.0.9",
       "@eslint/eslintrc>minimatch": "3.1.5",
       "picomatch": "4.0.4",
+      "postcss": "8.5.10",
       "rollup": "4.60.1",
       "svgo": "3.3.3",
       "yaml": "1.10.3"
