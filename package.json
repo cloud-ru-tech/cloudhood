@@ -80,7 +80,7 @@
     "husky": "^9.1.6",
     "jsdom": "26.1.0",
     "postcss-styled-syntax": "0.7.1",
-    "prettier": "3.5.3",
+    "prettier": "3.8.3",
     "terser": "5.46.1",
     "typescript": "5.7.3",
     "vite": "6.4.2",
