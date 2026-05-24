@@ -14,14 +14,15 @@ import { RequestHeaders } from '#widgets/request-headers';
 import { AllRequestHeadersCheckbox } from './AllRequestHeadersCheckbox';
 
 export function RequestHeadersActions() {
-  const [isPaused, handleRemove, isProfileRemoveAvailable] = useUnit([
+  const [isPaused, handleRemove, isProfileRemoveAvailable, handleAddRequestHeader] = useUnit([
     $isPaused,
     selectedProfileRemoved,
     $isProfileRemoveAvailable,
+    selectedProfileRequestHeadersAdded,
   ]);
 
-  const handleAddRequestHeader = () => {
-    selectedProfileRequestHeadersAdded([{ disabled: false, name: '', value: '' }]);
+  const onAddRequestHeader = () => {
+    handleAddRequestHeader([{ disabled: false, name: '', value: '' }]);
   };
 
   const leftHeaderActions = (
@@ -37,7 +38,7 @@ export function RequestHeadersActions() {
         disabled={isPaused}
         data-test-id='add-request-header-button'
         icon={<PlusSVG />}
-        onClick={handleAddRequestHeader}
+        onClick={onAddRequestHeader}
       />
       <ButtonFunction
         data-test-id='remove-request-header-button'

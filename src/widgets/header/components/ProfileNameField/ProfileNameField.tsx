@@ -59,6 +59,7 @@ export function ProfileNameField() {
         {isEdited ? (
           <FieldText
             size='m'
+            inputMode='text'
             ref={inputRef}
             placeholder='Profile name'
             value={value}

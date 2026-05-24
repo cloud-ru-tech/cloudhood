@@ -25,23 +25,35 @@ export function ImportModal() {
     { errorMessage, errorPosition, isError },
     handleImportModalClosed,
     handleProfileImported,
-  ] = useUnit([$profileImportString, $profileImportErrorInfo, importModalClosed, profileImported]);
+    onProfileImportLoadedFile,
+    onProfileImportStringChanged,
+  ] = useUnit([
+    $profileImportString,
+    $profileImportErrorInfo,
+    importModalClosed,
+    profileImported,
+    profileImportLoadedFile,
+    profileImportStringChanged,
+  ]);
 
   const loadFileRef = useRef<HTMLInputElement>(null);
   const textFieldRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleProfileLoaded = useCallback((files: File[]) => {
-    const currentFile = files?.[0];
-    const fileStorage = loadFileRef.current;
+  const handleProfileLoaded = useCallback(
+    (files: File[]) => {
+      const currentFile = files?.[0];
+      const fileStorage = loadFileRef.current;
 
-    if (fileStorage) {
-      fileStorage.value = '';
-    }
+      if (fileStorage) {
+        fileStorage.value = '';
+      }
 
-    if (currentFile) {
-      profileImportLoadedFile(currentFile);
-    }
-  }, []);
+      if (currentFile) {
+        onProfileImportLoadedFile(currentFile);
+      }
+    },
+    [onProfileImportLoadedFile],
+  );
 
   useEffect(() => {
     if (isError && textFieldRef.current) {
@@ -74,7 +86,7 @@ export function ImportModal() {
               ref={textFieldRef}
               label='JSON'
               value={profileImportString}
-              onChange={profileImportStringChanged}
+              onChange={onProfileImportStringChanged}
               minRows={4}
               maxRows={4}
               error={errorMessage ?? undefined}

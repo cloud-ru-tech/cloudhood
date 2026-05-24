@@ -19,6 +19,7 @@
     "lint:css": "npx stylelint \"./src/**/*.{css,styled.ts}\" --config stylelint.config.cjs",
     "test:unit": "node --max-old-space-size=4096 node_modules/vitest/vitest.mjs run",
     "prepare": "husky",
+    "tsc": "npx tsc --noEmit --emitDeclarationOnly false",
     "reinstall": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "test:e2e": "HEADLESS=false playwright test",
     "test:e2e:ci": "HEADLESS=true playwright test --reporter=line --max-failures=2",

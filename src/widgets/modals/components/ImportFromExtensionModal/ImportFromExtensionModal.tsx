@@ -30,12 +30,18 @@ export function ImportFromExtensionModal() {
     profileImportExtensionName,
     profileImportString,
     { errorMessage, errorPosition, isError },
+    onProfileImportLoadedFile,
+    onProfileImportExtensionNameChanged,
+    onProfileImportStringChanged,
   ] = useUnit([
     importFromExtensionModalClosed,
     profileImported,
     $profileImportExtensionName,
     $profileImportString,
     $profileImportErrorInfo,
+    profileImportLoadedFile,
+    profileImportExtensionNameChanged,
+    profileImportStringChanged,
   ]);
 
   const textFieldRef = useRef<HTMLTextAreaElement>(null);
@@ -54,18 +60,21 @@ export function ImportFromExtensionModal() {
 
   const loadFileRef = useRef<HTMLInputElement>(null);
 
-  const handleProfileLoaded = useCallback((files: File[]) => {
-    const currentFile = files?.[0];
-    const fileStorage = loadFileRef.current;
+  const handleProfileLoaded = useCallback(
+    (files: File[]) => {
+      const currentFile = files?.[0];
+      const fileStorage = loadFileRef.current;
 
-    if (fileStorage) {
-      fileStorage.value = '';
-    }
+      if (fileStorage) {
+        fileStorage.value = '';
+      }
 
-    if (currentFile) {
-      profileImportLoadedFile(currentFile);
-    }
-  }, []);
+      if (currentFile) {
+        onProfileImportLoadedFile(currentFile);
+      }
+    },
+    [onProfileImportLoadedFile],
+  );
 
   return (
     <ModalCustom open onClose={handleImportFromExtensionModalClosed}>
@@ -79,7 +88,7 @@ export function ImportFromExtensionModal() {
                 selection='single'
                 label='Other extension'
                 value={profileImportExtensionName ?? undefined}
-                onChange={profileImportExtensionNameChanged}
+                onChange={onProfileImportExtensionNameChanged}
                 options={menuItems}
                 showClearButton={false}
               />
@@ -89,7 +98,7 @@ export function ImportFromExtensionModal() {
                 ref={textFieldRef}
                 label='JSON'
                 value={profileImportString}
-                onChange={profileImportStringChanged}
+                onChange={onProfileImportStringChanged}
                 maxRows={4}
                 minRows={4}
                 error={isError && errorMessage ? errorMessage : undefined}

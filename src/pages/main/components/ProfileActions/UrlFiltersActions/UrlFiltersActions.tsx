@@ -16,11 +16,7 @@ import { RemoveAllUrlFilters } from './RemoveAllUrlFilters';
 import * as S from './styled';
 
 export function UrlFiltersActions() {
-  const [isPaused] = useUnit([$isPaused]);
-
-  const handleAddUrlFilter = () => {
-    profileUrlFiltersAdded();
-  };
+  const [isPaused, handleAddUrlFilter] = useUnit([$isPaused, profileUrlFiltersAdded]);
 
   const leftHeaderActions = (
     <>
