@@ -91,8 +91,10 @@
   },
   "pnpm": {
     "overrides": {
+      "@babel/plugin-transform-modules-systemjs": "7.29.4",
       "brace-expansion": "2.0.3",
       "esbuild": "0.27.2",
+      "fast-uri": "3.1.2",
       "flatted": "3.4.2",
       "glob": "10.5.0",
       "minimatch": "9.0.9",
