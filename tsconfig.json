@@ -15,15 +15,14 @@
     "skipLibCheck": true,
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
     "resolveJsonModule": true,
     "paths": {
-      "#app": ["src/app"],
-      "#pages/*": ["src/pages/*"],
-      "#shared/*": ["src/shared/*"],
-      "#features/*": ["src/features/*"],
-      "#entities/*": ["src/entities/*"],
-      "#widgets/*": ["src/widgets/*"]
+      "#app": ["./src/app"],
+      "#pages/*": ["./src/pages/*"],
+      "#shared/*": ["./src/shared/*"],
+      "#features/*": ["./src/features/*"],
+      "#entities/*": ["./src/entities/*"],
+      "#widgets/*": ["./src/widgets/*"]
     },
     "types": ["vitest/globals", "vite/client"],
   },

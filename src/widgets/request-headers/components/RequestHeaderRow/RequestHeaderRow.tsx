@@ -23,8 +23,11 @@ import * as S from './styled';
 export function RequestHeaderRow(props: RequestHeader) {
   const { disabled, name, value, id } = props;
   const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
-  const { isPaused } = useUnit({
+  const { isPaused, onRequestHeadersPasted, onRequestHeadersUpdated, onRequestHeadersRemoved } = useUnit({
     isPaused: $isPaused,
+    onRequestHeadersPasted: selectedProfileRequestHeadersPasted,
+    onRequestHeadersUpdated: selectedProfileRequestHeadersUpdated,
+    onRequestHeadersRemoved: selectedProfileRequestHeadersRemoved,
   });
 
   const isNameFormatVerified = validateHeaderName(name);
@@ -43,7 +46,7 @@ export function RequestHeaderRow(props: RequestHeader) {
     }
 
     e.preventDefault();
-    selectedProfileRequestHeadersPasted({ id, value, field });
+    onRequestHeadersPasted({ id, value, field });
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -55,11 +58,11 @@ export function RequestHeaderRow(props: RequestHeader) {
   };
 
   const handleChange = (field: 'value' | 'name') => (value: string) => {
-    selectedProfileRequestHeadersUpdated([{ ...props, [field]: value }]);
+    onRequestHeadersUpdated([{ ...props, [field]: value }]);
   };
 
   const handleChecked: CheckboxProps['onChange'] = checked => {
-    selectedProfileRequestHeadersUpdated([{ ...props, disabled: !checked }]);
+    onRequestHeadersUpdated([{ ...props, disabled: !checked }]);
   };
 
   return (
@@ -82,6 +85,7 @@ export function RequestHeaderRow(props: RequestHeader) {
           <FieldText
             data-test-id='header-name-input'
             size='m'
+            inputMode='text'
             value={name}
             placeholder='Header name'
             onChange={handleChange('name')}
@@ -103,6 +107,7 @@ export function RequestHeaderRow(props: RequestHeader) {
       >
         <FieldText
           size='m'
+          inputMode='text'
           value={value}
           placeholder='Header value'
           onChange={handleChange('value')}
@@ -120,7 +125,7 @@ export function RequestHeaderRow(props: RequestHeader) {
         size='s'
         data-test-id='remove-request-header-button'
         icon={<CrossSVG />}
-        onClick={() => selectedProfileRequestHeadersRemoved([id])}
+        onClick={() => onRequestHeadersRemoved([id])}
       />
 
       <RequestHeaderMenu {...props} />

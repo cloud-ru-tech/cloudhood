@@ -22,8 +22,10 @@ import { UrlFiltersMenu } from './UrlFiltersMenu';
 export function UrlFiltersRow(props: UrlFilter) {
   const { disabled, value, id } = props;
   const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
-  const { isPaused } = useUnit({
+  const { isPaused, onUrlFiltersUpdated, onUrlFiltersRemoved } = useUnit({
     isPaused: $isPaused,
+    onUrlFiltersUpdated: selectedProfileUrlFiltersUpdated,
+    onUrlFiltersRemoved: selectedProfileUrlFiltersRemoved,
   });
 
   const isValueFormatVerified = validateHeaderValue(value);
@@ -33,7 +35,7 @@ export function UrlFiltersRow(props: UrlFilter) {
     const value = e.clipboardData.getData('text/plain');
 
     e.preventDefault();
-    selectedProfileUrlFiltersUpdated([{ ...props, value }]);
+    onUrlFiltersUpdated([{ ...props, value }]);
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -45,11 +47,11 @@ export function UrlFiltersRow(props: UrlFilter) {
   };
 
   const handleChange = (value: string) => {
-    selectedProfileUrlFiltersUpdated([{ ...props, value }]);
+    onUrlFiltersUpdated([{ ...props, value }]);
   };
 
   const handleChecked: CheckboxProps['onChange'] = checked => {
-    selectedProfileUrlFiltersUpdated([{ ...props, disabled: !checked }]);
+    onUrlFiltersUpdated([{ ...props, disabled: !checked }]);
   };
 
   return (
@@ -72,6 +74,7 @@ export function UrlFiltersRow(props: UrlFilter) {
       >
         <FieldText
           size='m'
+          inputMode='text'
           value={value}
           placeholder='.*://url.domain/.*'
           onChange={handleChange}
@@ -86,12 +89,7 @@ export function UrlFiltersRow(props: UrlFilter) {
         />
       </Tooltip>
 
-      <ButtonFunction
-        disabled={isPaused}
-        size='s'
-        icon={<CrossSVG />}
-        onClick={() => selectedProfileUrlFiltersRemoved([id])}
-      />
+      <ButtonFunction disabled={isPaused} size='s' icon={<CrossSVG />} onClick={() => onUrlFiltersRemoved([id])} />
       <UrlFiltersMenu {...props} />
     </S.Wrapper>
   );

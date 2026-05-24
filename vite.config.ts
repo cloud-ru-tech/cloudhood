@@ -221,6 +221,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: !isProduction,
       chunkSizeWarningLimit: 1000,
       minify: isProduction ? 'terser' : false,
+      cssMinify: isProduction ? 'esbuild' : false,
 
       terserOptions: isProduction
         ? {

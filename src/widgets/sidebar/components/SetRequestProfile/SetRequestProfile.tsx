@@ -1,3 +1,5 @@
+import { useUnit } from 'effector-react';
+
 import { Tooltip } from '@snack-uikit/tooltip';
 
 import { selectedRequestProfileIdChanged } from '#entities/request-profile/model';
@@ -14,7 +16,8 @@ type SetRequestProfileProps = {
 };
 
 export function SetRequestProfile({ profileId, index, isSelected, profileName }: SetRequestProfileProps) {
-  const handleClick = () => selectedRequestProfileIdChanged(profileId);
+  const onSelectedRequestProfileIdChanged = useUnit(selectedRequestProfileIdChanged);
+  const handleClick = () => onSelectedRequestProfileIdChanged(profileId);
   const color = profileColorList[index % profileColorList.length];
   const profileNameAbbreviation = getProfileNameAbbreviation(profileName);
 

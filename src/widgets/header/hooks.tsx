@@ -15,40 +15,60 @@ type UseActionsProps = {
 };
 
 export function useActions({ onClose }: UseActionsProps) {
-  const [isProfileRemoveAvailable, activeTab] = useUnit([$isProfileRemoveAvailable, $activeProfileActionsTab]);
+  const [
+    isProfileRemoveAvailable,
+    activeTab,
+    onProfileAdded,
+    onImportModalOpened,
+    onImportFromExtensionModalOpened,
+    onSelectedProfileRemoved,
+    onExportModalOpened,
+    onProfileUrlFiltersAdded,
+    onProfileActionsTabChanged,
+  ] = useUnit([
+    $isProfileRemoveAvailable,
+    $activeProfileActionsTab,
+    profileAdded,
+    importModalOpened,
+    importFromExtensionModalOpened,
+    selectedProfileRemoved,
+    exportModalOpened,
+    profileUrlFiltersAdded,
+    profileActionsTabChanged,
+  ]);
 
   const handleAddProfile = useCallback(() => {
-    profileAdded();
+    onProfileAdded();
     onClose();
-  }, [onClose]);
+  }, [onClose, onProfileAdded]);
 
   const handleOpenImportModal = useCallback(() => {
-    importModalOpened();
+    onImportModalOpened();
     onClose();
-  }, [onClose]);
+  }, [onClose, onImportModalOpened]);
 
   const handleOpenImportFromExtensionModal = useCallback(() => {
-    importFromExtensionModalOpened();
+    onImportFromExtensionModalOpened();
     onClose();
-  }, [onClose]);
+  }, [onClose, onImportFromExtensionModalOpened]);
 
   const handleRemoveProfile = useCallback(() => {
-    selectedProfileRemoved();
+    onSelectedProfileRemoved();
     onClose();
-  }, [onClose]);
+  }, [onClose, onSelectedProfileRemoved]);
 
   const handleExportModalOpened = useCallback(() => {
-    exportModalOpened();
+    onExportModalOpened();
     onClose();
-  }, [onClose]);
+  }, [onClose, onExportModalOpened]);
 
   const handleAddUrlFilter = useCallback(() => {
-    profileUrlFiltersAdded();
+    onProfileUrlFiltersAdded();
     if (activeTab !== 'url-filters') {
-      profileActionsTabChanged('url-filters');
+      onProfileActionsTabChanged('url-filters');
     }
     onClose();
-  }, [onClose, activeTab]);
+  }, [onClose, activeTab, onProfileUrlFiltersAdded, onProfileActionsTabChanged]);
 
   return useMemo(
     () => [
