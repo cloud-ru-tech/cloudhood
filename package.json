@@ -37,7 +37,7 @@
     "@dnd-kit/sortable": "10.0.0",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.0",
-    "@snack-uikit/button": "0.19.11",
+    "@snack-uikit/button": "0.19.18",
     "@snack-uikit/divider": "3.2.6",
     "@snack-uikit/drop-zone": "0.9.6",
     "@snack-uikit/fields": "0.47.2",
