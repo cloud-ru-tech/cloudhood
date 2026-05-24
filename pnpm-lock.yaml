@@ -35,8 +35,8 @@ importers:
         specifier: 11.14.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
       '@snack-uikit/button':
-        specifier: 0.19.11
-        version: 0.19.11(react@18.3.1)
+        specifier: 0.19.18
+        version: 0.19.18(react@18.3.1)
       '@snack-uikit/divider':
         specifier: 3.2.6
         version: 3.2.6(react@18.3.1)
@@ -1378,6 +1378,9 @@ packages:
   '@snack-uikit/button@0.19.16':
     resolution: {integrity: sha512-MnqtJGUhlgE3JuZr53dhpG99j7hj1ehzrZS82sMp6Ne4y307rR4aDTkEzInX8OSMAkokgKE++cAJTGIg1c9jzQ==}
 
+  '@snack-uikit/button@0.19.18':
+    resolution: {integrity: sha512-qteZv9D7L6KFZq1c03dmcXqPIaTHIjoq9Oexhq0sv7DHJv9GvKn/rklus4+joM/bKZbaDLIHiBtbzR/kwk6ABQ==}
+
   '@snack-uikit/calendar@0.12.5':
     resolution: {integrity: sha512-WGOvgTPsEAxdtm4kf3qM48RQ78tphjXYAFEEE9Q3YTAYzZXLMSG9Dr0WG4fRR3A8J1vHd5QWkpj/q536LSZwBQ==}
     peerDependencies:
@@ -1390,6 +1393,9 @@ packages:
 
   '@snack-uikit/counter@0.8.10':
     resolution: {integrity: sha512-6txaEh4l26G92AIzFOM6mDAqiANgPzbH3VDiyakZjnmfwQFh9qNIrQJAHgF9y3r8XTT3KlAwV+7/rtk61pDvzw==}
+
+  '@snack-uikit/counter@0.8.12':
+    resolution: {integrity: sha512-zgW5IF9KyfAmB5NHizPLSk0hDLPqwONyxq19BV6kgRBv79kzTMvnBwhH+jbMyHBBYbTKDDKc1V4wWVHa1Boe4g==}
 
   '@snack-uikit/counter@0.8.6':
     resolution: {integrity: sha512-KxFGYIbAhUlX2dobO67+JNfju7Bs0Q0pr8OlDZ8mur3KlZFETSxcN6jTSdMciS+aJHFlVj75OQgVE1cDm0prbA==}
@@ -1438,6 +1444,9 @@ packages:
     resolution: {integrity: sha512-k2UGc6pa0hqIcc0me5EyZhFJJM+6r3NluCUuTPeG1x+WRhpjx82lUfnq0L/B/pVoFoCrXC6sKsSYfvI8AtoGeA==}
     peerDependencies:
       '@snack-uikit/locale': '*'
+
+  '@snack-uikit/loaders@0.9.11':
+    resolution: {integrity: sha512-JWik6756Y+kcJzNc9yO8pJMk6CGOzuUi9ANM9r9J0H6o+yoVb5HGPcM+WVo3n+7DRBLzFswWjZ1HVoISXbyHhQ==}
 
   '@snack-uikit/loaders@0.9.5':
     resolution: {integrity: sha512-Eth0Cob7tn9fsSncJ9J+gG/d1UqmA7NHD3IBs9btSsH2bZSg+7D1o77vArpIkV6Kv6xh6XVrRsgVo41G/Ldgbw==}
@@ -1503,6 +1512,9 @@ packages:
 
   '@snack-uikit/utils@4.0.0':
     resolution: {integrity: sha512-u+NGDWLMU+zcCC3sBJ+rmMDpMSVw4Z+VLj+cnf2hHHMNtY1xI4yTnuyZ0AMSxoOi2LXUTwtttYCS7/MoRjq/3A==}
+
+  '@snack-uikit/utils@4.0.2':
+    resolution: {integrity: sha512-t2EL7ohgv+YtSCrFaQ9AQPDTrQNZJ6ezDqNo0ANv3Fu5ANduHi6JKcI0a7HYxW7xDz7yf8HwhKU8wGkl3vnlxQ==}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0':
     resolution: {integrity: sha512-b9MIk7yhdS1pMCZM8VeNfUlSKVRhsHZNMl5O9SfaX0l0t5wjdgu4IDzGB8bpnGBBOjGST3rRFVsaaEtI4W6f7g==}
@@ -5163,7 +5175,7 @@ snapshots:
       eslint: 9.39.4
       eslint-config-prettier: 10.1.8(eslint@9.39.4)
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint@9.39.4))(eslint@9.39.4)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4)
       eslint-plugin-no-only-tests: 3.3.0
       eslint-plugin-prettier: 5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(prettier@3.5.3)
@@ -5755,6 +5767,15 @@ snapshots:
     transitivePeerDependencies:
       - react
 
+  '@snack-uikit/button@0.19.18(react@18.3.1)':
+    dependencies:
+      '@snack-uikit/counter': 0.8.12(react@18.3.1)
+      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
   '@snack-uikit/calendar@0.12.5(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@snack-uikit/button': 0.19.11(react@18.3.1)
@@ -5788,6 +5809,13 @@ snapshots:
   '@snack-uikit/counter@0.8.10(react@18.3.1)':
     dependencies:
       '@snack-uikit/utils': 4.0.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@snack-uikit/counter@0.8.12(react@18.3.1)':
+    dependencies:
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
@@ -5926,6 +5954,13 @@ snapshots:
       - '@types/react'
       - react
       - react-dom
+
+  '@snack-uikit/loaders@0.9.11(react@18.3.1)':
+    dependencies:
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
 
   '@snack-uikit/loaders@0.9.5(react@18.3.1)':
     dependencies:
@@ -6130,6 +6165,13 @@ snapshots:
       - react
 
   '@snack-uikit/utils@4.0.0(react@18.3.1)':
+    dependencies:
+      react-swipeable: 7.0.2(react@18.3.1)
+      uncontrollable: 8.0.4(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  '@snack-uikit/utils@4.0.2(react@18.3.1)':
     dependencies:
       react-swipeable: 7.0.2(react@18.3.1)
       uncontrollable: 8.0.4(react@18.3.1)
@@ -7261,7 +7303,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4)
     transitivePeerDependencies:
       - supports-color
 
@@ -7282,7 +7324,7 @@ snapshots:
       eslint: 9.39.4
       prettier: 2.8.8
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@5.7.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
