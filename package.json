@@ -49,7 +49,7 @@
     "@snack-uikit/toaster": "0.11.4",
     "@snack-uikit/toggles": "0.13.14",
     "@snack-uikit/tooltip": "0.17.2",
-    "@snack-uikit/truncate-string": "0.6.19",
+    "@snack-uikit/truncate-string": "0.7.12",
     "effector": "23.3.0",
     "effector-react": "23.3.0",
     "pino": "10.3.1",
