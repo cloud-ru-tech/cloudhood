@@ -1,0 +1,11 @@
+# Scheduled dependency version bumps (pull requests).
+# Security PRs for fixable CVEs come from Dependabot Security updates — enable those in GitHub under
+# Organization/repository Settings → Code security → "Dependabot security updates".
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 15
+    versioning-strategy: increase-if-necessary
