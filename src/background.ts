@@ -1,12 +1,9 @@
 import browser from 'webextension-polyfill';
 
-import type { Profile, RequestHeader } from '#entities/request-profile/types';
-
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
-import { setIconBadge } from './shared/utils/setIconBadge';
 import { enableExtensionReload } from './utils/extension-reload';
 
 logger.configure({
@@ -21,6 +18,15 @@ logger.info('🎯 Background script loaded successfully!');
 logger.debug('🎯 Background script loaded successfully! (debug)');
 logger.info('🔍 About to check storage contents...');
 
+async function getCurrentTabUrl(): Promise<string | undefined> {
+  try {
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+    return tabs[0]?.url;
+  } catch {
+    return undefined;
+  }
+}
+
 // Check storage immediately on background script load
 (async () => {
   try {
@@ -34,35 +40,13 @@ logger.info('🔍 About to check storage contents...');
     logger.info('  - Profiles:', result[BrowserStorageKey.Profiles] ? 'Present' : 'Missing');
     logger.info('  - Selected Profile:', result[BrowserStorageKey.SelectedProfile] || 'None');
     logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
-
-    // Log profile count if present
-    let activeHeadersCount = 0;
-    if (result[BrowserStorageKey.Profiles]) {
-      try {
-        const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
-        logger.info(`  - Profiles count: ${profiles.length}`);
-        if (profiles.length > 0) {
-          logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
-
-          // Count active headers for the badge
-          const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
-          if (selectedProfile) {
-            activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
-            logger.info(`  - Active headers count: ${activeHeadersCount}`);
-          }
-        }
-      } catch (error) {
-        logger.warn('  - Failed to parse profiles:', error);
-      }
-    }
-
-    logger.debug('Background script load storage data:', JSON.stringify(result, null, 2));
     logger.groupEnd();
 
-    // Set the badge based on storage data
-    const isPaused = (result[BrowserStorageKey.IsPaused] as boolean) || false;
-    await setIconBadge({ isPaused, activeRulesCount: activeHeadersCount });
-    logger.info(`🏷️ Badge set: paused=${isPaused}, activeRules=${activeHeadersCount}`);
+    logger.debug('Background script load storage data:', JSON.stringify(result, null, 2));
+
+    const currentTabUrl = await getCurrentTabUrl();
+    await setBrowserHeaders(result, currentTabUrl);
+    logger.info(`🏷️ Initial badge set for URL: ${currentTabUrl}`);
   } catch (error) {
     logger.error('Failed to check storage on background script load:', error);
   }
@@ -89,7 +73,7 @@ async function notify(message: ServiceWorkerEvent) {
     ]);
 
     logger.info('📦 Storage data for reload:', result);
-    await setBrowserHeaders(result);
+    await setBrowserHeaders(result, await getCurrentTabUrl());
   }
   return undefined;
 }
@@ -110,25 +94,12 @@ browser.runtime.onStartup.addListener(async function () {
   logger.info('  - Is Paused:', result[BrowserStorageKey.IsPaused] || false);
   logger.debug('Startup storage data:', JSON.stringify(result, null, 2));
 
-  // Log profile count if present
-  if (result[BrowserStorageKey.Profiles]) {
-    try {
-      const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
-      logger.info(`  - Profiles count: ${profiles.length}`);
-      if (profiles.length > 0) {
-        logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
-      }
-    } catch (error) {
-      logger.warn('  - Failed to parse profiles:', error);
-    }
-  }
-
   logger.debug('Startup storage data:', result);
 
   if (Object.keys(result).length) {
     logger.info('🚀 Storage data found, setting browser headers on startup');
     try {
-      await setBrowserHeaders(result);
+      await setBrowserHeaders(result, await getCurrentTabUrl());
     } catch (error) {
       logger.error('Failed to set browser headers on startup:', error);
     }
@@ -156,7 +127,7 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
       ]);
       logger.debug('Storage changes data:', result);
       try {
-        await setBrowserHeaders(result);
+        await setBrowserHeaders(result, await getCurrentTabUrl());
       } catch (error) {
         logger.error('Failed to set browser headers on storage change:', error);
       }
@@ -181,25 +152,12 @@ browser.runtime.onInstalled.addListener(async details => {
   logger.debug('Install/update storage data:', JSON.stringify(result, null, 2));
   logger.groupEnd();
 
-  // Log profile count if present
-  if (result[BrowserStorageKey.Profiles]) {
-    try {
-      const profiles = JSON.parse(result[BrowserStorageKey.Profiles] as string);
-      logger.info(`  - Profiles count: ${profiles.length}`);
-      if (profiles.length > 0) {
-        logger.info('  - Profile names:', profiles.map((p: Profile) => p.name || p.id).join(', '));
-      }
-    } catch (error) {
-      logger.warn('  - Failed to parse profiles:', error);
-    }
-  }
-
   logger.debug('Install/update storage data:', result);
 
   if (Object.keys(result).length) {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
     try {
-      await setBrowserHeaders(result);
+      await setBrowserHeaders(result, await getCurrentTabUrl());
     } catch (error) {
       logger.error('Failed to set browser headers on install/update:', error);
     }
@@ -222,12 +180,36 @@ browser.tabs.onActivated.addListener(async activeInfo => {
   if (Object.keys(result).length) {
     logger.info('📱 Tab activated, updating headers');
     try {
-      await setBrowserHeaders(result);
+      const tab = await browser.tabs.get(activeInfo.tabId);
+      await setBrowserHeaders(result, tab.url);
     } catch (error) {
       logger.error('Failed to set browser headers on tab activation:', error);
     }
   } else {
     logger.debug('No storage data found on tab activation');
+  }
+});
+
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status !== 'complete') return;
+
+  const activeTabs = await browser.tabs.query({ active: true, currentWindow: true });
+  if (activeTabs[0]?.id !== tabId) return;
+
+  logger.debug('Active tab URL updated:', tab.url);
+
+  const result = await browser.storage.local.get([
+    BrowserStorageKey.Profiles,
+    BrowserStorageKey.SelectedProfile,
+    BrowserStorageKey.IsPaused,
+  ]);
+
+  if (Object.keys(result).length) {
+    try {
+      await setBrowserHeaders(result, tab.url);
+    } catch (error) {
+      logger.error('Failed to set browser headers on tab URL update:', error);
+    }
   }
 });
 
