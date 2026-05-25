@@ -3,7 +3,6 @@ import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { FieldText } from '@snack-uikit/fields';
 import { CrossSVG } from '@snack-uikit/icons';
 import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
@@ -82,7 +81,7 @@ export function RequestHeaderRow(props: RequestHeader) {
           tip='Header names may only include Latin characters without spaces and these special symbols: (),/:;<=>?@[]{}")'
           placement='top'
         >
-          <FieldText
+          <S.HeaderNameField
             data-test-id='header-name-input'
             size='m'
             inputMode='text'
@@ -105,7 +104,7 @@ export function RequestHeaderRow(props: RequestHeader) {
         placement='top'
         open={value.length > 0 && !isValueFormatVerified}
       >
-        <FieldText
+        <S.HeaderValueField
           size='m'
           inputMode='text'
           value={value}

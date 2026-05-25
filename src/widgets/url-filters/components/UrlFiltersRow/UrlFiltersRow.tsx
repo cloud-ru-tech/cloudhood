@@ -3,7 +3,6 @@ import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { FieldText } from '@snack-uikit/fields';
 import { CrossSVG } from '@snack-uikit/icons';
 import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
@@ -72,7 +71,7 @@ export function UrlFiltersRow(props: UrlFilter) {
         placement='top'
         open={value.length > 0 && (!isValueFormatVerified || urlFilterValidation.warnings.length > 0)}
       >
-        <FieldText
+        <S.UrlFilterField
           size='m'
           inputMode='text'
           value={value}
