@@ -55,10 +55,8 @@ const reorderRequestHeadersFx = attach({
     }
 
     return {
-      id: profile.id,
-      ...(profile.name && { name: profile.name }),
+      ...profile,
       requestHeaders: arrayMove(requestHeaders, activeIndex, targetIndex),
-      urlFilters: profile.urlFilters,
     };
   },
 });

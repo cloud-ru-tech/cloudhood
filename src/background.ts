@@ -1,10 +1,11 @@
 import browser from 'webextension-polyfill';
 
-import type { Profile, RequestHeader } from '#entities/request-profile/types';
+import type { Profile, RequestCookie, RequestHeader, UrlFilter } from '#entities/request-profile/types';
 
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
+import { setBrowserCookies } from './shared/utils/setBrowserCookies';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { setIconBadge } from './shared/utils/setIconBadge';
 import { enableExtensionReload } from './utils/extension-reload';
@@ -47,8 +48,11 @@ logger.info('🔍 About to check storage contents...');
           // Count active headers for the badge
           const selectedProfile = profiles.find((p: Profile) => p.id === result[BrowserStorageKey.SelectedProfile]);
           if (selectedProfile) {
-            activeHeadersCount = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
-            logger.info(`  - Active headers count: ${activeHeadersCount}`);
+            const activeHeaders = selectedProfile.requestHeaders?.filter((h: RequestHeader) => !h.disabled).length || 0;
+            const activeCookies = selectedProfile.requestCookies?.filter((c: RequestCookie) => !c.disabled).length || 0;
+            const activeUrlFilters = selectedProfile.urlFilters?.filter((f: UrlFilter) => !f.disabled).length || 0;
+            activeHeadersCount = activeHeaders + activeCookies + activeUrlFilters;
+            logger.info(`  - Active rules count: ${activeHeadersCount}`);
           }
         }
       } catch (error) {
@@ -89,7 +93,7 @@ async function notify(message: ServiceWorkerEvent) {
     ]);
 
     logger.info('📦 Storage data for reload:', result);
-    await setBrowserHeaders(result);
+    await Promise.all([setBrowserHeaders(result), setBrowserCookies(result)]);
   }
   return undefined;
 }
@@ -128,7 +132,7 @@ browser.runtime.onStartup.addListener(async function () {
   if (Object.keys(result).length) {
     logger.info('🚀 Storage data found, setting browser headers on startup');
     try {
-      await setBrowserHeaders(result);
+      await Promise.all([setBrowserHeaders(result), setBrowserCookies(result)]);
     } catch (error) {
       logger.error('Failed to set browser headers on startup:', error);
     }
@@ -156,7 +160,7 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
       ]);
       logger.debug('Storage changes data:', result);
       try {
-        await setBrowserHeaders(result);
+        await Promise.all([setBrowserHeaders(result), setBrowserCookies(result)]);
       } catch (error) {
         logger.error('Failed to set browser headers on storage change:', error);
       }
@@ -199,7 +203,7 @@ browser.runtime.onInstalled.addListener(async details => {
   if (Object.keys(result).length) {
     logger.info('🔧 Storage data found, initializing browser headers on install/update');
     try {
-      await setBrowserHeaders(result);
+      await Promise.all([setBrowserHeaders(result), setBrowserCookies(result)]);
     } catch (error) {
       logger.error('Failed to set browser headers on install/update:', error);
     }

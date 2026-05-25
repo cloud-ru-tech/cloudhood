@@ -3,28 +3,29 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey } from '#shared/constants';
 
+import { validateCookie } from './cookies';
 import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
 import { setIconBadge } from './setIconBadge';
 
-function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
-  const allResourceTypes = [
-    'main_frame',
-    'sub_frame',
-    'stylesheet',
-    'script',
-    'image',
-    'font',
-    'object',
-    'xmlhttprequest',
-    'ping',
-    'csp_report',
-    'media',
-    'websocket',
-    'other',
-  ] as browser.DeclarativeNetRequest.ResourceType[];
+const allResourceTypes = [
+  'main_frame',
+  'sub_frame',
+  'stylesheet',
+  'script',
+  'image',
+  'font',
+  'object',
+  'xmlhttprequest',
+  'ping',
+  'csp_report',
+  'media',
+  'websocket',
+  'other',
+] as browser.DeclarativeNetRequest.ResourceType[];
 
+function getRulesForHeader(header: RequestHeader, urlFilters: string[]): browser.DeclarativeNetRequest.Rule[] {
   // If there are no URL filters, apply the header to all URLs
   if (urlFilters.length === 0) {
     return [
@@ -128,9 +129,35 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     activeUrlFiltersCount: activeUrlFilters.length,
   });
 
-  const addRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
+  const headerRules: browser.DeclarativeNetRequest.Rule[] = !isPaused
     ? activeHeaders.flatMap(header => getRulesForHeader(header, activeUrlFilters))
     : [];
+
+  // Build cookie rules as fallback when browser.cookies API can't be used (no URL filters)
+  // When URL filters exist, cookies are handled by setBrowserCookies via browser.cookies.set()
+  const selectedProfileCookies = profile?.requestCookies ?? [];
+  const activeCookies = selectedProfileCookies.filter(
+    ({ disabled, name, value }) => !disabled && validateCookie(name, value),
+  );
+
+  const cookieRules: browser.DeclarativeNetRequest.Rule[] = [];
+  if (!isPaused && activeCookies.length > 0 && activeUrlFilters.length === 0) {
+    const cookieHeaderValue = activeCookies.map(c => `${c.name}=${c.value}`).join('; ');
+    const cookieRuleBaseId = 900000;
+
+    cookieRules.push({
+      id: cookieRuleBaseId,
+      action: {
+        type: 'modifyHeaders' as const,
+        requestHeaders: [{ header: 'Cookie', value: cookieHeaderValue, operation: 'set' as const }],
+      },
+      condition: {
+        resourceTypes: allResourceTypes,
+      },
+    });
+  }
+
+  const addRules = [...headerRules, ...cookieRules];
 
   const removeRuleIds = currentRules.map(item => item.id);
 
@@ -139,20 +166,12 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     logger.info('Remove rule IDs:', removeRuleIds);
     logger.info('Add rules:', addRules);
 
-    if (removeRuleIds.length > 0) {
+    if (removeRuleIds.length > 0 || addRules.length > 0) {
       await browser.declarativeNetRequest.updateDynamicRules({
         removeRuleIds,
-        addRules: [],
-      });
-      logger.debug('Old rules removed');
-    }
-
-    if (addRules.length > 0) {
-      await browser.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [],
         addRules,
       });
-      logger.debug('New rules added');
+      logger.debug('Rules updated');
     }
 
     const updatedRules = await browser.declarativeNetRequest.getDynamicRules();
@@ -161,7 +180,10 @@ export async function setBrowserHeaders(result: Record<string, unknown>) {
     logger.info('Rules updated successfully');
     logger.groupEnd();
 
-    await setIconBadge({ isPaused, activeRulesCount: activeHeaders.length });
+    await setIconBadge({
+      isPaused,
+      activeRulesCount: activeHeaders.length + activeCookies.length + activeUrlFilters.length,
+    });
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
   }

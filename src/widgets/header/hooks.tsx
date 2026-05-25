@@ -1,12 +1,11 @@
 import { useUnit } from 'effector-react';
 import { useCallback, useMemo } from 'react';
 
-import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
+import { DownloadSVG, PlusSVG, UploadSVG } from '@snack-uikit/icons';
 
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
-import { $isProfileRemoveAvailable, profileAdded } from '#entities/request-profile/model';
-import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
+import { profileAdded } from '#entities/request-profile/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
 import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
@@ -15,7 +14,7 @@ type UseActionsProps = {
 };
 
 export function useActions({ onClose }: UseActionsProps) {
-  const [isProfileRemoveAvailable, activeTab] = useUnit([$isProfileRemoveAvailable, $activeProfileActionsTab]);
+  const [activeTab] = useUnit([$activeProfileActionsTab]);
 
   const handleAddProfile = useCallback(() => {
     profileAdded();
@@ -29,11 +28,6 @@ export function useActions({ onClose }: UseActionsProps) {
 
   const handleOpenImportFromExtensionModal = useCallback(() => {
     importFromExtensionModalOpened();
-    onClose();
-  }, [onClose]);
-
-  const handleRemoveProfile = useCallback(() => {
-    selectedProfileRemoved();
     onClose();
   }, [onClose]);
 
@@ -82,21 +76,12 @@ export function useActions({ onClose }: UseActionsProps) {
         beforeContent: <UploadSVG />,
         onClick: handleExportModalOpened,
       },
-      {
-        id: 'remove',
-        content: { option: 'Delete profile' },
-        beforeContent: <TrashSVG />,
-        onClick: handleRemoveProfile,
-        disabled: !isProfileRemoveAvailable,
-      },
     ],
     [
       handleAddProfile,
       handleExportModalOpened,
       handleOpenImportFromExtensionModal,
       handleOpenImportModal,
-      handleRemoveProfile,
-      isProfileRemoveAvailable,
       handleAddUrlFilter,
     ],
   );
