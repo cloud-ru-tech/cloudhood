@@ -2,6 +2,7 @@ import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useS
 import { SortableContext } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 
+import { $dnrHealth } from '#entities/dnr-health/model';
 import { $selectedProfileRequestHeaders } from '#entities/request-profile/model/selected-request-headers';
 import { dragEnded, dragOver, dragStarted, restrictToParentElement } from '#entities/sortable-list';
 import {
@@ -14,11 +15,14 @@ import { RequestHeaderRow } from './components/RequestHeaderRow';
 import * as S from './styled';
 
 export function RequestHeaders() {
-  const { requestHeaders, flattenRequestHeaders, activeRequestHeader } = useUnit({
+  const { requestHeaders, flattenRequestHeaders, activeRequestHeader, dnrHealth } = useUnit({
     requestHeaders: $selectedProfileRequestHeaders,
     flattenRequestHeaders: $flattenRequestHeaders,
     activeRequestHeader: $draggableRequestHeader,
+    dnrHealth: $dnrHealth,
   });
+
+  const stuckRuleIds = new Set(dnrHealth?.stuckRuleIds ?? []);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
@@ -33,7 +37,7 @@ export function RequestHeaders() {
       <S.Wrapper>
         <SortableContext items={flattenRequestHeaders}>
           {requestHeaders.map(header => (
-            <RequestHeaderRow key={header.id} {...header} />
+            <RequestHeaderRow key={header.id} {...header} isStuck={stuckRuleIds.has(header.id)} />
           ))}
         </SortableContext>
       </S.Wrapper>
