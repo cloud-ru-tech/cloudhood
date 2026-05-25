@@ -3,7 +3,6 @@ import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { FieldText } from '@snack-uikit/fields';
 import { CrossSVG } from '@snack-uikit/icons';
 import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
@@ -23,8 +22,11 @@ import * as S from './styled';
 export function RequestHeaderRow(props: RequestHeader) {
   const { disabled, name, value, id } = props;
   const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
-  const { isPaused } = useUnit({
+  const { isPaused, onRequestHeadersPasted, onRequestHeadersUpdated, onRequestHeadersRemoved } = useUnit({
     isPaused: $isPaused,
+    onRequestHeadersPasted: selectedProfileRequestHeadersPasted,
+    onRequestHeadersUpdated: selectedProfileRequestHeadersUpdated,
+    onRequestHeadersRemoved: selectedProfileRequestHeadersRemoved,
   });
 
   const isNameFormatVerified = validateHeaderName(name);
@@ -43,7 +45,7 @@ export function RequestHeaderRow(props: RequestHeader) {
     }
 
     e.preventDefault();
-    selectedProfileRequestHeadersPasted({ id, value, field });
+    onRequestHeadersPasted({ id, value, field });
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -55,11 +57,11 @@ export function RequestHeaderRow(props: RequestHeader) {
   };
 
   const handleChange = (field: 'value' | 'name') => (value: string) => {
-    selectedProfileRequestHeadersUpdated([{ ...props, [field]: value }]);
+    onRequestHeadersUpdated([{ ...props, [field]: value }]);
   };
 
   const handleChecked: CheckboxProps['onChange'] = checked => {
-    selectedProfileRequestHeadersUpdated([{ ...props, disabled: !checked }]);
+    onRequestHeadersUpdated([{ ...props, disabled: !checked }]);
   };
 
   return (
@@ -79,9 +81,10 @@ export function RequestHeaderRow(props: RequestHeader) {
           tip='Header names may only include Latin characters without spaces and these special symbols: (),/:;<=>?@[]{}")'
           placement='top'
         >
-          <FieldText
+          <S.HeaderNameField
             data-test-id='header-name-input'
             size='m'
+            inputMode='text'
             value={name}
             placeholder='Header name'
             onChange={handleChange('name')}
@@ -101,8 +104,9 @@ export function RequestHeaderRow(props: RequestHeader) {
         placement='top'
         open={value.length > 0 && !isValueFormatVerified}
       >
-        <FieldText
+        <S.HeaderValueField
           size='m'
+          inputMode='text'
           value={value}
           placeholder='Header value'
           onChange={handleChange('value')}
@@ -120,7 +124,7 @@ export function RequestHeaderRow(props: RequestHeader) {
         size='s'
         data-test-id='remove-request-header-button'
         icon={<CrossSVG />}
-        onClick={() => selectedProfileRequestHeadersRemoved([id])}
+        onClick={() => onRequestHeadersRemoved([id])}
       />
 
       <RequestHeaderMenu {...props} />

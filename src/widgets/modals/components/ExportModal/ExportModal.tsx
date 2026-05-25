@@ -25,6 +25,8 @@ export function ExportModal() {
     profilesNameOptions,
     selectedExportProfileValue,
     handleExportModalClosed,
+    onProfileNameExportChanged,
+    onProfileExportStringChanged,
   ] = useUnit([
     profileExportDownloaded,
     profileExportSaved,
@@ -32,15 +34,20 @@ export function ExportModal() {
     $profilesNameOptions,
     $selectedExportProfileValue,
     exportModalClosed,
+    profileNameExportChanged,
+    profileExportStringChanged,
   ]);
 
-  const handleProfilesChange = useCallback((value: string[]) => {
-    if (value.length < 1) {
-      return;
-    }
+  const handleProfilesChange = useCallback(
+    (value: string[]) => {
+      if (value.length < 1) {
+        return;
+      }
 
-    profileNameExportChanged(value);
-  }, []);
+      onProfileNameExportChanged(value);
+    },
+    [onProfileNameExportChanged],
+  );
 
   return (
     <Modal
@@ -70,7 +77,7 @@ export function ExportModal() {
           <FieldTextArea
             label='JSON'
             value={profileExportString}
-            onChange={profileExportStringChanged}
+            onChange={onProfileExportStringChanged}
             minRows={4}
             maxRows={4}
             size='m'

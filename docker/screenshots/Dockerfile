@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.57.0-noble
+FROM mcr.microsoft.com/playwright:v1.60.0-noble
 
 # Add custom fonts used by the extension UI.
 COPY src/assets/fonts/*.otf /usr/local/share/fonts/

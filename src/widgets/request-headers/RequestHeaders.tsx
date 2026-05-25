@@ -14,11 +14,15 @@ import { RequestHeaderRow } from './components/RequestHeaderRow';
 import * as S from './styled';
 
 export function RequestHeaders() {
-  const { requestHeaders, flattenRequestHeaders, activeRequestHeader } = useUnit({
-    requestHeaders: $selectedProfileRequestHeaders,
-    flattenRequestHeaders: $flattenRequestHeaders,
-    activeRequestHeader: $draggableRequestHeader,
-  });
+  const { requestHeaders, flattenRequestHeaders, activeRequestHeader, onDragStarted, onDragOver, onDragEnded } =
+    useUnit({
+      requestHeaders: $selectedProfileRequestHeaders,
+      flattenRequestHeaders: $flattenRequestHeaders,
+      activeRequestHeader: $draggableRequestHeader,
+      onDragStarted: dragStarted,
+      onDragOver: dragOver,
+      onDragEnded: dragEnded,
+    });
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
@@ -26,9 +30,9 @@ export function RequestHeaders() {
     <DndContext
       modifiers={[restrictToParentElement]}
       sensors={sensors}
-      onDragStart={dragStarted}
-      onDragOver={dragOver}
-      onDragEnd={dragEnded}
+      onDragStart={onDragStarted}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnded}
     >
       <S.Wrapper>
         <SortableContext items={flattenRequestHeaders}>

@@ -11,10 +11,13 @@ import { UrlFiltersRow } from './components/UrlFiltersRow';
 import * as S from './styled';
 
 export function UrlFilters() {
-  const { urlFilters, flattenUrlFilters, activeUrlFilter } = useUnit({
+  const { urlFilters, flattenUrlFilters, activeUrlFilter, onDragStarted, onDragOver, onDragEnded } = useUnit({
     urlFilters: $selectedProfileUrlFilters,
     flattenUrlFilters: $flattenUrlFilters,
     activeUrlFilter: $draggableUrlFilter,
+    onDragStarted: dragStarted,
+    onDragOver: dragOver,
+    onDragEnded: dragEnded,
   });
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
@@ -23,9 +26,9 @@ export function UrlFilters() {
     <DndContext
       modifiers={[restrictToParentElement]}
       sensors={sensors}
-      onDragStart={dragStarted}
-      onDragOver={dragOver}
-      onDragEnd={dragEnded}
+      onDragStart={onDragStarted}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnded}
     >
       <S.Wrapper>
         <SortableContext items={flattenUrlFilters}>

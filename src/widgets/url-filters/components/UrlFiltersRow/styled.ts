@@ -1,6 +1,7 @@
 import { CSS, type Transform } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
 
+import { FieldText } from '@snack-uikit/fields';
 import { themeVars } from '@snack-uikit/figma-tokens';
 import { Droplist } from '@snack-uikit/list';
 
@@ -24,6 +25,15 @@ export const LeftHeaderActions = styled.div`
   align-items: center;
   gap: 4px;
   min-width: 280px;
+`;
+
+export const UrlFilterField = styled(FieldText)`
+  flex: 1;
+  min-width: 0;
+
+  [data-test-id='field-container-private'] {
+    border-radius: 12px;
+  }
 `;
 
 export const StyledDroplist = styled(Droplist)`
