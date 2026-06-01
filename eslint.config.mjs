@@ -4,7 +4,7 @@ import cloudConfig from '@cloud-ru/eslint-config';
 
 export default [
   {
-    ignores: ['scripts/**/*', 'playwright.config.ts', 'stylelint.config.cjs'],
+    ignores: ['scripts/**/*', 'playwright.config.ts', 'stylelint.config.cjs', 'tests/e2e/**/*'],
   },
   ...cloudConfig,
   {

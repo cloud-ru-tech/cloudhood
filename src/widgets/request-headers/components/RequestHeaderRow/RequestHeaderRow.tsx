@@ -75,7 +75,9 @@ export function RequestHeaderRow(props: RequestHeader) {
           checked={!disabled}
           onChange={handleChecked}
         />
+      </S.LeftHeaderActions>
 
+      <S.HeaderFieldWrapper grow={216}>
         <Tooltip
           open={headerNameFocused && name.length > 0 && !isNameFormatVerified}
           tip='Header names may only include Latin characters without spaces and these special symbols: (),/:;<=>?@[]{}")'
@@ -97,27 +99,29 @@ export function RequestHeaderRow(props: RequestHeader) {
             validationState={name.length > 0 && !isNameFormatVerified ? 'error' : 'default'}
           />
         </Tooltip>
-      </S.LeftHeaderActions>
+      </S.HeaderFieldWrapper>
 
-      <Tooltip
-        tip='Incorrect format for header value'
-        placement='top'
-        open={value.length > 0 && !isValueFormatVerified}
-      >
-        <S.HeaderValueField
-          size='m'
-          inputMode='text'
-          value={value}
-          placeholder='Header value'
-          onChange={handleChange('value')}
-          onPaste={handlePaste('value')}
-          onKeyDown={handleKeyPress}
-          showClearButton={false}
-          disabled={isPaused}
-          data-test-id='header-value-input'
-          validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
-        />
-      </Tooltip>
+      <S.HeaderFieldWrapper grow={205}>
+        <Tooltip
+          tip='Incorrect format for header value'
+          placement='top'
+          open={value.length > 0 && !isValueFormatVerified}
+        >
+          <S.HeaderValueField
+            size='m'
+            inputMode='text'
+            value={value}
+            placeholder='Header value'
+            onChange={handleChange('value')}
+            onPaste={handlePaste('value')}
+            onKeyDown={handleKeyPress}
+            showClearButton={false}
+            disabled={isPaused}
+            data-test-id='header-value-input'
+            validationState={value.length > 0 && !isValueFormatVerified ? 'error' : 'default'}
+          />
+        </Tooltip>
+      </S.HeaderFieldWrapper>
 
       <ButtonFunction
         disabled={isPaused}

@@ -3,6 +3,7 @@ import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
+import { FieldText } from '@snack-uikit/fields';
 import { CrossSVG } from '@snack-uikit/icons';
 import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
@@ -58,35 +59,37 @@ export function UrlFiltersRow(props: UrlFilter) {
       <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
       <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} data-test-id='url-filter-checkbox' />
 
-      <Tooltip
-        tip={(() => {
-          if (!isValueFormatVerified) {
-            return 'Incorrect format for filter value';
-          }
-          if (urlFilterValidation.warnings.length > 0) {
-            return urlFilterValidation.warnings.join('\n');
-          }
-          return undefined;
-        })()}
-        placement='top'
-        open={value.length > 0 && (!isValueFormatVerified || urlFilterValidation.warnings.length > 0)}
-      >
-        <S.UrlFilterField
-          size='m'
-          inputMode='text'
-          value={value}
-          placeholder='.*://url.domain/.*'
-          onChange={handleChange}
-          onPaste={handlePaste}
-          onKeyDown={handleKeyPress}
-          showClearButton={false}
-          disabled={isPaused}
-          data-test-id='url-filter-input'
-          validationState={
-            value.length > 0 && (!isValueFormatVerified || !urlFilterValidation.isValid) ? 'error' : 'default'
-          }
-        />
-      </Tooltip>
+      <S.UrlFilterFieldWrapper>
+        <Tooltip
+          tip={(() => {
+            if (!isValueFormatVerified) {
+              return 'Incorrect format for filter value';
+            }
+            if (urlFilterValidation.warnings.length > 0) {
+              return urlFilterValidation.warnings.join('\n');
+            }
+            return undefined;
+          })()}
+          placement='top'
+          open={value.length > 0 && (!isValueFormatVerified || urlFilterValidation.warnings.length > 0)}
+        >
+          <FieldText
+            size='m'
+            inputMode='text'
+            value={value}
+            placeholder='.*://url.domain/.*'
+            onChange={handleChange}
+            onPaste={handlePaste}
+            onKeyDown={handleKeyPress}
+            showClearButton={false}
+            disabled={isPaused}
+            data-test-id='url-filter-input'
+            validationState={
+              value.length > 0 && (!isValueFormatVerified || !urlFilterValidation.isValid) ? 'error' : 'default'
+            }
+          />
+        </Tooltip>
+      </S.UrlFilterFieldWrapper>
 
       <ButtonFunction disabled={isPaused} size='s' icon={<CrossSVG />} onClick={() => onUrlFiltersRemoved([id])} />
       <UrlFiltersMenu {...props} />
