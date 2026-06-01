@@ -48,8 +48,8 @@ importers:
         specifier: 0.55.2
         version: 0.55.2(@snack-uikit/locale@0.15.1)(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@snack-uikit/figma-tokens':
-        specifier: 19.0.4
-        version: 19.0.4
+        specifier: 17.7.5
+        version: 17.7.5
       '@snack-uikit/icons':
         specifier: 0.27.7
         version: 0.27.7
@@ -1521,8 +1521,8 @@ packages:
     peerDependencies:
       '@snack-uikit/locale': '*'
 
-  '@snack-uikit/figma-tokens@19.0.4':
-    resolution: {integrity: sha512-D2Po0Y9i677CV4vyskTzqVMTabT6lTCFeRMNrENvMm8Vg2vlzoPgH+EnWlF5WO4z4Behts1g2MOpbaC75O/NGg==}
+  '@snack-uikit/figma-tokens@17.7.5':
+    resolution: {integrity: sha512-1ojhbYQvQhSqWN8EYPdl7b8k9K6iwWBAsiw3sfhm+VmJXdFFiQMUXKXKVOlXKxslPAEMgQszIipep4IRbH4Fng==}
 
   '@snack-uikit/icon-predefined@0.7.12':
     resolution: {integrity: sha512-cKGCaTLk8yv7lBDjJor9x8dBnRCoaIVCnXAhIs8MjiS3l89AZ5A02mCbuNURDGrwkKVdqCXmxjwQP8TDZXLcqg==}
@@ -6040,7 +6040,7 @@ snapshots:
       - react
       - react-dom
 
-  '@snack-uikit/figma-tokens@19.0.4': {}
+  '@snack-uikit/figma-tokens@17.7.5': {}
 
   '@snack-uikit/icon-predefined@0.7.12(react@19.2.6)':
     dependencies:

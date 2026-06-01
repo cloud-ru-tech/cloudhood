@@ -23,7 +23,6 @@ export const LeftHeaderActions = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 4px;
-  min-width: 280px;
 `;
 
 const legacyFieldStyles = `
@@ -32,15 +31,16 @@ const legacyFieldStyles = `
   }
 `;
 
-export const HeaderNameField = styled(FieldText)`
-  width: 216px;
+export const HeaderFieldWrapper = styled.div<{ grow: number }>`
+  flex: ${props => props.grow} 1 0;
+  min-width: 0;
+`;
 
+export const HeaderNameField = styled(FieldText)`
   ${legacyFieldStyles}
 `;
 
 export const HeaderValueField = styled(FieldText)`
-  width: 205px;
-
   ${legacyFieldStyles}
 `;
 

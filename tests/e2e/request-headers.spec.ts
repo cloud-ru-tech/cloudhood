@@ -1,6 +1,24 @@
 import { expect, test } from './fixtures';
 
 test.describe('Request Headers', () => {
+  test('should keep header fields compact', async ({ page, extensionId }) => {
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
+    await page.waitForLoadState('networkidle');
+
+    const headerNameField = page.locator('[data-test-id="header-name-input"]');
+    const headerValueField = page.locator('[data-test-id="header-value-input"]');
+
+    await expect(headerNameField).toBeVisible();
+    await expect(headerValueField).toBeVisible();
+
+    const headerNameBox = await headerNameField.boundingBox();
+    const headerValueBox = await headerValueField.boundingBox();
+
+    expect(headerNameBox).not.toBeNull();
+    expect(headerValueBox).not.toBeNull();
+    expect(headerValueBox!.x - (headerNameBox!.x + headerNameBox!.width)).toBeLessThanOrEqual(8);
+  });
+
   /**
    * Test case: Basic request headers functionality
    *
