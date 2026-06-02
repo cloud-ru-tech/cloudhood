@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains the scalable architecture for visual regression testing of the CloudHood browser extension with Playwright.
+This directory contains visual regression tests for the CloudHood browser extension. Chrome snapshots run with Playwright; Firefox snapshots run with Selenium WebDriver and a temporary Firefox addon installation.
 
 ## Directory Structure
 
@@ -21,6 +21,7 @@ tests/e2e/
 │   │   └── screenshot-test.factory.ts       # Test factory with themes
 │   └── specs/                               # Feature-focused specs
 └── screenshots.spec.ts-snapshots/           # Auto-generated snapshots
+└── screenshots.firefox.spec.ts-snapshots/   # Auto-generated Firefox snapshots
 ```
 
 ## Core Concepts
@@ -69,7 +70,7 @@ createScreenshotTest({
 ### Snapshot generation (Docker)
 
 ```bash
-# One command: builds Chrome + Firefox and updates Chrome snapshots in Docker
+# One command: builds Chrome + Firefox and updates Chrome + Firefox snapshots in Docker
 pnpm test:e2e:screenshots:generate
 ```
 
@@ -81,7 +82,7 @@ pnpm test:e2e:screenshots:check
 ### Local verification (Docker, matches CI)
 
 ```bash
-# One command: builds Chrome + Firefox and checks Chrome snapshots in Docker
+# One command: builds Chrome + Firefox and checks Chrome + Firefox snapshots in Docker
 pnpm test:e2e:screenshots:check
 ```
 
@@ -91,11 +92,20 @@ pnpm test:e2e:screenshots:check
 # All screenshot tests
 pnpm test:e2e:screenshots
 
-# Update snapshots
+# Update Chrome + Firefox snapshots
 pnpm test:e2e:screenshots:update
 
 # Chrome only
 pnpm test:e2e:screenshots:chrome
+
+# Update Chrome snapshots locally
+pnpm test:e2e:screenshots:chrome:update
+
+# Firefox only
+pnpm test:e2e:screenshots:firefox
+
+# Update Firefox snapshots locally
+pnpm test:e2e:screenshots:firefox:update
 
 ```
 

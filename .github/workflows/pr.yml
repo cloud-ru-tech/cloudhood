@@ -178,6 +178,16 @@ jobs:
           mkdir -p build/chrome
           unzip -o cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip -d build/chrome
 
+      - name: Download Firefox build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
+
+      - name: Extract Firefox extension
+        run: |
+          mkdir -p build/firefox
+          unzip -o cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip -d build/firefox
+
       - name: Build Playwright screenshot image
         run: docker compose -f docker-compose.screenshots.yml build screenshots
 

@@ -69,10 +69,16 @@ pnpm dev:firefox
 4. Select the `build/chrome` directory
 
 #### Firefox
-1. Open `about:debugging`
-2. Click "This Firefox"
+1. Build the extension and start the development watcher:
+   ```bash
+   pnpm build:firefox
+   pnpm dev:firefox
+   ```
+2. Open `about:debugging#/runtime/this-firefox`
 3. Click "Load Temporary Add-on"
 4. Select `build/firefox/manifest.json`
+
+The watcher rebuilds the popup when its source files change. Automatic reload is not currently supported for Firefox, so click "Reload" for Cloudhood on the `about:debugging` page after a rebuild. If `src/background.ts` changes, stop the watcher, run `pnpm build:firefox`, and start `pnpm dev:firefox` again.
 
 ## 🧪 Testing
 
@@ -119,7 +125,7 @@ pnpm test:e2e:screenshots:update
 # Chrome development with hot reload
 pnpm dev:chrome
 
-# Firefox development with hot reload
+# Firefox development watcher
 pnpm dev:firefox
 
 # Build for Chrome
