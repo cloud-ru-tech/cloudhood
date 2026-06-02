@@ -39,6 +39,7 @@ const INCLUDE_FILES = [
   'LICENSE',
   'CODEOWNERS',
   'RELEASE_SETUP.md',
+  'RELEASE_SETUP.ru.md',
   'tsconfig.json',
   'webpack.config.js',
   'lint-staged.config.mjs',

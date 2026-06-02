@@ -24,6 +24,7 @@ secrets.*.js
 # builds
 build
 *.zip
+release-notes.md
 
 # editors
 .vscode

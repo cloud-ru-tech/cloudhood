@@ -1,0 +1,136 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: |
+      github.ref == 'refs/heads/main' &&
+      contains(fromJson('["Egorzaa", "JustPilz", "Kirrrusha", "AndreyTheWeb"]'), github.actor)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.PAT }}
+
+      - name: Prepare release version and notes
+        id: release
+        run: node scripts/prepare-release.mjs
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.10.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Chrome extension
+        run: pnpm build:chromium
+
+      - name: Pack Chrome extension
+        run: |
+          cd build/chrome
+          zip -r ../../cloudhood-chrome-${{ steps.release.outputs.tag }}.zip .
+
+      - name: Build Firefox extension
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        run: pnpm build:firefox
+
+      - name: Pack Firefox extension
+        run: |
+          cd build/firefox
+          zip -r ../../cloudhood-firefox-${{ steps.release.outputs.tag }}.zip .
+
+      - name: Build Firefox sources archive
+        run: pnpm build:firefox-sources
+
+      - name: Rename Firefox sources archive
+        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.release.outputs.tag }}.zip
+
+      - name: Commit release version and create tag
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          git config --local user.name github-actions
+          git config --local user.email github-actions@github.com
+          git add package.json manifest.chromium.json manifest.firefox.json
+          git commit -m "ci: bump version to $VERSION [skip ci]"
+          git push
+          git tag "$TAG"
+          git push origin "$TAG"
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-${{ steps.release.outputs.tag }}
+          path: |
+            cloudhood-chrome-${{ steps.release.outputs.tag }}.zip
+            cloudhood-firefox-${{ steps.release.outputs.tag }}.zip
+            cloudhood-firefox-sources-${{ steps.release.outputs.tag }}.zip
+            release-notes.md
+
+  release-and-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.build.outputs.tag }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.build.outputs.tag }}
+          name: Release ${{ needs.build.outputs.tag }}
+          body_path: release-notes.md
+          files: |
+            cloudhood-chrome-${{ needs.build.outputs.tag }}.zip
+            cloudhood-firefox-${{ needs.build.outputs.tag }}.zip
+            cloudhood-firefox-sources-${{ needs.build.outputs.tag }}.zip
+
+      - name: Publish to Chrome Web Store
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+        run: |
+          npx --yes publish-browser-extension@4.0.4 \
+            --chrome-zip cloudhood-chrome-${{ needs.build.outputs.tag }}.zip \
+            --chrome-extension-id "$CHROME_EXTENSION_ID" \
+            --chrome-client-id "$CHROME_CLIENT_ID" \
+            --chrome-client-secret "$CHROME_CLIENT_SECRET" \
+            --chrome-refresh-token "$CHROME_REFRESH_TOKEN" \
+            --chrome-publish-target "$CHROME_PUBLISH_TARGET"
+
+      - name: Publish to Firefox Add-ons
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          npx --yes publish-browser-extension@4.0.4 \
+            --firefox-zip cloudhood-firefox-${{ needs.build.outputs.tag }}.zip \
+            --firefox-sources-zip cloudhood-firefox-sources-${{ needs.build.outputs.tag }}.zip \
+            --firefox-extension-id "$FIREFOX_EXTENSION_ID" \
+            --firefox-jwt-issuer "$FIREFOX_JWT_ISSUER" \
+            --firefox-jwt-secret "$FIREFOX_JWT_SECRET"
