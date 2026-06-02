@@ -194,8 +194,11 @@ jobs:
       - name: Run functional E2E tests in container
         run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:ci"
 
+      - name: Run Firefox functional E2E tests in container
+        run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:firefox"
+
       - name: Run screenshot tests in container
-        run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:screenshots"
+        run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e:screenshots"
 
   pre-publish:
     needs: [pr-build, e2e-test]

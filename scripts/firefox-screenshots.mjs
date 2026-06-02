@@ -1,13 +1,12 @@
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Builder, By, Key } from 'selenium-webdriver';
-import { Context, Options, ServiceBuilder } from 'selenium-webdriver/firefox.js';
+import { By, Key } from 'selenium-webdriver';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
-const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+import { launchFirefoxAddon, quitFirefox, ROOT_DIR, sleep, waitUntil } from './lib/firefox-webdriver.mjs';
+
 const ADDON_DIR = resolve(ROOT_DIR, 'build/firefox');
 const BASELINE_DIR = resolve(ROOT_DIR, 'tests/e2e/screenshots.firefox.spec.ts-snapshots');
 const RESULT_DIR = resolve(ROOT_DIR, 'test-results/firefox-screenshots');
@@ -154,68 +153,12 @@ function scenario(area, name, setup) {
   return { area, name, setup };
 }
 
-function sleep(milliseconds) {
-  return new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
-}
-
-function findFirefoxBinary() {
-  const candidates = [
-    process.env.FIREFOX_BIN,
-    '/Applications/Firefox.app/Contents/MacOS/firefox',
-    '/usr/bin/firefox',
-    '/usr/bin/firefox-esr',
-  ];
-
-  if (existsSync('/ms-playwright')) {
-    for (const directory of readdirSync('/ms-playwright')) {
-      if (directory.startsWith('firefox-')) {
-        candidates.push(`/ms-playwright/${directory}/firefox/firefox`);
-      }
-    }
-  }
-
-  return candidates.find((candidate) => candidate && existsSync(candidate));
-}
-
-async function waitUntil(predicate, description, timeout = 10_000) {
-  const start = Date.now();
-
-  while (Date.now() - start < timeout) {
-    if (await predicate()) {
-      return;
-    }
-
-    await sleep(50);
-  }
-
-  throw new Error(`Timed out waiting for ${description}`);
-}
-
 async function main() {
-  if (!existsSync(resolve(ADDON_DIR, 'manifest.json'))) {
-    throw new Error('Missing build/firefox. Run pnpm build:firefox first.');
-  }
-
   mkdirSync(RESULT_DIR, { recursive: true });
 
-  const firefoxBinary = findFirefoxBinary();
-  const options = new Options().addArguments('-headless');
-  if (firefoxBinary) {
-    options.setBinary(firefoxBinary);
-  }
-
-  const geckodriver = process.env.GECKODRIVER_BIN || resolve(ROOT_DIR, 'node_modules/.bin/geckodriver');
-  const service = new ServiceBuilder(geckodriver).addArguments('--allow-system-access');
-  const driver = await new Builder()
-    .forBrowser('firefox')
-    .setFirefoxOptions(options)
-    .setFirefoxService(service)
-    .build();
+  const { driver, popupUrl } = await launchFirefoxAddon({ addonDir: ADDON_DIR, viewport: VIEWPORT });
 
   try {
-    await setViewportSize(driver, VIEWPORT);
-    const addonId = await driver.installAddon(ADDON_DIR, true);
-    const popupUrl = await getPopupUrl(driver, addonId);
     const browser = createBrowserHelpers(driver, popupUrl);
     const selectedScenarios = scenarios
       .flatMap((item) => ['light', 'dark'].map((theme) => ({ ...item, theme })))
@@ -236,45 +179,7 @@ async function main() {
       await assertScreenshot(driver, snapshotName);
     }
   } finally {
-    await driver.quit().catch((error) => {
-      process.stderr.write(`Firefox shutdown warning: ${error.message}\n`);
-    });
-  }
-}
-
-async function setViewportSize(driver, viewport) {
-  await driver.manage().window().setRect({ ...viewport, x: 0, y: 0 });
-
-  const size = await driver.executeScript('return { width: window.innerWidth, height: window.innerHeight }');
-  await driver.manage().window().setRect({
-    width: viewport.width + (viewport.width - size.width),
-    height: viewport.height + (viewport.height - size.height),
-    x: 0,
-    y: 0,
-  });
-
-  await waitUntil(async () => {
-    const currentSize = await driver.executeScript('return { width: window.innerWidth, height: window.innerHeight }');
-    return currentSize.width === viewport.width && currentSize.height === viewport.height;
-  }, `${viewport.width}x${viewport.height} Firefox viewport`);
-}
-
-async function getPopupUrl(driver, addonId) {
-  await driver.setContext(Context.CHROME);
-
-  try {
-    const rawUuids = await driver.executeScript(
-      'return Services.prefs.getStringPref("extensions.webextensions.uuids")',
-    );
-    const uuid = JSON.parse(rawUuids)[addonId];
-
-    if (!uuid) {
-      throw new Error(`Firefox did not assign an internal UUID to ${addonId}`);
-    }
-
-    return `moz-extension://${uuid}/popup.html`;
-  } finally {
-    await driver.setContext(Context.CONTENT);
+    await quitFirefox(driver);
   }
 }
 
