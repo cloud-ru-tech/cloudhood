@@ -397,20 +397,13 @@ test.describe('Request Headers', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 5: Verify that the header is restored
-    // After reload, add a header again
-    const addHeaderButtonAfterReload = page.locator('[data-test-id="add-request-header-button"]');
-    await addHeaderButtonAfterReload.click();
-
-    await page.waitForTimeout(1000);
-
     const headerNameFieldAfterReload = page.locator('[data-test-id="header-name-input"] input').first();
     const headerValueFieldAfterReload = page.locator('[data-test-id="header-value-input"] input').first();
 
-    // Verify that fields are available for input after reload
     await expect(headerNameFieldAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerValueFieldAfterReload).toBeVisible({ timeout: 10000 });
-    await expect(headerNameFieldAfterReload).toBeEnabled();
-    await expect(headerValueFieldAfterReload).toBeEnabled();
+    await expect(headerNameFieldAfterReload).toHaveValue('X-Persistent-Header');
+    await expect(headerValueFieldAfterReload).toHaveValue('persistent-value');
   });
 
   /**

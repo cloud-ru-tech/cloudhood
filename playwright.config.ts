@@ -22,6 +22,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chrome-extension',
+      testIgnore: 'screenshots.spec.ts',
       use: {
         browserName: 'chromium',
         launchOptions: {
@@ -30,11 +31,12 @@ export default defineConfig({
       },
     },
     {
-      name: 'firefox-extension',
+      name: 'chrome-screenshots',
+      testMatch: 'screenshots.spec.ts',
       use: {
-        browserName: 'firefox',
+        browserName: 'chromium',
         launchOptions: {
-          args: ['--no-sandbox'],
+          args: ['--no-sandbox', '--disable-web-security'],
         },
       },
     },

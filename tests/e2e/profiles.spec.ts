@@ -2,6 +2,17 @@ import type { Page } from '@playwright/test';
 
 import { expect, test } from './fixtures';
 
+const setupClipboardMock = async (page: Page) => {
+  await page.addInitScript(() => {
+    const win = window as typeof window & { __mockClipboard?: string };
+    win.__mockClipboard = '';
+    navigator.clipboard.writeText = async (text: string) => {
+      win.__mockClipboard = text;
+    };
+    navigator.clipboard.readText = async () => win.__mockClipboard ?? '';
+  });
+};
+
 const addAndFillHeader = async (page: Page, name: string, value: string) => {
   const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
   await addHeaderButton.click();
@@ -159,6 +170,7 @@ test.describe('Profile Actions', () => {
    * 6. Verify that the data was copied (via clipboard API)
    */
   test('should copy profile to clipboard', async ({ page, extensionId }) => {
+    await setupClipboardMock(page);
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
@@ -177,45 +189,11 @@ test.describe('Profile Actions', () => {
     const copyButton = page.locator('button', { hasText: 'Copy' });
     await expect(copyButton).toBeVisible();
 
-    // Grant clipboard permissions before copying
-    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
-
     await copyButton.click();
 
     // Verify that data was copied to the clipboard
-    // Use expect.poll for reliable clipboard state checks
-    try {
-      await expect
-        .poll(
-          async () => {
-            try {
-              const text = await page.evaluate(async () => {
-                if (!navigator.clipboard || !navigator.clipboard.readText) {
-                  return null;
-                }
-                return await navigator.clipboard.readText();
-              });
-              return text;
-            } catch {
-              return null;
-            }
-          },
-          { timeout: 5000 },
-        )
-        .toContain('X-Test-Header');
-
-      const clipboardText = await page.evaluate(async () => {
-        if (!navigator.clipboard || !navigator.clipboard.readText) {
-          throw new Error('Clipboard API not available');
-        }
-        return await navigator.clipboard.readText();
-      });
-      expect(clipboardText).toContain('test-value');
-    } catch {
-      // If clipboard API is unavailable, verify that the Copy button was clicked
-      // and the modal is still open (meaning copying was initiated)
-      await expect(copyButton).toBeVisible();
-    }
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain('X-Test-Header');
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain('test-value');
   });
 
   /**
@@ -380,6 +358,8 @@ test.describe('Profile Actions', () => {
 
     // Verify that the profile was imported
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');
-    await expect(headerNameField.first()).toBeVisible({ timeout: 5000 });
+    const headerValueField = page.locator('[data-test-id="header-value-input"] input');
+    await expect(headerNameField.first()).toHaveValue('X-ModHeader-Header', { timeout: 5000 });
+    await expect(headerValueField.first()).toHaveValue('modheader-value');
   });
 });

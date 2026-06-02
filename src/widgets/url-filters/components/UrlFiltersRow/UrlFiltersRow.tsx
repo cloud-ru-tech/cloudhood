@@ -91,7 +91,13 @@ export function UrlFiltersRow(props: UrlFilter) {
         </Tooltip>
       </S.UrlFilterFieldWrapper>
 
-      <ButtonFunction disabled={isPaused} size='s' icon={<CrossSVG />} onClick={() => onUrlFiltersRemoved([id])} />
+      <ButtonFunction
+        disabled={isPaused}
+        size='s'
+        icon={<CrossSVG />}
+        onClick={() => onUrlFiltersRemoved([id])}
+        data-test-id='remove-url-filter-button'
+      />
       <UrlFiltersMenu {...props} />
     </S.Wrapper>
   );

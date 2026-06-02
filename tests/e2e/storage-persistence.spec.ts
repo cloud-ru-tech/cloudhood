@@ -121,14 +121,7 @@ test.describe('Storage Persistence', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Step 2: Add a request header on the Headers tab
-    const addHeaderButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButton.click();
-
-    // Step 3: Fill header fields
+    // Step 2: Fill header fields
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
@@ -197,16 +190,12 @@ test.describe('Storage Persistence', () => {
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
+    const urlFiltersTab = page.getByRole('tab', { name: 'URL Filters' });
 
-    if (await headerNameInput.isVisible()) {
-      await expect(headerNameInput).toBeDisabled();
-    }
-    if (await headerValueInput.isVisible()) {
-      await expect(headerValueInput).toBeDisabled();
-    }
-    if (await urlFilterInput.isVisible()) {
-      await expect(urlFilterInput).toBeDisabled();
-    }
+    await expect(headerNameInput).toBeDisabled();
+    await expect(headerValueInput).toBeDisabled();
+    await urlFiltersTab.click();
+    await expect(urlFilterInput).toBeDisabled();
 
     // Step 5: Reload the page to check persistence
     await page.reload();
@@ -214,15 +203,11 @@ test.describe('Storage Persistence', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 6: Verify that the pause state persisted
-    if (await headerNameInput.isVisible()) {
-      await expect(headerNameInput).toBeDisabled();
-    }
-    if (await headerValueInput.isVisible()) {
-      await expect(headerValueInput).toBeDisabled();
-    }
-    if (await urlFilterInput.isVisible()) {
-      await expect(urlFilterInput).toBeDisabled();
-    }
+    await page.getByRole('tab', { name: 'URL Filters' }).click();
+    await expect(urlFilterInput).toBeDisabled();
+    await page.getByRole('tab', { name: 'Headers' }).click();
+    await expect(headerNameInput).toBeDisabled();
+    await expect(headerValueInput).toBeDisabled();
   });
 
   /**
@@ -243,17 +228,7 @@ test.describe('Storage Persistence', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Step 2: Add a request header
-    const addHeaderButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButton.click();
-
-    // Wait for header fields to appear
-    await page.waitForTimeout(500);
-
-    // Step 3: Fill data in the first profile
+    // Step 2: Fill data in the first profile
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
@@ -285,29 +260,17 @@ test.describe('Storage Persistence', () => {
     await expect(headerNameInput).toHaveValue('X-Env');
     await expect(headerValueInput).toHaveValue('development');
 
-    // Step 4: Verify the profile selector (if available)
-    const profileSelect = page.locator('[data-test-id="profile-select"]').first();
-    if (await profileSelect.isVisible()) {
-      await expect(profileSelect).toBeVisible();
+    // Step 4: Add a profile and verify that profile data stays isolated
+    const profileOptions = page.locator('[data-test-id="profile-select"]');
+    const profilesCountBefore = await profileOptions.count();
+    await page.locator('[data-test-id="add-profile-button"]').click();
+    await expect(profileOptions).toHaveCount(profilesCountBefore + 1);
+    await expect(headerNameInput).toHaveValue('');
+    await expect(headerValueInput).toHaveValue('');
 
-      // Verify that you can switch between profiles
-      const profileOptions = page.locator('[data-test-id="profile-select"]');
-      const profileCount = await profileOptions.count();
-
-      if (profileCount > 1) {
-        // Switch to the second profile
-        const secondProfile = page.locator('[data-test-id="profile-select"]').nth(1);
-        await secondProfile.click();
-
-        // Wait for UI updates after switching profiles
-        await page.waitForTimeout(1000);
-
-        // Verify that the new profile is usable
-        // (data may not be cleared automatically in the test environment)
-        await expect(headerNameInput).toBeEnabled();
-        await expect(headerValueInput).toBeEnabled();
-      }
-    }
+    await profileOptions.first().click();
+    await expect(headerNameInput).toHaveValue('X-Env');
+    await expect(headerValueInput).toHaveValue('development');
   });
 
   /**
@@ -327,17 +290,7 @@ test.describe('Storage Persistence', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Step 2: Add a request header
-    const addHeaderButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButton.click();
-
-    // Wait for header fields to appear
-    await page.waitForTimeout(500);
-
-    // Step 3: Fill fields with complex data
+    // Step 2: Fill fields with complex data
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
@@ -376,29 +329,20 @@ test.describe('Storage Persistence', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // After reload, add a header again for verification
-    const addHeaderButtonAfterReload = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButtonAfterReload.click();
-    await page.waitForTimeout(500);
-
     const headerNameInputAfterReload = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInputAfterReload = page.locator('[data-test-id="header-value-input"] input');
 
     await expect(headerNameInputAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerValueInputAfterReload).toBeVisible({ timeout: 10000 });
 
-    // Verify fields are available for input (data may not persist in tests)
-    await expect(headerNameInputAfterReload).toBeEnabled();
-    await expect(headerValueInputAfterReload).toBeEnabled();
+    await expect(headerNameInputAfterReload).toHaveValue('X-Special-Header-123');
+    await expect(headerValueInputAfterReload).toHaveValue('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
 
-    // Switch to URL Filters and check availability
+    // Switch to URL Filters and verify the restored value
     const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTabAfterReload.click();
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
-    await expect(urlFilterInputAfterReload).toBeEnabled();
+    await expect(urlFilterInputAfterReload).toHaveValue('*://api.example.com/v1/*');
   });
 
   /**
@@ -418,17 +362,7 @@ test.describe('Storage Persistence', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Step 2: Add a request header
-    const addHeaderButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButton.click();
-
-    // Wait for header fields to appear
-    await page.waitForTimeout(500);
-
-    // Step 3: Fill fields with data for validation
+    // Step 2: Fill fields with data for validation
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
 
@@ -439,6 +373,8 @@ test.describe('Storage Persistence', () => {
     // Test header validation (invalid characters)
     await headerNameInput.fill('Invalid Header Name!');
     await headerValueInput.fill('valid-value');
+    await headerNameInput.blur();
+    await expect(headerNameInput.locator('xpath=..')).toHaveAttribute('data-validation', 'error');
 
     // Switch to URL Filters and test filter validation
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
@@ -454,26 +390,20 @@ test.describe('Storage Persistence', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Add a header again after reload
-    const addHeaderButtonAfterReload = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButtonAfterReload.click();
-
     const headerNameInputAfterReload = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInputAfterReload = page.locator('[data-test-id="header-value-input"] input');
 
-    // Verify that fields are available for input after reload
+    // Verify that invalid data was restored and remains visibly invalid
     await expect(headerNameInputAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerValueInputAfterReload).toBeVisible({ timeout: 10000 });
-    await expect(headerNameInputAfterReload).toBeEnabled();
-    await expect(headerValueInputAfterReload).toBeEnabled();
+    await expect(headerNameInputAfterReload).toHaveValue('Invalid Header Name!');
+    await expect(headerValueInputAfterReload).toHaveValue('valid-value');
+    await expect(headerNameInputAfterReload.locator('xpath=..')).toHaveAttribute('data-validation', 'error');
 
-    // Switch to URL Filters and check availability
+    // Switch to URL Filters and verify that its value was restored
     const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
     await urlFiltersTabAfterReload.click();
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
-    await expect(urlFilterInputAfterReload).toBeEnabled();
+    await expect(urlFilterInputAfterReload).toHaveValue('invalid-url-pattern');
   });
 });

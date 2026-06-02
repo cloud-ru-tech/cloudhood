@@ -1,4 +1,17 @@
+import type { Page } from '@playwright/test';
+
 import { expect, test } from './fixtures';
+
+const setupClipboardMock = async (page: Page) => {
+  await page.addInitScript(() => {
+    const win = window as typeof window & { __mockClipboard?: string };
+    win.__mockClipboard = '';
+    navigator.clipboard.writeText = async (text: string) => {
+      win.__mockClipboard = text;
+    };
+    navigator.clipboard.readText = async () => win.__mockClipboard ?? '';
+  });
+};
 
 test.describe('URL Filters', () => {
   /**
@@ -273,20 +286,17 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue('https://api.example.com/*');
 
     // Step 3: Find the add filter button
-    const addFilterButton = page.locator('[data-test-id="url-filters-section"]').locator('button').first();
+    const addFilterButton = page.locator('[data-test-id="add-url-filter-button"]');
+    await expect(addFilterButton).toBeVisible();
+    await addFilterButton.click();
 
-    // If the add button is found, add a second filter
-    if (await addFilterButton.isVisible()) {
-      await addFilterButton.click();
+    // Verify that a second filter appeared
+    const urlFilterInputs = page.locator('[data-test-id="url-filter-input"] input');
+    await expect(urlFilterInputs).toHaveCount(2);
 
-      // Verify that a second filter appeared
-      const urlFilterInputs = page.locator('[data-test-id="url-filter-input"] input');
-      await expect(urlFilterInputs).toHaveCount(2);
-
-      // Fill the second filter
-      await urlFilterInputs.nth(1).fill('https://cdn.example.com/*');
-      await expect(urlFilterInputs.nth(1)).toHaveValue('https://cdn.example.com/*');
-    }
+    // Fill the second filter
+    await urlFilterInputs.nth(1).fill('https://cdn.example.com/*');
+    await expect(urlFilterInputs.nth(1)).toHaveValue('https://cdn.example.com/*');
   });
 
   /**
@@ -320,15 +330,12 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue('https://example.com/*');
 
     // Step 3: Find the remove filter button
-    const removeFilterButton = page.locator('[data-test-id="url-filter-input"]').locator('button').last();
+    const removeFilterButton = page.locator('[data-test-id="remove-url-filter-button"]');
+    await expect(removeFilterButton).toBeVisible();
+    await removeFilterButton.click();
 
-    // If the remove button is found, remove the filter
-    if (await removeFilterButton.isVisible()) {
-      await removeFilterButton.click();
-
-      // Verify that the filter is removed (field should be empty or gone)
-      await expect(urlFilterInput).toHaveValue('');
-    }
+    // Verify that the filter row is removed
+    await expect(urlFilterInput).toHaveCount(0);
   });
 
   /**
@@ -402,8 +409,7 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue('https://api.example.com/*');
 
     // Step 4: Open the filter actions menu
-    const urlFilterRow = page.locator('[data-test-id="url-filter-input"]').locator('xpath=..');
-    const menuButton = urlFilterRow.locator('button').last();
+    const menuButton = page.locator('[data-test-id="url-filter-menu-button"]');
     await menuButton.click();
 
     // Step 5: Select "Duplicate"
@@ -431,6 +437,8 @@ test.describe('URL Filters', () => {
    * 6. Verify that the value is copied to the clipboard
    */
   test('should copy URL filter to clipboard', async ({ page, extensionId }) => {
+    await setupClipboardMock(page);
+
     // Step 1: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
@@ -449,16 +457,15 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue(testValue);
 
     // Step 4: Open the filter actions menu
-    const urlFilterRow = page.locator('[data-test-id="url-filter-input"]').locator('xpath=..');
-    const menuButton = urlFilterRow.locator('button').last();
+    const menuButton = page.locator('[data-test-id="url-filter-menu-button"]');
     await menuButton.click();
 
     // Step 5: Select "Copy"
     const copyOption = page.locator('[role="menuitem"]:has-text("Copy")');
     await copyOption.click();
 
-    // Step 6: Verify that the copy option was selected (menu closed)
-    await expect(copyOption).not.toBeVisible();
+    // Step 6: Verify that the value was copied
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(testValue);
   });
 
   /**
@@ -492,8 +499,7 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue('https://clear.example.com/*');
 
     // Step 4: Open the filter actions menu
-    const urlFilterRow = page.locator('[data-test-id="url-filter-input"]').locator('xpath=..');
-    const menuButton = urlFilterRow.locator('button').last();
+    const menuButton = page.locator('[data-test-id="url-filter-menu-button"]');
     await menuButton.click();
 
     // Step 5: Select "Clear Value"
@@ -535,10 +541,7 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue('https://test.example.com/*');
 
     // Step 4: Click "Remove all"
-    const removeAllButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .last();
+    const removeAllButton = page.locator('[data-test-id="remove-all-url-filters-button"]');
     await removeAllButton.click();
 
     // Step 5: Confirm deletion in the modal
@@ -605,10 +608,7 @@ test.describe('URL Filters', () => {
     await expect(urlFilterInput).toHaveValue('https://cancel.example.com/*');
 
     // Step 4: Click "Remove all"
-    const removeAllButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .last();
+    const removeAllButton = page.locator('[data-test-id="remove-all-url-filters-button"]');
     await removeAllButton.click();
 
     // Step 5: Cancel deletion in the modal
