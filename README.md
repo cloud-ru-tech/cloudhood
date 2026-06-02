@@ -202,16 +202,17 @@ Creates a ZIP archive with source code required for Firefox Add-ons submission. 
 
 ## 🚀 Releasing
 
-We use GitHub Actions to automate the release process. The workflow:
+Run the `Release` workflow from the `main` branch to publish a synchronized release. The workflow:
 
-1. Bumps version based on commit messages
-2. Builds extensions for Chrome and Firefox
-3. Creates ZIP archives for both platforms
-4. Creates source code archive for Firefox Add-ons submission
-5. Publishes to Chrome Web Store and Firefox Add-ons (with source code)
-6. Creates a GitHub Release with both extension packages
+1. Determines the next shared version from commits since the latest `v*` tag
+2. Applies the same version to `package.json` and both browser manifests
+3. Builds extensions for Chrome and Firefox
+4. Creates ZIP archives for both platforms
+5. Creates source code archive for Firefox Add-ons submission
+6. Publishes to Chrome Web Store and Firefox Add-ons (with source code)
+7. Creates a GitHub Release with all archives and a commit list
 
-See [RELEASE_SETUP.md](RELEASE_SETUP.md) for details on configuring the release automation.
+See [Release setup](RELEASE_SETUP.md) for details on configuring the release automation.
 
 ## 🤝 Contributing
 

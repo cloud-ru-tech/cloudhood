@@ -30,8 +30,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Detect TypeScript-impacting changes
+        id: typescript_changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed_files"
+
+          if printf '%s\n' "$changed_files" | grep -Eq '^(src/|package\.json$|pnpm-lock\.yaml$|tsconfig\.json$|vite\.config\.ts$|vitest\.config\.ts$|\.github/actions/typescript/)'; then
+            echo "run_typescript=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_typescript=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip TypeScript
+        if: steps.typescript_changes.outputs.run_typescript != 'true'
+        run: echo "Skipping TypeScript because this PR does not change TypeScript inputs."
 
       - name: TypeScript
+        if: steps.typescript_changes.outputs.run_typescript == 'true'
         uses: './.github/actions/typescript'
 
   unit-tests:
@@ -39,22 +61,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Detect unit-test-impacting changes
+        id: unit_changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed_files"
+
+          if printf '%s\n' "$changed_files" | grep -Eq '^(src/|tests/|package\.json$|pnpm-lock\.yaml$|tsconfig\.json$|vite\.config\.ts$|vitest\.config\.ts$)'; then
+            echo "run_unit_tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_unit_tests=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip unit tests
+        if: steps.unit_changes.outputs.run_unit_tests != 'true'
+        run: echo "Skipping unit tests because this PR does not change unit-test inputs."
 
       - name: Setup pnpm
+        if: steps.unit_changes.outputs.run_unit_tests == 'true'
         uses: pnpm/action-setup@v2
         with:
           version: 10.10.0
 
       - name: Install dependencies
+        if: steps.unit_changes.outputs.run_unit_tests == 'true'
         run: pnpm install --frozen-lockfile
         shell: bash
 
       - name: Run unit tests
+        if: steps.unit_changes.outputs.run_unit_tests == 'true'
         run: pnpm test:unit
         shell: bash
 
       - name: Archive test results
-        if: always()
+        if: always() && steps.unit_changes.outputs.run_unit_tests == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: test-results
@@ -149,55 +195,88 @@ jobs:
     needs: [pr-build]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect E2E-impacting changes
+        id: e2e_changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed_files"
+
+          if printf '%s\n' "$changed_files" | grep -Eq '^(src/|tests/e2e/|docker/|docker-compose\.screenshots\.yml$|manifest\.(chromium|firefox)\.json$|package\.json$|pnpm-lock\.yaml$|playwright\.config\.ts$|vite(\.background)?\.config\.ts$|scripts/(firefox-e2e|firefox-screenshots|lib/))'; then
+            echo "run_e2e=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_e2e=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip E2E tests
+        if: steps.e2e_changes.outputs.run_e2e != 'true'
+        run: echo "Skipping extension E2E tests because this PR does not change extension runtime, E2E, or screenshot inputs."
 
       - name: Set short SHA
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         id: set_short_sha
         run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         uses: pnpm/action-setup@v2
         with:
           version: 10.10.0
 
       - name: Setup Node
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Download Chrome build artifact
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         uses: actions/download-artifact@v4
         with:
           name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
 
       - name: Extract Chrome extension
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: |
           mkdir -p build/chrome
           unzip -o cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip -d build/chrome
 
       - name: Download Firefox build artifact
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         uses: actions/download-artifact@v4
         with:
           name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
 
       - name: Extract Firefox extension
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: |
           mkdir -p build/firefox
           unzip -o cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip -d build/firefox
 
       - name: Build Playwright screenshot image
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: docker compose -f docker-compose.screenshots.yml build screenshots
 
       - name: Run functional E2E tests in container
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:ci"
 
       - name: Run Firefox functional E2E tests in container
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:firefox"
 
       - name: Run screenshot tests in container
+        if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e:screenshots"
 
   pre-publish:
