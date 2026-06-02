@@ -468,16 +468,6 @@ test.describe('Basic Functionality', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 6: Verify that data is restored on the Headers tab
-    // First add a header again after reload
-    const addHeaderButtonAfterReload = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-    await addHeaderButtonAfterReload.click();
-
-    // Wait for header fields to appear
-    await page.waitForTimeout(500);
-
     const headerNameFieldAfterReload = page.locator('[data-test-id="header-name-input"] input');
     const headerValueFieldAfterReload = page.locator('[data-test-id="header-value-input"] input');
 
@@ -485,9 +475,8 @@ test.describe('Basic Functionality', () => {
     await expect(headerNameFieldAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerValueFieldAfterReload).toBeVisible({ timeout: 10000 });
 
-    // Verify that fields are available for input after reload
-    await expect(headerNameFieldAfterReload).toBeEnabled();
-    await expect(headerValueFieldAfterReload).toBeEnabled();
+    await expect(headerNameFieldAfterReload).toHaveValue('X-Persistent-Header');
+    await expect(headerValueFieldAfterReload).toHaveValue('persistent-value');
 
     // Switch to URL Filters and check availability
     const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
@@ -495,6 +484,6 @@ test.describe('Basic Functionality', () => {
 
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInputAfterReload).toBeVisible({ timeout: 10000 });
-    await expect(urlFilterInputAfterReload).toBeEnabled();
+    await expect(urlFilterInputAfterReload).toHaveValue('https://persistent.example.com/*');
   });
 });

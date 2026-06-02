@@ -94,10 +94,7 @@ test.describe('General Features', () => {
 
     // Get the service worker to check the badge
     const background = context.serviceWorkers()[0];
-    if (!background) {
-      // If the service worker is unavailable, skip the badge check
-      return;
-    }
+    expect(background).toBeDefined();
 
     // Add a request header
     const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
@@ -111,51 +108,41 @@ test.describe('General Features', () => {
     await headerValueField.fill('icon-test-value');
 
     // Check the badge via the service worker, waiting for the value to update
-    try {
-      await expect
-        .poll(
-          async () =>
-            await background.evaluate(
-              () =>
-                new Promise<string>(resolve => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (chrome as any).action.getBadgeText({}, (text: string) => {
-                    resolve(text || '');
-                  });
-                }),
-            ),
-          { timeout: 4000 },
-        )
-        .toBeTruthy();
-    } catch {
-      // If the badge check fails, it's not critical for the test
-      // In headless mode the badge may be unavailable
-    }
+    await expect
+      .poll(
+        async () =>
+          await background!.evaluate(
+            () =>
+              new Promise<string>(resolve => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (chrome as any).action.getBadgeText({}, (text: string) => {
+                  resolve(text || '');
+                });
+              }),
+          ),
+        { timeout: 4000 },
+      )
+      .toBeTruthy();
 
     // Enable pause mode
     const pauseButton = page.locator('[data-test-id="pause-button"]');
     await pauseButton.click();
     // Verify that the icon switched to paused (via badge, which should be empty)
-    try {
-      await expect
-        .poll(
-          async () =>
-            await background.evaluate(
-              () =>
-                new Promise<string>(resolve => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (chrome as any).action.getBadgeText({}, (text: string) => {
-                    resolve(text || '');
-                  });
-                }),
-            ),
-          { timeout: 4000 },
-        )
-        .toBe('');
-    } catch {
-      // If the badge check fails, it's not critical for the test
-      // In headless mode the badge may be unavailable
-    }
+    await expect
+      .poll(
+        async () =>
+          await background!.evaluate(
+            () =>
+              new Promise<string>(resolve => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (chrome as any).action.getBadgeText({}, (text: string) => {
+                  resolve(text || '');
+                });
+              }),
+          ),
+        { timeout: 4000 },
+      )
+      .toBe('');
   });
 
   /**
@@ -212,30 +199,10 @@ test.describe('General Features', () => {
     await expect(githubButton).toBeEnabled();
 
     // In headless mode window.open may behave differently, so track new tab creation
-    const pagePromise = context.waitForEvent('page', { timeout: 10000 }).catch(() => null);
-    await githubButton.click();
-
-    // Check if a new page opened
-    const newPage = await pagePromise;
-
-    if (newPage) {
-      // GitHub keeps background requests alive; networkidle often never fires in CI.
-      await newPage.waitForLoadState('load');
-      const url = newPage.url();
-      expect(url).toContain('github.com');
-      expect(url).toContain('cloud-ru-tech');
-      expect(url).toContain('cloudhood');
-      await newPage.close();
-    } else {
-      // If no new page opened (may happen in headless mode),
-      // verify the click handler via button clickability and onClick presence
-      const isClickable = await githubButton.isEnabled();
-      expect(isClickable).toBe(true);
-
-      // Verify the URL via package.json (already verified in code)
-      // In this case the test passes since functionality works,
-      // but headless mode may not open a new page
-    }
+    const [newPage] = await Promise.all([context.waitForEvent('page', { timeout: 10000 }), githubButton.click()]);
+    await newPage.waitForLoadState('domcontentloaded');
+    expect(newPage.url()).toBe('https://github.com/cloud-ru-tech/cloudhood');
+    await newPage.close();
   });
 
   /**

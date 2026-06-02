@@ -11,7 +11,11 @@ export const test = base.extend<{
   extensionId: string;
 }>({
   // eslint-disable-next-line no-empty-pattern
-  context: async ({}, use) => {
+  context: async ({ browserName }, use) => {
+    if (browserName !== 'chromium') {
+      throw new Error(`Unsupported e2e browser "${browserName}". Unpacked extension tests currently require Chromium.`);
+    }
+
     const pathToExtension = path.join(__dirname, '..', '..', 'build', 'chrome');
     const context = await chromium.launchPersistentContext('', {
       channel: 'chromium',
@@ -21,65 +25,13 @@ export const test = base.extend<{
     await context.close();
   },
   extensionId: async ({ context }, use) => {
-    // Give the extension time to initialize
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    let background;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    // Try to get the service worker with retries
-    while (attempts < maxAttempts) {
-      const serviceWorkers = context.serviceWorkers();
-      if (serviceWorkers.length > 0) {
-        background = serviceWorkers[0];
-        break;
-      }
-
-      try {
-        background = await context.waitForEvent('serviceworker', { timeout: 3000 });
-        break;
-      } catch {
-        attempts++;
-        if (attempts < maxAttempts) {
-          // Wait a bit before the next attempt
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
-    }
-
-    if (!background) {
-      // Try to get the extension ID directly from the context
-      const pages = context.pages();
-      for (const page of pages) {
-        const url = page.url();
-        if (url.startsWith('chrome-extension://')) {
-          const extensionId = url.split('/')[2];
-          await use(extensionId);
-          return;
-        }
-      }
-
-      // Try to open a new page with the extension
-      try {
-        const newPage = await context.newPage();
-        await newPage.goto('chrome-extension://invalid/popup.html');
-        const url = newPage.url();
-        if (url.startsWith('chrome-extension://')) {
-          const extensionId = url.split('/')[2];
-          await newPage.close();
-          await use(extensionId);
-          return;
-        }
-        await newPage.close();
-      } catch (_error) {
-        // Ignore errors
-      }
-
-      throw new Error(`Service worker did not start after ${maxAttempts} attempts`);
-    }
+    const background = context.serviceWorkers()[0] ?? (await context.waitForEvent('serviceworker', { timeout: 10000 }));
 
     const extensionId = background.url().split('/')[2];
+    if (!extensionId) {
+      throw new Error(`Unable to determine extension ID from service worker URL "${background.url()}"`);
+    }
+
     await use(extensionId);
   },
 });

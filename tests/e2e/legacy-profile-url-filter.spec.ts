@@ -44,17 +44,16 @@ test.describe('Legacy Profile URL Filter', () => {
 
     // Configure storage with the legacy profile via the service worker
     const background = context.serviceWorkers()[0];
-    if (background) {
-      await background.evaluate(
-        profileData =>
-          chrome.storage.local.set({
-            requestHeaderProfilesV1: JSON.stringify(profileData),
-            selectedHeaderProfileV1: profileData[0].id,
-            isPausedV1: false,
-          }),
-        legacyProfile,
-      );
-    }
+    expect(background).toBeDefined();
+    await background!.evaluate(
+      profileData =>
+        chrome.storage.local.set({
+          requestHeaderProfilesV1: JSON.stringify(profileData),
+          selectedHeaderProfileV1: profileData[0].id,
+          isPausedV1: false,
+        }),
+      legacyProfile,
+    );
 
     // Step 2: Open the extension popup
     await page.goto(`chrome-extension://${extensionId}/popup.html`);

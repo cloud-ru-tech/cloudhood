@@ -181,8 +181,11 @@ jobs:
       - name: Build Playwright screenshot image
         run: docker compose -f docker-compose.screenshots.yml build screenshots
 
-      - name: Run E2E tests in container
+      - name: Run functional E2E tests in container
         run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:ci"
+
+      - name: Run screenshot tests in container
+        run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm test:e2e:screenshots"
 
   pre-publish:
     needs: [pr-build, e2e-test]
