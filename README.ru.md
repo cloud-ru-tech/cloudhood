@@ -69,10 +69,16 @@ pnpm dev:firefox
 4. Выберите папку `build/chrome`
 
 #### Firefox
-1. Откройте `about:debugging`
-2. Нажмите "Этот Firefox"
+1. Соберите расширение и запустите watcher для разработки:
+   ```bash
+   pnpm build:firefox
+   pnpm dev:firefox
+   ```
+2. Откройте `about:debugging#/runtime/this-firefox`
 3. Нажмите "Загрузить временное дополнение"
 4. Выберите файл `build/firefox/manifest.json`
+
+Watcher пересобирает popup при изменении его исходных файлов. Автоматический reload для Firefox сейчас не поддерживается, поэтому после пересборки нажмите "Перезагрузить" для Cloudhood на странице `about:debugging`. Если изменился `src/background.ts`, остановите watcher, выполните `pnpm build:firefox` и снова запустите `pnpm dev:firefox`.
 
 ## 🧪 Тестирование
 
@@ -113,7 +119,7 @@ import { expect, test } from './fixtures';
 # Разработка для Chrome с hot reload
 pnpm dev:chrome
 
-# Разработка для Firefox с hot reload
+# Watcher для разработки под Firefox
 pnpm dev:firefox
 
 # Сборка для Chrome
