@@ -23,6 +23,8 @@
     "reinstall": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "test:e2e": "HEADLESS=false playwright test --project=chrome-extension",
     "test:e2e:ci": "HEADLESS=true playwright test --project=chrome-extension --reporter=line --max-failures=2",
+    "test:e2e:firefox": "node scripts/firefox-e2e.mjs",
+    "test:e2e:firefox:docker": "docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc \"pnpm install --frozen-lockfile && pnpm build:firefox && pnpm test:e2e:firefox\"",
     "test:e2e:screenshots": "pnpm test:e2e:screenshots:chrome && pnpm test:e2e:screenshots:firefox",
     "test:e2e:screenshots:update": "pnpm test:e2e:screenshots:chrome:update && pnpm test:e2e:screenshots:firefox:update",
     "test:e2e:screenshots:chrome": "playwright test --project=chrome-screenshots",
