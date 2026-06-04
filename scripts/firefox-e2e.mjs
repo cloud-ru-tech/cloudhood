@@ -30,6 +30,7 @@ const selectors = {
   profileSelect: '[data-test-id="profile-select"]',
   removeAllUrlFiltersButton: '[data-test-id="remove-all-url-filters-button"]',
   removeHeaderButton: '[data-test-id="remove-request-header-button"]',
+  removeProfileButton: '[data-test-id="remove-profile-button"]',
   removeUrlFilterButton: '[data-test-id="remove-url-filter-button"]',
   themeToggle: '[data-test-id="theme-toggle-button"]',
   urlFilterCheckbox: '[data-test-id="url-filter-checkbox"]',
@@ -256,7 +257,7 @@ async function main() {
         async () => {
           assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 0), 'true');
           await browser.clickTab('URL Filters');
-          assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 1), 'true');
+          assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 2), 'true');
           assert.equal(await browser.count(selectors.urlFiltersSection), 1);
           await browser.clickTab('Headers');
           assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 0), 'true');
@@ -425,8 +426,11 @@ async function main() {
             async () => (await browser.count(selectors.profileNameInput)) === 0,
             'profile rename to finish',
           );
-          await browser.click(selectors.profileActionsButton);
-          await browser.clickMenuItem('Delete profile');
+          await waitUntil(
+            () => browser.enabled(selectors.removeProfileButton),
+            'remove profile button to become enabled',
+          );
+          await browser.click(selectors.removeProfileButton);
           await waitForCount(browser, selectors.profileSelect, initialCount);
           assert.equal(await browser.value(selectors.headerNameInput), 'X-Profile-One');
         },
