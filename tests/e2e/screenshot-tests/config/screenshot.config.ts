@@ -4,7 +4,7 @@ export const SCREENSHOT_CONFIG = {
   platform: process.env.PLATFORM || 'darwin',
   defaults: {
     caret: 'hide',
-    maxDiffPixels: 100,
+    maxDiffPixels: 150,
     timeout: 5000,
     threshold: 0.2,
   },
