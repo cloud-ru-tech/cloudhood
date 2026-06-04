@@ -143,7 +143,12 @@ function createBrowser(driver, popupUrl) {
       await clickXpath(`//*[@role="menuitem" and contains(normalize-space(.), "${text}")]`, `menu item "${text}"`);
     },
     clickTab: async text => {
-      await clickXpath(`//*[@role="tab" and contains(normalize-space(.), "${text}")]`, `tab "${text}"`);
+      const xpath = `//*[@role="tab" and contains(normalize-space(.), "${text}")]`;
+      await clickXpath(xpath, `tab "${text}"`);
+      await waitUntil(async () => {
+        const [tab] = await driver.findElements(By.xpath(xpath));
+        return Boolean(tab) && (await tab.getAttribute('aria-selected')) === 'true';
+      }, `tab "${text}" to become selected`);
     },
     count: async selector => (await elements(selector)).length,
     dynamicRules: async () => driver.executeScript('return browser.declarativeNetRequest.getDynamicRules()'),
