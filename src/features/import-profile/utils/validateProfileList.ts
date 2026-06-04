@@ -1,4 +1,4 @@
-import { Profile, RequestHeader } from '#entities/request-profile/types';
+import { Profile, RequestCookie, RequestHeader } from '#entities/request-profile/types';
 import { generateIdWithExcludeList } from '#shared/utils/generateId';
 
 export function validateProfileList(profileList: Profile[], existingProfileList: Profile[]) {
@@ -45,6 +45,32 @@ export function validateProfileList(profileList: Profile[], existingProfileList:
       }
     });
 
+    if (profile.requestCookies !== undefined && !Array.isArray(profile.requestCookies)) {
+      throw new Error(`The profile ${currentProfileNumber} "requestCookies" value must be an array`);
+    }
+
+    (profile.requestCookies ?? []).forEach((cookie: Partial<RequestCookie>, cookieIndex: number) => {
+      const currentCookieNumber = cookieIndex + 1;
+
+      if (typeof cookie.name !== 'string') {
+        throw new Error(
+          `The cookie ${currentCookieNumber} in profile ${currentProfileNumber} must have a string "name" value`,
+        );
+      }
+
+      if (typeof cookie.value !== 'string') {
+        throw new Error(
+          `The cookie ${currentCookieNumber} in profile ${currentProfileNumber} must have a string "value" value`,
+        );
+      }
+
+      if (typeof cookie.disabled !== 'boolean') {
+        throw new Error(
+          `The cookie ${currentCookieNumber} in profile ${currentProfileNumber} must have a boolean "disabled" value`,
+        );
+      }
+    });
+
     existingProfileList.forEach((existingProfile, existingProfileIndex) => {
       const currentExistingProfileNumber = existingProfileIndex + 1;
 
@@ -74,6 +100,9 @@ export function generateProfileList(profileList: Profile[], existingProfileList:
   const existingProfileRequestHeadersListId = existingProfileList.flatMap(profile =>
     profile.requestHeaders.map(header => header.id),
   );
+  const existingProfileRequestCookiesListId = existingProfileList.flatMap(profile =>
+    (profile.requestCookies ?? []).map(cookie => cookie.id),
+  );
 
   return profileList.map(profile => ({
     ...profile,
@@ -81,6 +110,10 @@ export function generateProfileList(profileList: Profile[], existingProfileList:
     requestHeaders: profile.requestHeaders.map((header: RequestHeader) => ({
       ...header,
       id: generateIdWithExcludeList(existingProfileRequestHeadersListId),
+    })),
+    requestCookies: (profile.requestCookies ?? []).map((cookie: RequestCookie) => ({
+      ...cookie,
+      id: generateIdWithExcludeList(existingProfileRequestCookiesListId),
     })),
     urlFilters: profile.urlFilters || [],
   }));

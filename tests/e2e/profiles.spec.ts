@@ -106,13 +106,10 @@ test.describe('Profile Actions', () => {
     const profilesBefore = page.locator('[data-test-id="profile-select"]');
     const countBefore = await profilesBefore.count();
 
-    // Open the profile actions menu
-    await openProfileActionsMenu(page);
-
-    // Select "Delete profile"
-    const deleteOption = page.getByRole('menuitem', { name: 'Delete profile' });
-    await expect(deleteOption).toBeVisible({ timeout: 5000 });
-    await deleteOption.click();
+    // Delete the selected profile via the dedicated trash button
+    const removeProfileButton = page.locator('[data-test-id="remove-profile-button"]');
+    await expect(removeProfileButton).toBeEnabled({ timeout: 5000 });
+    await removeProfileButton.click();
 
     // Wait for the profile to be removed
     const profilesAfter = page.locator('[data-test-id="profile-select"]');
@@ -228,19 +225,25 @@ test.describe('Profile Actions', () => {
     const jsonTextarea = page.locator('[data-test-id="import-profile-json-textarea"] textarea');
     await expect(jsonTextarea).toBeVisible({ timeout: 10000 });
 
+    // Mirror the real export/import shape: profiles carry no id/name, and headers/cookies/filters
+    // are stored without ids (ids are regenerated on import).
     const importJson = JSON.stringify([
       {
-        id: 'imported-profile-1',
-        name: 'Imported Profile',
+        urlFilters: [],
         requestHeaders: [
           {
-            id: 1,
             name: 'X-Imported-Header',
             value: 'imported-value',
             disabled: false,
           },
         ],
-        urlFilters: [],
+        requestCookies: [
+          {
+            name: 'imported_session',
+            value: 'cookie-value-123',
+            disabled: false,
+          },
+        ],
       },
     ]);
 
@@ -253,6 +256,13 @@ test.describe('Profile Actions', () => {
     // Verify that the profile was imported (check header input)
     const headerNameField = page.locator('[data-test-id="header-name-input"] input');
     await expect(headerNameField.first()).toHaveValue('X-Imported-Header', { timeout: 5000 });
+
+    // Verify that the imported request cookies were applied as well
+    await page.getByRole('tab', { name: 'Request cookies' }).click();
+    const cookieNameField = page.locator('[data-test-id="cookie-name-input"] input');
+    const cookieValueField = page.locator('[data-test-id="cookie-value-input"] input');
+    await expect(cookieNameField.first()).toHaveValue('imported_session', { timeout: 5000 });
+    await expect(cookieValueField.first()).toHaveValue('cookie-value-123');
   });
 
   /**
