@@ -46,6 +46,16 @@ export function ImportFromExtensionModal() {
 
   const textFieldRef = useRef<HTMLTextAreaElement>(null);
 
+  // Preselect ModHeader when opening the modal without a chosen extension. Done here (not via a
+  // store default) so the plain "Import profile" flow keeps a `null` extension name and never runs
+  // an adapter.
+  useEffect(() => {
+    if (!profileImportExtensionName) {
+      onProfileImportExtensionNameChanged(Extensions.ModHeader);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (isError && textFieldRef.current) {
       textFieldRef.current.focus();
