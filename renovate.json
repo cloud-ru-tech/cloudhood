@@ -91,7 +91,13 @@
       "automerge": false
     }
   ],
-  "ignoreDeps": [],
+  "ignoreDeps": [
+    "@snack-uikit/figma-tokens",
+    "react",
+    "react-dom",
+    "@types/react",
+    "@types/react-dom"
+  ],
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"]
