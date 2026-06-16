@@ -9,18 +9,19 @@ export default [
   ...cloudConfig,
   {
     files: ['**/*.ts', '**/*.tsx'],
+    plugins: {
+      effector: effectorPlugin,
+    },
     languageOptions: {
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
-  },
-  effectorPlugin.flatConfigs.recommended,
-  effectorPlugin.flatConfigs.scope,
-  effectorPlugin.flatConfigs.react,
-  {
     rules: {
+      ...effectorPlugin.configs.recommended.rules,
+      ...effectorPlugin.configs.scope.rules,
+      ...effectorPlugin.configs.react.rules,
       '@typescript-eslint/no-namespace': 'off',
       'prettier/prettier': 'off',
     },

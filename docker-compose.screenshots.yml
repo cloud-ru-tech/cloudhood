@@ -8,6 +8,9 @@ services:
       - CI=1
       - HEADLESS=true
       - PLATFORM=linux
+      - GECKODRIVER_CDNURL=https://downloads.sourceforge.net/project/geckodriver.mirror
+      - GECKODRIVER_CACHE_DIR=/app/node_modules/.cache/geckodriver
+      - GECKODRIVER_VERSION=0.37.0
     volumes:
       - .:/app:cached
       - playwright-node-modules:/app/node_modules

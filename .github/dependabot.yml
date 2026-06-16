@@ -19,3 +19,9 @@ updates:
         applies-to: version-updates
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "@snack-uikit/figma-tokens"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "@types/react"
+      - dependency-name: "@types/react-dom"

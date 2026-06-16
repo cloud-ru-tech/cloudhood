@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { download as downloadGeckodriver } from 'geckodriver';
 import { Builder } from 'selenium-webdriver';
 import { Context, Options, ServiceBuilder } from 'selenium-webdriver/firefox.js';
 
@@ -41,6 +42,33 @@ export function findFirefoxBinary() {
   }
 
   return candidates.find(candidate => candidate && existsSync(candidate));
+}
+
+export async function resolveGeckodriverBinary() {
+  if (process.env.GECKODRIVER_BIN) {
+    return process.env.GECKODRIVER_BIN;
+  }
+
+  const cacheDir = process.env.GECKODRIVER_CACHE_DIR || resolve(ROOT_DIR, 'node_modules/.cache/geckodriver');
+  const version = process.env.GECKODRIVER_VERSION || '0.37.0';
+  let lastError;
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await downloadGeckodriver(version, cacheDir);
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) {
+        await sleep(1000 * attempt);
+      }
+    }
+  }
+
+  throw new Error(
+    `Failed to prepare geckodriver ${version}. ` +
+      `Set GECKODRIVER_BIN to an existing binary or allow access to GitHub releases. ` +
+      `Last error: ${lastError?.message ?? String(lastError)}`,
+  );
 }
 
 export async function getPopupUrl(driver, addonId) {
@@ -100,7 +128,7 @@ export async function launchFirefoxAddon({ addonDir, headless = true, viewport }
     options.setBinary(firefoxBinary);
   }
 
-  const geckodriver = process.env.GECKODRIVER_BIN || resolve(ROOT_DIR, 'node_modules/.bin/geckodriver');
+  const geckodriver = await resolveGeckodriverBinary();
   const service = new ServiceBuilder(geckodriver).addArguments('--allow-system-access');
   const driver = await new Builder()
     .forBrowser('firefox')

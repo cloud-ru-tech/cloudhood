@@ -25,61 +25,61 @@ importers:
     dependencies:
       '@dnd-kit/core':
         specifier: 6.3.1
-        version: 6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/sortable':
         specifier: 10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@emotion/react':
         specifier: 11.14.0
-        version: 11.14.0(@types/react@19.2.17)(react@19.2.7)
+        version: 11.14.0(@types/react@18.3.1)(react@18.3.1)
       '@emotion/styled':
         specifier: 11.14.1
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@19.2.7))(@types/react@19.2.17)(react@19.2.7)
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
       '@snack-uikit/button':
         specifier: 0.19.18
-        version: 0.19.18(react@19.2.7)
+        version: 0.19.18(react@18.3.1)
       '@snack-uikit/divider':
         specifier: 3.2.12
-        version: 3.2.12(react@19.2.7)
+        version: 3.2.12(react@18.3.1)
       '@snack-uikit/drop-zone':
         specifier: 0.9.12
-        version: 0.9.12(lodash.debounce@4.0.8)(react@19.2.7)
+        version: 0.9.12(lodash.debounce@4.0.8)(react@18.3.1)
       '@snack-uikit/fields':
         specifier: 0.57.0
-        version: 0.57.0(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.57.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/figma-tokens':
-        specifier: 19.0.5
-        version: 19.0.5
+        specifier: 17.7.5
+        version: 17.7.5
       '@snack-uikit/icons':
         specifier: 0.27.7
         version: 0.27.7
       '@snack-uikit/list':
         specifier: 0.33.1
-        version: 0.33.1(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.33.1(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/modal':
         specifier: 0.19.14
-        version: 0.19.14(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.19.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/tabs':
         specifier: 0.10.18
-        version: 0.10.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.10.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/toaster':
         specifier: 0.11.28
-        version: 0.11.28(@snack-uikit/locale@0.15.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.11.28(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/toggles':
         specifier: 0.13.27
-        version: 0.13.27(@types/react@19.2.17)(react@19.2.7)
+        version: 0.13.27(@types/react@18.3.1)(react@18.3.1)
       '@snack-uikit/tooltip':
         specifier: 0.18.13
-        version: 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/truncate-string':
         specifier: 0.7.12
-        version: 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       effector:
         specifier: 23.4.4
         version: 23.4.4
       effector-react:
         specifier: 23.3.0
-        version: 23.3.0(effector@23.4.4)(react@19.2.7)
+        version: 23.3.0(effector@23.4.4)(react@18.3.1)
       pino:
         specifier: 10.3.1
         version: 10.3.1
@@ -87,11 +87,11 @@ importers:
         specifier: 13.1.3
         version: 13.1.3
       react:
-        specifier: 19.2.7
-        version: 19.2.7
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 19.2.7
-        version: 19.2.7(react@19.2.7)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@cloud-ru/eslint-config':
         specifier: 3.1.5
@@ -124,11 +124,11 @@ importers:
         specifier: 25.9.3
         version: 25.9.3
       '@types/react':
-        specifier: 19.2.17
-        version: 19.2.17
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/react-dom':
-        specifier: 19.2.3
-        version: 19.2.3(@types/react@19.2.17)
+        specifier: 18.3.1
+        version: 18.3.1
       '@types/webextension-polyfill':
         specifier: 0.12.5
         version: 0.12.5
@@ -1561,8 +1561,8 @@ packages:
     peerDependencies:
       '@snack-uikit/locale': '*'
 
-  '@snack-uikit/figma-tokens@19.0.5':
-    resolution: {integrity: sha512-nLwAinKAoDI6XRyXNFiyVo42J+L48drZfC52KxVQldA2meMo7KJD8ZK/ZL/yt+ry/+q4wRMF+iOsVO2I+A0gEQ==}
+  '@snack-uikit/figma-tokens@17.7.5':
+    resolution: {integrity: sha512-1ojhbYQvQhSqWN8EYPdl7b8k9K6iwWBAsiw3sfhm+VmJXdFFiQMUXKXKVOlXKxslPAEMgQszIipep4IRbH4Fng==}
 
   '@snack-uikit/icon-predefined@0.7.12':
     resolution: {integrity: sha512-cKGCaTLk8yv7lBDjJor9x8dBnRCoaIVCnXAhIs8MjiS3l89AZ5A02mCbuNURDGrwkKVdqCXmxjwQP8TDZXLcqg==}
@@ -1765,13 +1765,14 @@ packages:
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
 
-  '@types/react-dom@19.2.3':
-    resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
-    peerDependencies:
-      '@types/react': ^19.2.0
+  '@types/prop-types@15.7.15':
+    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
 
-  '@types/react@19.2.17':
-    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+  '@types/react-dom@18.3.1':
+    resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
+
+  '@types/react@18.3.1':
+    resolution: {integrity: sha512-V0kuGBX3+prX+DQ/7r2qsv1NsdfnCLnTgnRJ1pYnxykBhGMz+qj+box5lq7XsO5mtZsBqpjwwTu/7wszPfMBcw==}
 
   '@types/webextension-polyfill@0.12.5':
     resolution: {integrity: sha512-uKSAv6LgcVdINmxXMKBuVIcg/2m5JZugoZO8x20g7j2bXJkPIl/lVGQcDlbV+aXAiTyXT2RA5U5mI4IGCDMQeg==}
@@ -3746,10 +3747,10 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  react-dom@19.2.7:
-    resolution: {integrity: sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==}
+  react-dom@18.3.1:
+    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
-      react: ^19.2.7
+      react: ^18.3.1
 
   react-draggable@4.4.6:
     resolution: {integrity: sha512-LtY5Xw1zTPqHkVmtM3X8MUOxNDOUhv/khTgBgrUvwaS064bwVvxT+q5El0uUFNx5IEPKXuRejr7UqLwBIg5pdw==}
@@ -3804,8 +3805,8 @@ packages:
       react: '>=18'
       react-dom: '>=18'
 
-  react@19.2.7:
-    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
+  react@18.3.1:
+    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
 
   readable-stream@2.3.8:
@@ -3935,8 +3936,8 @@ packages:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
 
-  scheduler@0.27.0:
-    resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
+  scheduler@0.23.2:
+    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
   secure-json-parse@4.1.0:
     resolution: {integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==}
@@ -5418,7 +5419,7 @@ snapshots:
       eslint: 9.39.4
       eslint-config-prettier: 10.1.8(eslint@9.39.4)
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint@9.39.4))(eslint@9.39.4)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4)
       eslint-plugin-no-only-tests: 3.3.0
       eslint-plugin-prettier: 5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint@9.39.4)(prettier@3.8.4)
@@ -5553,29 +5554,29 @@ snapshots:
     dependencies:
       postcss-selector-parser: 6.1.2
 
-  '@dnd-kit/accessibility@3.1.1(react@19.2.7)':
+  '@dnd-kit/accessibility@3.1.1(react@18.3.1)':
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
       tslib: 2.8.1
 
-  '@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@dnd-kit/accessibility': 3.1.1(react@19.2.7)
-      '@dnd-kit/utilities': 3.2.2(react@19.2.7)
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      '@dnd-kit/accessibility': 3.1.1(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
       tslib: 2.8.1
 
-  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@dnd-kit/utilities': 3.2.2(react@19.2.7)
-      react: 19.2.7
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      react: 18.3.1
       tslib: 2.8.1
 
-  '@dnd-kit/utilities@3.2.2(react@19.2.7)':
+  '@dnd-kit/utilities@3.2.2(react@18.3.1)':
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
       tslib: 2.8.1
 
   '@dual-bundle/import-meta-resolve@4.2.1': {}
@@ -5644,19 +5645,19 @@ snapshots:
 
   '@emotion/memoize@0.9.0': {}
 
-  '@emotion/react@11.14.0(@types/react@19.2.17)(react@19.2.7)':
+  '@emotion/react@11.14.0(@types/react@18.3.1)(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@emotion/babel-plugin': 11.13.5
       '@emotion/cache': 11.14.0
       '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.2.7)
+      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@18.3.1)
       '@emotion/utils': 1.4.2
       '@emotion/weak-memoize': 0.4.0
       hoist-non-react-statics: 3.3.2
-      react: 19.2.7
+      react: 18.3.1
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 18.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5670,26 +5671,26 @@ snapshots:
 
   '@emotion/sheet@1.4.0': {}
 
-  '@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@19.2.7))(@types/react@19.2.17)(react@19.2.7)':
+  '@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@emotion/babel-plugin': 11.13.5
       '@emotion/is-prop-valid': 1.4.0
-      '@emotion/react': 11.14.0(@types/react@19.2.17)(react@19.2.7)
+      '@emotion/react': 11.14.0(@types/react@18.3.1)(react@18.3.1)
       '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.2.7)
+      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@18.3.1)
       '@emotion/utils': 1.4.2
-      react: 19.2.7
+      react: 18.3.1
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 18.3.1
     transitivePeerDependencies:
       - supports-color
 
   '@emotion/unitless@0.10.0': {}
 
-  '@emotion/use-insertion-effect-with-fallbacks@1.2.0(react@19.2.7)':
+  '@emotion/use-insertion-effect-with-fallbacks@1.2.0(react@18.3.1)':
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
 
   '@emotion/utils@1.4.2': {}
 
@@ -5842,18 +5843,18 @@ snapshots:
       '@floating-ui/core': 1.7.5
       '@floating-ui/utils': 0.2.11
 
-  '@floating-ui/react-dom@2.1.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@floating-ui/react-dom@2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/dom': 1.7.6
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  '@floating-ui/react@0.26.24(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@floating-ui/react@0.26.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@floating-ui/react-dom': 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@floating-ui/utils': 0.2.11
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
       tabbable: 6.4.0
 
   '@floating-ui/utils@0.2.11': {}
@@ -6070,171 +6071,171 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@snack-uikit/button@0.19.18(react@19.2.7)':
+  '@snack-uikit/button@0.19.18(react@18.3.1)':
     dependencies:
-      '@snack-uikit/counter': 0.8.12(react@19.2.7)
-      '@snack-uikit/loaders': 0.9.11(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/counter': 0.8.12(react@18.3.1)
+      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/calendar@0.14.0(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/calendar@0.14.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
-      '@snack-uikit/divider': 3.2.12(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
+      '@snack-uikit/divider': 3.2.12(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/list': 0.33.1(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/list': 0.33.1(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      uncontrollable: 8.0.4(react@19.2.7)
+      uncontrollable: 8.0.4(react@18.3.1)
       weekstart: 2.0.0
     transitivePeerDependencies:
       - '@types/react'
       - react
       - react-dom
 
-  '@snack-uikit/color-picker@0.3.56(@snack-uikit/locale@0.15.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/color-picker@0.3.56(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/input-private': 4.8.9(react@19.2.7)
+      '@snack-uikit/input-private': 4.8.9(react@18.3.1)
       '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/segmented-control': 0.6.21(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/segmented-control': 0.6.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      react-colorful: 5.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/counter@0.8.12(react@19.2.7)':
+  '@snack-uikit/counter@0.8.12(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/divider@3.2.12(react@19.2.7)':
+  '@snack-uikit/divider@3.2.12(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/drop-zone@0.9.12(lodash.debounce@4.0.8)(react@19.2.7)':
+  '@snack-uikit/drop-zone@0.9.12(lodash.debounce@4.0.8)(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
       lodash.debounce: 4.0.8
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/dropdown@0.5.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/dropdown@0.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/popover-private': 0.15.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/popover-private': 0.15.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/fields@0.57.0(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/fields@0.57.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
-      '@snack-uikit/calendar': 0.14.0(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/color-picker': 0.3.56(@snack-uikit/locale@0.15.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/divider': 3.2.12(react@19.2.7)
-      '@snack-uikit/dropdown': 0.5.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
+      '@snack-uikit/calendar': 0.14.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/color-picker': 0.3.56(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/divider': 3.2.12(react@18.3.1)
+      '@snack-uikit/dropdown': 0.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/input-private': 4.8.9(react@19.2.7)
-      '@snack-uikit/list': 0.33.1(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/input-private': 4.8.9(react@18.3.1)
+      '@snack-uikit/list': 0.33.1(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/scroll': 0.11.0(react@19.2.7)
-      '@snack-uikit/skeleton': 0.6.11(react@19.2.7)
-      '@snack-uikit/slider': 0.3.37(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/tag': 0.15.20(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/tooltip': 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/truncate-string': 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
+      '@snack-uikit/skeleton': 0.6.11(react@18.3.1)
+      '@snack-uikit/slider': 0.3.37(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/tag': 0.15.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/tooltip': 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/truncate-string': 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
       copy-to-clipboard: 3.3.3
       decimal.js: 10.6.0
       fuzzy-search: 3.2.1
-      merge-refs: 1.3.0(@types/react@19.2.17)
-      react-textarea-autosize: 8.5.3(@types/react@19.2.17)(react@19.2.7)
-      uncontrollable: 8.0.4(react@19.2.7)
+      merge-refs: 1.3.0(@types/react@18.3.1)
+      react-textarea-autosize: 8.5.3(@types/react@18.3.1)(react@18.3.1)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - react
       - react-dom
 
-  '@snack-uikit/figma-tokens@19.0.5': {}
+  '@snack-uikit/figma-tokens@17.7.5': {}
 
-  '@snack-uikit/icon-predefined@0.7.12(react@19.2.7)':
+  '@snack-uikit/icon-predefined@0.7.12(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
   '@snack-uikit/icons@0.27.7': {}
 
-  '@snack-uikit/info-block@0.6.41(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/info-block@0.6.41(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
-      '@snack-uikit/icon-predefined': 0.7.12(react@19.2.7)
-      '@snack-uikit/tooltip': 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/typography': 0.8.13(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
+      '@snack-uikit/icon-predefined': 0.7.12(react@18.3.1)
+      '@snack-uikit/tooltip': 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/typography': 0.8.13(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/input-private@4.8.9(react@19.2.7)':
+  '@snack-uikit/input-private@4.8.9(react@18.3.1)':
     dependencies:
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/link@0.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/link@0.18.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/truncate-string': 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/truncate-string': 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/list@0.33.1(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/list@0.33.1(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
-      '@snack-uikit/divider': 3.2.12(react@19.2.7)
-      '@snack-uikit/dropdown': 0.5.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
+      '@snack-uikit/divider': 3.2.12(react@18.3.1)
+      '@snack-uikit/dropdown': 0.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/info-block': 0.6.41(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/loaders': 0.9.11(react@19.2.7)
+      '@snack-uikit/info-block': 0.6.41(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
       '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/scroll': 0.11.0(react@19.2.7)
-      '@snack-uikit/search-private': 0.4.37(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react@19.2.7)
-      '@snack-uikit/toggles': 0.13.27(@types/react@19.2.17)(react@19.2.7)
-      '@snack-uikit/truncate-string': 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
-      '@tanstack/react-virtual': 3.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
+      '@snack-uikit/search-private': 0.4.37(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react@18.3.1)
+      '@snack-uikit/toggles': 0.13.27(@types/react@18.3.1)(react@18.3.1)
+      '@snack-uikit/truncate-string': 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
+      '@tanstack/react-virtual': 3.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
-      merge-refs: 1.3.0(@types/react@19.2.17)
+      merge-refs: 1.3.0(@types/react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - react
       - react-dom
 
-  '@snack-uikit/loaders@0.9.11(react@19.2.7)':
+  '@snack-uikit/loaders@0.9.11(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
@@ -6243,182 +6244,182 @@ snapshots:
     dependencies:
       lodash.merge: 4.6.2
 
-  '@snack-uikit/modal@0.19.14(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/modal@0.19.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
-      '@snack-uikit/icon-predefined': 0.7.12(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
+      '@snack-uikit/icon-predefined': 0.7.12(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/link': 0.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/loaders': 0.9.11(react@19.2.7)
-      '@snack-uikit/scroll': 0.11.0(react@19.2.7)
-      '@snack-uikit/tooltip': 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/truncate-string': 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/typography': 0.8.13(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/link': 0.18.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
+      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
+      '@snack-uikit/tooltip': 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/truncate-string': 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/typography': 0.8.13(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      react-modal: 3.16.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-modal: 3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/popover-private@0.15.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/popover-private@0.15.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@floating-ui/react': 0.26.24(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@floating-ui/react': 0.26.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
       react-is: 18.2.0
-      uncontrollable: 8.0.4(react@19.2.7)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/progress-bar@0.1.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/progress-bar@0.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
-      '@tanem/react-nprogress': 5.0.35(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
+      '@tanem/react-nprogress': 5.0.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/scroll@0.11.0(react@19.2.7)':
+  '@snack-uikit/scroll@0.11.0(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
       overlayscrollbars: 2.11.1
-      overlayscrollbars-react: 0.5.6(overlayscrollbars@2.11.1)(react@19.2.7)
+      overlayscrollbars-react: 0.5.6(overlayscrollbars@2.11.1)(react@18.3.1)
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/search-private@0.4.37(@snack-uikit/locale@0.15.1)(@types/react@19.2.17)(react@19.2.7)':
+  '@snack-uikit/search-private@0.4.37(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react@18.3.1)':
     dependencies:
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/input-private': 4.8.9(react@19.2.7)
-      '@snack-uikit/loaders': 0.9.11(react@19.2.7)
+      '@snack-uikit/input-private': 4.8.9(react@18.3.1)
+      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
       '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      merge-refs: 1.3.0(@types/react@19.2.17)
+      merge-refs: 1.3.0(@types/react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - react
 
-  '@snack-uikit/segmented-control@0.6.21(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/segmented-control@0.6.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/counter': 0.8.12(react@19.2.7)
-      '@snack-uikit/truncate-string': 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/counter': 0.8.12(react@18.3.1)
+      '@snack-uikit/truncate-string': 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      uncontrollable: 8.0.4(react@19.2.7)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/skeleton@0.6.11(react@19.2.7)':
+  '@snack-uikit/skeleton@0.6.11(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/slider@0.3.37(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/slider@0.3.37(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/tooltip': 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/tooltip': 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      rc-slider: 10.5.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      rc-slider: 10.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/tabs@0.10.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/tabs@0.10.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/button': 0.19.18(react@19.2.7)
-      '@snack-uikit/counter': 0.8.12(react@19.2.7)
-      '@snack-uikit/divider': 3.2.12(react@19.2.7)
+      '@snack-uikit/button': 0.19.18(react@18.3.1)
+      '@snack-uikit/counter': 0.8.12(react@18.3.1)
+      '@snack-uikit/divider': 3.2.12(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/typography': 0.8.13(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/typography': 0.8.13(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      react-indiana-drag-scroll: 2.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      uncontrollable: 8.0.4(react@19.2.7)
+      react-indiana-drag-scroll: 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/tag@0.15.20(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/tag@0.15.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/dropdown': 0.5.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@snack-uikit/dropdown': 0.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/scroll': 0.11.0(react@19.2.7)
-      '@snack-uikit/tooltip': 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
+      '@snack-uikit/tooltip': 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/toaster@0.11.28(@snack-uikit/locale@0.15.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/toaster@0.11.28(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/link': 0.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/loaders': 0.9.11(react@19.2.7)
+      '@snack-uikit/link': 0.18.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
       '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/progress-bar': 0.1.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/scroll': 0.11.0(react@19.2.7)
-      '@snack-uikit/truncate-string': 0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/progress-bar': 0.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
+      '@snack-uikit/truncate-string': 0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      react-draggable: 4.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react-toastify: 10.0.5(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      uncontrollable: 9.0.0(react@19.2.7)
+      react-draggable: 4.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-toastify: 10.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      uncontrollable: 9.0.0(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/toggles@0.13.27(@types/react@19.2.17)(react@19.2.7)':
+  '@snack-uikit/toggles@0.13.27(@types/react@18.3.1)(react@18.3.1)':
     dependencies:
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      merge-refs: 1.3.0(@types/react@19.2.17)
-      uncontrollable: 8.0.4(react@19.2.7)
+      merge-refs: 1.3.0(@types/react@18.3.1)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - react
 
-  '@snack-uikit/tooltip@0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/tooltip@0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@snack-uikit/icons': 0.27.7
-      '@snack-uikit/popover-private': 0.15.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/popover-private': 0.15.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
-      uncontrollable: 8.0.4(react@19.2.7)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/truncate-string@0.7.12(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@snack-uikit/truncate-string@0.7.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@snack-uikit/tooltip': 0.18.13(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/tooltip': 0.18.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
       lodash.throttle: 4.1.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@snack-uikit/typography@0.8.13(react@19.2.7)':
+  '@snack-uikit/typography@0.8.13(react@18.3.1)':
     dependencies:
-      '@snack-uikit/utils': 4.0.2(react@19.2.7)
+      '@snack-uikit/utils': 4.0.2(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
       - react
 
-  '@snack-uikit/utils@4.0.2(react@19.2.7)':
+  '@snack-uikit/utils@4.0.2(react@18.3.1)':
     dependencies:
-      react-swipeable: 7.0.2(react@19.2.7)
-      uncontrollable: 8.0.4(react@19.2.7)
+      react-swipeable: 7.0.2(react@18.3.1)
+      uncontrollable: 8.0.4(react@18.3.1)
     transitivePeerDependencies:
       - react
 
@@ -6517,18 +6518,18 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tanem/react-nprogress@5.0.35(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@tanem/react-nprogress@5.0.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.29.7
       hoist-non-react-statics: 3.3.2
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/react-virtual@3.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@tanstack/react-virtual@3.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/virtual-core': 3.11.2
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@tanstack/virtual-core@3.11.2': {}
 
@@ -6558,12 +6559,15 @@ snapshots:
 
   '@types/parse-json@4.0.2': {}
 
-  '@types/react-dom@19.2.3(@types/react@19.2.17)':
-    dependencies:
-      '@types/react': 19.2.17
+  '@types/prop-types@15.7.15': {}
 
-  '@types/react@19.2.17':
+  '@types/react-dom@18.3.1':
     dependencies:
+      '@types/react': 18.3.1
+
+  '@types/react@18.3.1':
+    dependencies:
+      '@types/prop-types': 15.7.15
       csstype: 3.2.3
 
   '@types/webextension-polyfill@0.12.5': {}
@@ -7328,11 +7332,11 @@ snapshots:
 
   easy-bem@1.1.1: {}
 
-  effector-react@23.3.0(effector@23.4.4)(react@19.2.7):
+  effector-react@23.3.0(effector@23.4.4)(react@18.3.1):
     dependencies:
       effector: 23.4.4
-      react: 19.2.7
-      use-sync-external-store: 1.6.0(react@19.2.7)
+      react: 18.3.1
+      use-sync-external-store: 1.6.0(react@18.3.1)
 
   effector@23.4.4: {}
 
@@ -7529,7 +7533,7 @@ snapshots:
       tinyglobby: 0.2.17
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4)
     transitivePeerDependencies:
       - supports-color
 
@@ -7554,7 +7558,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.4):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.4)(typescript@6.0.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -8404,9 +8408,9 @@ snapshots:
 
   meow@13.2.0: {}
 
-  merge-refs@1.3.0(@types/react@19.2.17):
+  merge-refs@1.3.0(@types/react@18.3.1):
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 18.3.1
 
   merge2@1.4.1: {}
 
@@ -8520,10 +8524,10 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  overlayscrollbars-react@0.5.6(overlayscrollbars@2.11.1)(react@19.2.7):
+  overlayscrollbars-react@0.5.6(overlayscrollbars@2.11.1)(react@18.3.1):
     dependencies:
       overlayscrollbars: 2.11.1
-      react: 19.2.7
+      react: 18.3.1
 
   overlayscrollbars@2.11.1: {}
 
@@ -8690,45 +8694,46 @@ snapshots:
 
   quick-format-unescaped@4.0.4: {}
 
-  rc-slider@10.5.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  rc-slider@10.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
       classnames: 2.5.1
-      rc-util: 5.44.4(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      rc-util: 5.44.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  rc-util@5.44.4(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  rc-util@5.44.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
       react-is: 18.3.1
 
-  react-colorful@5.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-colorful@5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  react-dom@19.2.7(react@19.2.7):
+  react-dom@18.3.1(react@18.3.1):
     dependencies:
-      react: 19.2.7
-      scheduler: 0.27.0
+      loose-envify: 1.4.0
+      react: 18.3.1
+      scheduler: 0.23.2
 
-  react-draggable@4.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-draggable@4.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 1.2.1
       prop-types: 15.8.1
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  react-indiana-drag-scroll@2.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-indiana-drag-scroll@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       classnames: 2.5.1
       debounce: 1.2.1
       easy-bem: 1.1.1
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   react-is@16.13.1: {}
 
@@ -8738,37 +8743,39 @@ snapshots:
 
   react-lifecycles-compat@3.0.4: {}
 
-  react-modal@3.16.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-modal@3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       exenv: 1.2.2
       prop-types: 15.8.1
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
 
   react-refresh@0.13.0: {}
 
-  react-swipeable@7.0.2(react@19.2.7):
+  react-swipeable@7.0.2(react@18.3.1):
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
 
-  react-textarea-autosize@8.5.3(@types/react@19.2.17)(react@19.2.7):
+  react-textarea-autosize@8.5.3(@types/react@18.3.1)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
-      react: 19.2.7
-      use-composed-ref: 1.4.0(@types/react@19.2.17)(react@19.2.7)
-      use-latest: 1.3.0(@types/react@19.2.17)(react@19.2.7)
+      react: 18.3.1
+      use-composed-ref: 1.4.0(@types/react@18.3.1)(react@18.3.1)
+      use-latest: 1.3.0(@types/react@18.3.1)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
 
-  react-toastify@10.0.5(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-toastify@10.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 2.1.1
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
-  react@19.2.7: {}
+  react@18.3.1:
+    dependencies:
+      loose-envify: 1.4.0
 
   readable-stream@2.3.8:
     dependencies:
@@ -8958,7 +8965,9 @@ snapshots:
     dependencies:
       xmlchars: 2.2.0
 
-  scheduler@0.27.0: {}
+  scheduler@0.23.2:
+    dependencies:
+      loose-envify: 1.4.0
 
   secure-json-parse@4.1.0: {}
 
@@ -9425,13 +9434,13 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  uncontrollable@8.0.4(react@19.2.7):
+  uncontrollable@8.0.4(react@18.3.1):
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
 
-  uncontrollable@9.0.0(react@19.2.7):
+  uncontrollable@9.0.0(react@18.3.1):
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
 
   undici-types@7.24.6: {}
 
@@ -9484,28 +9493,28 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-composed-ref@1.4.0(@types/react@19.2.17)(react@19.2.7):
+  use-composed-ref@1.4.0(@types/react@18.3.1)(react@18.3.1):
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 18.3.1
 
-  use-isomorphic-layout-effect@1.2.1(@types/react@19.2.17)(react@19.2.7):
+  use-isomorphic-layout-effect@1.2.1(@types/react@18.3.1)(react@18.3.1):
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 18.3.1
 
-  use-latest@1.3.0(@types/react@19.2.17)(react@19.2.7):
+  use-latest@1.3.0(@types/react@18.3.1)(react@18.3.1):
     dependencies:
-      react: 19.2.7
-      use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.17)(react@19.2.7)
+      react: 18.3.1
+      use-isomorphic-layout-effect: 1.2.1(@types/react@18.3.1)(react@18.3.1)
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 18.3.1
 
-  use-sync-external-store@1.6.0(react@19.2.7):
+  use-sync-external-store@1.6.0(react@18.3.1):
     dependencies:
-      react: 19.2.7
+      react: 18.3.1
 
   util-deprecate@1.0.2: {}
 
