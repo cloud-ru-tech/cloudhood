@@ -153,18 +153,18 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
         }
       }
 
+      manifestContent.browser_specific_settings ??= {};
+      manifestContent.browser_specific_settings.gecko ??= {};
+      manifestContent.browser_specific_settings.gecko.data_collection_permissions ??= {
+        required: ['none'],
+      };
+
       // Add extension ID for production Firefox builds
       if (!isDev) {
         const extensionId = process.env.FIREFOX_EXTENSION_ID;
         if (extensionId) {
-          if (!manifestContent.browser_specific_settings) {
-            manifestContent.browser_specific_settings = {
-              gecko: {
-                id: extensionId,
-              },
-            };
-            logger.info({ extensionId }, 'Added extension ID to Firefox manifest');
-          }
+          manifestContent.browser_specific_settings.gecko.id = extensionId;
+          logger.info({ extensionId }, 'Added extension ID to Firefox manifest');
         } else {
           logger.warn('FIREFOX_EXTENSION_ID environment variable not set');
         }

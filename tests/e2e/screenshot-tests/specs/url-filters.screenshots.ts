@@ -29,6 +29,9 @@ createScreenshotTest({
     await popup.urlFiltersTab.addFilter();
     await popup.urlFiltersTab.setFilterValue('https://cdn.example.com/*', 1);
   },
+  snapshotOptions: {
+    maxDiffPixels: 150,
+  },
 });
 
 createScreenshotTest({

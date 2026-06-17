@@ -40,6 +40,9 @@ jobs:
       - name: Build Chrome extension
         run: pnpm build:chromium
 
+      - name: Check Chrome build
+        run: pnpm check:chrome-build
+
       - name: Pack Chrome extension
         run: |
           cd build/chrome
@@ -49,6 +52,11 @@ jobs:
         env:
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
         run: pnpm build:firefox
+
+      - name: Check release builds
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        run: pnpm check:extension-builds
 
       - name: Pack Firefox extension
         run: |
@@ -84,7 +92,7 @@ jobs:
             cloudhood-firefox-sources-${{ steps.release.outputs.tag }}.zip
             release-notes.md
 
-  release-and-publish:
+  github-release:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -106,6 +114,15 @@ jobs:
             cloudhood-firefox-${{ needs.build.outputs.tag }}.zip
             cloudhood-firefox-sources-${{ needs.build.outputs.tag }}.zip
 
+  publish-chrome:
+    needs: [build, github-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.build.outputs.tag }}
+
       - name: Publish to Chrome Web Store
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
@@ -121,6 +138,15 @@ jobs:
             --chrome-client-secret "$CHROME_CLIENT_SECRET" \
             --chrome-refresh-token "$CHROME_REFRESH_TOKEN" \
             --chrome-publish-target "$CHROME_PUBLISH_TARGET"
+
+  publish-firefox:
+    needs: [build, github-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.build.outputs.tag }}
 
       - name: Publish to Firefox Add-ons
         env:

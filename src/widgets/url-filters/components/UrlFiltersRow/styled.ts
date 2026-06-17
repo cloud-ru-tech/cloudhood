@@ -27,8 +27,8 @@ export const LeftHeaderActions = styled.div`
 `;
 
 export const UrlFilterFieldWrapper = styled.div`
-  flex: 1 1 429px;
-  min-width: 429px;
+  flex: 1 1 0;
+  min-width: 150px;
 
   [data-test-id='field-container-private'] {
     border-radius: 12px;

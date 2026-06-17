@@ -138,6 +138,10 @@ jobs:
         run: pnpm build:chromium
         shell: bash
 
+      - name: Check Chrome build
+        run: pnpm check:chrome-build
+        shell: bash
+
       - name: Pack Chrome build folder to ZIP-file
         run: |
           cd build/chrome
@@ -147,6 +151,12 @@ jobs:
         env:
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
         run: pnpm build:firefox
+        shell: bash
+
+      - name: Check Firefox build
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        run: pnpm check:firefox-build
         shell: bash
 
       - name: Pack Firefox build folder to ZIP-file
@@ -303,6 +313,17 @@ jobs:
         with:
           name: cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}
           path: dist/firefox-sources
+
+      - name: Extract builds for release checks
+        run: |
+          mkdir -p build/chrome build/firefox
+          unzip -o dist/chrome/cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip -d build/chrome
+          unzip -o dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip -d build/firefox
+
+      - name: Check release builds
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        run: node scripts/check-extension-builds.mjs
 
       - name: Publish Chrome Extension (Dry Run)
         env:
