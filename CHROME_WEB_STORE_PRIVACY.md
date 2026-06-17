@@ -20,6 +20,10 @@ Adds or modifies outgoing request headers according to rules created by the user
 
 Reads extension-managed dynamic rules to keep header modification behavior consistent and verify applied rules.
 
+### tabs
+
+Reads the active tab URL when tabs are activated or updated so Cloudhood can apply the correct user-created header rules and update the extension badge state for the current page.
+
 ### Host permissions
 
 Allows user-created header rules to apply to matching websites, including all websites when the user has not limited a profile to specific URL filters.
