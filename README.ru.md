@@ -233,6 +233,7 @@ test: добавить тесты для утилит
 - **Chrome Web Store**: [Установить Cloudhood](https://chrome.google.com/webstore/detail/cloudhood/hohljodjndmmaiedadcdmnelgdfnbfgp)
 - **Firefox Add-ons**: [Установить Cloudhood](https://addons.mozilla.org/en-US/firefox/addon/cloudhood/)
 - **GitHub Releases**: [Последние релизы](https://github.com/cloud-ru-tech/cloudhood/releases)
+- **Privacy Policy**: [Cloudhood Privacy Policy](PRIVACY_POLICY.md)
 
 ## 📄 Лицензия
 
