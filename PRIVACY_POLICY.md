@@ -1,8 +1,8 @@
 # Cloudhood Privacy Policy
 
-Last updated: June 17, 2026
+Last updated: June 18, 2026
 
-Cloudhood is a browser extension for developers. It lets users create local profiles of HTTP request headers and URL filters, then apply those headers to matching browser requests for testing and development.
+Cloudhood is a browser extension for developers. It lets users create local profiles of HTTP request headers, request cookies, and URL filters, then apply those values to matching browser requests for testing and development.
 
 ## Data Cloudhood Handles
 
@@ -10,11 +10,12 @@ Cloudhood does not collect user data. It stores the following extension data loc
 
 - User-created request header profiles
 - Header names and values entered by the user
+- Cookie names and values entered by the user
 - URL filters entered by the user
 - The selected profile
 - Pause state and UI settings
 
-Depending on what a user enters into header values, locally stored extension data can include authentication-related information, such as an `Authorization` header, API token, or session-related value. Cloudhood does not collect or transmit this data.
+Depending on what a user enters into header or cookie values, locally stored extension data can include authentication-related information, such as an `Authorization` header, API token, or session cookie value. Cloudhood does not collect or transmit this data.
 
 Cloudhood can read the active tab URL or domain locally when needed to match user-created URL filters and apply the correct request header rules. Cloudhood does not collect, transmit, or store browsing history.
 
@@ -22,14 +23,15 @@ Cloudhood can read the active tab URL or domain locally when needed to match use
 
 Cloudhood uses this data only to provide its core functionality:
 
-- Saving user-created header profiles between browser sessions
+- Saving user-created header and cookie profiles between browser sessions
 - Applying user-created request header rules to matching browser requests
+- Setting and removing browser cookies according to user-created cookie rules on matching websites
 - Showing the current extension state in the popup and browser action badge
 - Importing, exporting, or copying profiles when the user explicitly chooses those actions
 
 ## Local Storage Only
 
-Cloudhood stores extension data in browser local storage. Cloudhood does not collect or send user-created profiles, request headers, URL filters, active tab URLs, or browsing activity to Cloud.ru servers or to any developer-operated server.
+Cloudhood stores extension data in browser local storage. Cloudhood does not collect or send user-created profiles, request headers, request cookies, URL filters, active tab URLs, or browsing activity to Cloud.ru servers or to any developer-operated server.
 
 Cloudhood does not use analytics, advertising, tracking pixels, remote logging, or telemetry for extension user data.
 
