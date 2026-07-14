@@ -88,7 +88,7 @@ jobs:
 
       - name: Setup pnpm
         if: steps.unit_changes.outputs.run_unit_tests == 'true'
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
         with:
           version: 10.10.0
 
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
         with:
           version: 10.10.0
 
@@ -231,7 +231,7 @@ jobs:
 
       - name: Setup pnpm
         if: steps.e2e_changes.outputs.run_e2e == 'true'
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
         with:
           version: 10.10.0
 
