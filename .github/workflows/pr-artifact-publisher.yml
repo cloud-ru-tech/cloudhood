@@ -1,0 +1,195 @@
+name: PR Artifact Publisher
+
+on:
+  workflow_run:
+    workflows: ["PR"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+jobs:
+  publish:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare metadata
+        id: metadata
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Unable to resolve pull request number from workflow_run payload." >&2
+            exit 1
+          fi
+
+          SHORT_SHA="$(echo "$HEAD_SHA" | cut -c1-7)"
+
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "repository=$REPOSITORY" >> "$GITHUB_OUTPUT"
+          echo "chrome_artifact=cloudhood-chrome-$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "firefox_artifact=cloudhood-firefox-$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "firefox_sources_artifact=cloudhood-firefox-sources-$HEAD_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Download Chrome build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.metadata.outputs.chrome_artifact }}
+          path: downloaded/chrome
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Firefox build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.metadata.outputs.firefox_artifact }}
+          path: downloaded/firefox
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Firefox sources artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.metadata.outputs.firefox_sources_artifact }}
+          path: downloaded/firefox-sources
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate downloaded artifacts
+        env:
+          SHORT_SHA: ${{ steps.metadata.outputs.short_sha }}
+        run: |
+          set -euo pipefail
+
+          CHROME_ZIP="downloaded/chrome/cloudhood-chrome-$SHORT_SHA.zip"
+          FIREFOX_ZIP="downloaded/firefox/cloudhood-firefox-$SHORT_SHA.zip"
+          FIREFOX_SOURCES_ZIP="downloaded/firefox-sources/cloudhood-firefox-sources-$SHORT_SHA.zip"
+
+          for artifact in "$CHROME_ZIP" "$FIREFOX_ZIP" "$FIREFOX_SOURCES_ZIP"; do
+            test -f "$artifact"
+            test -s "$artifact"
+            test "$(stat -c '%s' "$artifact")" -le 104857600
+          done
+
+          unzip -l "$CHROME_ZIP" | grep -q 'manifest.json'
+          unzip -l "$CHROME_ZIP" | grep -q 'background.bundle.js'
+          unzip -l "$FIREFOX_ZIP" | grep -q 'manifest.json'
+          unzip -l "$FIREFOX_ZIP" | grep -q 'background.bundle.js'
+          unzip -t "$CHROME_ZIP"
+          unzip -t "$FIREFOX_ZIP"
+          unzip -t "$FIREFOX_SOURCES_ZIP"
+
+      - name: Prepare tester artifact bundle
+        env:
+          HEAD_SHA: ${{ steps.metadata.outputs.head_sha }}
+          SHORT_SHA: ${{ steps.metadata.outputs.short_sha }}
+          PR_NUMBER: ${{ steps.metadata.outputs.pr_number }}
+          REPOSITORY: ${{ steps.metadata.outputs.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p "publish/pull-requests/$PR_NUMBER"
+
+          cp "downloaded/chrome/cloudhood-chrome-$SHORT_SHA.zip" "publish/pull-requests/$PR_NUMBER/chrome.zip"
+          cp "downloaded/firefox/cloudhood-firefox-$SHORT_SHA.zip" "publish/pull-requests/$PR_NUMBER/firefox.zip"
+          cp "downloaded/firefox-sources/cloudhood-firefox-sources-$SHORT_SHA.zip" "publish/pull-requests/$PR_NUMBER/firefox-sources.zip"
+
+          cd "publish/pull-requests/$PR_NUMBER"
+          sha256sum chrome.zip firefox.zip firefox-sources.zip > SHA256SUMS
+          cat > metadata.json <<EOF
+          {
+            "pullRequest": $PR_NUMBER,
+            "commitSha": "$HEAD_SHA",
+            "shortSha": "$SHORT_SHA",
+            "repository": "$REPOSITORY",
+            "workflowRunId": $RUN_ID,
+            "createdAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+
+      - name: Checkout artifacts branch
+        uses: actions/checkout@v4
+        with:
+          ref: artifacts
+          path: artifacts-branch
+
+      - name: Publish tester artifacts
+        env:
+          PR_NUMBER: ${{ steps.metadata.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.metadata.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p "artifacts-branch/pull-requests/$PR_NUMBER"
+          rm -rf "artifacts-branch/pull-requests/$PR_NUMBER"
+          mkdir -p "artifacts-branch/pull-requests/$PR_NUMBER"
+          cp -R "publish/pull-requests/$PR_NUMBER/." "artifacts-branch/pull-requests/$PR_NUMBER/"
+
+          cd artifacts-branch
+          git config --local user.name github-actions
+          git config --local user.email github-actions@github.com
+          git add "pull-requests/$PR_NUMBER"
+
+          if git diff --cached --quiet; then
+            echo "No tester artifact changes to publish."
+            exit 0
+          fi
+
+          git commit -m "ci: publish PR #$PR_NUMBER artifacts for $HEAD_SHA"
+          git push origin artifacts
+
+      - name: Comment tester artifact links
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.metadata.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.metadata.outputs.head_sha }}
+          SHORT_SHA: ${{ steps.metadata.outputs.short_sha }}
+          REPOSITORY: ${{ steps.metadata.outputs.repository }}
+        run: |
+          set -euo pipefail
+
+          MARKER="<!-- cloudhood-pr-artifacts -->"
+          ARTIFACT_BASE_URL="https://github.com/$REPOSITORY/raw/artifacts/pull-requests/$PR_NUMBER"
+          ARTIFACT_TREE_URL="https://github.com/$REPOSITORY/tree/artifacts/pull-requests/$PR_NUMBER"
+
+          cat > comment.md <<EOF
+          $MARKER
+          PR tester build for \`$SHORT_SHA\` has been published:
+
+          - [Chrome ZIP]($ARTIFACT_BASE_URL/chrome.zip)
+          - [Firefox ZIP]($ARTIFACT_BASE_URL/firefox.zip)
+          - [Firefox sources ZIP]($ARTIFACT_BASE_URL/firefox-sources.zip)
+          - [SHA256SUMS]($ARTIFACT_BASE_URL/SHA256SUMS)
+          - [metadata.json]($ARTIFACT_BASE_URL/metadata.json)
+
+          Artifact folder: [$ARTIFACT_TREE_URL]($ARTIFACT_TREE_URL)
+
+          Commit: \`$HEAD_SHA\`
+          EOF
+
+          COMMENT_ID="$(
+            gh api "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+              --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" \
+              | tail -n 1
+          )"
+
+          if [ -n "$COMMENT_ID" ]; then
+            gh api \
+              --method PATCH \
+              "repos/$REPOSITORY/issues/comments/$COMMENT_ID" \
+              --field body@"comment.md"
+          else
+            gh api \
+              --method POST \
+              "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+              --field body@"comment.md"
+          fi
