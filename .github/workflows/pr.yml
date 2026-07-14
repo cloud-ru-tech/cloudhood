@@ -3,6 +3,9 @@ name: PR
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   license:
     runs-on: ubuntu-latest
@@ -101,7 +104,7 @@ jobs:
 
       - name: Archive test results
         if: always() && steps.unit_changes.outputs.run_unit_tests == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: reports/unit/
@@ -110,11 +113,12 @@ jobs:
   pr-build:
     needs: [license, lint, typescript, unit-tests]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     outputs:
-      short_sha: ${{ steps.set_short_sha.outputs.short_sha }}
+      head_sha: ${{ steps.set_build_metadata.outputs.head_sha }}
+      short_sha: ${{ steps.set_build_metadata.outputs.short_sha }}
+      chrome_artifact: ${{ steps.set_build_metadata.outputs.chrome_artifact }}
+      firefox_artifact: ${{ steps.set_build_metadata.outputs.firefox_artifact }}
+      firefox_sources_artifact: ${{ steps.set_build_metadata.outputs.firefox_sources_artifact }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -128,11 +132,17 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
 
-      - name: Set SHORT_SHA
-        id: set_short_sha
+      - name: Set build metadata
+        id: set_build_metadata
         run: |
-          SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
-          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          SHORT_SHA="$(echo "$HEAD_SHA" | cut -c1-7)"
+
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "chrome_artifact=cloudhood-chrome-$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "firefox_artifact=cloudhood-firefox-$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "firefox_sources_artifact=cloudhood-firefox-sources-$HEAD_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Build Chrome extension
         run: pnpm build:chromium
@@ -145,60 +155,52 @@ jobs:
       - name: Pack Chrome build folder to ZIP-file
         run: |
           cd build/chrome
-          zip -r ../../cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip .
+          zip -r ../../cloudhood-chrome-${{ steps.set_build_metadata.outputs.short_sha }}.zip .
 
       - name: Build Firefox extension
         env:
-          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_EXTENSION_ID: ${{ vars.FIREFOX_EXTENSION_ID }}
         run: pnpm build:firefox
         shell: bash
 
       - name: Check Firefox build
         env:
-          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_EXTENSION_ID: ${{ vars.FIREFOX_EXTENSION_ID }}
         run: pnpm check:firefox-build
         shell: bash
 
       - name: Pack Firefox build folder to ZIP-file
         run: |
           cd build/firefox
-          zip -r ../../cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip .
+          zip -r ../../cloudhood-firefox-${{ steps.set_build_metadata.outputs.short_sha }}.zip .
 
       - name: Build Firefox sources ZIP-file
         run: pnpm run build:firefox-sources
         shell: bash
 
       - name: Rename Firefox sources ZIP-file
-        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
-
-      - name: Pull request artifacts
-        uses: gavv/pull-request-artifacts@v1.1.0
-        with:
-          commit: ${{ steps.set_short_sha.outputs.short_sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts-branch: artifacts
-          artifacts: |
-            cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
-            cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
-            cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
+        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.set_build_metadata.outputs.short_sha }}.zip
 
       - name: Upload Chrome build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}
-          path: cloudhood-chrome-${{ steps.set_short_sha.outputs.short_sha }}.zip
+          name: ${{ steps.set_build_metadata.outputs.chrome_artifact }}
+          path: cloudhood-chrome-${{ steps.set_build_metadata.outputs.short_sha }}.zip
+          retention-days: 14
 
       - name: Upload Firefox build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}
-          path: cloudhood-firefox-${{ steps.set_short_sha.outputs.short_sha }}.zip
+          name: ${{ steps.set_build_metadata.outputs.firefox_artifact }}
+          path: cloudhood-firefox-${{ steps.set_build_metadata.outputs.short_sha }}.zip
+          retention-days: 14
 
       - name: Upload Firefox sources artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}
-          path: cloudhood-firefox-sources-${{ steps.set_short_sha.outputs.short_sha }}.zip
+          name: ${{ steps.set_build_metadata.outputs.firefox_sources_artifact }}
+          path: cloudhood-firefox-sources-${{ steps.set_build_metadata.outputs.short_sha }}.zip
+          retention-days: 14
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -227,11 +229,6 @@ jobs:
         if: steps.e2e_changes.outputs.run_e2e != 'true'
         run: echo "Skipping extension E2E tests because this PR does not change extension runtime, E2E, or screenshot inputs."
 
-      - name: Set short SHA
-        if: steps.e2e_changes.outputs.run_e2e == 'true'
-        id: set_short_sha
-        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-
       - name: Setup pnpm
         if: steps.e2e_changes.outputs.run_e2e == 'true'
         uses: pnpm/action-setup@v2
@@ -251,9 +248,9 @@ jobs:
 
       - name: Download Chrome build artifact
         if: steps.e2e_changes.outputs.run_e2e == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
+          name: ${{ needs.pr-build.outputs.chrome_artifact }}
 
       - name: Extract Chrome extension
         if: steps.e2e_changes.outputs.run_e2e == 'true'
@@ -263,9 +260,9 @@ jobs:
 
       - name: Download Firefox build artifact
         if: steps.e2e_changes.outputs.run_e2e == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
+          name: ${{ needs.pr-build.outputs.firefox_artifact }}
 
       - name: Extract Firefox extension
         if: steps.e2e_changes.outputs.run_e2e == 'true'
@@ -289,7 +286,7 @@ jobs:
         if: steps.e2e_changes.outputs.run_e2e == 'true'
         run: docker compose -f docker-compose.screenshots.yml run --rm screenshots sh -lc "pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e:screenshots"
 
-  pre-publish:
+  validate-build-artifacts:
     needs: [pr-build, e2e-test]
     runs-on: ubuntu-latest
     steps:
@@ -297,21 +294,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Chrome build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}
+          name: ${{ needs.pr-build.outputs.chrome_artifact }}
           path: dist/chrome
 
       - name: Download Firefox build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}
+          name: ${{ needs.pr-build.outputs.firefox_artifact }}
           path: dist/firefox
 
       - name: Download Firefox sources artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}
+          name: ${{ needs.pr-build.outputs.firefox_sources_artifact }}
           path: dist/firefox-sources
 
       - name: Extract builds for release checks
@@ -322,36 +319,5 @@ jobs:
 
       - name: Check release builds
         env:
-          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_EXTENSION_ID: ${{ vars.FIREFOX_EXTENSION_ID }}
         run: node scripts/check-extension-builds.mjs
-
-      - name: Publish Chrome Extension (Dry Run)
-        env:
-          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
-        run: |
-          npx --yes publish-browser-extension@4.0.4 \
-            --dry-run \
-            --chrome-zip dist/chrome/cloudhood-chrome-${{ needs.pr-build.outputs.short_sha }}.zip \
-            --chrome-extension-id ${{ env.CHROME_EXTENSION_ID }} \
-            --chrome-client-id ${{ env.CHROME_CLIENT_ID }} \
-            --chrome-client-secret ${{ env.CHROME_CLIENT_SECRET }} \
-            --chrome-refresh-token ${{ env.CHROME_REFRESH_TOKEN }} \
-            --chrome-publish-target ${{ env.CHROME_PUBLISH_TARGET }}
-
-      - name: Publish Firefox Extension (Dry Run)
-        env:
-          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
-          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
-          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
-        run: |
-          npx --yes publish-browser-extension@4.0.4 \
-            --dry-run \
-            --firefox-zip dist/firefox/cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip \
-            --firefox-sources-zip dist/firefox-sources/cloudhood-firefox-sources-${{ needs.pr-build.outputs.short_sha }}.zip \
-            --firefox-extension-id ${{ env.FIREFOX_EXTENSION_ID }} \
-            --firefox-jwt-issuer ${{ env.FIREFOX_JWT_ISSUER }} \
-            --firefox-jwt-secret ${{ env.FIREFOX_JWT_SECRET }}

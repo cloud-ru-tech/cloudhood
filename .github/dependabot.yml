@@ -2,6 +2,12 @@
 # Security PRs also require: Settings → Code security → Dependabot security updates.
 version: 2
 updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
+
   - package-ecosystem: npm
     directory: "/"
     schedule:
