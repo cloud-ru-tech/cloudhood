@@ -2,7 +2,7 @@ name: PR Artifact Publisher
 
 on:
   workflow_run:
-    workflows: ["PR"]
+    workflows: ['PR']
     types: [completed]
 
 permissions:
@@ -183,13 +183,13 @@ jobs:
           )"
 
           if [ -n "$COMMENT_ID" ]; then
-            gh api \
-              --method PATCH \
-              "repos/$REPOSITORY/issues/comments/$COMMENT_ID" \
-              --field body@"comment.md"
+          gh api \
+            --method PATCH \
+            "repos/$REPOSITORY/issues/comments/$COMMENT_ID" \
+            --raw-field body="$(<comment.md)"
           else
-            gh api \
-              --method POST \
-              "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
-              --field body@"comment.md"
+          gh api \
+            --method POST \
+            "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+            --raw-field body="$(<comment.md)"
           fi
