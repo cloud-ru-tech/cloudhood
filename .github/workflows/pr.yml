@@ -237,7 +237,7 @@ jobs:
 
       - name: Setup Node
         if: steps.e2e_changes.outputs.run_e2e == 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: 'pnpm'
