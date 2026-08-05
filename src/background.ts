@@ -3,9 +3,13 @@ import browser from 'webextension-polyfill';
 import type { Profile, RequestHeader } from '#entities/request-profile/types';
 
 import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
+import { validateCookie } from './shared/utils/cookies';
+import { countActiveHeadersForUrl, doesUrlMatchFilter } from './shared/utils/countActiveHeadersForUrl';
+import { validateHeader } from './shared/utils/headers';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserCookies } from './shared/utils/setBrowserCookies';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
+import { setIconBadge } from './shared/utils/setIconBadge';
 import { enableExtensionReload } from './utils/extension-reload';
 
 logger.configure({
@@ -67,12 +71,10 @@ async function getCurrentTabUrl(): Promise<string | undefined> {
     logger.debug('Background script load storage data:', JSON.stringify(result, null, 2));
     logger.groupEnd();
 
-    const currentTabUrl = await getCurrentTabUrl();
-    await Promise.all([
-      setBrowserHeaders(result, { reason: 'background-script-load', currentTabUrl }),
-      setBrowserCookies(result),
-    ]);
-    logger.info(`🏷️ Initial badge set for URL: ${currentTabUrl}`);
+    // DNR mutations are deliberately performed only by applyHeadersFromStorageQueue.
+    // sw-init below owns the queue during worker startup, so a direct update here
+    // could race with its stale-rule cleanup on slower machines (notably Windows).
+    logger.info('🏷️ Initial DNR sync is scheduled by sw-init queue');
   } catch (error) {
     logger.error('Failed to check storage on background script load:', error);
   }
@@ -239,6 +241,51 @@ function isNewerMeta(next: { seq: number; updatedAt: number }, prev: { seq: numb
   return next.updatedAt > prev.updatedAt;
 }
 
+/**
+ * Refreshes the badge for the active tab without touching DNR rules.
+ *
+ * Tab activation/navigation used to call setBrowserHeaders directly just to refresh
+ * the badge. That bypassed the apply queue and could overlap with a storage-driven
+ * DNR update or the sw-init stale-rule cleanup.
+ */
+async function refreshBadgeFromStorage(result: Record<string, unknown>, currentTabUrl: string | undefined) {
+  const isPaused = result[BrowserStorageKey.IsPaused] === true;
+  let profiles: Profile[] = [];
+
+  try {
+    const profilesData = result[BrowserStorageKey.Profiles];
+    if (typeof profilesData === 'string') {
+      profiles = JSON.parse(profilesData) as Profile[];
+    } else if (Array.isArray(profilesData)) {
+      profiles = profilesData as Profile[];
+    }
+  } catch (error) {
+    logger.warn('Failed to parse profiles while refreshing badge:', error);
+  }
+
+  const selectedProfileId = result[BrowserStorageKey.SelectedProfile];
+  const selectedProfile =
+    profiles.find(profile => profile.id === selectedProfileId) ?? (profiles.length > 0 ? profiles[0] : undefined);
+  const activeHeaders = (selectedProfile?.requestHeaders ?? []).filter(
+    ({ disabled, name, value }) => !disabled && validateHeader(name, value),
+  );
+  const activeUrlFilters = (selectedProfile?.urlFilters ?? [])
+    .filter(({ disabled, value }) => !disabled && value.trim())
+    .map(({ value }) => value.trim());
+  const activeCookies = (selectedProfile?.requestCookies ?? []).filter(
+    ({ disabled, name, value }) => !disabled && validateCookie(name, value),
+  );
+  const urlMatchesCurrentTab =
+    activeUrlFilters.length === 0 ||
+    !currentTabUrl ||
+    activeUrlFilters.some(filter => doesUrlMatchFilter(currentTabUrl, filter));
+  const activeRulesCount =
+    countActiveHeadersForUrl(activeHeaders, activeUrlFilters, currentTabUrl) +
+    (urlMatchesCurrentTab ? activeCookies.length : 0);
+
+  await setIconBadge({ isPaused, activeRulesCount });
+}
+
 async function applyHeadersFromStorageQueue(reason: string) {
   lastRequestedReason = reason;
   applyPending = true;
@@ -298,7 +345,10 @@ async function applyHeadersFromStorageQueue(reason: string) {
           lastAppliedStorageFingerprint,
         });
 
-        if (!isNewer) {
+        // On the first worker run old installations may not yet have config meta.
+        // The fingerprint still proves there is an unapplied configuration, so do
+        // not leave its valid headers absent just because meta is { seq: 0 }.
+        if (!isNewer && lastAppliedStorageFingerprint !== null) {
           logger.warn('⏭️ Apply skipped (stale meta):', {
             applyId,
             reason: `meta.seq=${meta.seq} <= lastApplied.seq=${lastAppliedMeta.seq}, meta.updatedAt=${meta.updatedAt} <= lastApplied.updatedAt=${lastAppliedMeta.updatedAt}`,
@@ -516,9 +566,9 @@ browser.tabs.onActivated.addListener(async activeInfo => {
     logger.info('📱 Tab activated, updating badge');
     try {
       const tab = await browser.tabs.get(activeInfo.tabId);
-      await setBrowserHeaders(result, { reason: 'tabs.onActivated', currentTabUrl: tab.url });
+      await refreshBadgeFromStorage(result, tab.url);
     } catch (error) {
-      logger.error('Failed to set browser headers on tab activation:', error);
+      logger.error('Failed to refresh badge on tab activation:', error);
     }
   } else {
     logger.debug('No storage data found on tab activation');
@@ -541,9 +591,9 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   if (Object.keys(result).length) {
     try {
-      await setBrowserHeaders(result, { reason: 'tabs.onUpdated', currentTabUrl: tab.url });
+      await refreshBadgeFromStorage(result, tab.url);
     } catch (error) {
-      logger.error('Failed to set browser headers on tab URL update:', error);
+      logger.error('Failed to refresh badge on tab URL update:', error);
     }
   }
 });
