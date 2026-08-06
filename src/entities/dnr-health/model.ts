@@ -5,6 +5,7 @@ import { BrowserStorageKey } from '#shared/constants';
 import { initApp } from '#shared/model';
 
 import { type DnrHealth, loadDnrHealthFromStorageApi } from './utils/load';
+import { parseDnrHealth } from './utils/parse';
 
 export type { DnrHealth };
 
@@ -24,14 +25,5 @@ browser.storage.onChanged.addListener((changes, areaName) => {
   if (!(BrowserStorageKey.DnrHealth in changes)) return;
 
   const newValue = changes[BrowserStorageKey.DnrHealth]?.newValue;
-  if (!newValue || typeof newValue !== 'object') {
-    dnrHealthUpdated(null);
-    return;
-  }
-  const raw = newValue as Record<string, unknown>;
-  dnrHealthUpdated({
-    ok: Boolean(raw.ok),
-    stuckRuleIds: Array.isArray(raw.stuckRuleIds) ? (raw.stuckRuleIds as number[]) : [],
-    updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0,
-  });
+  dnrHealthUpdated(parseDnrHealth(newValue));
 });
