@@ -1,11 +1,12 @@
 import { useUnit } from 'effector-react';
 import { useCallback, useMemo } from 'react';
 
-import { DownloadSVG, PlusSVG, UploadSVG } from '@snack-uikit/icons';
+import { DownloadSVG, PlusSVG, TrashSVG, UploadSVG } from '@snack-uikit/icons';
 
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
-import { profileAdded } from '#entities/request-profile/model';
+import { $isProfileRemoveAvailable, profileAdded } from '#entities/request-profile/model';
+import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
 import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
@@ -23,6 +24,8 @@ export function useActions({ onClose }: UseActionsProps) {
     onExportModalOpened,
     onProfileUrlFiltersAdded,
     onProfileActionsTabChanged,
+    isProfileRemoveAvailable,
+    onProfileRemoved,
   ] = useUnit([
     $activeProfileActionsTab,
     profileAdded,
@@ -31,6 +34,8 @@ export function useActions({ onClose }: UseActionsProps) {
     exportModalOpened,
     profileUrlFiltersAdded,
     profileActionsTabChanged,
+    $isProfileRemoveAvailable,
+    selectedProfileRemoved,
   ]);
 
   const handleAddProfile = useCallback(() => {
@@ -60,6 +65,15 @@ export function useActions({ onClose }: UseActionsProps) {
     }
     onClose();
   }, [onClose, activeTab, onProfileUrlFiltersAdded, onProfileActionsTabChanged]);
+
+  const handleRemoveProfile = useCallback(() => {
+    if (!isProfileRemoveAvailable) {
+      return;
+    }
+
+    onProfileRemoved();
+    onClose();
+  }, [isProfileRemoveAvailable, onClose, onProfileRemoved]);
 
   return useMemo(
     () => [
@@ -93,6 +107,13 @@ export function useActions({ onClose }: UseActionsProps) {
         beforeContent: <UploadSVG />,
         onClick: handleExportModalOpened,
       },
+      {
+        id: 'remove-profile',
+        content: { option: 'Delete profile' },
+        beforeContent: <TrashSVG />,
+        disabled: !isProfileRemoveAvailable,
+        onClick: handleRemoveProfile,
+      },
     ],
     [
       handleAddProfile,
@@ -100,6 +121,8 @@ export function useActions({ onClose }: UseActionsProps) {
       handleOpenImportFromExtensionModal,
       handleOpenImportModal,
       handleAddUrlFilter,
+      handleRemoveProfile,
+      isProfileRemoveAvailable,
     ],
   );
 }

@@ -25,6 +25,8 @@ let wss = null;
 let clients = new Set();
 let viteProcess = null;
 let backgroundViteProcess = null;
+let contentMainViteProcess = null;
+let contentBridgeViteProcess = null;
 let reloadTimeout = null;
 let mainBuildReady = false;
 let backgroundBuildReady = false;
@@ -110,7 +112,9 @@ function checkAndReload() {
     const criticalFiles = [
       `${WATCH_DIR}/manifest.json`,
       `${WATCH_DIR}/popup.bundle.js`,
-      `${WATCH_DIR}/background.bundle.js`
+      `${WATCH_DIR}/background.bundle.js`,
+      `${WATCH_DIR}/response-overrides-main.bundle.js`,
+      `${WATCH_DIR}/response-overrides-bridge.bundle.js`
     ];
 
     const missingFiles = criticalFiles.filter(file => !existsSync(file));
@@ -331,6 +335,14 @@ function cleanup() {
     backgroundViteProcess.kill();
   }
 
+  if (contentMainViteProcess) {
+    contentMainViteProcess.kill();
+  }
+
+  if (contentBridgeViteProcess) {
+    contentBridgeViteProcess.kill();
+  }
+
   if (wss) {
     wss.close();
   }
@@ -343,9 +355,51 @@ process.on('SIGTERM', cleanup);
 
 logger.info('🚀 Starting development server...');
 
+function startContentViteBuild(entry, processRefName) {
+  const existingProcess = processRefName === 'main' ? contentMainViteProcess : contentBridgeViteProcess;
+  if (existingProcess) {
+    existingProcess.kill();
+  }
+
+  const child = spawn('npx', ['vite', 'build', '--watch', '--config', 'vite.content.config.ts', '--mode', 'development'], {
+    env: { ...process.env, BROWSER: 'chrome', CONTENT_ENTRY: entry },
+    stdio: 'pipe'
+  });
+
+  if (processRefName === 'main') {
+    contentMainViteProcess = child;
+  } else {
+    contentBridgeViteProcess = child;
+  }
+
+  child.stdout.on('data', (data) => {
+    const output = data.toString().trim();
+    if (output) {
+      output.split('\n').forEach(line => {
+        if (line.trim()) {
+          logger.info(`[CS:${entry}] ${line}`);
+        }
+      });
+    }
+  });
+
+  child.stderr.on('data', (data) => {
+    const output = data.toString().trim();
+    if (output) {
+      output.split('\n').forEach(line => {
+        if (line.trim()) {
+          logger.error(`[CS:${entry}] ${line}`);
+        }
+      });
+    }
+  });
+}
+
 createWebSocketServer();
 startViteBuild();
 startBackgroundViteBuild();
+startContentViteBuild('main', 'main');
+startContentViteBuild('bridge', 'bridge');
 startFileWatcher();
 
 // Initial file check after a short delay for the first build

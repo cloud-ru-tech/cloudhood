@@ -69,6 +69,8 @@ const profileAddedFx = attach({
           requestHeaders: [{ id: generateId(), name: '', value: '', disabled: false }],
           requestCookies: [{ id: generateId(), name: '', value: '', disabled: false }],
           urlFilters: [{ id: generateId(), value: '', disabled: false }],
+          responseOverrides: [],
+          responseOverridesDisabled: false,
         },
       ],
       addedHeaderId,

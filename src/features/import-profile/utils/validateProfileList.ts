@@ -1,5 +1,6 @@
-import { Profile, RequestCookie, RequestHeader } from '#entities/request-profile/types';
+import { Profile, RequestCookie, RequestHeader, ResponseOverride } from '#entities/request-profile/types';
 import { generateIdWithExcludeList } from '#shared/utils/generateId';
+import { isResponseOverrideHttpMethod, isResponseOverrideMatchType } from '#shared/utils/responseOverrides';
 
 export function validateProfileList(profileList: Profile[], existingProfileList: Profile[]) {
   if (!Array.isArray(profileList) || !profileList.length) {
@@ -48,6 +49,60 @@ export function validateProfileList(profileList: Profile[], existingProfileList:
     if (profile.requestCookies !== undefined && !Array.isArray(profile.requestCookies)) {
       throw new Error(`The profile ${currentProfileNumber} "requestCookies" value must be an array`);
     }
+
+    if (profile.responseOverrides !== undefined && !Array.isArray(profile.responseOverrides)) {
+      throw new Error(`The profile ${currentProfileNumber} "responseOverrides" value must be an array`);
+    }
+
+    if (profile.responseOverridesDisabled !== undefined && typeof profile.responseOverridesDisabled !== 'boolean') {
+      throw new Error(`The profile ${currentProfileNumber} "responseOverridesDisabled" value must be a boolean`);
+    }
+
+    (profile.responseOverrides ?? []).forEach((override: Partial<ResponseOverride>, overrideIndex: number) => {
+      const currentOverrideNumber = overrideIndex + 1;
+
+      if (typeof override.name !== 'string') {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a string "name" value`,
+        );
+      }
+
+      if (typeof override.matchType !== 'string' || !isResponseOverrideMatchType(override.matchType)) {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a valid "matchType" value`,
+        );
+      }
+
+      if (typeof override.url !== 'string') {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a string "url" value`,
+        );
+      }
+
+      if (typeof override.method !== 'string' || !isResponseOverrideHttpMethod(override.method)) {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a valid "method" value`,
+        );
+      }
+
+      if (typeof override.statusCode !== 'number') {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a numeric "statusCode" value`,
+        );
+      }
+
+      if (typeof override.responseBody !== 'string') {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a string "responseBody" value`,
+        );
+      }
+
+      if (typeof override.disabled !== 'boolean') {
+        throw new Error(
+          `The response override ${currentOverrideNumber} in profile ${currentProfileNumber} must have a boolean "disabled" value`,
+        );
+      }
+    });
 
     (profile.requestCookies ?? []).forEach((cookie: Partial<RequestCookie>, cookieIndex: number) => {
       const currentCookieNumber = cookieIndex + 1;
@@ -103,6 +158,9 @@ export function generateProfileList(profileList: Profile[], existingProfileList:
   const existingProfileRequestCookiesListId = existingProfileList.flatMap(profile =>
     (profile.requestCookies ?? []).map(cookie => cookie.id),
   );
+  const existingResponseOverrideIds = existingProfileList.flatMap(profile =>
+    (profile.responseOverrides ?? []).map(override => override.id),
+  );
 
   return profileList.map(profile => ({
     ...profile,
@@ -116,5 +174,15 @@ export function generateProfileList(profileList: Profile[], existingProfileList:
       id: generateIdWithExcludeList(existingProfileRequestCookiesListId),
     })),
     urlFilters: profile.urlFilters || [],
+    responseOverrides: (profile.responseOverrides ?? []).map(override => {
+      const nextId = generateIdWithExcludeList(existingResponseOverrideIds);
+      existingResponseOverrideIds.push(nextId);
+
+      return {
+        ...override,
+        id: nextId,
+      };
+    }),
+    responseOverridesDisabled: profile.responseOverridesDisabled ?? false,
   }));
 }

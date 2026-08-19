@@ -28,5 +28,7 @@ export const DEFAULT_REQUEST_HEADERS: Profile[] = [
         disabled: false,
       },
     ],
+    responseOverrides: [],
+    responseOverridesDisabled: false,
   },
 ];

@@ -106,8 +106,8 @@ test.describe('Profile Actions', () => {
     const profilesBefore = page.locator('[data-test-id="profile-select"]');
     const countBefore = await profilesBefore.count();
 
-    // Delete the selected profile via the dedicated trash button
-    const removeProfileButton = page.locator('[data-test-id="remove-profile-button"]');
+    await openProfileActionsMenu(page);
+    const removeProfileButton = page.getByRole('menuitem', { name: 'Delete profile' });
     await expect(removeProfileButton).toBeEnabled({ timeout: 5000 });
     await removeProfileButton.click();
 

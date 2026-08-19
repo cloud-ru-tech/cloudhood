@@ -37,6 +37,10 @@ const selectors = {
   urlFilterInput: '[data-test-id="url-filter-input"] input',
   urlFilterMenuButton: '[data-test-id="url-filter-menu-button"]',
   urlFiltersSection: '[data-test-id="url-filters-section"]',
+  addResponseOverrideButton: '[data-test-id="add-response-override-button"]',
+  responseOverrideUrl: '[data-test-id="response-override-url"] input',
+  responseOverrideJson: '[data-test-id="response-override-json"] textarea',
+  responseOverridesSection: '[data-test-id="response-overrides-section"]',
 };
 
 function createEchoServer() {
@@ -256,7 +260,7 @@ async function main() {
         'popup loads and switches tabs',
         async () => {
           assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 0), 'true');
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 2), 'true');
           assert.equal(await browser.count(selectors.urlFiltersSection), 1);
           await browser.clickTab('Headers');
@@ -278,7 +282,7 @@ async function main() {
         async () => {
           await browser.click(selectors.pauseButton);
           assert.equal(await browser.enabled(selectors.headerNameInput), false);
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           assert.equal(await browser.enabled(selectors.urlFilterInput), false);
           await browser.refresh();
           await browser.clickTab('Headers');
@@ -344,7 +348,7 @@ async function main() {
       [
         'URL filter add, edit, and remove',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://first.example.com/*');
           await browser.fill(selectors.urlFilterInput, 'https://updated.example.com/*');
           await waitForValue(browser, selectors.urlFilterInput, 'https://updated.example.com/*');
@@ -355,7 +359,7 @@ async function main() {
       [
         'URL filter validation',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, '*://example.com/*');
           await browser.blur(selectors.urlFilterInput);
           assert.equal(await browser.validation(selectors.urlFilterInput), 'error');
@@ -367,7 +371,7 @@ async function main() {
       [
         'URL filter row and master toggles',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://toggle.example.com/*');
           assert.equal(await browser.attr(selectors.urlFilterCheckbox, 'data-checked'), 'true');
           await browser.click(selectors.urlFilterCheckbox);
@@ -379,7 +383,7 @@ async function main() {
       [
         'URL filter duplicate and clear actions',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://duplicate.example.com/*');
           await browser.click(selectors.urlFilterMenuButton);
           await browser.clickMenuItem('Duplicate');
@@ -392,17 +396,17 @@ async function main() {
       [
         'URL filters persist after reload',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://persisted.example.com/*');
           await browser.refresh();
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://persisted.example.com/*');
         },
       ],
       [
         'remove all URL filters confirmation',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://remove.example.com/*');
           await browser.click(selectors.addUrlFilterButton);
           await waitForCount(browser, selectors.urlFilterInput, 2);
@@ -426,11 +430,8 @@ async function main() {
             async () => (await browser.count(selectors.profileNameInput)) === 0,
             'profile rename to finish',
           );
-          await waitUntil(
-            () => browser.enabled(selectors.removeProfileButton),
-            'remove profile button to become enabled',
-          );
-          await browser.click(selectors.removeProfileButton);
+          await browser.click(selectors.profileActionsButton);
+          await browser.clickMenuItem('Delete profile');
           await waitForCount(browser, selectors.profileSelect, initialCount);
           assert.equal(await browser.value(selectors.headerNameInput), 'X-Profile-One');
         },
@@ -473,7 +474,7 @@ async function main() {
           });
           await browser.refresh();
           await waitForValue(browser, selectors.headerNameInput, 'X-Restored-Firefox');
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://restored.example.com/*');
         },
       ],
@@ -492,12 +493,12 @@ async function main() {
             [STORAGE_KEYS.selectedProfile]: 'firefox-legacy',
           });
           await browser.refresh();
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           assert.equal(await browser.count(selectors.urlFilterInput), 0);
           await browser.click(selectors.addUrlFilterButton);
           await browser.fill(selectors.urlFilterInput, 'https://legacy.example.com/*');
           await browser.refresh();
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://legacy.example.com/*');
         },
       ],
@@ -522,11 +523,48 @@ async function main() {
         async () => {
           await browser.fill(selectors.headerNameInput, 'X-Cloudhood-Filtered');
           await browser.fill(selectors.headerValueInput, 'matched');
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, `${echoServer.url}/matched*`);
           await waitUntil(async () => (await browser.dynamicRules()).length === 1, 'one filtered Firefox DNR rule');
           await expectEchoedHeader(driver, `${echoServer.url}/matched-path`, 'X-Cloudhood-Filtered', 'matched');
           await expectEchoedHeader(driver, `${echoServer.url}/other-path`, 'X-Cloudhood-Filtered', undefined);
+        },
+      ],
+      [
+        'response override fetch and xhr',
+        async () => {
+          await browser.clickTab('Modify responses');
+          await waitUntil(
+            async () => (await browser.count(selectors.responseOverridesSection)) === 1,
+            'Modify responses toolbar to appear',
+          );
+          await browser.click(selectors.addResponseOverrideButton);
+          await browser.fill(selectors.responseOverrideUrl, echoServer.url);
+          await browser.fill(selectors.responseOverrideJson, '{"source":"override"}');
+          await driver.get(echoServer.url);
+          await waitUntil(
+            async () => {
+              const result = await driver.executeScript(`
+                return fetch(location.href).then(async (response) => ({
+                  status: response.status,
+                  body: await response.text(),
+                }));
+              `);
+              return typeof result?.body === 'string' && result.body.includes('override');
+            },
+            'Firefox fetch override to apply',
+            15_000,
+          );
+          const xhrResult = await driver.executeScript(`
+            return new Promise((resolve, reject) => {
+              const xhr = new XMLHttpRequest();
+              xhr.open('GET', location.href);
+              xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText });
+              xhr.onerror = () => reject(new Error('xhr failed'));
+              xhr.send();
+            });
+          `);
+          assert.match(xhrResult.body, /override/);
         },
       ],
     ];

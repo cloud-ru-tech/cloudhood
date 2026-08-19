@@ -1,3 +1,5 @@
+import '#features/response-override-apply-errors/model';
+
 import './styles.css';
 
 import { useUnit } from 'effector-react';

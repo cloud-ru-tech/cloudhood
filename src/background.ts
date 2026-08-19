@@ -1,8 +1,13 @@
 import browser from 'webextension-polyfill';
 
-import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
+import { BrowserStorageKey, RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
+import {
+  isResponseOverrideApplyErrorWorkerMessage,
+  isServiceWorkerReloadMessage,
+} from './shared/utils/responseOverrideMessages';
+import { parseResponseOverrideApplyErrors } from './shared/utils/responseOverrides';
 import { setBrowserCookies } from './shared/utils/setBrowserCookies';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { enableExtensionReload } from './utils/extension-reload';
@@ -61,10 +66,35 @@ if (process.env.NODE_ENV === 'development') {
 
 const BADGE_COLOR = '#ffffff';
 
-async function notify(message: ServiceWorkerEvent) {
+async function appendResponseOverrideApplyError(message: {
+  profileId: string;
+  overrideId: number;
+  reason: string;
+}) {
+  const result = await browser.storage.local.get(BrowserStorageKey.ResponseOverrideApplyErrors);
+  const existingErrors = parseResponseOverrideApplyErrors(result[BrowserStorageKey.ResponseOverrideApplyErrors]);
+  const nextErrors = [
+    ...existingErrors,
+    {
+      profileId: message.profileId,
+      overrideId: message.overrideId,
+      reason: message.reason,
+      timestamp: Date.now(),
+    },
+  ].slice(-RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT);
+
+  await browser.storage.local.set({ [BrowserStorageKey.ResponseOverrideApplyErrors]: nextErrors });
+}
+
+async function notify(message: unknown) {
   logger.debug('Received message:', message);
 
-  if (message === ServiceWorkerEvent.Reload) {
+  if (isResponseOverrideApplyErrorWorkerMessage(message)) {
+    await appendResponseOverrideApplyError(message);
+    return undefined;
+  }
+
+  if (isServiceWorkerReloadMessage(message)) {
     logger.info('🔄 Reloading headers configuration');
 
     const result = await browser.storage.local.get([
@@ -217,7 +247,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
 browser.runtime.onMessage.addListener((message: unknown) => {
-  notify(message as ServiceWorkerEvent).catch(err => {
+  notify(message).catch(err => {
     logger.error('Error handling message:', err);
   });
   return undefined;
