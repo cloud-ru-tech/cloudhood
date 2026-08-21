@@ -2,10 +2,17 @@ import browser from 'webextension-polyfill';
 
 import {
   BrowserStorageKey,
+  CAPTURED_REQUESTS_BRIDGE_BATCH_MS,
   CLOUDHOOD_RESPONSE_OVERRIDES_MESSAGE,
   ServiceWorkerEvent,
 } from '#shared/constants';
+import { CapturedRequestEvent } from '#shared/types/capturedRequest';
 import { ResponseOverride } from '#shared/types/responseOverride';
+import {
+  isRequestCaptureSettledPageMessage,
+  isRequestCaptureStartedPageMessage,
+  toCapturedRequestEventFromPageMessage,
+} from '#shared/utils/capturedRequestMessages';
 import {
   isResponseOverrideApplyErrorPageMessage,
   ResponseOverridesPageMessage,
@@ -18,6 +25,8 @@ import {
 } from '#shared/utils/responseOverrides';
 
 let selectedProfileId = '';
+let captureEventQueue: CapturedRequestEvent[] = [];
+let captureBatchTimer: ReturnType<typeof setTimeout> | null = null;
 
 function publishOverrides(overrides: ResponseOverride[]) {
   const message: ResponseOverridesPageMessage = {
@@ -46,19 +55,92 @@ async function refreshActiveOverrides() {
   publishOverrides(overrides);
 }
 
-window.addEventListener('message', event => {
-  if (event.source !== window || !isResponseOverrideApplyErrorPageMessage(event.data)) {
+function flushCapturedRequestEvents() {
+  captureBatchTimer = null;
+  const events = captureEventQueue;
+  captureEventQueue = [];
+
+  if (events.length === 0) {
     return;
   }
 
   browser.runtime
     .sendMessage({
-      type: ServiceWorkerEvent.ResponseOverrideApplyError,
-      profileId: selectedProfileId,
-      overrideId: event.data.overrideId,
-      reason: event.data.reason,
+      type: ServiceWorkerEvent.CapturedRequestEvents,
+      events,
     })
     .catch(() => undefined);
+}
+
+function enqueueCapturedRequestEvent(event: CapturedRequestEvent) {
+  captureEventQueue.push(event);
+
+  if (captureBatchTimer !== null) {
+    return;
+  }
+
+  captureBatchTimer = setTimeout(flushCapturedRequestEvents, CAPTURED_REQUESTS_BRIDGE_BATCH_MS);
+}
+
+function sendSessionStart() {
+  browser.runtime
+    .sendMessage({
+      type: ServiceWorkerEvent.CapturedRequestsSessionStarted,
+    })
+    .catch(() => undefined);
+}
+
+function isDocumentPrerendering(doc: Document): boolean {
+  return 'prerendering' in doc && Reflect.get(doc, 'prerendering') === true;
+}
+
+function maybeSendSessionStart() {
+  if (window.self !== window.top) {
+    return;
+  }
+
+  if (isDocumentPrerendering(document)) {
+    document.addEventListener(
+      'prerenderingchange',
+      () => {
+        if (!isDocumentPrerendering(document)) {
+          sendSessionStart();
+        }
+      },
+      { once: true },
+    );
+    return;
+  }
+
+  sendSessionStart();
+}
+
+window.addEventListener('message', event => {
+  if (event.source !== window) {
+    return;
+  }
+
+  if (isResponseOverrideApplyErrorPageMessage(event.data)) {
+    browser.runtime
+      .sendMessage({
+        type: ServiceWorkerEvent.ResponseOverrideApplyError,
+        profileId: selectedProfileId,
+        overrideId: event.data.overrideId,
+        reason: event.data.reason,
+      })
+      .catch(() => undefined);
+    return;
+  }
+
+  if (isRequestCaptureStartedPageMessage(event.data) || isRequestCaptureSettledPageMessage(event.data)) {
+    enqueueCapturedRequestEvent(toCapturedRequestEventFromPageMessage(event.data));
+  }
+});
+
+window.addEventListener('pageshow', event => {
+  if (event.persisted) {
+    maybeSendSessionStart();
+  }
 });
 
 browser.storage.onChanged.addListener((changes, areaName) => {
@@ -77,4 +159,5 @@ browser.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+maybeSendSessionStart();
 refreshActiveOverrides().catch(() => undefined);

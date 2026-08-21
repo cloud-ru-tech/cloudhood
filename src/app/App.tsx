@@ -1,3 +1,5 @@
+import '#entities/captured-requests/model';
+import '#features/mock-captured-request/model';
 import '#features/response-override-apply-errors/model';
 
 import './styles.css';

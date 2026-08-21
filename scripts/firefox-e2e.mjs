@@ -40,7 +40,10 @@ const selectors = {
   addResponseOverrideButton: '[data-test-id="add-response-override-button"]',
   responseOverrideUrl: '[data-test-id="response-override-url"] input',
   responseOverrideJson: '[data-test-id="response-override-json"] textarea',
+  responseOverrideCheckbox: '[data-test-id="response-override-checkbox"]',
   responseOverridesSection: '[data-test-id="response-overrides-section"]',
+  capturedRequestMock: '[data-test-id="captured-request-mock"]',
+  capturedRequestsRoot: '[data-test-id="captured-requests-root"]',
 };
 
 function createEchoServer() {
@@ -565,6 +568,29 @@ async function main() {
             });
           `);
           assert.match(xhrResult.body, /override/);
+        },
+      ],
+      [
+        'request capture and Mock prefill',
+        async () => {
+          await driver.get(echoServer.url);
+          await driver.executeScript(`
+            return fetch(location.href).then((response) => response.text());
+          `);
+          await browser.open();
+          await browser.clickTab('Requests');
+          await waitUntil(
+            async () => (await browser.count(selectors.capturedRequestMock)) >= 1,
+            'captured request Mock button to appear',
+            15_000,
+          );
+          await browser.click(selectors.capturedRequestMock);
+          await waitUntil(
+            async () => (await browser.count(selectors.responseOverridesSection)) === 1,
+            'Modify responses after Mock',
+          );
+          await waitForValue(browser, selectors.responseOverrideUrl, echoServer.url.endsWith('/') ? echoServer.url : `${echoServer.url}/`);
+          assert.equal(await browser.attr(selectors.responseOverrideCheckbox, 'data-checked'), 'false');
         },
       ],
     ];

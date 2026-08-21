@@ -1,7 +1,24 @@
 import browser from 'webextension-polyfill';
 
-import { BrowserStorageKey, RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT } from './shared/constants';
+import {
+  BrowserStorageKey,
+  CAPTURED_REQUESTS_SESSION_WRITE_DEBOUNCE_MS,
+  RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT,
+} from './shared/constants';
+import { CapturedRequestsTabRecord } from './shared/types/capturedRequest';
 import { browserAction } from './shared/utils/browserAPI';
+import {
+  isCapturedRequestEventsWorkerMessage,
+  isCapturedRequestsSessionStartedWorkerMessage,
+  parseCapturedRequestEventsFromUnknown,
+} from './shared/utils/capturedRequestMessages';
+import {
+  appendCapturedRequestEvents,
+  capturedRequestsSessionKey,
+  dropCapturedRequestBodies,
+  parseCapturedRequestsTabRecord,
+  trimCapturedRequestEntries,
+} from './shared/utils/capturedRequests';
 import { logger, LogLevel } from './shared/utils/logger';
 import {
   isResponseOverrideApplyErrorWorkerMessage,
@@ -86,8 +103,134 @@ async function appendResponseOverrideApplyError(message: {
   await browser.storage.local.set({ [BrowserStorageKey.ResponseOverrideApplyErrors]: nextErrors });
 }
 
-async function notify(message: unknown) {
+const pendingCapturedRequestsByTab = new Map<number, CapturedRequestsTabRecord>();
+const capturedRequestsWriteTimers = new Map<number, ReturnType<typeof setTimeout>>();
+
+async function readCapturedRequestsRecord(tabId: number): Promise<CapturedRequestsTabRecord> {
+  const pendingRecord = pendingCapturedRequestsByTab.get(tabId);
+
+  if (pendingRecord) {
+    return pendingRecord;
+  }
+
+  const key = capturedRequestsSessionKey(tabId);
+  const result = await browser.storage.session.get(key);
+  return parseCapturedRequestsTabRecord(result[key]) ?? { entries: [] };
+}
+
+async function writeCapturedRequestsRecord(tabId: number, record: CapturedRequestsTabRecord) {
+  const key = capturedRequestsSessionKey(tabId);
+
+  try {
+    await browser.storage.session.set({ [key]: record });
+    pendingCapturedRequestsByTab.set(tabId, record);
+    return;
+  } catch {
+    const withoutBodies = dropCapturedRequestBodies(record);
+
+    try {
+      await browser.storage.session.set({ [key]: withoutBodies });
+      pendingCapturedRequestsByTab.set(tabId, withoutBodies);
+      return;
+    } catch {
+      const trimmedRecord = trimCapturedRequestEntries(withoutBodies, Math.floor(withoutBodies.entries.length / 2));
+
+      try {
+        await browser.storage.session.set({ [key]: trimmedRecord });
+        pendingCapturedRequestsByTab.set(tabId, trimmedRecord);
+      } catch {
+        logger.error('Failed to persist captured requests after quota fallback', { tabId });
+      }
+    }
+  }
+}
+
+function scheduleCapturedRequestsWrite(tabId: number, record: CapturedRequestsTabRecord) {
+  pendingCapturedRequestsByTab.set(tabId, record);
+  const existingTimer = capturedRequestsWriteTimers.get(tabId);
+
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+  }
+
+  const timer = setTimeout(() => {
+    capturedRequestsWriteTimers.delete(tabId);
+    const pendingRecord = pendingCapturedRequestsByTab.get(tabId);
+
+    if (!pendingRecord) {
+      return;
+    }
+
+    writeCapturedRequestsRecord(tabId, pendingRecord).catch(error => {
+      logger.error('Failed to write captured requests', error);
+    });
+  }, CAPTURED_REQUESTS_SESSION_WRITE_DEBOUNCE_MS);
+
+  capturedRequestsWriteTimers.set(tabId, timer);
+}
+
+async function resetCapturedRequestsSession(tabId: number) {
+  const existingTimer = capturedRequestsWriteTimers.get(tabId);
+
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+    capturedRequestsWriteTimers.delete(tabId);
+  }
+
+  const emptyRecord: CapturedRequestsTabRecord = { entries: [] };
+  pendingCapturedRequestsByTab.set(tabId, emptyRecord);
+  await writeCapturedRequestsRecord(tabId, emptyRecord);
+}
+
+async function appendCapturedRequestEventsForTab(tabId: number, message: unknown) {
+  const events = parseCapturedRequestEventsFromUnknown(message);
+
+  if (events.length === 0) {
+    return;
+  }
+
+  const currentRecord = await readCapturedRequestsRecord(tabId);
+  const nextRecord = appendCapturedRequestEvents(currentRecord, events);
+  scheduleCapturedRequestsWrite(tabId, nextRecord);
+}
+
+function clearCapturedRequestsTab(tabId: number) {
+  const existingTimer = capturedRequestsWriteTimers.get(tabId);
+
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+    capturedRequestsWriteTimers.delete(tabId);
+  }
+
+  pendingCapturedRequestsByTab.delete(tabId);
+  browser.storage.session.remove(capturedRequestsSessionKey(tabId)).catch(() => undefined);
+}
+
+function getSenderTabId(sender: { tab?: { id?: number } }): number | null {
+  const tabId = sender.tab?.id;
+  return typeof tabId === 'number' ? tabId : null;
+}
+
+async function notify(message: unknown, sender: { tab?: { id?: number } }) {
   logger.debug('Received message:', message);
+
+  const senderTabId = getSenderTabId(sender);
+
+  if (isCapturedRequestsSessionStartedWorkerMessage(message)) {
+    if (senderTabId !== null) {
+      await resetCapturedRequestsSession(senderTabId);
+    }
+
+    return undefined;
+  }
+
+  if (isCapturedRequestEventsWorkerMessage(message)) {
+    if (senderTabId !== null) {
+      await appendCapturedRequestEventsForTab(senderTabId, message);
+    }
+
+    return undefined;
+  }
 
   if (isResponseOverrideApplyErrorWorkerMessage(message)) {
     await appendResponseOverrideApplyError(message);
@@ -246,8 +389,12 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
-browser.runtime.onMessage.addListener((message: unknown) => {
-  notify(message).catch(err => {
+browser.tabs.onRemoved.addListener(tabId => {
+  clearCapturedRequestsTab(tabId);
+});
+
+browser.runtime.onMessage.addListener((message: unknown, sender: { tab?: { id?: number } }) => {
+  notify(message, sender).catch(err => {
     logger.error('Error handling message:', err);
   });
   return undefined;

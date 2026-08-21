@@ -3,5 +3,6 @@ export * from './headers-tab.page';
 export * from './modals.page';
 export * from './popup.page';
 export * from './sidebar.page';
+export * from './requests-tab.page';
 export * from './response-overrides-tab.page';
 export * from './url-filters-tab.page';

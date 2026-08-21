@@ -9,10 +9,21 @@ export enum BrowserStorageKey {
 export enum ServiceWorkerEvent {
   Reload = 'reload',
   ResponseOverrideApplyError = 'responseOverrideApplyError',
+  CapturedRequestEvents = 'capturedRequestEvents',
+  CapturedRequestsSessionStarted = 'capturedRequestsSessionStarted',
 }
 
 export const CLOUDHOOD_RESPONSE_OVERRIDES_MESSAGE = 'CLOUDHOOD_RESPONSE_OVERRIDES';
 export const CLOUDHOOD_RESPONSE_OVERRIDE_APPLY_ERROR_MESSAGE = 'CLOUDHOOD_RESPONSE_OVERRIDE_APPLY_ERROR';
+export const CLOUDHOOD_REQUEST_CAPTURE_STARTED = 'CLOUDHOOD_REQUEST_CAPTURE_STARTED';
+export const CLOUDHOOD_REQUEST_CAPTURE_SETTLED = 'CLOUDHOOD_REQUEST_CAPTURE_SETTLED';
+
+export const CAPTURED_REQUESTS_SESSION_KEY_PREFIX = 'capturedRequestsV1:';
+export const CAPTURED_REQUESTS_MAX_ENTRIES = 500;
+export const CAPTURED_REQUESTS_MAX_BODY_BYTES = 256 * 1024;
+export const CAPTURED_REQUESTS_MAX_TOTAL_BODY_BYTES = 2 * 1024 * 1024;
+export const CAPTURED_REQUESTS_BRIDGE_BATCH_MS = 100;
+export const CAPTURED_REQUESTS_SESSION_WRITE_DEBOUNCE_MS = 150;
 
 export const RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT = 20;
 
@@ -106,6 +117,29 @@ export const RESPONSE_OVERRIDE_COPY = {
   delete: 'Delete',
   matchTooltip: 'Match the full request URL using Contains, Equals, or RegEx. Request bodies are not matched.',
   applyError: 'Couldn’t apply a response override. The request was sent normally.',
+} as const;
+
+export const CAPTURED_REQUESTS_COPY = {
+  tab: 'Requests',
+  loading: 'Loading requests…',
+  noActivePage: 'Open a web page to view requests.',
+  emptyTitle: 'No requests yet',
+  emptyBody: 'Reload the page or use it to capture Fetch and XHR requests.',
+  restrictedTitle: 'Requests aren’t available on this page',
+  restrictedBody: 'Open a regular website tab and try again.',
+  errorTitle: 'Couldn’t load requests',
+  errorBody: 'Try again. If the problem continues, reload the page.',
+  retry: 'Try again',
+  pending: 'Pending',
+  failed: 'Failed',
+  mock: 'Mock',
+  mockCreated: 'Mock created. Review and enable it.',
+  searchUrlLabel: 'URL',
+  searchUrlPlaceholder: 'Search by URL',
+  searchBodyLabel: 'Body',
+  searchBodyPlaceholder: 'Search response body',
+  noMatchesTitle: 'No matching requests',
+  noMatchesBody: 'Try changing or clearing your search.',
 } as const;
 
 export enum Extensions {

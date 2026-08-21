@@ -175,6 +175,7 @@ test.describe('Response overrides', () => {
     await expect(page.getByRole('tab', { name: 'Request cookies' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'URL filters' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Modify responses' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Requests', exact: true })).toBeVisible();
 
     await openModifyResponses(page);
     await expect(page.locator('[data-test-id="add-response-override-button"]')).toBeEnabled();

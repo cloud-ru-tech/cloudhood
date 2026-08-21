@@ -27,7 +27,7 @@
     "tabs",
     "cookies"
   ],
-  "minimum_chrome_version": "111",
+  "minimum_chrome_version": "112",
   "background": {
     "service_worker": "background.bundle.js"
   },

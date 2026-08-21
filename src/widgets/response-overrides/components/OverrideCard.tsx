@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import { KeyboardEvent, useEffect, useState } from 'react';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
 import { FieldDecorator, FieldSelect, FieldText } from '@snack-uikit/fields';
@@ -25,7 +25,12 @@ import {
   isResponseOverrideMatchType,
 } from '#shared/utils/responseOverrides';
 import { JsonEditor } from '#widgets/response-overrides/components';
-import { $collapsedResponseOverrideIds, responseOverrideExpandToggled } from '#widgets/response-overrides/model';
+import {
+  $collapsedResponseOverrideIds,
+  $pendingRevealResponseOverrideId,
+  responseOverrideExpandToggled,
+  responseOverrideRevealed,
+} from '#widgets/response-overrides/model';
 
 import * as S from '../styled';
 
@@ -51,14 +56,17 @@ type OverrideCardProps = {
 };
 
 export function OverrideCard({ override }: OverrideCardProps) {
-  const [isPaused, collapsedIds, onUpdated, onRemoved, onToggled, onExpandToggled] = useUnit([
+  const [isPaused, collapsedIds, pendingRevealId, onUpdated, onRemoved, onToggled, onExpandToggled, onRevealed] = useUnit([
     $isPaused,
     $collapsedResponseOverrideIds,
+    $pendingRevealResponseOverrideId,
     selectedProfileResponseOverridesUpdated,
     selectedProfileResponseOverridesRemoved,
     selectedProfileResponseOverrideToggled,
     responseOverrideExpandToggled,
+    responseOverrideRevealed,
   ]);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const overrideName = typeof override.name === 'string' ? override.name : '';
   const cardState = getOverrideCardViewState(override);
@@ -72,6 +80,19 @@ export function OverrideCard({ override }: OverrideCardProps) {
       setDraftName(overrideName);
     }
   }, [isEditingTitle, overrideName]);
+
+  useEffect(() => {
+    if (pendingRevealId !== override.id || !cardRef.current) {
+      return;
+    }
+
+    cardRef.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+    const focusTarget = cardRef.current.querySelector<HTMLElement>(
+      '[data-test-id="response-override-match-type"] button, [data-test-id="response-override-match-type"] [role="combobox"], [data-test-id="response-override-match-type"] input',
+    );
+    focusTarget?.focus();
+    onRevealed();
+  }, [onRevealed, override.id, pendingRevealId]);
 
   const persist = (patch: Partial<ResponseOverride>) => {
     onUpdated([
@@ -112,7 +133,7 @@ export function OverrideCard({ override }: OverrideCardProps) {
   };
 
   return (
-    <S.Card data-test-id='response-override-card'>
+    <S.Card ref={cardRef} data-test-id='response-override-card'>
       <S.CardHeader>
         <S.TitleCluster>
           <Checkbox

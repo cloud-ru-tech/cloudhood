@@ -10,8 +10,9 @@ import {
   $selectedProfileActiveResponseOverridesCount,
   $selectedProfileActiveUrlFiltersCount,
 } from '#entities/request-profile/model';
-import { RESPONSE_OVERRIDE_COPY } from '#shared/constants';
+import { CAPTURED_REQUESTS_COPY, RESPONSE_OVERRIDE_COPY } from '#shared/constants';
 import { getCounterProps } from '#shared/utils/getCounterProps';
+import { CapturedRequests } from '#widgets/captured-requests';
 
 import { CookiesActions } from './CookiesActions';
 import { RequestHeadersActions } from './RequestHeadersActions';
@@ -48,6 +49,7 @@ export function ProfileActions() {
             counter={getCounterProps(activeResponseOverridesCount)}
             value='response-overrides'
           />
+          <Tabs.Tab label={CAPTURED_REQUESTS_COPY.tab} value='requests' />
         </Tabs.TabBar>
         <Tabs.TabContent value='headers'>
           <RequestHeadersActions />
@@ -60,6 +62,9 @@ export function ProfileActions() {
         </Tabs.TabContent>
         <Tabs.TabContent value='response-overrides'>
           <ResponseOverridesActions />
+        </Tabs.TabContent>
+        <Tabs.TabContent value='requests'>
+          <CapturedRequests />
         </Tabs.TabContent>
       </Tabs>
 

@@ -5,6 +5,7 @@ import { ensureMenuClosed, safeClick, waitForNetworkIdle, waitForVisible } from 
 import { CookiesTabPage } from './cookies-tab.page';
 import { HeadersTabPage } from './headers-tab.page';
 import { SidebarPage } from './sidebar.page';
+import { RequestsTabPage } from './requests-tab.page';
 import { ResponseOverridesTabPage } from './response-overrides-tab.page';
 import { UrlFiltersTabPage } from './url-filters-tab.page';
 
@@ -69,6 +70,10 @@ export class PopupPage {
 
   get responseOverridesTab() {
     return new ResponseOverridesTabPage(this.page);
+  }
+
+  get requestsTab() {
+    return new RequestsTabPage(this.page);
   }
 
   get sidebar() {
