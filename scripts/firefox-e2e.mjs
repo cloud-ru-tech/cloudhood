@@ -19,6 +19,7 @@ const selectors = {
   allHeadersCheckbox: '[data-test-id="all-request-headers-checkbox"]',
   allUrlFiltersCheckbox: '[data-test-id="all-url-filters-checkbox"]',
   headerCheckbox: '[data-test-id="request-header-checkbox"]',
+  dragHandle: '[data-test-id="drag-handle"]',
   headerMenuButton: '[data-test-id="request-header-menu-button"]',
   headerNameInput: '[data-test-id="header-name-input"] input',
   headerValueInput: '[data-test-id="header-value-input"] input',
@@ -293,6 +294,33 @@ async function main() {
           await waitForValue(browser, selectors.headerValueInput, 'updated', index);
           await browser.click(selectors.removeHeaderButton, index);
           await waitForCount(browser, selectors.headerNameInput, index);
+        },
+      ],
+      [
+        'request headers reorder with keyboard fallback',
+        async () => {
+          await addHeader(browser, 'X-Second', 'second');
+          await addHeader(browser, 'X-Third', 'third');
+          await browser.fill(selectors.headerNameInput, 'X-First');
+          await waitForValue(browser, selectors.headerNameInput, 'X-First', 0);
+          await waitForValue(browser, selectors.headerNameInput, 'X-Second', 1);
+          await waitForValue(browser, selectors.headerNameInput, 'X-Third', 2);
+
+          await (await browser.element(selectors.dragHandle, 0)).sendKeys(Key.ARROW_DOWN);
+          await waitUntil(
+            async () =>
+              (await browser.value(selectors.headerNameInput, 0)) === 'X-Second' &&
+              (await browser.value(selectors.headerNameInput, 1)) === 'X-First',
+            'first request header to move down',
+          );
+          await (await browser.element(selectors.dragHandle, 1)).sendKeys(Key.ARROW_DOWN);
+          await waitUntil(
+            async () =>
+              (await browser.value(selectors.headerNameInput, 0)) === 'X-Second' &&
+              (await browser.value(selectors.headerNameInput, 1)) === 'X-Third' &&
+              (await browser.value(selectors.headerNameInput, 2)) === 'X-First',
+            'request headers to reorder with keyboard fallback',
+          );
         },
       ],
       [

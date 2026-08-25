@@ -1,4 +1,3 @@
-import { useSortable } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react/effector-react.mjs';
 import { type KeyboardEvent, useState } from 'react';
 
@@ -17,9 +16,12 @@ import { validateCookieName, validateCookieValue } from '#shared/utils/cookies';
 import { RequestCookieMenu } from './RequestCookieMenu';
 import * as S from './styled';
 
-export function RequestCookieRow(props: RequestCookie) {
+type RequestCookieRowProps = RequestCookie & {
+  onMove: (direction: -1 | 1) => void;
+};
+
+export function RequestCookieRow({ onMove, ...props }: RequestCookieRowProps) {
   const { disabled, name, value, id } = props;
-  const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
   const { isPaused, onRequestCookiesUpdated, onRequestCookiesRemoved } = useUnit({
     isPaused: $isPaused,
     onRequestCookiesUpdated: selectedProfileRequestCookiesUpdated,
@@ -30,7 +32,6 @@ export function RequestCookieRow(props: RequestCookie) {
   const isValueFormatVerified = validateCookieValue(value);
 
   const [cookieNameFocused, setCookieNameFocused] = useState(false);
-
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
     if (event.key === ' ' && target.selectionStart === 0) {
@@ -47,9 +48,9 @@ export function RequestCookieRow(props: RequestCookie) {
   };
 
   return (
-    <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
+    <S.Wrapper data-sortable-id={id}>
       <S.LeftHeaderActions>
-        <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
+        <DragHandle disabled={isPaused} onMove={onMove} />
 
         <Checkbox
           data-test-id='request-cookie-checkbox'

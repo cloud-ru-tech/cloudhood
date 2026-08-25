@@ -1,43 +1,27 @@
-import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 
+import { $isPaused } from '#entities/is-paused/model';
 import { $selectedProfileUrlFilters } from '#entities/request-profile/model';
-import { dragEnded, dragOver, dragStarted, restrictToParentElement } from '#entities/sortable-list';
-import { $draggableUrlFilter, $flattenUrlFilters } from '#features/selected-profile-url-filters/reorder/model';
-import { isDefined } from '#shared/utils/typeGuards';
+import { useSortableList } from '#entities/sortable-list';
+import { urlFiltersReordered } from '#features/selected-profile-url-filters/reorder/model';
 
 import { UrlFiltersRow } from './components/UrlFiltersRow';
 import * as S from './styled';
 
 export function UrlFilters() {
-  const { urlFilters, flattenUrlFilters, activeUrlFilter, onDragStarted, onDragOver, onDragEnded } = useUnit({
+  const { isPaused, onReorder, urlFilters } = useUnit({
+    isPaused: $isPaused,
     urlFilters: $selectedProfileUrlFilters,
-    flattenUrlFilters: $flattenUrlFilters,
-    activeUrlFilter: $draggableUrlFilter,
-    onDragStarted: dragStarted,
-    onDragOver: dragOver,
-    onDragEnded: dragEnded,
+    onReorder: urlFiltersReordered,
   });
 
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+  const { listRef, moveByKeyboard } = useSortableList({ disabled: isPaused, items: urlFilters, onReorder });
 
   return (
-    <DndContext
-      modifiers={[restrictToParentElement]}
-      sensors={sensors}
-      onDragStart={onDragStarted}
-      onDragOver={onDragOver}
-      onDragEnd={onDragEnded}
-    >
-      <S.Wrapper>
-        <SortableContext items={flattenUrlFilters}>
-          {urlFilters.map(filter => (
-            <UrlFiltersRow key={filter.id} {...filter} />
-          ))}
-        </SortableContext>
-      </S.Wrapper>
-      <DragOverlay>{isDefined(activeUrlFilter) ? <UrlFiltersRow {...activeUrlFilter} /> : null}</DragOverlay>
-    </DndContext>
+    <S.Wrapper ref={listRef}>
+      {urlFilters.map(filter => (
+        <UrlFiltersRow key={filter.id} {...filter} onMove={direction => moveByKeyboard(filter.id, direction)} />
+      ))}
+    </S.Wrapper>
   );
 }

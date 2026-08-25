@@ -1,4 +1,3 @@
-import { useSortable } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
 
@@ -19,9 +18,12 @@ import { validateHeaderName, validateHeaderValue } from '#shared/utils/headers';
 import { RequestHeaderMenu } from './RequestHeaderMenu';
 import * as S from './styled';
 
-export function RequestHeaderRow(props: RequestHeader) {
+type RequestHeaderRowProps = RequestHeader & {
+  onMove: (direction: -1 | 1) => void;
+};
+
+export function RequestHeaderRow({ onMove, ...props }: RequestHeaderRowProps) {
   const { disabled, name, value, id } = props;
-  const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
   const { isPaused, onRequestHeadersPasted, onRequestHeadersUpdated, onRequestHeadersRemoved } = useUnit({
     isPaused: $isPaused,
     onRequestHeadersPasted: selectedProfileRequestHeadersPasted,
@@ -33,7 +35,6 @@ export function RequestHeaderRow(props: RequestHeader) {
   const isValueFormatVerified = validateHeaderValue(value);
 
   const [headerNameFocused, setHeaderNameFocused] = useState(false);
-
   const onHeaderNameFocused = () => setHeaderNameFocused(true);
   const onHeaderNameBlur = () => setHeaderNameFocused(false);
 
@@ -65,9 +66,9 @@ export function RequestHeaderRow(props: RequestHeader) {
   };
 
   return (
-    <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
+    <S.Wrapper data-sortable-id={id}>
       <S.LeftHeaderActions>
-        <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
+        <DragHandle disabled={isPaused} onMove={onMove} />
 
         <Checkbox
           data-test-id='request-header-checkbox'

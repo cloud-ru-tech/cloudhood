@@ -311,46 +311,48 @@ test.describe('Request Headers', () => {
   });
 
   /**
-   * Test case: Dragging request headers
-   *
-   * Goal: Verify drag-and-drop functionality for
-   * reordering request headers.
-   *
-   * Scenario:
-   * 1. Open the extension popup
-   * 2. Add multiple request headers
-   * 3. Fill headers with different values
-   * 4. Verify that a drag handle is present
-   * 5. Verify that the drag handle is available
+   * Verifies the order persisted after a completed pointer drag.
    */
-  test('should have drag handle for request headers', async ({ page, extensionId }) => {
-    // Step 1: Open the extension popup
+  test('should reorder request headers after dropping', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Step 2: Add a request header
-    const addHeaderButton = page
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .first();
-
+    const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]');
     await addHeaderButton.click();
-    await page.waitForTimeout(1000);
+    await addHeaderButton.click();
 
-    // Step 3: Fill in the header
     const headerNameFields = page.locator('[data-test-id="header-name-input"] input');
-    const headerValueFields = page.locator('[data-test-id="header-value-input"] input');
+    await expect(headerNameFields).toHaveCount(3);
+    await headerNameFields.nth(0).fill('X-First');
+    await headerNameFields.nth(1).fill('X-Second');
+    await headerNameFields.nth(2).fill('X-Third');
 
-    await headerNameFields.nth(0).fill('X-Test-Header');
-    await headerValueFields.nth(0).fill('test-value');
+    const dragHandles = page.locator('[data-test-id="drag-handle"]');
+    await expect(dragHandles).toHaveCount(3);
+    const sourceBox = await dragHandles.nth(0).boundingBox();
+    const targetBox = await dragHandles.nth(2).boundingBox();
 
-    // Step 4: Verify that a drag handle is present
-    const dragHandles = page.locator('button').filter({ has: page.locator('svg') });
+    expect(sourceBox).not.toBeNull();
+    expect(targetBox).not.toBeNull();
 
-    // Step 5: Verify that the drag handle is available
-    const firstDragHandle = dragHandles.nth(0);
-    await expect(firstDragHandle).toBeVisible();
-    await expect(firstDragHandle).toBeEnabled();
+    const sourcePosition = {
+      clientX: sourceBox!.x + sourceBox!.width / 2,
+      clientY: sourceBox!.y + sourceBox!.height / 2,
+    };
+    const targetPosition = {
+      clientX: targetBox!.x + targetBox!.width / 2,
+      clientY: targetBox!.y + targetBox!.height / 2,
+    };
+
+    await page.mouse.move(sourcePosition.clientX, sourcePosition.clientY);
+    await page.mouse.down();
+    await page.mouse.move(sourcePosition.clientX + 6, sourcePosition.clientY + 6, { steps: 3 });
+    await page.mouse.move(targetPosition.clientX, targetPosition.clientY, { steps: 12 });
+    await page.mouse.up();
+
+    await expect
+      .poll(() => headerNameFields.evaluateAll(fields => fields.map(field => (field as HTMLInputElement).value)))
+      .toEqual(['X-Second', 'X-Third', 'X-First']);
   });
 
   /**

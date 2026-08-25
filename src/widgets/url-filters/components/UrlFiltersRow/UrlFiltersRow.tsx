@@ -1,4 +1,3 @@
-import { useSortable } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent } from 'react';
 
@@ -19,9 +18,12 @@ import { validateHeaderValue } from '#shared/utils/headers';
 import * as S from './styled';
 import { UrlFiltersMenu } from './UrlFiltersMenu';
 
-export function UrlFiltersRow(props: UrlFilter) {
+type UrlFiltersRowProps = UrlFilter & {
+  onMove: (direction: -1 | 1) => void;
+};
+
+export function UrlFiltersRow({ onMove, ...props }: UrlFiltersRowProps) {
   const { disabled, value, id } = props;
-  const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id });
   const { isPaused, onUrlFiltersUpdated, onUrlFiltersRemoved } = useUnit({
     isPaused: $isPaused,
     onUrlFiltersUpdated: selectedProfileUrlFiltersUpdated,
@@ -30,7 +32,6 @@ export function UrlFiltersRow(props: UrlFilter) {
 
   const isValueFormatVerified = validateHeaderValue(value);
   const urlFilterValidation = validateUrlFilter(value);
-
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     const value = e.clipboardData.getData('text/plain');
 
@@ -55,8 +56,8 @@ export function UrlFiltersRow(props: UrlFilter) {
   };
 
   return (
-    <S.Wrapper ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
-      <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
+    <S.Wrapper data-sortable-id={id}>
+      <DragHandle disabled={isPaused} onMove={onMove} />
       <Checkbox disabled={isPaused} checked={!disabled} onChange={handleChecked} data-test-id='url-filter-checkbox' />
 
       <S.UrlFilterFieldWrapper>
