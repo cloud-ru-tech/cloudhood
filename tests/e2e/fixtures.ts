@@ -18,7 +18,7 @@ export const test = base.extend<{
 
     const pathToExtension = path.join(__dirname, '..', '..', 'build', 'chrome');
     const context = await chromium.launchPersistentContext('', {
-      channel: 'chromium',
+      channel: process.env.PLAYWRIGHT_CHROME_CHANNEL ?? 'chromium',
       args: [`--disable-extensions-except=${pathToExtension}`, `--load-extension=${pathToExtension}`],
     });
     await use(context);
