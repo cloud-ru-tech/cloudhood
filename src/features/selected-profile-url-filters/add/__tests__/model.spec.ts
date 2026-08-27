@@ -1,4 +1,4 @@
-import { allSettled, createEvent, createStore, fork } from 'effector';
+import { allSettled, createEvent, createStore, createWatch, fork } from 'effector';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies before imports
@@ -36,7 +36,6 @@ describe('profileUrlFiltersAdded', () => {
     ];
 
     const profileUpdatedSpy = vi.fn();
-    profileUpdated.watch(profileUpdatedSpy);
 
     const scope = fork({
       values: [
@@ -44,6 +43,8 @@ describe('profileUrlFiltersAdded', () => {
         [$selectedRequestProfile, 'profile1'],
       ],
     });
+
+    createWatch({ unit: profileUpdated, scope, fn: profileUpdatedSpy });
 
     // Act
     await allSettled(profileUrlFiltersAdded, { scope });
@@ -73,7 +74,6 @@ describe('profileUrlFiltersAdded', () => {
     ];
 
     const profileUpdatedSpy = vi.fn();
-    profileUpdated.watch(profileUpdatedSpy);
 
     const scope = fork({
       values: [
@@ -81,6 +81,8 @@ describe('profileUrlFiltersAdded', () => {
         [$selectedRequestProfile, 'profile1'],
       ],
     });
+
+    createWatch({ unit: profileUpdated, scope, fn: profileUpdatedSpy });
 
     // Act
     await allSettled(profileUrlFiltersAdded, { scope });
@@ -107,7 +109,6 @@ describe('profileUrlFiltersAdded', () => {
     ];
 
     const profileUpdatedSpy = vi.fn();
-    profileUpdated.watch(profileUpdatedSpy);
 
     const scope = fork({
       values: [
@@ -115,6 +116,8 @@ describe('profileUrlFiltersAdded', () => {
         [$selectedRequestProfile, 'profile1'],
       ],
     });
+
+    createWatch({ unit: profileUpdated, scope, fn: profileUpdatedSpy });
 
     // Act
     await allSettled(profileUrlFiltersAdded, { scope });

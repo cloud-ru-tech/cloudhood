@@ -6,14 +6,18 @@ import { $isPaused } from '#entities/is-paused/model';
 import { $isAllCookiesEnabled, toggleAllProfileRequestCookies } from '#features/toggle-all-request-cookies/model';
 
 export function AllRequestCookiesCheckbox() {
-  const { isAllEnabled, isPaused } = useUnit({ isAllEnabled: $isAllCookiesEnabled, isPaused: $isPaused });
+  const { isAllEnabled, isPaused, onToggleAll } = useUnit({
+    isAllEnabled: $isAllCookiesEnabled,
+    isPaused: $isPaused,
+    onToggleAll: toggleAllProfileRequestCookies,
+  });
 
   return (
     <Checkbox
       data-test-id='all-request-cookies-checkbox'
       disabled={isPaused}
       checked={isAllEnabled}
-      onChange={toggleAllProfileRequestCookies}
+      onChange={onToggleAll}
     />
   );
 }
