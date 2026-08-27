@@ -1,11 +1,8 @@
-import browser from 'webextension-polyfill';
-
 import { BrowserStorageKey } from '#shared/constants';
-import { updateOverrideHeaders } from '#shared/utils/updateOverrideHeaders';
+import { setWithBumpedHeadersConfigMeta } from '#shared/utils/headersConfigMeta';
 
 export async function saveIsPausedToBrowserApi(isPaused: boolean) {
-  await browser.storage.local.set({
+  await setWithBumpedHeadersConfigMeta({
     [BrowserStorageKey.IsPaused]: isPaused,
   });
-  await updateOverrideHeaders();
 }
