@@ -1,30 +1,7 @@
-import { ClientRect, Modifier } from '@dnd-kit/core';
-import { Transform } from '@dnd-kit/utilities';
+export function arrayMove<T>(items: T[], from: number, to: number): T[] {
+  const next = items.slice();
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
 
-function restrictToBoundingRect(transform: Transform, rect: ClientRect, boundingRect: ClientRect): Transform {
-  const value = {
-    ...transform,
-  };
-
-  if (rect.top + transform.y <= boundingRect.top) {
-    value.y = boundingRect.top - rect.top;
-  } else if (rect.bottom + transform.y >= boundingRect.top + boundingRect.height) {
-    value.y = boundingRect.top + boundingRect.height - rect.bottom;
-  }
-
-  if (rect.left + transform.x <= boundingRect.left) {
-    value.x = boundingRect.left - rect.left;
-  } else if (rect.right + transform.x >= boundingRect.left + boundingRect.width) {
-    value.x = boundingRect.left + boundingRect.width - rect.right;
-  }
-
-  return value;
+  return next;
 }
-
-export const restrictToParentElement: Modifier = ({ containerNodeRect, draggingNodeRect, transform }) => {
-  if (!draggingNodeRect || !containerNodeRect) {
-    return transform;
-  }
-
-  return restrictToBoundingRect(transform, draggingNodeRect, containerNodeRect);
-};

@@ -1,46 +1,31 @@
-import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 
+import { $isPaused } from '#entities/is-paused/model';
 import { $selectedProfileResponseOverrides } from '#entities/request-profile/model';
-import { dragEnded, dragOver, dragStarted, restrictToParentElement } from '#entities/sortable-list';
-import {
-  $draggableResponseOverride,
-  $flattenResponseOverrides,
-} from '#features/selected-profile-response-overrides/reorder/model';
-import { isDefined } from '#shared/utils/typeGuards';
+import { useSortableList } from '#entities/sortable-list';
+import { responseOverridesReordered } from '#features/selected-profile-response-overrides/reorder/model';
 
 import { OverrideCard } from './components/OverrideCard';
 import * as S from './styled';
 
 export function ResponseOverrides() {
-  const { overrides, flattenOverrides, activeOverride, onDragStarted, onDragOver, onDragEnded } = useUnit({
+  const { isPaused, overrides, onReorder } = useUnit({
+    isPaused: $isPaused,
     overrides: $selectedProfileResponseOverrides,
-    flattenOverrides: $flattenResponseOverrides,
-    activeOverride: $draggableResponseOverride,
-    onDragStarted: dragStarted,
-    onDragOver: dragOver,
-    onDragEnded: dragEnded,
+    onReorder: responseOverridesReordered,
   });
 
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+  const { listRef, moveByKeyboard } = useSortableList({ disabled: isPaused, items: overrides, onReorder });
 
   return (
-    <DndContext
-      modifiers={[restrictToParentElement]}
-      sensors={sensors}
-      onDragStart={onDragStarted}
-      onDragOver={onDragOver}
-      onDragEnd={onDragEnded}
-    >
-      <S.Wrapper data-test-id='response-overrides-list'>
-        <SortableContext items={flattenOverrides}>
-          {overrides.map(override => (
-            <OverrideCard key={override.id} override={override} />
-          ))}
-        </SortableContext>
-      </S.Wrapper>
-      <DragOverlay>{isDefined(activeOverride) ? <OverrideCard override={activeOverride} /> : null}</DragOverlay>
-    </DndContext>
+    <S.Wrapper ref={listRef} data-test-id='response-overrides-list'>
+      {overrides.map(override => (
+        <OverrideCard
+          key={override.id}
+          override={override}
+          onMove={direction => moveByKeyboard(override.id, direction)}
+        />
+      ))}
+    </S.Wrapper>
   );
 }

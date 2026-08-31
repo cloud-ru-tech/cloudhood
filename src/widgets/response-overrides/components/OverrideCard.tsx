@@ -1,4 +1,3 @@
-import { useSortable } from '@dnd-kit/sortable';
 import { useUnit } from 'effector-react';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 
@@ -55,9 +54,10 @@ type OverrideCardProps = {
     url?: string;
     responseBody?: string;
   };
+  onMove: (direction: -1 | 1) => void;
 };
 
-export function OverrideCard({ override }: OverrideCardProps) {
+export function OverrideCard({ override, onMove }: OverrideCardProps) {
   const [isPaused, collapsedIds, pendingRevealId, onUpdated, onRemoved, onToggled, onExpandToggled, onRevealed] =
     useUnit([
       $isPaused,
@@ -70,7 +70,6 @@ export function OverrideCard({ override }: OverrideCardProps) {
       responseOverrideRevealed,
     ]);
   const cardRef = useRef<HTMLDivElement>(null);
-  const { setNodeRef, listeners, attributes, transition, transform, isDragging } = useSortable({ id: override.id });
 
   const overrideName = typeof override.name === 'string' ? override.name : '';
   const cardState = getOverrideCardViewState(override);
@@ -137,12 +136,12 @@ export function OverrideCard({ override }: OverrideCardProps) {
   };
 
   return (
-    <S.SortableItem ref={setNodeRef} transform={transform} transition={transition} isDragging={isDragging}>
+    <S.SortableItem data-sortable-id={override.id}>
       <S.Card ref={cardRef} data-test-id='response-override-card'>
         <S.CardHeader>
           <S.TitleCluster>
             <span data-test-id='response-override-drag-handle'>
-              <DragHandle disabled={isPaused} listeners={listeners} attributes={attributes} />
+              <DragHandle disabled={isPaused} onMove={onMove} />
             </span>
             <Checkbox
               disabled={isPaused}

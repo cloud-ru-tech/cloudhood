@@ -1,45 +1,14 @@
-import { DragOverEvent, DragStartEvent } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
-import { attach, combine, sample } from 'effector';
+import { attach, createEvent, sample } from 'effector';
 
-import {
-  $requestProfiles,
-  $selectedProfileUrlFilters,
-  $selectedRequestProfile,
-  profileUpdated,
-} from '#entities/request-profile/model';
-import {
-  createSortableListModel,
-  dragEnded,
-  dragOver,
-  dragStarted,
-  type SortableItemId,
-  type SortableItemIdOrNull,
-} from '#entities/sortable-list';
+import { $requestProfiles, $selectedRequestProfile, profileUpdated } from '#entities/request-profile/model';
+import { arrayMove, type DragEndPayload } from '#entities/sortable-list';
 
-export const {
-  $flattenItems: $flattenUrlFilters,
-  $dragTarget: $dragTargetUrlFilters,
-  $raisedItem: $raisedUrlFilter,
-  reorderItems,
-  itemsUpdated,
-} = createSortableListModel({
-  $items: $selectedProfileUrlFilters,
-  $selectedItem: $selectedRequestProfile,
-  $allItems: $requestProfiles.map(profiles => profiles.map(profile => profile.urlFilters)),
-  itemsUpdated: profileUpdated,
-});
-
-export const $draggableUrlFilter = combine([$raisedUrlFilter, $selectedProfileUrlFilters], ([raisedId, filters]) =>
-  raisedId ? filters.find(filter => filter.id === raisedId) : null,
-);
+export const urlFiltersReordered = createEvent<DragEndPayload>();
 
 const reorderUrlFiltersFx = attach({
   source: { profiles: $requestProfiles, selectedProfile: $selectedRequestProfile },
-  effect: ({ profiles, selectedProfile }, payload: { active: string | number; target: string | number }) => {
-    const { active, target } = payload;
-
-    const profile = profiles.find(p => p.id === selectedProfile);
+  effect: ({ profiles, selectedProfile }, { active, target }: DragEndPayload) => {
+    const profile = profiles.find(candidate => candidate.id === selectedProfile);
 
     if (!profile) {
       return null;
@@ -49,48 +18,13 @@ const reorderUrlFiltersFx = attach({
     const activeIndex = urlFilters.findIndex(filter => filter.id === active);
     const targetIndex = urlFilters.findIndex(filter => filter.id === target);
 
-    if (activeIndex === -1 || targetIndex === -1) {
+    if (activeIndex === -1 || targetIndex === -1 || activeIndex === targetIndex) {
       return null;
     }
 
-    return {
-      ...profile,
-      urlFilters: arrayMove(urlFilters, activeIndex, targetIndex),
-    };
+    return { ...profile, urlFilters: arrayMove(urlFilters, activeIndex, targetIndex) };
   },
 });
 
-sample({
-  clock: dragStarted,
-  filter: (event: DragStartEvent) => Boolean(event.active.id),
-  fn: (event: DragStartEvent) => event.active.id as string | number,
-  target: $raisedUrlFilter,
-});
-
-sample({
-  clock: dragOver,
-  filter: (event: DragOverEvent) => Boolean(event.over?.id),
-  fn: (event: DragOverEvent) => event.over?.id as string | number,
-  target: $dragTargetUrlFilters,
-});
-
-const urlFilterMoved = sample({
-  clock: dragEnded,
-  source: { active: $raisedUrlFilter, target: $dragTargetUrlFilters },
-  filter(src: {
-    active: SortableItemIdOrNull;
-    target: SortableItemIdOrNull;
-  }): src is { active: SortableItemId; target: SortableItemId } {
-    return Boolean(src.active) && Boolean(src.target) && src.active !== src.target;
-  },
-});
-
-sample({ clock: urlFilterMoved, target: reorderUrlFiltersFx });
-sample({
-  clock: reorderUrlFiltersFx.doneData,
-  filter: Boolean,
-  target: profileUpdated,
-});
-
-$dragTargetUrlFilters.reset(reorderUrlFiltersFx.finally);
-$raisedUrlFilter.reset(reorderUrlFiltersFx.finally);
+sample({ clock: urlFiltersReordered, target: reorderUrlFiltersFx });
+sample({ clock: reorderUrlFiltersFx.doneData, filter: Boolean, target: profileUpdated });
