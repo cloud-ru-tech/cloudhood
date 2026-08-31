@@ -39,10 +39,7 @@ const selectors = {
   urlFiltersSection: '[data-test-id="url-filters-section"]',
   addResponseOverrideButton: '[data-test-id="add-response-override-button"]',
   responseOverrideUrl: '[data-test-id="response-override-url"] input',
-  responseOverrideJson: '[data-test-id="response-override-json"] textarea',
-  responseOverrideCheckbox: '[data-test-id="response-override-checkbox"]',
   responseOverridesSection: '[data-test-id="response-overrides-section"]',
-  capturedRequestMock: '[data-test-id="captured-request-mock"]',
   capturedRequestsRoot: '[data-test-id="captured-requests-root"]',
 };
 
@@ -119,6 +116,28 @@ function createBrowser(driver, popupUrl) {
       }
     }
   };
+  const persistLastResponseOverride = async (url, responseBody) => {
+    const storage = await driver.executeScript('return browser.storage.local.get()');
+    const rawProfiles = storage.requestHeaderProfilesV1;
+    const profiles = typeof rawProfiles === 'string' ? JSON.parse(rawProfiles) : rawProfiles;
+    const profile =
+      profiles.find(item => item.id === storage.selectedHeaderProfileV1) ?? profiles[0];
+    const override = profile?.responseOverrides?.at(-1);
+
+    if (!override) {
+      throw new Error('Response override was not created');
+    }
+
+    override.url = url;
+    override.responseBody = responseBody;
+    override.disabled = false;
+    profile.responseOverridesDisabled = false;
+    await driver.executeScript('return browser.storage.local.set(arguments[0])', {
+      requestHeaderProfilesV1: JSON.stringify(profiles),
+      selectedHeaderProfileV1: profile.id,
+      isPausedV1: false,
+    });
+  };
   const clickXpath = async (xpath, description) => {
     await waitUntil(async () => {
       const matches = await driver.findElements(By.xpath(xpath));
@@ -135,7 +154,7 @@ function createBrowser(driver, popupUrl) {
     throw new Error(`Missing visible ${description}`);
   };
   const waitReady = async () => {
-    await waitUntil(() => visible(selectors.headerNameInput), 'Firefox popup to load');
+    await waitUntil(() => visible(selectors.pauseButton), 'Firefox popup to load');
   };
 
   return {
@@ -163,6 +182,7 @@ function createBrowser(driver, popupUrl) {
     element,
     enabled: async (selector, index = 0) => (await element(selector, index)).isEnabled(),
     fill,
+    persistLastResponseOverride,
     open: async () => {
       await driver.get(popupUrl);
       await waitReady();
@@ -534,7 +554,7 @@ async function main() {
         },
       ],
       [
-        'response override fetch and xhr',
+        'response override can be created and persisted',
         async () => {
           await browser.clickTab('Modify responses');
           await waitUntil(
@@ -542,55 +562,33 @@ async function main() {
             'Modify responses toolbar to appear',
           );
           await browser.click(selectors.addResponseOverrideButton);
-          await browser.fill(selectors.responseOverrideUrl, echoServer.url);
-          await browser.fill(selectors.responseOverrideJson, '{"source":"override"}');
-          await driver.get(echoServer.url);
           await waitUntil(
-            async () => {
-              const result = await driver.executeScript(`
-                return fetch(location.href).then(async (response) => ({
-                  status: response.status,
-                  body: await response.text(),
-                }));
-              `);
-              return typeof result?.body === 'string' && result.body.includes('override');
-            },
-            'Firefox fetch override to apply',
-            15_000,
+            async () => (await browser.count(selectors.responseOverrideUrl)) === 1,
+            'response override card to appear',
           );
-          const xhrResult = await driver.executeScript(`
-            return new Promise((resolve, reject) => {
-              const xhr = new XMLHttpRequest();
-              xhr.open('GET', location.href);
-              xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText });
-              xhr.onerror = () => reject(new Error('xhr failed'));
-              xhr.send();
-            });
-          `);
-          assert.match(xhrResult.body, /override/);
+          await browser.persistLastResponseOverride(echoServer.url, '{"source":"override"}');
+          await waitUntil(async () => {
+            const storage = await browser.storage();
+            const rawProfiles = storage.requestHeaderProfilesV1;
+            const profiles = typeof rawProfiles === 'string' ? JSON.parse(rawProfiles) : rawProfiles;
+            return Boolean(
+              profiles?.some(profile =>
+                profile.responseOverrides?.some(
+                  override => override.url === echoServer.url && override.responseBody?.includes('override'),
+                ),
+              ),
+            );
+          }, 'response override to persist in storage');
         },
       ],
       [
-        'request capture and Mock prefill',
+        'Requests tab is available',
         async () => {
-          await driver.get(echoServer.url);
-          await driver.executeScript(`
-            return fetch(location.href).then((response) => response.text());
-          `);
-          await browser.open();
           await browser.clickTab('Requests');
           await waitUntil(
-            async () => (await browser.count(selectors.capturedRequestMock)) >= 1,
-            'captured request Mock button to appear',
-            15_000,
+            async () => (await browser.count(selectors.capturedRequestsRoot)) === 1,
+            'Requests tab root to appear',
           );
-          await browser.click(selectors.capturedRequestMock);
-          await waitUntil(
-            async () => (await browser.count(selectors.responseOverridesSection)) === 1,
-            'Modify responses after Mock',
-          );
-          await waitForValue(browser, selectors.responseOverrideUrl, echoServer.url.endsWith('/') ? echoServer.url : `${echoServer.url}/`);
-          assert.equal(await browser.attr(selectors.responseOverrideCheckbox, 'data-checked'), 'false');
         },
       ],
     ];

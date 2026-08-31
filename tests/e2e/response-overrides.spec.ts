@@ -30,10 +30,7 @@ test.beforeAll(async () => {
 
     if (url.pathname === '/page' || url.pathname === '/csp') {
       if (url.pathname === '/csp') {
-        response.setHeader(
-          'content-security-policy',
-          "default-src 'none'; script-src 'unsafe-inline'; connect-src *",
-        );
+        response.setHeader('content-security-policy', "default-src 'none'; script-src 'unsafe-inline'; connect-src *");
       }
 
       response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
@@ -129,12 +126,7 @@ const seedSelectedProfileOverrides = async (context: BrowserContext, responseOve
   }, responseOverrides);
 };
 
-const requestFromPage = async (
-  page: Page,
-  url: string,
-  method = 'GET',
-  transport: 'fetch' | 'xhr' = 'fetch',
-) =>
+const requestFromPage = async (page: Page, url: string, method = 'GET', transport: 'fetch' | 'xhr' = 'fetch') =>
   page.evaluate(
     async ({ requestUrl, requestMethod, requestTransport }) => {
       if (requestTransport === 'xhr') {
@@ -169,6 +161,66 @@ const waitForOverride = async (page: Page, url: string, transport: 'fetch' | 'xh
 };
 
 test.describe('Response overrides', () => {
+  test('opens Modify responses when there are no active headers but applyable overrides', async ({
+    page,
+    extensionId,
+    context,
+  }) => {
+    await seedSelectedProfileOverrides(context, [
+      {
+        id: 1,
+        name: 'Response №1',
+        matchType: 'contains',
+        url: `${fixtureOrigin}/api/data`,
+        method: 'GET',
+        statusCode: 200,
+        responseBody: '{"source":"override"}',
+        disabled: false,
+      },
+    ]);
+
+    await openPopup(page, extensionId);
+
+    await expect(page.getByRole('tab', { name: 'Modify responses' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('[data-test-id="response-overrides-section"]')).toBeVisible();
+  });
+
+  test('includes applyable overrides in the toolbar badge', async ({ page, extensionId, context }) => {
+    await seedSelectedProfileOverrides(context, [
+      {
+        id: 1,
+        name: 'Response №1',
+        matchType: 'contains',
+        url: `${fixtureOrigin}/api/data`,
+        method: 'GET',
+        statusCode: 200,
+        responseBody: '{"source":"override"}',
+        disabled: false,
+      },
+    ]);
+
+    await openPopup(page, extensionId);
+
+    const background = context.serviceWorkers()[0];
+    expect(background).toBeDefined();
+
+    await expect
+      .poll(
+        async () =>
+          await background!.evaluate(
+            () =>
+              new Promise<string>(resolve => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (chrome as any).action.getBadgeText({}, (text: string) => {
+                  resolve(text || '');
+                });
+              }),
+          ),
+        { timeout: 15000, intervals: [200, 400, 600] },
+      )
+      .toBe('1');
+  });
+
   test('shows the Modify responses tab and keeps an empty toolbar', async ({ page, extensionId }) => {
     await openPopup(page, extensionId);
     await expect(page.getByRole('tab', { name: 'Headers' })).toBeVisible();
@@ -189,6 +241,12 @@ test.describe('Response overrides', () => {
     await addOverride(page);
 
     await expect(page.locator('[data-test-id="response-override-title"]')).toHaveText('Response №1');
+    await expect(page.locator('[data-test-id="response-override-drag-handle"]')).toBeVisible();
+    await page.locator('[data-test-id="response-override-rename-button"]').click();
+    await expect(page.locator('[data-test-id="response-override-rename-cancel"]')).toBeVisible();
+    await expect(page.locator('[data-test-id="response-override-delete-button"]')).toHaveCount(0);
+    await page.locator('[data-test-id="response-override-rename-cancel"]').click();
+    await expect(page.locator('[data-test-id="response-override-delete-button"]')).toBeVisible();
     await expect(page.locator('[data-test-id="response-override-url"] input')).toHaveValue('');
     await expect(page.getByText('Incorrect format')).toHaveCount(0);
 
@@ -279,7 +337,9 @@ test.describe('Response overrides', () => {
     await requestPage.goto(`${fixtureOrigin}/page`);
 
     await expect
-      .poll(async () => JSON.parse((await requestFromPage(requestPage, `${fixtureOrigin}/api/connect`, 'CONNECT')).body))
+      .poll(async () =>
+        JSON.parse((await requestFromPage(requestPage, `${fixtureOrigin}/api/connect`, 'CONNECT')).body),
+      )
       .toEqual({ source: 'connect' });
 
     const fetchConnect = await requestFromPage(requestPage, `${fixtureOrigin}/api/connect`, 'CONNECT');
@@ -320,7 +380,9 @@ test.describe('Response overrides', () => {
     const requestPage = await context.newPage();
     await requestPage.goto(`${fixtureOrigin}/page`);
     await expect
-      .poll(async () => JSON.parse((await requestFromPage(requestPage, `${fixtureOrigin}/api/connect-fail`, 'CONNECT')).body))
+      .poll(async () =>
+        JSON.parse((await requestFromPage(requestPage, `${fixtureOrigin}/api/connect-fail`, 'CONNECT')).body),
+      )
       .toEqual({ source: 'connect' });
     recordedNetworkRequests.length = 0;
 

@@ -45,6 +45,58 @@ export function toTrimmedOverrideString(value: string | undefined | null): strin
   return value.trim();
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+export function tryCompileOverrideRegex(pattern: string): RegExp | null {
+  try {
+    return new RegExp(pattern);
+  } catch {
+    return null;
+  }
+}
+
+function isAbsoluteHttpUrl(value: string): boolean {
+  try {
+    const parsedUrl = new URL(value);
+    return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+export function isValidResponseOverrideUrl(matchType: ResponseOverrideMatchType, url: string | undefined): boolean {
+  const trimmedUrl = toTrimmedOverrideString(url);
+
+  if (trimmedUrl === '') {
+    return false;
+  }
+
+  if (matchType === ResponseOverrideMatchType.Regex) {
+    return tryCompileOverrideRegex(trimmedUrl) !== null;
+  }
+
+  if (matchType === ResponseOverrideMatchType.Equals) {
+    return isAbsoluteHttpUrl(trimmedUrl);
+  }
+
+  return true;
+}
+
+export function isValidResponseOverrideJson(responseBody: string | undefined): boolean {
+  if (typeof responseBody !== 'string') {
+    return false;
+  }
+
+  try {
+    JSON.parse(responseBody);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function normalizeResponseOverrideFields(override: Record<string, unknown> & { id: number }): ResponseOverride {
   const { name, matchType, url, method, statusCode, responseBody, disabled } = override;
   const hasValidMatchType = typeof matchType === 'string' && isResponseOverrideMatchType(matchType);
@@ -145,54 +197,6 @@ export function doesMethodMatch(requestMethod: string, overrideMethod: ResponseO
   return normalizeHttpMethod(requestMethod) === overrideMethod;
 }
 
-export function tryCompileOverrideRegex(pattern: string): RegExp | null {
-  try {
-    return new RegExp(pattern);
-  } catch {
-    return null;
-  }
-}
-
-function isAbsoluteHttpUrl(value: string): boolean {
-  try {
-    const parsedUrl = new URL(value);
-    return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
-export function isValidResponseOverrideUrl(matchType: ResponseOverrideMatchType, url: string | undefined): boolean {
-  const trimmedUrl = toTrimmedOverrideString(url);
-
-  if (trimmedUrl === '') {
-    return false;
-  }
-
-  if (matchType === ResponseOverrideMatchType.Regex) {
-    return tryCompileOverrideRegex(trimmedUrl) !== null;
-  }
-
-  if (matchType === ResponseOverrideMatchType.Equals) {
-    return isAbsoluteHttpUrl(trimmedUrl);
-  }
-
-  return true;
-}
-
-export function isValidResponseOverrideJson(responseBody: string | undefined): boolean {
-  if (typeof responseBody !== 'string') {
-    return false;
-  }
-
-  try {
-    JSON.parse(responseBody);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function isCompleteValidResponseOverride(override: ResponseOverride): boolean {
   return isValidResponseOverrideUrl(override.matchType, override.url) && isValidResponseOverrideJson(override.responseBody);
 }
@@ -280,10 +284,6 @@ export function computeActiveResponseOverrides(input: {
   }
 
   return selectedProfile.responseOverrides.filter(isApplyableResponseOverride);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }
 
 function parseResponseOverride(value: unknown): ResponseOverride | null {

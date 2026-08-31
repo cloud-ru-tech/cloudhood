@@ -1,3 +1,4 @@
+import { CSS, type Transform } from '@dnd-kit/utilities';
 import styled from '@emotion/styled';
 
 import { themeVars } from '@snack-uikit/figma-tokens';
@@ -10,14 +11,21 @@ export const Wrapper = styled.div`
   padding: 4px 6px 14px;
 `;
 
+export const SortableItem = styled.div<{ transform: Transform | null; isDragging: boolean; transition?: string }>`
+  transform: ${props => CSS.Transform.toString(props.transform)};
+  opacity: ${props => (props.isDragging ? 0 : 1)};
+  transition: ${props => props.transition};
+  width: 100%;
+`;
+
 export const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${themeVars.space.accordion.collapseBlock.primary.gap};
   box-sizing: border-box;
   width: 100%;
-  padding: ${themeVars.space.accordion.collapseBlock.primary.verticalPadding}
-    ${themeVars.space.accordion.collapseBlock.primary.horizontalPadding};
+  padding: calc(${themeVars.space.accordion.collapseBlock.primary.verticalPadding} / 2)
+    calc(${themeVars.space.accordion.collapseBlock.primary.horizontalPadding} / 2);
   border: ${themeVars.borderWidth.accordion.collapseBlock.primary} solid transparent;
   border-radius: ${themeVars.radius.accordion.collapseBlock.primary.round};
   background-color: ${themeVars.sys.neutral.background2Level};
