@@ -76,9 +76,10 @@ export const List = styled.div`
 `;
 
 export const Row = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 4.5rem 4.5rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
   width: 100%;
   min-width: 0;
   min-height: 32px;
@@ -90,14 +91,17 @@ export const Row = styled.div`
 
 export const Method = styled.span`
   ${themeVars.sans.title.s};
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: ${themeVars.sys.neutral.textMain};
 `;
 
 export const Status = styled.span`
   ${themeVars.sans.body.s};
-  flex-shrink: 0;
-  min-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: ${themeVars.sys.neutral.textMain};
 `;
 

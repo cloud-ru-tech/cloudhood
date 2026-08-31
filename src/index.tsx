@@ -5,7 +5,10 @@ import { createRoot } from 'react-dom/client';
 
 import { App } from './app/App';
 import { getStyleNonce } from './shared/utils/csp';
+import { restorePopupSize } from './shared/utils/popupSizeStorage';
 import { enableExtensionReload } from './utils/extension-reload';
+
+restorePopupSize().catch(() => undefined);
 
 const nonce = getStyleNonce();
 

@@ -4,7 +4,16 @@ export enum BrowserStorageKey {
   IsPaused = 'isPausedV1',
   ThemeMode = 'themeMode',
   ResponseOverrideApplyErrors = 'responseOverrideApplyErrorsV1',
+  PopupSize = 'popupSizeV1',
 }
+
+export const POPUP_DEFAULT_WIDTH = 630;
+export const POPUP_DEFAULT_HEIGHT = 492;
+export const POPUP_MIN_WIDTH = 480;
+export const POPUP_MIN_HEIGHT = 400;
+export const POPUP_MAX_SCREEN_RATIO = 0.8;
+export const POPUP_HOST_MAX_WIDTH = 800;
+export const POPUP_HOST_MAX_HEIGHT = 600;
 
 export enum ServiceWorkerEvent {
   Reload = 'reload',
@@ -152,3 +161,7 @@ export enum ThemeMode {
   Dark = 'dark',
   System = 'system',
 }
+
+export const POPUP_COPY = {
+  resizeHandle: 'Resize popup',
+} as const;

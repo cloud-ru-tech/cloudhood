@@ -11,6 +11,8 @@ import { MainPage } from '#pages/main';
 import { SpriteLoader } from '#shared/components/SpriteLoader';
 import { initApp } from '#shared/model';
 
+import { PopupResizeHandle } from './components/PopupResizeHandle';
+
 export function App() {
   const handleInitApp = useUnit(initApp);
 
@@ -22,6 +24,7 @@ export function App() {
     <>
       <SpriteLoader />
       <MainPage />
+      <PopupResizeHandle />
     </>
   );
 }

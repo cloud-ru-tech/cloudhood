@@ -3,9 +3,10 @@ import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { By, Key } from 'selenium-webdriver';
 
-import { launchFirefoxAddon, quitFirefox, ROOT_DIR, waitUntil } from './lib/firefox-webdriver.mjs';
+import { launchFirefoxAddon, quitFirefox, ROOT_DIR, sleep, waitUntil } from './lib/firefox-webdriver.mjs';
 
 const ADDON_DIR = resolve(ROOT_DIR, 'build/firefox');
+const POPUP_VIEWPORT = { width: 630, height: 492 };
 const STORAGE_KEYS = {
   isPaused: 'isPausedV1',
   profiles: 'requestHeaderProfilesV1',
@@ -156,6 +157,10 @@ function createBrowser(driver, popupUrl) {
   };
   const waitReady = async () => {
     await waitUntil(() => visible(selectors.pauseButton), 'Firefox popup to load');
+    await waitUntil(async () => {
+      const storage = await driver.executeScript('return browser.storage.local.get()');
+      return Boolean(storage.selectedHeaderProfileV1);
+    }, 'selected profile to hydrate');
   };
 
   return {
@@ -172,11 +177,43 @@ function createBrowser(driver, popupUrl) {
     },
     clickTab: async text => {
       const xpath = `//*[@role="tab" and contains(normalize-space(.), "${text}")]`;
-      await clickXpath(xpath, `tab "${text}"`);
+      const isSelected = async () => {
+        const tabs = await driver.findElements(By.xpath(xpath));
+        for (const tab of tabs) {
+          if ((await tab.getAttribute('aria-selected')) === 'true') {
+            return true;
+          }
+        }
+        return false;
+      };
+
       await waitUntil(async () => {
-        const [tab] = await driver.findElements(By.xpath(xpath));
-        return Boolean(tab) && (await tab.getAttribute('aria-selected')) === 'true';
-      }, `tab "${text}" to become selected`);
+        const matches = await driver.findElements(By.xpath(xpath));
+        return (await Promise.all(matches.map(match => match.isDisplayed()))).some(Boolean);
+      }, `tab "${text}"`);
+
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < 10_000) {
+        if (await isSelected()) {
+          return;
+        }
+
+        const matches = await driver.findElements(By.xpath(xpath));
+        for (const match of matches) {
+          if (await match.isDisplayed()) {
+            await clickElement(match);
+            break;
+          }
+        }
+
+        if (await isSelected()) {
+          return;
+        }
+
+        await sleep(50);
+      }
+
+      throw new Error(`Timed out waiting for tab "${text}" to become selected`);
     },
     count: async selector => (await elements(selector)).length,
     dynamicRules: async () => driver.executeScript('return browser.declarativeNetRequest.getDynamicRules()'),
@@ -274,7 +311,7 @@ async function main() {
   let echoServer;
 
   try {
-    const session = await launchFirefoxAddon({ addonDir: ADDON_DIR });
+    const session = await launchFirefoxAddon({ addonDir: ADDON_DIR, viewport: POPUP_VIEWPORT });
     driver = session.driver;
     echoServer = await createEchoServer();
     const browser = createBrowser(driver, session.popupUrl);

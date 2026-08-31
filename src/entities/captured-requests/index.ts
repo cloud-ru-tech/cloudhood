@@ -3,6 +3,7 @@ export {
   $capturedRequestsBodySearchQuery,
   $capturedRequestsScrollTop,
   $capturedRequestsSearchIndex,
+  $capturedRequestsTargetTab,
   $capturedRequestsUrlSearchQuery,
   $capturedRequestsViewState,
   $capturedRequestsVisibleEntries,

@@ -11,6 +11,7 @@ import {
   dropCapturedRequestBodies,
   filterCapturedRequestSearchIndex,
   formatCapturedRequestStatus,
+  formatCapturedRequestUrlDisplay,
   hasCapturedRequestSearchQuery,
   isHttpCaptureUrl,
   isJsonContentType,
@@ -50,6 +51,32 @@ describe('isMockableCaptureMethod', () => {
     expect(isMockableCaptureMethod('PROPFIND')).toBe(false);
     expect(isMockableCaptureMethod('PATCH')).toBe(false);
     expect(toMockableCaptureMethod('WEBDAV')).toBeNull();
+  });
+});
+
+describe('formatCapturedRequestUrlDisplay', () => {
+  it('shows only path and query when the request host matches the page host', () => {
+    expect(
+      formatCapturedRequestUrlDisplay(
+        'https://example.com/api/users?q=Ada',
+        'https://example.com/dashboard',
+      ),
+    ).toBe('/api/users?q=Ada');
+  });
+
+  it('keeps the full URL when the host differs, including by port', () => {
+    expect(
+      formatCapturedRequestUrlDisplay('https://api.example.com/users', 'https://example.com/dashboard'),
+    ).toBe('https://api.example.com/users');
+    expect(formatCapturedRequestUrlDisplay('http://localhost:8080/api', 'http://localhost:3000/page')).toBe(
+      'http://localhost:8080/api',
+    );
+  });
+
+  it('returns the original URL when the page URL is missing or either URL is invalid', () => {
+    expect(formatCapturedRequestUrlDisplay('https://example.com/api', null)).toBe('https://example.com/api');
+    expect(formatCapturedRequestUrlDisplay('https://example.com/api', '')).toBe('https://example.com/api');
+    expect(formatCapturedRequestUrlDisplay('not-a-url', 'https://example.com')).toBe('not-a-url');
   });
 });
 
@@ -294,13 +321,14 @@ describe('resolveTargetTabFromCandidates', () => {
     ).toEqual(activeTab);
   });
 
-  it('falls back to the single other non-extension tab when the popup is opened as a tab', () => {
+  it('falls back to the single other http tab when the popup is opened as a tab', () => {
     const contentTab = { id: 3, url: 'https://app.example.com/x' };
     expect(
       resolveTargetTabFromCandidates({
         activeTab: { id: 1, url: `${extensionOrigin}popup.html` },
         windowTabs: [
           { id: 1, url: `${extensionOrigin}popup.html` },
+          { id: 2, url: 'about:blank' },
           contentTab,
         ],
         extensionOrigin,

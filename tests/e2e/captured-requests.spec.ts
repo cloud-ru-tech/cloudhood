@@ -171,9 +171,20 @@ test.describe('Captured requests', () => {
     await expect(rows).toHaveCount(2);
     await expect(rows.nth(0).locator('[data-test-id="captured-request-method"]')).toHaveText('POST');
     await expect(rows.nth(0).locator('[data-test-id="captured-request-status"]')).toHaveText('201 Created');
-    await expect(rows.nth(0).locator('[data-test-id="captured-request-url"]')).toContainText(`${fixtureOrigin}/api/second`);
+    await expect(rows.nth(0).locator('[data-test-id="captured-request-url"]')).toContainText('/api/second');
+    await expect(rows.nth(0).locator('[data-test-id="captured-request-url"]')).not.toContainText(fixtureOrigin);
     await expect(rows.nth(1).locator('[data-test-id="captured-request-method"]')).toHaveText('GET');
-    await expect(rows.nth(1).locator('[data-test-id="captured-request-url"]')).toContainText(`${fixtureOrigin}/api/first`);
+    await expect(rows.nth(1).locator('[data-test-id="captured-request-url"]')).toContainText('/api/first');
+    await expect(rows.nth(1).locator('[data-test-id="captured-request-url"]')).not.toContainText(fixtureOrigin);
+
+    const firstUrlBox = await rows.nth(0).locator('[data-test-id="captured-request-url"]').boundingBox();
+    const secondUrlBox = await rows.nth(1).locator('[data-test-id="captured-request-url"]').boundingBox();
+    expect(firstUrlBox).not.toBeNull();
+    expect(secondUrlBox).not.toBeNull();
+    if (firstUrlBox === null || secondUrlBox === null) {
+      throw new Error('Unable to measure captured request URL cells');
+    }
+    expect(Math.abs(firstUrlBox.x - secondUrlBox.x)).toBeLessThan(1);
   });
 
   test('shows Pending and Failed rows and still allows Mock', async ({ page, extensionId, context }) => {
@@ -349,6 +360,129 @@ test.describe('Captured requests', () => {
     await openPopup(page, extensionId);
     await openRequestsTab(page);
     await expect(page.locator('[data-test-id="captured-request-url"]')).toContainText('/seeded');
+  });
+
+  test('hides the page domain in the URL cell and keeps other hosts full', async ({ page, extensionId, context }) => {
+    const requestPage = await context.newPage();
+    await requestPage.goto(`${fixtureOrigin}/page`);
+    const tabId = await getTabIdForUrl(context, `${fixtureOrigin}/page`);
+    expect(tabId).not.toBeNull();
+
+    const background = context.serviceWorkers()[0];
+    if (!background || tabId === null) {
+      throw new Error('Unable to seed captured requests');
+    }
+
+    const sameOriginUrl = `${fixtureOrigin}/api/same-host`;
+    const otherOriginUrl = 'https://api.example.com/v1/users?q=Ada';
+
+    await background.evaluate(
+      ({ targetTabId, record }) => chrome.storage.session.set({ [`capturedRequestsV1:${targetTabId}`]: record }),
+      {
+        targetTabId: tabId,
+        record: {
+          entries: [
+            {
+              id: 'same-host-1',
+              url: sameOriginUrl,
+              method: 'GET',
+              state: 'completed',
+              statusCode: 200,
+              responseBody: '{"ok":true}',
+              startedAt: 1,
+            },
+            {
+              id: 'other-host-1',
+              url: otherOriginUrl,
+              method: 'GET',
+              state: 'completed',
+              statusCode: 200,
+              responseBody: '{"ok":true}',
+              startedAt: 2,
+            },
+          ],
+        },
+      },
+    );
+
+    await openPopup(page, extensionId);
+    await openRequestsTab(page);
+
+    const sameHostRow = page.locator('[data-test-id="captured-request-row"][data-request-id="same-host-1"]');
+    const otherHostRow = page.locator('[data-test-id="captured-request-row"][data-request-id="other-host-1"]');
+
+    await expect(sameHostRow.locator('[data-test-id="captured-request-url"]')).toContainText('/api/same-host');
+    await expect(sameHostRow.locator('[data-test-id="captured-request-url"]')).not.toContainText(fixtureOrigin);
+    await expect(otherHostRow.locator('[data-test-id="captured-request-url"]')).toContainText(otherOriginUrl);
+  });
+
+  test('aligns URL cells across GET, POST, and DELETE', async ({ page, extensionId, context }) => {
+    const requestPage = await context.newPage();
+    await requestPage.goto(`${fixtureOrigin}/page`);
+    const tabId = await getTabIdForUrl(context, `${fixtureOrigin}/page`);
+    expect(tabId).not.toBeNull();
+
+    const background = context.serviceWorkers()[0];
+    if (!background || tabId === null) {
+      throw new Error('Unable to seed captured requests');
+    }
+
+    await background.evaluate(
+      ({ targetTabId, record }) => chrome.storage.session.set({ [`capturedRequestsV1:${targetTabId}`]: record }),
+      {
+        targetTabId: tabId,
+        record: {
+          entries: [
+            {
+              id: 'align-get',
+              url: `${fixtureOrigin}/api/get`,
+              method: 'GET',
+              state: 'completed',
+              statusCode: 200,
+              responseBody: '{"ok":true}',
+              startedAt: 1,
+            },
+            {
+              id: 'align-post',
+              url: `${fixtureOrigin}/api/post`,
+              method: 'POST',
+              state: 'completed',
+              statusCode: 200,
+              responseBody: '{"ok":true}',
+              startedAt: 2,
+            },
+            {
+              id: 'align-delete',
+              url: `${fixtureOrigin}/api/delete`,
+              method: 'DELETE',
+              state: 'failed',
+              statusCode: null,
+              responseBody: null,
+              startedAt: 3,
+            },
+          ],
+        },
+      },
+    );
+
+    await openPopup(page, extensionId);
+    await openRequestsTab(page);
+
+    const urlBoxes = await Promise.all(
+      ['align-delete', 'align-post', 'align-get'].map(requestId =>
+        page.locator(`[data-test-id="captured-request-row"][data-request-id="${requestId}"] [data-test-id="captured-request-url"]`).boundingBox(),
+      ),
+    );
+
+    expect(urlBoxes.every(box => box !== null)).toBe(true);
+    const urlXs = urlBoxes.map(box => {
+      if (box === null) {
+        throw new Error('Unable to measure captured request URL cells');
+      }
+      return box.x;
+    });
+
+    expect(Math.max(...urlXs) - Math.min(...urlXs)).toBeLessThan(1);
   });
 
   test('keeps a long URL on one truncated line with Mock visible', async ({ page, extensionId, context }) => {

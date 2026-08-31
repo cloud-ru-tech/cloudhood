@@ -7,6 +7,7 @@ import { FieldText } from '@snack-uikit/fields';
 import {
   $capturedRequestsBodySearchQuery,
   $capturedRequestsScrollTop,
+  $capturedRequestsTargetTab,
   $capturedRequestsUrlSearchQuery,
   $capturedRequestsViewState,
   capturedRequestsBodySearchChanged,
@@ -23,6 +24,7 @@ import * as S from './styled';
 export function CapturedRequests() {
   const [
     viewState,
+    targetTab,
     scrollTop,
     urlQuery,
     bodyQuery,
@@ -33,6 +35,7 @@ export function CapturedRequests() {
     onMock,
   ] = useUnit([
     $capturedRequestsViewState,
+    $capturedRequestsTargetTab,
     $capturedRequestsScrollTop,
     $capturedRequestsUrlSearchQuery,
     $capturedRequestsBodySearchQuery,
@@ -182,7 +185,7 @@ export function CapturedRequests() {
       {searchRow}
       <S.List ref={listRef} data-test-id='captured-requests-list' onScroll={handleListScroll}>
         {viewState.entries.map(request => (
-          <CapturedRequestRow key={request.id} request={request} onMock={onMock} />
+          <CapturedRequestRow key={request.id} request={request} pageUrl={targetTab?.url} onMock={onMock} />
         ))}
       </S.List>
     </S.Wrapper>

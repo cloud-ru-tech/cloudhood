@@ -105,6 +105,17 @@ async function appendResponseOverrideApplyError(message: {
 
 const pendingCapturedRequestsByTab = new Map<number, CapturedRequestsTabRecord>();
 const capturedRequestsWriteTimers = new Map<number, ReturnType<typeof setTimeout>>();
+const capturedRequestsReadyTabs = new Set<number>();
+const capturedRequestsLastUrlByTab = new Map<number, string>();
+const capturedRequestsBufferedMessages = new Map<number, unknown[]>();
+const capturedRequestsTabTasks = new Map<number, Promise<void>>();
+
+function runCapturedRequestsTabTask(tabId: number, task: () => Promise<void>): Promise<void> {
+  const previousTask = capturedRequestsTabTasks.get(tabId) ?? Promise.resolve();
+  const nextTask = previousTask.catch(() => undefined).then(task);
+  capturedRequestsTabTasks.set(tabId, nextTask);
+  return nextTask;
+}
 
 async function readCapturedRequestsRecord(tabId: number): Promise<CapturedRequestsTabRecord> {
   const pendingRecord = pendingCapturedRequestsByTab.get(tabId);
@@ -194,6 +205,55 @@ async function appendCapturedRequestEventsForTab(tabId: number, message: unknown
   scheduleCapturedRequestsWrite(tabId, nextRecord);
 }
 
+function bufferCapturedRequestEventsMessage(tabId: number, message: unknown) {
+  const bufferedMessages = capturedRequestsBufferedMessages.get(tabId) ?? [];
+  bufferedMessages.push(message);
+  capturedRequestsBufferedMessages.set(tabId, bufferedMessages);
+}
+
+function takeBufferedCapturedRequestMessages(tabId: number): unknown[] {
+  const bufferedMessages = capturedRequestsBufferedMessages.get(tabId) ?? [];
+  capturedRequestsBufferedMessages.delete(tabId);
+  return bufferedMessages;
+}
+
+async function beginCapturedRequestsNavigation(tabId: number, url: string) {
+  if (capturedRequestsLastUrlByTab.get(tabId) === url) {
+    return;
+  }
+
+  capturedRequestsLastUrlByTab.set(tabId, url);
+  capturedRequestsReadyTabs.delete(tabId);
+  capturedRequestsBufferedMessages.delete(tabId);
+  await resetCapturedRequestsSession(tabId);
+}
+
+async function handleCapturedRequestsSessionStarted(tabId: number, tabUrl?: string) {
+  if (capturedRequestsReadyTabs.has(tabId)) {
+    return;
+  }
+
+  if (tabUrl) {
+    capturedRequestsLastUrlByTab.set(tabId, tabUrl);
+  }
+
+  await resetCapturedRequestsSession(tabId);
+  capturedRequestsReadyTabs.add(tabId);
+
+  for (const bufferedMessage of takeBufferedCapturedRequestMessages(tabId)) {
+    await appendCapturedRequestEventsForTab(tabId, bufferedMessage);
+  }
+}
+
+async function handleCapturedRequestEvents(tabId: number, message: unknown) {
+  if (!capturedRequestsReadyTabs.has(tabId)) {
+    bufferCapturedRequestEventsMessage(tabId, message);
+    return;
+  }
+
+  await appendCapturedRequestEventsForTab(tabId, message);
+}
+
 function clearCapturedRequestsTab(tabId: number) {
   const existingTimer = capturedRequestsWriteTimers.get(tabId);
 
@@ -202,6 +262,10 @@ function clearCapturedRequestsTab(tabId: number) {
     capturedRequestsWriteTimers.delete(tabId);
   }
 
+  capturedRequestsReadyTabs.delete(tabId);
+  capturedRequestsLastUrlByTab.delete(tabId);
+  capturedRequestsBufferedMessages.delete(tabId);
+  capturedRequestsTabTasks.delete(tabId);
   pendingCapturedRequestsByTab.delete(tabId);
   browser.storage.session.remove(capturedRequestsSessionKey(tabId)).catch(() => undefined);
 }
@@ -211,14 +275,17 @@ function getSenderTabId(sender: { tab?: { id?: number } }): number | null {
   return typeof tabId === 'number' ? tabId : null;
 }
 
-async function notify(message: unknown, sender: { tab?: { id?: number } }) {
+async function notify(message: unknown, sender: { tab?: { id?: number; url?: string } }) {
   logger.debug('Received message:', message);
 
   const senderTabId = getSenderTabId(sender);
 
   if (isCapturedRequestsSessionStartedWorkerMessage(message)) {
     if (senderTabId !== null) {
-      await resetCapturedRequestsSession(senderTabId);
+      const senderTabUrl = typeof sender.tab?.url === 'string' ? sender.tab.url : undefined;
+      await runCapturedRequestsTabTask(senderTabId, () =>
+        handleCapturedRequestsSessionStarted(senderTabId, senderTabUrl),
+      );
     }
 
     return undefined;
@@ -226,7 +293,7 @@ async function notify(message: unknown, sender: { tab?: { id?: number } }) {
 
   if (isCapturedRequestEventsWorkerMessage(message)) {
     if (senderTabId !== null) {
-      await appendCapturedRequestEventsForTab(senderTabId, message);
+      await runCapturedRequestsTabTask(senderTabId, () => handleCapturedRequestEvents(senderTabId, message));
     }
 
     return undefined;
@@ -393,9 +460,18 @@ browser.tabs.onRemoved.addListener(tabId => {
   clearCapturedRequestsTab(tabId);
 });
 
-browser.runtime.onMessage.addListener((message: unknown, sender: { tab?: { id?: number } }) => {
-  notify(message, sender).catch(err => {
-    logger.error('Error handling message:', err);
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  const nextUrl = changeInfo.url;
+
+  if (nextUrl === undefined) {
+    return;
+  }
+
+  runCapturedRequestsTabTask(tabId, () => beginCapturedRequestsNavigation(tabId, nextUrl)).catch(error => {
+    logger.error('Failed to reset captured requests on navigation', error);
   });
-  return undefined;
 });
+
+browser.runtime.onMessage.addListener((message: unknown, sender: { tab?: { id?: number } }) =>
+  notify(message, sender),
+);

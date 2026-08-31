@@ -8,6 +8,7 @@ import {
   capturedRequestsSessionKey,
   filterCapturedRequestSearchIndex,
   hasCapturedRequestSearchQuery,
+  isCapturedRequestsSessionKey,
   parseCapturedRequestsTabRecord,
   resolveCapturedRequestsViewState,
   resolveTargetTabFromCandidates,
@@ -15,9 +16,14 @@ import {
 
 type StorageChangeMap = Record<string, { newValue?: unknown; oldValue?: unknown }>;
 
-type CapturedRequestsLoadResult =
-  | { ok: true; tab: { id: number; url: string } | null; record: CapturedRequestsTabRecord | null }
-  | { ok: false };
+type CapturedRequestsLoadOk = {
+  ok: true;
+  tab: { id: number; url: string } | null;
+  record: CapturedRequestsTabRecord | null;
+  epoch: number;
+};
+
+type CapturedRequestsLoadResult = CapturedRequestsLoadOk | { ok: false; epoch: number };
 
 export const capturedRequestsRetryRequested = createEvent();
 export const capturedRequestsTargetTabRefreshRequested = createEvent();
@@ -26,7 +32,18 @@ export const capturedRequestsScrollPositionChanged = createEvent<number>();
 export const capturedRequestsUrlSearchChanged = createEvent<string>();
 export const capturedRequestsBodySearchChanged = createEvent<string>();
 
-const loadCapturedRequestsFx = createEffect(async (): Promise<CapturedRequestsLoadResult> => {
+function hasCapturedRequestsSessionChange(changes: StorageChangeMap): boolean {
+  return Object.keys(changes).some(isCapturedRequestsSessionKey);
+}
+
+function isCurrentSuccessfulLoad(
+  currentEpoch: number,
+  result: CapturedRequestsLoadResult,
+): result is CapturedRequestsLoadOk {
+  return result.ok && result.epoch === currentEpoch;
+}
+
+const loadCapturedRequestsFx = createEffect(async (epoch: number): Promise<CapturedRequestsLoadResult> => {
   try {
     const extensionOrigin = browser.runtime.getURL('/');
     const [activeTabs, windowTabs] = await Promise.all([
@@ -40,7 +57,7 @@ const loadCapturedRequestsFx = createEffect(async (): Promise<CapturedRequestsLo
     });
 
     if (typeof targetTab?.id !== 'number' || typeof targetTab.url !== 'string' || targetTab.url === '') {
-      return { ok: true, tab: null, record: null };
+      return { ok: true, tab: null, record: null, epoch };
     }
 
     const sessionKey = capturedRequestsSessionKey(targetTab.id);
@@ -50,9 +67,10 @@ const loadCapturedRequestsFx = createEffect(async (): Promise<CapturedRequestsLo
       ok: true,
       tab: { id: targetTab.id, url: targetTab.url },
       record: parseCapturedRequestsTabRecord(result[sessionKey]),
+      epoch,
     };
   } catch {
-    return { ok: false };
+    return { ok: false, epoch };
   }
 });
 
@@ -74,9 +92,12 @@ const subscribeCapturedRequestsFx = createEffect(() => {
   });
 });
 
+const $capturedRequestsStorageEpoch = createStore(0).on(capturedRequestsSessionChanged, (epoch, changes) =>
+  hasCapturedRequestsSessionChange(changes) ? epoch + 1 : epoch,
+);
+
 export const $capturedRequestsLoadStatus = createStore<'idle' | 'loading' | 'ready' | 'error'>('idle')
   .on([initApp, capturedRequestsRetryRequested], () => 'loading')
-  .on(loadCapturedRequestsFx.doneData, (_, result) => (result.ok ? 'ready' : 'error'))
   .on(loadCapturedRequestsFx.fail, () => 'error');
 
 export const $capturedRequestsTargetTab = createStore<{ id: number; url: string } | null>(null);
@@ -134,21 +155,50 @@ export const $capturedRequestsViewState = combine(
     }),
 );
 
-sample({ clock: [initApp, capturedRequestsRetryRequested, capturedRequestsTargetTabRefreshRequested], target: loadCapturedRequestsFx });
 sample({ clock: initApp, target: subscribeCapturedRequestsFx });
+sample({
+  clock: [initApp, capturedRequestsRetryRequested, capturedRequestsTargetTabRefreshRequested],
+  source: $capturedRequestsStorageEpoch,
+  target: loadCapturedRequestsFx,
+});
 
 sample({
   clock: loadCapturedRequestsFx.doneData,
-  filter: result => result.ok,
-  fn: result => (result.ok ? result.tab : null),
+  source: $capturedRequestsStorageEpoch,
+  filter: isCurrentSuccessfulLoad,
+  fn: () => 'ready' as const,
+  target: $capturedRequestsLoadStatus,
+});
+
+sample({
+  clock: loadCapturedRequestsFx.doneData,
+  source: $capturedRequestsStorageEpoch,
+  filter: (currentEpoch, result) => !result.ok && result.epoch === currentEpoch,
+  fn: () => 'error' as const,
+  target: $capturedRequestsLoadStatus,
+});
+
+sample({
+  clock: loadCapturedRequestsFx.doneData,
+  source: $capturedRequestsStorageEpoch,
+  filter: isCurrentSuccessfulLoad,
+  fn: (_, result) => (result.ok ? result.tab : null),
   target: $capturedRequestsTargetTab,
 });
 
 sample({
   clock: loadCapturedRequestsFx.doneData,
-  filter: result => result.ok,
-  fn: result => (result.ok ? result.record : null),
+  source: $capturedRequestsStorageEpoch,
+  filter: isCurrentSuccessfulLoad,
+  fn: (_, result) => (result.ok ? result.record : null),
   target: $capturedRequestsRecord,
+});
+
+sample({
+  clock: capturedRequestsSessionChanged,
+  source: $capturedRequestsTargetTab,
+  filter: (tab, changes) => tab === null && hasCapturedRequestsSessionChange(changes),
+  target: capturedRequestsTargetTabRefreshRequested,
 });
 
 sample({

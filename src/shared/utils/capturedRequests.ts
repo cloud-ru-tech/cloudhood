@@ -99,6 +99,25 @@ export function isSelectableStatusCode(statusCode: number): boolean {
   return RESPONSE_OVERRIDE_STATUS_CODES.some(status => status.code === statusCode);
 }
 
+export function formatCapturedRequestUrlDisplay(requestUrl: string, pageUrl: string | null | undefined): string {
+  if (!pageUrl) {
+    return requestUrl;
+  }
+
+  try {
+    const parsedRequestUrl = new URL(requestUrl);
+    const parsedPageUrl = new URL(pageUrl);
+
+    if (parsedRequestUrl.host !== parsedPageUrl.host) {
+      return requestUrl;
+    }
+
+    return `${parsedRequestUrl.pathname}${parsedRequestUrl.search}`;
+  } catch {
+    return requestUrl;
+  }
+}
+
 export function formatCapturedRequestStatus(request: CapturedRequest): string | null {
   if (request.state === 'pending') {
     return CAPTURED_REQUESTS_COPY.pending;
@@ -414,11 +433,11 @@ export function resolveTargetTabFromCandidates(input: {
   }
 
   const contentTabs = windowTabs.filter(tab => {
-    if (tab.id === activeTab.id) {
+    if (tab.id === activeTab.id || typeof tab.url !== 'string' || tab.url.startsWith(extensionOrigin)) {
       return false;
     }
 
-    return typeof tab.url === 'string' && !tab.url.startsWith(extensionOrigin);
+    return isHttpCaptureUrl(tab.url);
   });
 
   if (contentTabs.length === 1) {

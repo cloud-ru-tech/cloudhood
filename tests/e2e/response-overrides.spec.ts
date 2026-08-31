@@ -460,10 +460,10 @@ test.describe('Response overrides', () => {
     await openPopup(page, extensionId);
     await openModifyResponses(page);
     await addOverride(page);
-    await fillOverride(page, `${fixtureOrigin}/api/data`, '{');
+    await fillOverride(page, `${fixtureOrigin}/api/data`, '{"unclosed":');
 
     await expect(page.getByText('Incorrect format').first()).toBeVisible();
-    await expect(jsonEditorContent(page)).toHaveText('{');
+    await expect(jsonEditorContent(page)).toHaveText('{"unclosed":');
 
     const requestPage = await context.newPage();
     await requestPage.goto(`${fixtureOrigin}/page`);
