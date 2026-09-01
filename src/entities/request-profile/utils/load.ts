@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { BrowserStorageKey } from '#shared/constants';
+import { normalizeStoredResponseOverrides } from '#shared/utils/responseOverrides';
 
 import { DEFAULT_REQUEST_HEADERS } from '../constants';
 import { Profile } from '../types';
@@ -28,7 +29,10 @@ export async function loadProfilesFromStorageApi() {
     if (profiles) {
       const normalizedProfiles = profiles.map(profile => ({
         ...profile,
+        requestCookies: profile?.requestCookies ?? [],
         urlFilters: profile?.urlFilters ?? [],
+        responseOverrides: normalizeStoredResponseOverrides(profile?.responseOverrides),
+        responseOverridesDisabled: profile?.responseOverridesDisabled ?? false,
       }));
       return normalizedProfiles;
     }

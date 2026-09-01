@@ -1,3 +1,7 @@
+import '#entities/captured-requests/model';
+import '#features/mock-captured-request/model';
+import '#features/response-override-apply-errors/model';
+
 import './styles.css';
 
 import { useUnit } from 'effector-react';
@@ -6,6 +10,8 @@ import { useEffect } from 'react';
 import { MainPage } from '#pages/main';
 import { SpriteLoader } from '#shared/components/SpriteLoader';
 import { initApp } from '#shared/model';
+
+import { PopupResizeHandle } from './components/PopupResizeHandle';
 
 export function App() {
   const handleInitApp = useUnit(initApp);
@@ -18,6 +24,7 @@ export function App() {
     <>
       <SpriteLoader />
       <MainPage />
+      <PopupResizeHandle />
     </>
   );
 }

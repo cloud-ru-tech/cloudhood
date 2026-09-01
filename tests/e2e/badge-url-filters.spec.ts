@@ -54,7 +54,7 @@ test.describe('Badge count with URL filters', () => {
     await headerNameInputs.nth(1).fill('X-Badge-Filter-B');
     await headerValueInputs.nth(1).fill('b');
 
-    const urlFiltersTab = popupPage.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = popupPage.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     await popupPage.waitForTimeout(400);
 

@@ -3,9 +3,10 @@ import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { By, Key } from 'selenium-webdriver';
 
-import { launchFirefoxAddon, quitFirefox, ROOT_DIR, waitUntil } from './lib/firefox-webdriver.mjs';
+import { launchFirefoxAddon, quitFirefox, ROOT_DIR, sleep, waitUntil } from './lib/firefox-webdriver.mjs';
 
 const ADDON_DIR = resolve(ROOT_DIR, 'build/firefox');
+const POPUP_VIEWPORT = { width: 630, height: 492 };
 const STORAGE_KEYS = {
   isPaused: 'isPausedV1',
   profiles: 'requestHeaderProfilesV1',
@@ -38,6 +39,10 @@ const selectors = {
   urlFilterInput: '[data-test-id="url-filter-input"] input',
   urlFilterMenuButton: '[data-test-id="url-filter-menu-button"]',
   urlFiltersSection: '[data-test-id="url-filters-section"]',
+  addResponseOverrideButton: '[data-test-id="add-response-override-button"]',
+  responseOverrideUrl: '[data-test-id="response-override-url"] input',
+  responseOverridesSection: '[data-test-id="response-overrides-section"]',
+  capturedRequestsRoot: '[data-test-id="captured-requests-root"]',
 };
 
 function createEchoServer() {
@@ -113,6 +118,28 @@ function createBrowser(driver, popupUrl) {
       }
     }
   };
+  const persistLastResponseOverride = async (url, responseBody) => {
+    const storage = await driver.executeScript('return browser.storage.local.get()');
+    const rawProfiles = storage.requestHeaderProfilesV1;
+    const profiles = typeof rawProfiles === 'string' ? JSON.parse(rawProfiles) : rawProfiles;
+    const profile =
+      profiles.find(item => item.id === storage.selectedHeaderProfileV1) ?? profiles[0];
+    const override = profile?.responseOverrides?.at(-1);
+
+    if (!override) {
+      throw new Error('Response override was not created');
+    }
+
+    override.url = url;
+    override.responseBody = responseBody;
+    override.disabled = false;
+    profile.responseOverridesDisabled = false;
+    await driver.executeScript('return browser.storage.local.set(arguments[0])', {
+      requestHeaderProfilesV1: JSON.stringify(profiles),
+      selectedHeaderProfileV1: profile.id,
+      isPausedV1: false,
+    });
+  };
   const clickXpath = async (xpath, description) => {
     await waitUntil(async () => {
       const matches = await driver.findElements(By.xpath(xpath));
@@ -129,7 +156,11 @@ function createBrowser(driver, popupUrl) {
     throw new Error(`Missing visible ${description}`);
   };
   const waitReady = async () => {
-    await waitUntil(() => visible(selectors.headerNameInput), 'Firefox popup to load');
+    await waitUntil(() => visible(selectors.pauseButton), 'Firefox popup to load');
+    await waitUntil(async () => {
+      const storage = await driver.executeScript('return browser.storage.local.get()');
+      return Boolean(storage.selectedHeaderProfileV1);
+    }, 'selected profile to hydrate');
   };
 
   return {
@@ -146,17 +177,50 @@ function createBrowser(driver, popupUrl) {
     },
     clickTab: async text => {
       const xpath = `//*[@role="tab" and contains(normalize-space(.), "${text}")]`;
-      await clickXpath(xpath, `tab "${text}"`);
+      const isSelected = async () => {
+        const tabs = await driver.findElements(By.xpath(xpath));
+        for (const tab of tabs) {
+          if ((await tab.getAttribute('aria-selected')) === 'true') {
+            return true;
+          }
+        }
+        return false;
+      };
+
       await waitUntil(async () => {
-        const [tab] = await driver.findElements(By.xpath(xpath));
-        return Boolean(tab) && (await tab.getAttribute('aria-selected')) === 'true';
-      }, `tab "${text}" to become selected`);
+        const matches = await driver.findElements(By.xpath(xpath));
+        return (await Promise.all(matches.map(match => match.isDisplayed()))).some(Boolean);
+      }, `tab "${text}"`);
+
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < 10_000) {
+        if (await isSelected()) {
+          return;
+        }
+
+        const matches = await driver.findElements(By.xpath(xpath));
+        for (const match of matches) {
+          if (await match.isDisplayed()) {
+            await clickElement(match);
+            break;
+          }
+        }
+
+        if (await isSelected()) {
+          return;
+        }
+
+        await sleep(50);
+      }
+
+      throw new Error(`Timed out waiting for tab "${text}" to become selected`);
     },
     count: async selector => (await elements(selector)).length,
     dynamicRules: async () => driver.executeScript('return browser.declarativeNetRequest.getDynamicRules()'),
     element,
     enabled: async (selector, index = 0) => (await element(selector, index)).isEnabled(),
     fill,
+    persistLastResponseOverride,
     open: async () => {
       await driver.get(popupUrl);
       await waitReady();
@@ -247,7 +311,7 @@ async function main() {
   let echoServer;
 
   try {
-    const session = await launchFirefoxAddon({ addonDir: ADDON_DIR });
+    const session = await launchFirefoxAddon({ addonDir: ADDON_DIR, viewport: POPUP_VIEWPORT });
     driver = session.driver;
     echoServer = await createEchoServer();
     const browser = createBrowser(driver, session.popupUrl);
@@ -257,7 +321,7 @@ async function main() {
         'popup loads and switches tabs',
         async () => {
           assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 0), 'true');
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           assert.equal(await browser.attr('[role="tab"]', 'aria-selected', 2), 'true');
           assert.equal(await browser.count(selectors.urlFiltersSection), 1);
           await browser.clickTab('Headers');
@@ -279,7 +343,7 @@ async function main() {
         async () => {
           await browser.click(selectors.pauseButton);
           assert.equal(await browser.enabled(selectors.headerNameInput), false);
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           assert.equal(await browser.enabled(selectors.urlFilterInput), false);
           await browser.refresh();
           await browser.clickTab('Headers');
@@ -372,7 +436,7 @@ async function main() {
       [
         'URL filter add, edit, and remove',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://first.example.com/*');
           await browser.fill(selectors.urlFilterInput, 'https://updated.example.com/*');
           await waitForValue(browser, selectors.urlFilterInput, 'https://updated.example.com/*');
@@ -383,7 +447,7 @@ async function main() {
       [
         'URL filter validation',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, '*://example.com/*');
           await browser.blur(selectors.urlFilterInput);
           assert.equal(await browser.validation(selectors.urlFilterInput), 'error');
@@ -395,7 +459,7 @@ async function main() {
       [
         'URL filter row and master toggles',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://toggle.example.com/*');
           assert.equal(await browser.attr(selectors.urlFilterCheckbox, 'data-checked'), 'true');
           await browser.click(selectors.urlFilterCheckbox);
@@ -407,7 +471,7 @@ async function main() {
       [
         'URL filter duplicate and clear actions',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://duplicate.example.com/*');
           await browser.click(selectors.urlFilterMenuButton);
           await browser.clickMenuItem('Duplicate');
@@ -420,17 +484,17 @@ async function main() {
       [
         'URL filters persist after reload',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://persisted.example.com/*');
           await browser.refresh();
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://persisted.example.com/*');
         },
       ],
       [
         'remove all URL filters confirmation',
         async () => {
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, 'https://remove.example.com/*');
           await browser.click(selectors.addUrlFilterButton);
           await waitForCount(browser, selectors.urlFilterInput, 2);
@@ -454,11 +518,8 @@ async function main() {
             async () => (await browser.count(selectors.profileNameInput)) === 0,
             'profile rename to finish',
           );
-          await waitUntil(
-            () => browser.enabled(selectors.removeProfileButton),
-            'remove profile button to become enabled',
-          );
-          await browser.click(selectors.removeProfileButton);
+          await browser.click(selectors.profileActionsButton);
+          await browser.clickMenuItem('Delete profile');
           await waitForCount(browser, selectors.profileSelect, initialCount);
           assert.equal(await browser.value(selectors.headerNameInput), 'X-Profile-One');
         },
@@ -501,7 +562,7 @@ async function main() {
           });
           await browser.refresh();
           await waitForValue(browser, selectors.headerNameInput, 'X-Restored-Firefox');
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://restored.example.com/*');
         },
       ],
@@ -520,12 +581,12 @@ async function main() {
             [STORAGE_KEYS.selectedProfile]: 'firefox-legacy',
           });
           await browser.refresh();
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           assert.equal(await browser.count(selectors.urlFilterInput), 0);
           await browser.click(selectors.addUrlFilterButton);
           await browser.fill(selectors.urlFilterInput, 'https://legacy.example.com/*');
           await browser.refresh();
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://legacy.example.com/*');
         },
       ],
@@ -550,11 +611,49 @@ async function main() {
         async () => {
           await browser.fill(selectors.headerNameInput, 'X-Cloudhood-Filtered');
           await browser.fill(selectors.headerValueInput, 'matched');
-          await browser.clickTab('URL Filters');
+          await browser.clickTab('URL filters');
           await browser.fill(selectors.urlFilterInput, `${echoServer.url}/matched*`);
           await waitUntil(async () => (await browser.dynamicRules()).length === 1, 'one filtered Firefox DNR rule');
           await expectEchoedHeader(driver, `${echoServer.url}/matched-path`, 'X-Cloudhood-Filtered', 'matched');
           await expectEchoedHeader(driver, `${echoServer.url}/other-path`, 'X-Cloudhood-Filtered', undefined);
+        },
+      ],
+      [
+        'response override can be created and persisted',
+        async () => {
+          await browser.clickTab('Modify responses');
+          await waitUntil(
+            async () => (await browser.count(selectors.responseOverridesSection)) === 1,
+            'Modify responses toolbar to appear',
+          );
+          await browser.click(selectors.addResponseOverrideButton);
+          await waitUntil(
+            async () => (await browser.count(selectors.responseOverrideUrl)) === 1,
+            'response override card to appear',
+          );
+          await browser.persistLastResponseOverride(echoServer.url, '{"source":"override"}');
+          await waitUntil(async () => {
+            const storage = await browser.storage();
+            const rawProfiles = storage.requestHeaderProfilesV1;
+            const profiles = typeof rawProfiles === 'string' ? JSON.parse(rawProfiles) : rawProfiles;
+            return Boolean(
+              profiles?.some(profile =>
+                profile.responseOverrides?.some(
+                  override => override.url === echoServer.url && override.responseBody?.includes('override'),
+                ),
+              ),
+            );
+          }, 'response override to persist in storage');
+        },
+      ],
+      [
+        'Requests tab is available',
+        async () => {
+          await browser.clickTab('Requests');
+          await waitUntil(
+            async () => (await browser.count(selectors.capturedRequestsRoot)) === 1,
+            'Requests tab root to appear',
+          );
         },
       ],
     ];

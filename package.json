@@ -8,8 +8,8 @@
   "scripts": {
     "build:license-validator": "cd ./.license-validator && pnpm build",
     "check-license": "pnpx ./.license-validator -i",
-    "build:chromium": "pnpm version:sync && BROWSER=chrome vite build && BROWSER=chrome vite build --config vite.background.config.ts",
-    "build:firefox": "pnpm version:sync && BROWSER=firefox vite build && BROWSER=firefox vite build --config vite.background.config.ts",
+    "build:chromium": "pnpm version:sync && BROWSER=chrome vite build && BROWSER=chrome vite build --config vite.background.config.ts && BROWSER=chrome node scripts/build-content-scripts.mjs",
+    "build:firefox": "pnpm version:sync && BROWSER=firefox vite build && BROWSER=firefox vite build --config vite.background.config.ts && BROWSER=firefox node scripts/build-content-scripts.mjs",
     "build:firefox-sources": "node scripts/build-firefox-sources.mjs",
     "check:chrome-build": "node scripts/check-extension-builds.mjs chrome",
     "check:firefox-build": "node scripts/check-extension-builds.mjs firefox",
@@ -43,8 +43,13 @@
     "test:e2e:screenshots:generate": "pnpm test:e2e:screenshots:docker:update"
   },
   "dependencies": {
+    "@codemirror/lang-json": "6.0.2",
+    "@codemirror/language": "6.12.4",
+    "@codemirror/state": "6.7.1",
+    "@codemirror/view": "6.43.9",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
+    "@lezer/highlight": "1.2.3",
     "@snack-uikit/button": "0.19.18",
     "@snack-uikit/divider": "3.2.12",
     "@snack-uikit/drop-zone": "0.9.12",
@@ -58,6 +63,7 @@
     "@snack-uikit/toggles": "0.13.27",
     "@snack-uikit/tooltip": "0.18.13",
     "@snack-uikit/truncate-string": "0.7.12",
+    "@uiw/react-codemirror": "4.25.11",
     "effector": "23.4.4",
     "effector-react": "23.3.0",
     "pino": "10.3.1",

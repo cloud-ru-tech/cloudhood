@@ -295,7 +295,7 @@ function createBrowserHelpers(driver, popupUrl) {
       await waitUntil(() => visible(selectors.cookiesSection), 'cookies section');
     },
     activateUrlFilters: async () => {
-      await clickTab('URL Filters');
+      await clickTab('URL filters');
       await waitUntil(() => visible(selectors.urlFiltersSection), 'URL filters section');
     },
     addCookie: async (name, value, index = 0) => {

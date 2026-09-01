@@ -70,7 +70,7 @@ test.describe('Header Application', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await configureHeader(page, 'X-Cloudhood-Filtered', 'matched');
 
-    await page.getByRole('tab', { name: 'URL Filters' }).click();
+    await page.getByRole('tab', { name: 'URL filters' }).click();
     await page.locator('[data-test-id="url-filter-input"] input').first().fill(`${echoServerUrl}/matched*`);
 
     const requestPage = await context.newPage();

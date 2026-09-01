@@ -1,8 +1,30 @@
 import browser from 'webextension-polyfill';
 
-import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
+import {
+  BrowserStorageKey,
+  CAPTURED_REQUESTS_SESSION_WRITE_DEBOUNCE_MS,
+  RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT,
+} from './shared/constants';
+import { CapturedRequestsTabRecord } from './shared/types/capturedRequest';
 import { browserAction } from './shared/utils/browserAPI';
+import {
+  isCapturedRequestEventsWorkerMessage,
+  isCapturedRequestsSessionStartedWorkerMessage,
+  parseCapturedRequestEventsFromUnknown,
+} from './shared/utils/capturedRequestMessages';
+import {
+  appendCapturedRequestEvents,
+  capturedRequestsSessionKey,
+  dropCapturedRequestBodies,
+  parseCapturedRequestsTabRecord,
+  trimCapturedRequestEntries,
+} from './shared/utils/capturedRequests';
 import { logger, LogLevel } from './shared/utils/logger';
+import {
+  isResponseOverrideApplyErrorWorkerMessage,
+  isServiceWorkerReloadMessage,
+} from './shared/utils/responseOverrideMessages';
+import { parseResponseOverrideApplyErrors } from './shared/utils/responseOverrides';
 import { setBrowserCookies } from './shared/utils/setBrowserCookies';
 import { setBrowserHeaders } from './shared/utils/setBrowserHeaders';
 import { enableExtensionReload } from './utils/extension-reload';
@@ -61,10 +83,228 @@ if (process.env.NODE_ENV === 'development') {
 
 const BADGE_COLOR = '#ffffff';
 
-async function notify(message: ServiceWorkerEvent) {
+async function appendResponseOverrideApplyError(message: {
+  profileId: string;
+  overrideId: number;
+  reason: string;
+}) {
+  const result = await browser.storage.local.get(BrowserStorageKey.ResponseOverrideApplyErrors);
+  const existingErrors = parseResponseOverrideApplyErrors(result[BrowserStorageKey.ResponseOverrideApplyErrors]);
+  const nextErrors = [
+    ...existingErrors,
+    {
+      profileId: message.profileId,
+      overrideId: message.overrideId,
+      reason: message.reason,
+      timestamp: Date.now(),
+    },
+  ].slice(-RESPONSE_OVERRIDE_APPLY_ERRORS_LIMIT);
+
+  await browser.storage.local.set({ [BrowserStorageKey.ResponseOverrideApplyErrors]: nextErrors });
+}
+
+const pendingCapturedRequestsByTab = new Map<number, CapturedRequestsTabRecord>();
+const capturedRequestsWriteTimers = new Map<number, ReturnType<typeof setTimeout>>();
+const capturedRequestsReadyTabs = new Set<number>();
+const capturedRequestsLastUrlByTab = new Map<number, string>();
+const capturedRequestsBufferedMessages = new Map<number, unknown[]>();
+const capturedRequestsTabTasks = new Map<number, Promise<void>>();
+
+function runCapturedRequestsTabTask(tabId: number, task: () => Promise<void>): Promise<void> {
+  const previousTask = capturedRequestsTabTasks.get(tabId) ?? Promise.resolve();
+  const nextTask = previousTask.catch(() => undefined).then(task);
+  capturedRequestsTabTasks.set(tabId, nextTask);
+  return nextTask;
+}
+
+async function readCapturedRequestsRecord(tabId: number): Promise<CapturedRequestsTabRecord> {
+  const pendingRecord = pendingCapturedRequestsByTab.get(tabId);
+
+  if (pendingRecord) {
+    return pendingRecord;
+  }
+
+  const key = capturedRequestsSessionKey(tabId);
+  const result = await browser.storage.session.get(key);
+  return parseCapturedRequestsTabRecord(result[key]) ?? { entries: [] };
+}
+
+async function writeCapturedRequestsRecord(tabId: number, record: CapturedRequestsTabRecord) {
+  const key = capturedRequestsSessionKey(tabId);
+
+  try {
+    await browser.storage.session.set({ [key]: record });
+    pendingCapturedRequestsByTab.set(tabId, record);
+    return;
+  } catch {
+    const withoutBodies = dropCapturedRequestBodies(record);
+
+    try {
+      await browser.storage.session.set({ [key]: withoutBodies });
+      pendingCapturedRequestsByTab.set(tabId, withoutBodies);
+      return;
+    } catch {
+      const trimmedRecord = trimCapturedRequestEntries(withoutBodies, Math.floor(withoutBodies.entries.length / 2));
+
+      try {
+        await browser.storage.session.set({ [key]: trimmedRecord });
+        pendingCapturedRequestsByTab.set(tabId, trimmedRecord);
+      } catch {
+        logger.error('Failed to persist captured requests after quota fallback', { tabId });
+      }
+    }
+  }
+}
+
+function scheduleCapturedRequestsWrite(tabId: number, record: CapturedRequestsTabRecord) {
+  pendingCapturedRequestsByTab.set(tabId, record);
+  const existingTimer = capturedRequestsWriteTimers.get(tabId);
+
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+  }
+
+  const timer = setTimeout(() => {
+    capturedRequestsWriteTimers.delete(tabId);
+    const pendingRecord = pendingCapturedRequestsByTab.get(tabId);
+
+    if (!pendingRecord) {
+      return;
+    }
+
+    writeCapturedRequestsRecord(tabId, pendingRecord).catch(error => {
+      logger.error('Failed to write captured requests', error);
+    });
+  }, CAPTURED_REQUESTS_SESSION_WRITE_DEBOUNCE_MS);
+
+  capturedRequestsWriteTimers.set(tabId, timer);
+}
+
+async function resetCapturedRequestsSession(tabId: number) {
+  const existingTimer = capturedRequestsWriteTimers.get(tabId);
+
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+    capturedRequestsWriteTimers.delete(tabId);
+  }
+
+  const emptyRecord: CapturedRequestsTabRecord = { entries: [] };
+  pendingCapturedRequestsByTab.set(tabId, emptyRecord);
+  await writeCapturedRequestsRecord(tabId, emptyRecord);
+}
+
+async function appendCapturedRequestEventsForTab(tabId: number, message: unknown) {
+  const events = parseCapturedRequestEventsFromUnknown(message);
+
+  if (events.length === 0) {
+    return;
+  }
+
+  const currentRecord = await readCapturedRequestsRecord(tabId);
+  const nextRecord = appendCapturedRequestEvents(currentRecord, events);
+  scheduleCapturedRequestsWrite(tabId, nextRecord);
+}
+
+function bufferCapturedRequestEventsMessage(tabId: number, message: unknown) {
+  const bufferedMessages = capturedRequestsBufferedMessages.get(tabId) ?? [];
+  bufferedMessages.push(message);
+  capturedRequestsBufferedMessages.set(tabId, bufferedMessages);
+}
+
+function takeBufferedCapturedRequestMessages(tabId: number): unknown[] {
+  const bufferedMessages = capturedRequestsBufferedMessages.get(tabId) ?? [];
+  capturedRequestsBufferedMessages.delete(tabId);
+  return bufferedMessages;
+}
+
+async function beginCapturedRequestsNavigation(tabId: number, url: string) {
+  if (capturedRequestsLastUrlByTab.get(tabId) === url) {
+    return;
+  }
+
+  capturedRequestsLastUrlByTab.set(tabId, url);
+  capturedRequestsReadyTabs.delete(tabId);
+  capturedRequestsBufferedMessages.delete(tabId);
+  await resetCapturedRequestsSession(tabId);
+}
+
+async function handleCapturedRequestsSessionStarted(tabId: number, tabUrl?: string) {
+  if (capturedRequestsReadyTabs.has(tabId)) {
+    return;
+  }
+
+  if (tabUrl) {
+    capturedRequestsLastUrlByTab.set(tabId, tabUrl);
+  }
+
+  await resetCapturedRequestsSession(tabId);
+  capturedRequestsReadyTabs.add(tabId);
+
+  for (const bufferedMessage of takeBufferedCapturedRequestMessages(tabId)) {
+    await appendCapturedRequestEventsForTab(tabId, bufferedMessage);
+  }
+}
+
+async function handleCapturedRequestEvents(tabId: number, message: unknown) {
+  if (!capturedRequestsReadyTabs.has(tabId)) {
+    bufferCapturedRequestEventsMessage(tabId, message);
+    return;
+  }
+
+  await appendCapturedRequestEventsForTab(tabId, message);
+}
+
+function clearCapturedRequestsTab(tabId: number) {
+  const existingTimer = capturedRequestsWriteTimers.get(tabId);
+
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+    capturedRequestsWriteTimers.delete(tabId);
+  }
+
+  capturedRequestsReadyTabs.delete(tabId);
+  capturedRequestsLastUrlByTab.delete(tabId);
+  capturedRequestsBufferedMessages.delete(tabId);
+  capturedRequestsTabTasks.delete(tabId);
+  pendingCapturedRequestsByTab.delete(tabId);
+  browser.storage.session.remove(capturedRequestsSessionKey(tabId)).catch(() => undefined);
+}
+
+function getSenderTabId(sender: { tab?: { id?: number } }): number | null {
+  const tabId = sender.tab?.id;
+  return typeof tabId === 'number' ? tabId : null;
+}
+
+async function notify(message: unknown, sender: { tab?: { id?: number; url?: string } }) {
   logger.debug('Received message:', message);
 
-  if (message === ServiceWorkerEvent.Reload) {
+  const senderTabId = getSenderTabId(sender);
+
+  if (isCapturedRequestsSessionStartedWorkerMessage(message)) {
+    if (senderTabId !== null) {
+      const senderTabUrl = typeof sender.tab?.url === 'string' ? sender.tab.url : undefined;
+      await runCapturedRequestsTabTask(senderTabId, () =>
+        handleCapturedRequestsSessionStarted(senderTabId, senderTabUrl),
+      );
+    }
+
+    return undefined;
+  }
+
+  if (isCapturedRequestEventsWorkerMessage(message)) {
+    if (senderTabId !== null) {
+      await runCapturedRequestsTabTask(senderTabId, () => handleCapturedRequestEvents(senderTabId, message));
+    }
+
+    return undefined;
+  }
+
+  if (isResponseOverrideApplyErrorWorkerMessage(message)) {
+    await appendResponseOverrideApplyError(message);
+    return undefined;
+  }
+
+  if (isServiceWorkerReloadMessage(message)) {
     logger.info('🔄 Reloading headers configuration');
 
     const result = await browser.storage.local.get([
@@ -216,9 +456,22 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 browserAction.setBadgeBackgroundColor({ color: BADGE_COLOR });
 
-browser.runtime.onMessage.addListener((message: unknown) => {
-  notify(message as ServiceWorkerEvent).catch(err => {
-    logger.error('Error handling message:', err);
-  });
-  return undefined;
+browser.tabs.onRemoved.addListener(tabId => {
+  clearCapturedRequestsTab(tabId);
 });
+
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  const nextUrl = changeInfo.url;
+
+  if (nextUrl === undefined) {
+    return;
+  }
+
+  runCapturedRequestsTabTask(tabId, () => beginCapturedRequestsNavigation(tabId, nextUrl)).catch(error => {
+    logger.error('Failed to reset captured requests on navigation', error);
+  });
+});
+
+browser.runtime.onMessage.addListener((message: unknown, sender: { tab?: { id?: number } }) =>
+  notify(message, sender),
+);

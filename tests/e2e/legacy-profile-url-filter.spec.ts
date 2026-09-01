@@ -60,7 +60,7 @@ test.describe('Legacy Profile URL Filter', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 3: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     await expect(urlFiltersTab).toHaveAttribute('aria-selected', 'true');
 

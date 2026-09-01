@@ -7,22 +7,34 @@ import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/pr
 import {
   $selectedProfileActiveRequestCookiesCount,
   $selectedProfileActiveRequestHeadersCount,
+  $selectedProfileActiveResponseOverridesCount,
   $selectedProfileActiveUrlFiltersCount,
 } from '#entities/request-profile/model';
+import { CAPTURED_REQUESTS_COPY, RESPONSE_OVERRIDE_COPY } from '#shared/constants';
 import { getCounterProps } from '#shared/utils/getCounterProps';
+import { CapturedRequests } from '#widgets/captured-requests';
 
 import { CookiesActions } from './CookiesActions';
 import { RequestHeadersActions } from './RequestHeadersActions';
+import { ResponseOverridesActions } from './ResponseOverridesActions';
 import * as S from './styled';
 import { UrlFiltersActions } from './UrlFiltersActions';
 
 export function ProfileActions() {
-  const [isPaused, activeTab, activeRequestHeadersCount, activeRequestCookiesCount, activeUrlFiltersCount] = useUnit([
+  const [
+    isPaused,
+    activeTab,
+    activeRequestHeadersCount,
+    activeRequestCookiesCount,
+    activeUrlFiltersCount,
+    activeResponseOverridesCount,
+  ] = useUnit([
     $isPaused,
     $activeProfileActionsTab,
     $selectedProfileActiveRequestHeadersCount,
     $selectedProfileActiveRequestCookiesCount,
     $selectedProfileActiveUrlFiltersCount,
+    $selectedProfileActiveResponseOverridesCount,
   ]);
 
   return (
@@ -31,7 +43,13 @@ export function ProfileActions() {
         <Tabs.TabBar type='secondary'>
           <Tabs.Tab counter={getCounterProps(activeRequestHeadersCount)} label='Headers' value='headers' />
           <Tabs.Tab counter={getCounterProps(activeRequestCookiesCount)} label='Request cookies' value='cookies' />
-          <Tabs.Tab label='URL Filters' counter={getCounterProps(activeUrlFiltersCount)} value='url-filters' />
+          <Tabs.Tab label='URL filters' counter={getCounterProps(activeUrlFiltersCount)} value='url-filters' />
+          <Tabs.Tab
+            label={RESPONSE_OVERRIDE_COPY.tab}
+            counter={getCounterProps(activeResponseOverridesCount)}
+            value='response-overrides'
+          />
+          <Tabs.Tab label={CAPTURED_REQUESTS_COPY.tab} value='requests' />
         </Tabs.TabBar>
         <Tabs.TabContent value='headers'>
           <RequestHeadersActions />
@@ -41,6 +59,12 @@ export function ProfileActions() {
         </Tabs.TabContent>
         <Tabs.TabContent value='url-filters'>
           <UrlFiltersActions />
+        </Tabs.TabContent>
+        <Tabs.TabContent value='response-overrides'>
+          <ResponseOverridesActions />
+        </Tabs.TabContent>
+        <Tabs.TabContent value='requests'>
+          <CapturedRequests />
         </Tabs.TabContent>
       </Tabs>
 

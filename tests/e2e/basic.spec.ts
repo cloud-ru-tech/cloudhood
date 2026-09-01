@@ -22,7 +22,7 @@ test.describe('Basic Functionality', () => {
 
     // Step 2: Verify tab visibility
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
 
     await expect(headersTab).toBeVisible({ timeout: 5000 });
     await expect(urlFiltersTab).toBeVisible({ timeout: 5000 });
@@ -78,7 +78,7 @@ test.describe('Basic Functionality', () => {
 
     // Step 2: Verify tab visibility
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
 
     await expect(headersTab).toBeVisible();
     await expect(urlFiltersTab).toBeVisible();
@@ -150,7 +150,7 @@ test.describe('Basic Functionality', () => {
     await expect(headerValueField).toHaveValue('');
 
     // Step 5: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     await expect(urlFiltersTab).toHaveAttribute('aria-selected', 'true');
 
@@ -195,7 +195,7 @@ test.describe('Basic Functionality', () => {
 
     // Step 2: Verify that the Headers tab is active by default
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
 
     await expect(headersTab).toHaveAttribute('aria-selected', 'true');
     await expect(urlFiltersTab).not.toHaveAttribute('aria-selected', 'true');
@@ -262,7 +262,7 @@ test.describe('Basic Functionality', () => {
     await expect(headerValueField).toHaveValue('valid-value');
 
     // Step 4: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Step 5: Validate the URL filter field
@@ -318,7 +318,7 @@ test.describe('Basic Functionality', () => {
     await expect(headerValueField).toBeDisabled();
 
     // Switch to URL Filters and check there as well
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
@@ -441,7 +441,7 @@ test.describe('Basic Functionality', () => {
     await headerValueField.fill('persistent-value');
 
     // Step 4: Switch to URL Filters and fill the filter
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
@@ -479,7 +479,7 @@ test.describe('Basic Functionality', () => {
     await expect(headerValueFieldAfterReload).toHaveValue('persistent-value');
 
     // Switch to URL Filters and check availability
-    const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTabAfterReload.click();
 
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');

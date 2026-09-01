@@ -1,6 +1,8 @@
+import './screenshot-tests/specs/captured-requests.screenshots';
 import './screenshot-tests/specs/cookies.screenshots';
 import './screenshot-tests/specs/general-ui.screenshots';
 import './screenshot-tests/specs/headers.screenshots';
 import './screenshot-tests/specs/modals.screenshots';
 import './screenshot-tests/specs/profiles.screenshots';
+import './screenshot-tests/specs/response-overrides.screenshots';
 import './screenshot-tests/specs/url-filters.screenshots';

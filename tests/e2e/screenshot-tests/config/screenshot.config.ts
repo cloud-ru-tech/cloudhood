@@ -12,7 +12,9 @@ export const SCREENSHOT_CONFIG = {
     tabs: {
       headers: '[role="tab"]:has-text("Headers")',
       cookies: '[role="tab"]:has-text("Request cookies")',
-      urlFilters: '[role="tab"]:has-text("URL Filters")',
+      urlFilters: '[role="tab"]:has-text("URL filters")',
+      modifyResponses: '[role="tab"]:has-text("Modify responses")',
+      requests: '[role="tab"]:has-text("Requests")',
     },
     headers: {
       section: '[data-test-id="profile-headers-section"]',
@@ -34,6 +36,26 @@ export const SCREENSHOT_CONFIG = {
       menuButton: '[data-test-id="request-cookie-menu-button"]',
       removeButton: '[data-test-id="remove-request-cookie-button"]',
       removeAllButton: '[data-test-id="remove-all-request-cookies-button"]',
+    },
+    responseOverrides: {
+      section: '[data-test-id="response-overrides-section"]',
+      addButton: '[data-test-id="add-response-override-button"]',
+      card: '[data-test-id="response-override-card"]',
+      title: '[data-test-id="response-override-title"]',
+      urlInput: '[data-test-id="response-override-url"] input',
+      jsonInput: '[data-test-id="response-override-json"] .cm-content',
+      expandButton: '[data-test-id="response-override-expand-button"]',
+    },
+    capturedRequests: {
+      root: '[data-test-id="captured-requests-root"]',
+      empty: '[data-test-id="captured-requests-empty"]',
+      restricted: '[data-test-id="captured-requests-restricted"]',
+      noMatches: '[data-test-id="captured-requests-no-matches"]',
+      search: '[data-test-id="captured-requests-search"]',
+      searchUrl: '[data-test-id="captured-requests-search-url"] input',
+      searchBody: '[data-test-id="captured-requests-search-body"] input',
+      list: '[data-test-id="captured-requests-list"]',
+      row: '[data-test-id="captured-request-row"]',
     },
     urlFilters: {
       section: '[data-test-id="url-filters-section"]',

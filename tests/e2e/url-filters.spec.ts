@@ -36,7 +36,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     await expect(urlFiltersTab).toHaveAttribute('aria-selected', 'true');
 
@@ -99,7 +99,7 @@ test.describe('URL Filters', () => {
     await headerValueField.fill('test-value');
 
     // Step 3: Switch to URL Filters and configure the filter
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
@@ -143,7 +143,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
@@ -188,7 +188,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -227,7 +227,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -274,7 +274,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -318,7 +318,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -357,7 +357,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Step 3: Fill the URL filter
@@ -397,7 +397,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -444,7 +444,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -487,7 +487,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -529,7 +529,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load
@@ -596,7 +596,7 @@ test.describe('URL Filters', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2: Switch to the URL Filters tab
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     // Wait for tab content to load

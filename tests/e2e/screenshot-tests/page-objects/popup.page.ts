@@ -5,6 +5,8 @@ import { ensureMenuClosed, safeClick, waitForNetworkIdle, waitForVisible } from 
 import { CookiesTabPage } from './cookies-tab.page';
 import { HeadersTabPage } from './headers-tab.page';
 import { SidebarPage } from './sidebar.page';
+import { RequestsTabPage } from './requests-tab.page';
+import { ResponseOverridesTabPage } from './response-overrides-tab.page';
 import { UrlFiltersTabPage } from './url-filters-tab.page';
 
 const THEME_LABEL_MAP: Record<Theme, string> = {
@@ -64,6 +66,14 @@ export class PopupPage {
 
   get urlFiltersTab() {
     return new UrlFiltersTabPage(this.page);
+  }
+
+  get responseOverridesTab() {
+    return new ResponseOverridesTabPage(this.page);
+  }
+
+  get requestsTab() {
+    return new RequestsTabPage(this.page);
   }
 
   get sidebar() {

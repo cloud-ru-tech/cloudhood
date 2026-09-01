@@ -1,3 +1,5 @@
+import type { ResponseOverride } from '#shared/types/responseOverride';
+
 export type RequestHeader = {
   id: number;
   name: string;
@@ -18,12 +20,20 @@ export type UrlFilter = {
   disabled: boolean;
 };
 
+export {
+  ResponseOverrideMatchType,
+  type ResponseOverrideHttpMethod,
+  type ResponseOverride,
+} from '#shared/types/responseOverride';
+
 export type Profile = {
   id: string;
   name?: string;
   requestHeaders: RequestHeader[];
   requestCookies: RequestCookie[];
   urlFilters: UrlFilter[];
+  responseOverrides?: ResponseOverride[];
+  responseOverridesDisabled?: boolean;
 };
 
 export type RemoveHeaderPayload = {

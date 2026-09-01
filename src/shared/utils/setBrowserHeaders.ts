@@ -8,6 +8,7 @@ import { countActiveHeadersForUrl, doesUrlMatchFilter } from './countActiveHeade
 import { createUrlCondition } from './createUrlCondition';
 import { validateHeader } from './headers';
 import { logger } from './logger';
+import { computeActiveResponseOverrides, normalizeStoredResponseOverrides } from './responseOverrides';
 import { setIconBadge } from './setIconBadge';
 
 const allResourceTypes = [
@@ -189,8 +190,19 @@ export async function setBrowserHeaders(result: Record<string, unknown>, current
     const urlMatchesCurrentTab =
       activeUrlFilters.length === 0 || !tabUrl || activeUrlFilters.some(filter => doesUrlMatchFilter(tabUrl, filter));
     const activeCookiesCount = urlMatchesCurrentTab ? activeCookies.length : 0;
+    const activeOverridesCount = computeActiveResponseOverrides({
+      profiles: profiles.map(item => ({
+        id: item.id,
+        responseOverrides: normalizeStoredResponseOverrides(item.responseOverrides),
+        responseOverridesDisabled: item.responseOverridesDisabled ?? false,
+      })),
+      selectedProfileId: selectedProfile,
+      isPaused,
+    }).length;
     const activeRulesCount =
-      countActiveHeadersForUrl(activeHeaders, activeUrlFilters, currentTabUrl) + activeCookiesCount;
+      countActiveHeadersForUrl(activeHeaders, activeUrlFilters, currentTabUrl) +
+      activeCookiesCount +
+      activeOverridesCount;
     await setIconBadge({ isPaused, activeRulesCount });
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);

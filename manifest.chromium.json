@@ -27,9 +27,33 @@
     "tabs",
     "cookies"
   ],
+  "minimum_chrome_version": "112",
   "background": {
     "service_worker": "background.bundle.js"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "response-overrides-main.bundle.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "response-overrides-bridge.bundle.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob:; style-src 'self' 'nonce-cloudhood-extension-style-nonce';"
   },

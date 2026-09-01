@@ -25,7 +25,7 @@ test.describe('Storage Persistence', () => {
 
     // Step 2: Verify the app loaded with default values
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
 
     await expect(headersTab).toBeVisible({ timeout: 5000 });
     await expect(urlFiltersTab).toBeVisible({ timeout: 5000 });
@@ -75,7 +75,7 @@ test.describe('Storage Persistence', () => {
 
     // Step 2: Verify the app loaded with default values
     const headersTab = page.locator('[role="tab"]:has-text("Headers")');
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
 
     await expect(headersTab).toBeVisible({ timeout: 5000 });
     await expect(urlFiltersTab).toBeVisible({ timeout: 5000 });
@@ -129,7 +129,7 @@ test.describe('Storage Persistence', () => {
     await headerValueInput.fill('persistent-value');
 
     // Step 4: Switch to URL Filters and fill the filter
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
 
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
@@ -190,7 +190,7 @@ test.describe('Storage Persistence', () => {
     const headerNameInput = page.locator('[data-test-id="header-name-input"] input');
     const headerValueInput = page.locator('[data-test-id="header-value-input"] input');
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
-    const urlFiltersTab = page.getByRole('tab', { name: 'URL Filters' });
+    const urlFiltersTab = page.getByRole('tab', { name: 'URL filters' });
 
     await expect(headerNameInput).toBeDisabled();
     await expect(headerValueInput).toBeDisabled();
@@ -203,7 +203,7 @@ test.describe('Storage Persistence', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 6: Verify that the pause state persisted
-    await page.getByRole('tab', { name: 'URL Filters' }).click();
+    await page.getByRole('tab', { name: 'URL filters' }).click();
     await expect(urlFilterInput).toBeDisabled();
     await page.getByRole('tab', { name: 'Headers' }).click();
     await expect(headerNameInput).toBeDisabled();
@@ -240,7 +240,7 @@ test.describe('Storage Persistence', () => {
     await headerValueInput.fill('development');
 
     // Switch to URL Filters and fill the filter
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('https://dev.example.com/*');
@@ -303,7 +303,7 @@ test.describe('Storage Persistence', () => {
     await headerValueInput.fill('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
 
     // Switch to URL Filters and test different URL formats
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('*://api.example.com/v1/*');
@@ -339,7 +339,7 @@ test.describe('Storage Persistence', () => {
     await expect(headerValueInputAfterReload).toHaveValue('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
 
     // Switch to URL Filters and verify the restored value
-    const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTabAfterReload.click();
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInputAfterReload).toHaveValue('*://api.example.com/v1/*');
@@ -377,7 +377,7 @@ test.describe('Storage Persistence', () => {
     await expect(headerNameInput.locator('xpath=..')).toHaveAttribute('data-validation', 'error');
 
     // Switch to URL Filters and test filter validation
-    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTab = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTab.click();
     const urlFilterInput = page.locator('[data-test-id="url-filter-input"] input');
     await urlFilterInput.fill('invalid-url-pattern');
@@ -401,7 +401,7 @@ test.describe('Storage Persistence', () => {
     await expect(headerNameInputAfterReload.locator('xpath=..')).toHaveAttribute('data-validation', 'error');
 
     // Switch to URL Filters and verify that its value was restored
-    const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');
+    const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL filters")');
     await urlFiltersTabAfterReload.click();
     const urlFilterInputAfterReload = page.locator('[data-test-id="url-filter-input"] input');
     await expect(urlFilterInputAfterReload).toHaveValue('invalid-url-pattern');

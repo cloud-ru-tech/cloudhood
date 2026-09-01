@@ -6,7 +6,7 @@ import { $requestProfiles, $selectedRequestProfile } from '#entities/request-pro
 import { copyToClipboard } from '#shared/utils/copyToClipboard';
 
 import { COPY_RESULT_STATUS } from './constants';
-import { downloadSelectedProfiles } from './utils';
+import { downloadSelectedProfiles, serializeProfilesForExport } from './utils';
 
 export const $profileExportList = combine($requestProfiles, profiles => profiles.map(p => p.id));
 
@@ -42,20 +42,7 @@ export const $profileExportString = combine(
       return customProfileExportString;
     }
 
-    return JSON.stringify(
-      profiles
-        .filter(({ id }) => selectedExportProfileIdList.includes(id))
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
-        .map(({ id, requestHeaders, requestCookies, urlFilters, ...rest }) => ({
-          ...rest,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
-          requestHeaders: requestHeaders.map(({ id, ...headerRest }) => headerRest),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
-          requestCookies: (requestCookies ?? []).map(({ id, ...cookieRest }) => cookieRest),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- if the model is extended, this may become an error
-          urlFilters: urlFilters?.map(({ id, ...filterRest }) => filterRest) || [],
-        })) || [],
-    );
+    return JSON.stringify(serializeProfilesForExport(profiles, selectedExportProfileIdList));
   },
   { skipVoid: false },
 );

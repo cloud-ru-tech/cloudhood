@@ -1,0 +1,54 @@
+.cloudhood-json-editor .cm-editor {
+  min-height: 160px;
+  max-height: 320px;
+  color: var(--sys-neutral-text-main);
+  background: transparent;
+  font-family: 'SB Sans Text Mono', ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.cloudhood-json-editor .cm-scroller {
+  overflow: auto;
+  font-family: inherit;
+}
+
+.cloudhood-json-editor .cm-content {
+  padding: 8px 12px;
+  caret-color: var(--sys-neutral-text-main);
+}
+
+.cloudhood-json-editor .cm-focused {
+  outline: none;
+}
+
+.cloudhood-json-editor .cm-selectionBackground,
+.cloudhood-json-editor .cm-editor ::selection {
+  background-color: var(--sys-neutral-decor-hovered);
+}
+
+.cloudhood-json-editor .tok-propertyName {
+  color: var(--sys-blue-text-main);
+}
+
+.cloudhood-json-editor .tok-string {
+  color: var(--sys-green-text-main);
+}
+
+.cloudhood-json-editor .tok-number {
+  color: var(--sys-orange-text-main);
+}
+
+.cloudhood-json-editor .tok-atom,
+.cloudhood-json-editor .tok-bool,
+.cloudhood-json-editor .tok-keyword {
+  color: var(--sys-violet-text-main);
+}
+
+.cloudhood-json-editor .tok-punctuation {
+  color: var(--sys-neutral-text-support);
+}
+
+.cloudhood-json-editor .tok-invalid {
+  color: var(--sys-red-text-main);
+}

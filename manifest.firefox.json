@@ -35,8 +35,32 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: blob: moz-extension:; style-src 'self' 'nonce-cloudhood-extension-style-nonce'; connect-src 'self' data: blob: moz-extension:;"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "response-overrides-main.bundle.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "response-overrides-bridge.bundle.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
+      "strict_min_version": "128.0",
       "data_collection_permissions": {
         "required": [
           "none"
