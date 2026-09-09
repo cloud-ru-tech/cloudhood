@@ -8,7 +8,7 @@ const openSettings = async (page: import('@playwright/test').Page) => {
 };
 
 test.describe('Extension Settings', () => {
-  test('opens settings from the sidebar and returns to the main view', async ({ page, extensionId }) => {
+  test('opens settings from the header and returns to the main view', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
