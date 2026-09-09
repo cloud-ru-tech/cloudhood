@@ -2,8 +2,9 @@ import { useUnit } from 'effector-react';
 import { useCallback, useState } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { KebabSVG, TrashSVG } from '@snack-uikit/icons';
+import { KebabSVG, SettingsSVG, TrashSVG } from '@snack-uikit/icons';
 
+import { settingsOpened } from '#entities/app-view';
 import { $isProfileRemoveAvailable, $selectedProfileIndex } from '#entities/request-profile/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
 import { useActions } from '#widgets/header/hooks';
@@ -14,10 +15,11 @@ import { ProfileNameField } from './components/ProfileNameField';
 import * as S from './styled';
 
 export function Header() {
-  const [selectedProfileIndex, isProfileRemoveAvailable, handleRemove] = useUnit([
+  const [selectedProfileIndex, isProfileRemoveAvailable, handleRemove, onSettingsOpened] = useUnit([
     $selectedProfileIndex,
     $isProfileRemoveAvailable,
     selectedProfileRemoved,
+    settingsOpened,
   ]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -45,6 +47,14 @@ export function Header() {
           />
 
           <PauseAllRequestHeaders />
+
+          <ButtonFunction
+            appearance='neutral'
+            size='m'
+            icon={<SettingsSVG />}
+            onClick={onSettingsOpened}
+            data-test-id='settings-button'
+          />
 
           <S.StyledDroplist open={isOpen} onOpenChange={setIsOpen} placement='bottom-end' size='m' items={actions}>
             <ButtonFunction

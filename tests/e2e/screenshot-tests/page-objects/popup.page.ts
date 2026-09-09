@@ -54,6 +54,12 @@ export class PopupPage {
     await safeClick(pauseButton);
   }
 
+  async openSettings() {
+    const settingsButton = this.page.locator(SCREENSHOT_CONFIG.selectors.general.settingsButton);
+    await safeClick(settingsButton);
+    await waitForVisible(this.page.locator(SCREENSHOT_CONFIG.selectors.general.settingsPage));
+  }
+
   get headersTab() {
     return new HeadersTabPage(this.page);
   }

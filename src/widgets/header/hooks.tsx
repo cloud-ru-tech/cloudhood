@@ -6,6 +6,7 @@ import { DownloadSVG, PlusSVG, UploadSVG } from '@snack-uikit/icons';
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
 import { profileAdded } from '#entities/request-profile/model';
+import { profileDebugLogsExported } from '#features/export-debug-logs';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
 import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
@@ -23,6 +24,7 @@ export function useActions({ onClose }: UseActionsProps) {
     onExportModalOpened,
     onProfileUrlFiltersAdded,
     onProfileActionsTabChanged,
+    onProfileDebugLogsExported,
   ] = useUnit([
     $activeProfileActionsTab,
     profileAdded,
@@ -31,6 +33,7 @@ export function useActions({ onClose }: UseActionsProps) {
     exportModalOpened,
     profileUrlFiltersAdded,
     profileActionsTabChanged,
+    profileDebugLogsExported,
   ]);
 
   const handleAddProfile = useCallback(() => {
@@ -60,6 +63,11 @@ export function useActions({ onClose }: UseActionsProps) {
     }
     onClose();
   }, [onClose, activeTab, onProfileUrlFiltersAdded, onProfileActionsTabChanged]);
+
+  const handleExportProfileLogs = useCallback(() => {
+    onProfileDebugLogsExported();
+    onClose();
+  }, [onClose, onProfileDebugLogsExported]);
 
   return useMemo(
     () => [
@@ -93,10 +101,17 @@ export function useActions({ onClose }: UseActionsProps) {
         beforeContent: <UploadSVG />,
         onClick: handleExportModalOpened,
       },
+      {
+        id: 'export-profile-debug-logs',
+        content: { option: 'Download profile logs' },
+        beforeContent: <DownloadSVG />,
+        onClick: handleExportProfileLogs,
+      },
     ],
     [
       handleAddProfile,
       handleExportModalOpened,
+      handleExportProfileLogs,
       handleOpenImportFromExtensionModal,
       handleOpenImportModal,
       handleAddUrlFilter,
