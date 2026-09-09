@@ -35,6 +35,10 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
     copyFileSync(indexSrc, popupDest);
   }
 
+  if (existsSync(popupDest)) {
+    copyFileSync(popupDest, resolve(outDir, 'options.html'));
+  }
+
   // Copy background.html as background.html
   const backgroundSrc = resolve(outDir, 'src/background.html');
   const backgroundDest = resolve(outDir, 'background.html');

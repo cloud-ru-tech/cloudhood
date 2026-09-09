@@ -1,9 +1,11 @@
 import { useUnit } from 'effector-react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, ThemeContrastSVG } from '@snack-uikit/icons';
+import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, SettingsSVG, ThemeContrastSVG } from '@snack-uikit/icons';
 import { Droplist } from '@snack-uikit/list';
+import { Tooltip } from '@snack-uikit/tooltip';
 
+import { settingsToggled } from '#entities/app-view';
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
 import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
 import { GithubIcon } from '#shared/assets/GithubIcon';
@@ -16,12 +18,13 @@ import * as S from './styled';
 const CLOUDHOOD_GITHUB_URL = packageJson.homepage;
 
 export function Sidebar() {
-  const [currentTheme, toggleTheme, selectedProfileId, handleAddProfile, profiles] = useUnit([
+  const [currentTheme, toggleTheme, selectedProfileId, handleAddProfile, profiles, onSettingsToggled] = useUnit([
     $currentTheme,
     currentThemeChanged,
     $selectedRequestProfile,
     profileAdded,
     $requestProfiles,
+    settingsToggled,
   ]);
 
   const handleGithubIconClick = () => window.open(CLOUDHOOD_GITHUB_URL, '_blank')?.focus();
@@ -59,6 +62,15 @@ export function Sidebar() {
           >
             <ButtonFunction size='m' icon={<ThemeContrastSVG />} data-test-id='theme-toggle-button' />
           </Droplist>
+
+          <Tooltip tip='Settings' placement='right'>
+            <ButtonFunction
+              size='m'
+              icon={<SettingsSVG />}
+              onClick={onSettingsToggled}
+              data-test-id='settings-button'
+            />
+          </Tooltip>
 
           <ButtonFunction
             onClick={handleGithubIconClick}
