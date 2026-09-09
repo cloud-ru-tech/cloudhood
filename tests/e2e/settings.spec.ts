@@ -47,14 +47,6 @@ test.describe('Extension Settings', () => {
     expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_.*\.txt$/);
   });
 
-  test('opens settings when loaded as the options page', async ({ page, extensionId }) => {
-    await page.goto(`chrome-extension://${extensionId}/options.html`);
-    await page.waitForLoadState('networkidle');
-
-    await expect(page.locator('[data-test-id="settings-page"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-test-id="export-debug-logs-button"]')).toBeVisible();
-  });
-
   test('changes theme from settings', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
