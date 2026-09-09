@@ -7,7 +7,7 @@ import { ChevronLeftSVG, DaySVG, DownloadSVG, LaptopPhoneSVG, NightSVG } from '@
 
 import { settingsClosed } from '#entities/app-view';
 import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
-import { $isExportingDebugLogs, debugLogsExported } from '#features/export-debug-logs';
+import { $isExportingDebugLogs, generalDebugLogsExported, profileDebugLogsExported } from '#features/export-debug-logs';
 import { ThemeMode } from '#shared/constants';
 
 import packageJson from '../../../package.json';
@@ -20,12 +20,20 @@ const THEME_OPTIONS = [
 ];
 
 export function Settings() {
-  const [currentTheme, isExportingDebugLogs, onSettingsClosed, onThemeChanged, onDebugLogsExported] = useUnit([
+  const [
+    currentTheme,
+    isExportingDebugLogs,
+    onSettingsClosed,
+    onThemeChanged,
+    onGeneralDebugLogsExported,
+    onProfileDebugLogsExported,
+  ] = useUnit([
     $currentTheme,
     $isExportingDebugLogs,
     settingsClosed,
     currentThemeChanged,
-    debugLogsExported,
+    generalDebugLogsExported,
+    profileDebugLogsExported,
   ]);
 
   return (
@@ -66,15 +74,24 @@ export function Settings() {
         <S.Section>
           <S.SectionTitle>Diagnostics</S.SectionTitle>
           <S.SectionDescription>
-            Download recent debug logs from the background worker to help diagnose header application issues.
+            Download recent debug logs from the background worker. Extension logs include everything; profile logs keep
+            only entries related to the current profile.
           </S.SectionDescription>
           <ButtonFilled
             size='m'
-            label='Download debug logs'
+            label='Download extension logs'
             icon={<DownloadSVG />}
             loading={isExportingDebugLogs}
-            onClick={() => onDebugLogsExported()}
+            onClick={() => onGeneralDebugLogsExported()}
             data-test-id='export-debug-logs-button'
+          />
+          <ButtonFilled
+            size='m'
+            label='Download profile logs'
+            icon={<DownloadSVG />}
+            loading={isExportingDebugLogs}
+            onClick={() => onProfileDebugLogsExported()}
+            data-test-id='export-profile-debug-logs-button'
           />
         </S.Section>
 

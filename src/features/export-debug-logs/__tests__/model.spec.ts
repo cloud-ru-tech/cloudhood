@@ -2,13 +2,24 @@ import { allSettled, fork } from 'effector';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import browser from 'webextension-polyfill';
 
-import { debugLogsExported } from '../model';
+import { $selectedRequestProfile } from '#entities/request-profile/model';
+
+import { generalDebugLogsExported, profileDebugLogsExported } from '../model';
 import { downloadDebugLogs } from '../utils';
 
 vi.mock('webextension-polyfill', () => ({
   default: {
     runtime: {
       sendMessage: vi.fn(),
+    },
+    storage: {
+      local: {
+        get: vi.fn().mockResolvedValue({}),
+        set: vi.fn().mockResolvedValue(undefined),
+      },
+      onChanged: {
+        addListener: vi.fn(),
+      },
     },
   },
 }));
@@ -28,14 +39,27 @@ describe('export-debug-logs', () => {
     vi.clearAllMocks();
   });
 
-  it('downloads debug logs when the background responds with a payload', async () => {
-    const payload = { logs: [{ message: 'hello' }] };
+  it('downloads general debug logs', async () => {
+    const payload = { scope: 'general', logs: [{ message: 'hello' }] };
     sendMessage.mockResolvedValue({ ok: true, result: payload });
 
     const scope = fork();
-    await allSettled(debugLogsExported, { scope });
+    await allSettled(generalDebugLogsExported, { scope });
 
-    expect(sendMessage).toHaveBeenCalledWith({ type: 'export-debug-logs' });
+    expect(sendMessage).toHaveBeenCalledWith({ type: 'export-debug-logs', profileId: undefined });
+    expect(downloadDebugLogs).toHaveBeenCalledWith(payload);
+  });
+
+  it('downloads profile debug logs for the selected profile', async () => {
+    const payload = { scope: 'profile', profileId: 'profile-1' };
+    sendMessage.mockResolvedValue({ ok: true, result: payload });
+
+    const scope = fork({
+      values: [[$selectedRequestProfile, 'profile-1']],
+    });
+    await allSettled(profileDebugLogsExported, { scope });
+
+    expect(sendMessage).toHaveBeenCalledWith({ type: 'export-debug-logs', profileId: 'profile-1' });
     expect(downloadDebugLogs).toHaveBeenCalledWith(payload);
   });
 
@@ -43,8 +67,18 @@ describe('export-debug-logs', () => {
     sendMessage.mockResolvedValue({ ok: false, error: 'boom' });
 
     const scope = fork();
-    await allSettled(debugLogsExported, { scope });
+    await allSettled(generalDebugLogsExported, { scope });
 
+    expect(downloadDebugLogs).not.toHaveBeenCalled();
+  });
+
+  it('does not download profile logs when no profile is selected', async () => {
+    const scope = fork({
+      values: [[$selectedRequestProfile, '']],
+    });
+    await allSettled(profileDebugLogsExported, { scope });
+
+    expect(sendMessage).not.toHaveBeenCalled();
     expect(downloadDebugLogs).not.toHaveBeenCalled();
   });
 });

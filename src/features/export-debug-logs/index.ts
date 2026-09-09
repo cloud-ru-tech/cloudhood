@@ -1,1 +1,1 @@
-export { $isExportingDebugLogs, debugLogsExported } from './model';
+export { $isExportingDebugLogs, generalDebugLogsExported, profileDebugLogsExported } from './model';

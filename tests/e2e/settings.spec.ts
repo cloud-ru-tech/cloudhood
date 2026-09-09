@@ -16,7 +16,8 @@ test.describe('Extension Settings', () => {
 
     await expect(page.getByText('Appearance')).toBeVisible();
     await expect(page.getByText('Diagnostics')).toBeVisible();
-    await expect(page.locator('[data-test-id="export-debug-logs-button"]')).toBeVisible();
+    await expect(page.locator('[data-test-id="export-debug-logs-button"]')).toHaveText(/Download extension logs/);
+    await expect(page.locator('[data-test-id="export-profile-debug-logs-button"]')).toHaveText(/Download profile logs/);
     await expect(page.locator('[data-test-id="settings-version"]')).toContainText('Cloudhood');
 
     await page.locator('[data-test-id="settings-back-button"]').click();
@@ -24,16 +25,19 @@ test.describe('Extension Settings', () => {
     await expect(page.locator('[data-test-id="profile-actions-menu-button"]')).toBeVisible();
   });
 
-  test('does not keep debug log export in the profile actions menu', async ({ page, extensionId }) => {
+  test('downloads profile logs from the profile actions menu', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
     await page.locator('[data-test-id="profile-actions-menu-button"]').click();
-    await expect(page.getByRole('menuitem', { name: 'Export/share profile' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Export debug logs' })).toHaveCount(0);
+    const profileLogsOption = page.getByRole('menuitem', { name: 'Download profile logs' });
+    await expect(profileLogsOption).toBeVisible();
+
+    const [download] = await Promise.all([page.waitForEvent('download'), profileLogsOption.click()]);
+    expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_profile_.*\.txt$/);
   });
 
-  test('downloads debug logs from settings', async ({ page, extensionId }) => {
+  test('downloads extension logs from settings', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
@@ -44,7 +48,21 @@ test.describe('Extension Settings', () => {
       page.locator('[data-test-id="export-debug-logs-button"]').click(),
     ]);
 
-    expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_.*\.txt$/);
+    expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_\d/);
+  });
+
+  test('downloads profile logs from settings', async ({ page, extensionId }) => {
+    await page.goto(`chrome-extension://${extensionId}/popup.html`);
+    await page.waitForLoadState('networkidle');
+
+    await openSettings(page);
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('[data-test-id="export-profile-debug-logs-button"]').click(),
+    ]);
+
+    expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_profile_.*\.txt$/);
   });
 
   test('changes theme from settings', async ({ page, extensionId }) => {

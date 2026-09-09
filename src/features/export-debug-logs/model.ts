@@ -3,11 +3,13 @@ import browser from 'webextension-polyfill';
 
 import { notificationAdded } from '#entities/notification/model';
 import { NotificationInfo, NotificationVariant } from '#entities/notification/types';
+import { $selectedRequestProfile } from '#entities/request-profile/model';
 import { RuntimeMessageType } from '#shared/constants';
 
 import { downloadDebugLogs } from './utils';
 
-export const debugLogsExported = createEvent();
+export const generalDebugLogsExported = createEvent();
+export const profileDebugLogsExported = createEvent();
 
 type ExportDebugLogsResponse = {
   ok?: boolean;
@@ -15,9 +17,10 @@ type ExportDebugLogsResponse = {
   error?: string;
 };
 
-const exportDebugLogsFx = createEffect(async () => {
+const exportDebugLogsFx = createEffect(async ({ profileId }: { profileId?: string }) => {
   const response = (await browser.runtime.sendMessage({
     type: RuntimeMessageType.ExportDebugLogs,
+    profileId,
   })) as ExportDebugLogsResponse | undefined;
 
   if (!response?.ok || response.result == null) {
@@ -30,7 +33,16 @@ const exportDebugLogsFx = createEffect(async () => {
 export const $isExportingDebugLogs = exportDebugLogsFx.pending;
 
 sample({
-  clock: debugLogsExported,
+  clock: generalDebugLogsExported,
+  fn: () => ({}),
+  target: exportDebugLogsFx,
+});
+
+sample({
+  clock: profileDebugLogsExported,
+  source: $selectedRequestProfile,
+  filter: Boolean,
+  fn: profileId => ({ profileId }),
   target: exportDebugLogsFx,
 });
 
