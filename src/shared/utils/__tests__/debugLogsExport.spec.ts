@@ -8,6 +8,7 @@ import {
   type DebugLogsProfile,
   filterDebugLogsForProfile,
   getProfileRuleIds,
+  parseProfileFromUnknown,
   parseProfilesFromStorage,
 } from '../debugLogsExport';
 
@@ -68,5 +69,16 @@ describe('debugLogsExport', () => {
     ]);
     expect(filtered.logs.map(entry => entry.seq)).toEqual([1, 3]);
     expect(filtered.profile).toEqual(profile);
+  });
+
+  it('parses a profile payload from an untrusted message', () => {
+    expect(parseProfileFromUnknown({ id: 'profile-1', name: 'Work' })).toEqual({
+      id: 'profile-1',
+      name: 'Work',
+      requestHeaders: undefined,
+      requestCookies: undefined,
+      urlFilters: undefined,
+    });
+    expect(parseProfileFromUnknown({ name: 'missing-id' })).toBeUndefined();
   });
 });

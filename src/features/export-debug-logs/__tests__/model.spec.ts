@@ -2,7 +2,7 @@ import { allSettled, fork } from 'effector';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import browser from 'webextension-polyfill';
 
-import { $selectedRequestProfile } from '#entities/request-profile/model';
+import { $requestProfiles, $selectedRequestProfile } from '#entities/request-profile/model';
 
 import { generalDebugLogsExported, profileDebugLogsExported } from '../model';
 import { downloadDebugLogs } from '../utils';
@@ -46,20 +46,40 @@ describe('export-debug-logs', () => {
     const scope = fork();
     await allSettled(generalDebugLogsExported, { scope });
 
-    expect(sendMessage).toHaveBeenCalledWith({ type: 'export-debug-logs', profileId: undefined });
+    expect(sendMessage).toHaveBeenCalledWith({
+      type: 'export-debug-logs',
+      scope: 'general',
+      profileId: undefined,
+      profile: undefined,
+    });
     expect(downloadDebugLogs).toHaveBeenCalledWith(payload);
   });
 
   it('downloads profile debug logs for the selected profile', async () => {
+    const selectedProfile = {
+      id: 'profile-1',
+      name: 'Work',
+      requestHeaders: [],
+      requestCookies: [],
+      urlFilters: [],
+    };
     const payload = { scope: 'profile', profileId: 'profile-1' };
     sendMessage.mockResolvedValue({ ok: true, result: payload });
 
     const scope = fork({
-      values: [[$selectedRequestProfile, 'profile-1']],
+      values: [
+        [$selectedRequestProfile, 'profile-1'],
+        [$requestProfiles, [selectedProfile]],
+      ],
     });
     await allSettled(profileDebugLogsExported, { scope });
 
-    expect(sendMessage).toHaveBeenCalledWith({ type: 'export-debug-logs', profileId: 'profile-1' });
+    expect(sendMessage).toHaveBeenCalledWith({
+      type: 'export-debug-logs',
+      scope: 'profile',
+      profileId: 'profile-1',
+      profile: selectedProfile,
+    });
     expect(downloadDebugLogs).toHaveBeenCalledWith(payload);
   });
 
@@ -72,13 +92,29 @@ describe('export-debug-logs', () => {
     expect(downloadDebugLogs).not.toHaveBeenCalled();
   });
 
-  it('does not download profile logs when no profile is selected', async () => {
+  it('falls back to the first profile when none is selected', async () => {
+    const fallbackProfile = {
+      id: 'profile-2',
+      name: 'Fallback',
+      requestHeaders: [],
+      requestCookies: [],
+      urlFilters: [],
+    };
+    sendMessage.mockResolvedValue({ ok: true, result: { scope: 'profile' } });
+
     const scope = fork({
-      values: [[$selectedRequestProfile, '']],
+      values: [
+        [$selectedRequestProfile, ''],
+        [$requestProfiles, [fallbackProfile]],
+      ],
     });
     await allSettled(profileDebugLogsExported, { scope });
 
-    expect(sendMessage).not.toHaveBeenCalled();
-    expect(downloadDebugLogs).not.toHaveBeenCalled();
+    expect(sendMessage).toHaveBeenCalledWith({
+      type: 'export-debug-logs',
+      scope: 'profile',
+      profileId: 'profile-2',
+      profile: fallbackProfile,
+    });
   });
 });

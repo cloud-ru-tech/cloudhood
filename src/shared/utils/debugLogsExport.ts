@@ -55,6 +55,25 @@ export function parseProfilesFromStorage(storage: Record<string, unknown>): Debu
   return Array.isArray(raw) ? (raw as DebugLogsProfile[]) : [];
 }
 
+export function parseProfileFromUnknown(value: unknown): DebugLogsProfile | undefined {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  const profile = value as Partial<DebugLogsProfile>;
+  if (typeof profile.id !== 'string' || profile.id.length === 0) {
+    return undefined;
+  }
+
+  return {
+    id: profile.id,
+    name: typeof profile.name === 'string' ? profile.name : undefined,
+    requestHeaders: Array.isArray(profile.requestHeaders) ? profile.requestHeaders : undefined,
+    requestCookies: Array.isArray(profile.requestCookies) ? profile.requestCookies : undefined,
+    urlFilters: Array.isArray(profile.urlFilters) ? profile.urlFilters : undefined,
+  };
+}
+
 export function getProfileRuleIds(profile: DebugLogsProfile): Set<number> {
   const ids = new Set<number>();
   const urlFilterCount = Math.max(profile.urlFilters?.length ?? 0, 1);

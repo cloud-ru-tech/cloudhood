@@ -5,7 +5,11 @@ import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
 import { validateCookie } from './shared/utils/cookies';
 import { countActiveHeadersForUrl, doesUrlMatchFilter } from './shared/utils/countActiveHeadersForUrl';
-import { filterDebugLogsForProfile, parseProfilesFromStorage } from './shared/utils/debugLogsExport';
+import {
+  filterDebugLogsForProfile,
+  parseProfileFromUnknown,
+  parseProfilesFromStorage,
+} from './shared/utils/debugLogsExport';
 import { validateHeader } from './shared/utils/headers';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserCookies } from './shared/utils/setBrowserCookies';
@@ -152,7 +156,7 @@ function getApplyHealthSnapshot() {
   };
 }
 
-async function buildDebugLogsExportPayload(profileId?: string) {
+async function buildDebugLogsExportPayload(options?: { profileId?: string; profile?: unknown }) {
   const now = Date.now();
   const storage = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
@@ -193,13 +197,16 @@ async function buildDebugLogsExportPayload(profileId?: string) {
     logs: debugLogsBuffer,
   };
 
-  if (profileId === undefined) {
+  if (!options) {
     return payload;
   }
 
-  const profile = parseProfilesFromStorage(storage).find(item => item.id === profileId);
+  const profileId = options.profileId;
+  const profile =
+    parseProfileFromUnknown(options.profile) ?? parseProfilesFromStorage(storage).find(item => item.id === profileId);
+
   if (!profile) {
-    throw new Error(`Profile "${profileId}" not found`);
+    throw new Error(`Profile "${profileId ?? ''}" not found`);
   }
 
   return filterDebugLogsForProfile(payload, profile);
@@ -475,10 +482,11 @@ browser.runtime.onStartup.addListener(async function () {
 
 browser.runtime.onMessage.addListener((message: unknown) => {
   if (!message || typeof message !== 'object') return undefined;
-  const payload = message as { type?: string; profileId?: unknown };
+  const payload = message as { type?: string; scope?: unknown; profileId?: unknown; profile?: unknown };
   if (payload.type !== RuntimeMessageType.ExportDebugLogs) return undefined;
+  const isProfileScope = payload.scope === 'profile';
   const profileId = typeof payload.profileId === 'string' ? payload.profileId : undefined;
-  return buildDebugLogsExportPayload(profileId)
+  return buildDebugLogsExportPayload(isProfileScope ? { profileId, profile: payload.profile } : undefined)
     .then(result => ({ ok: true, result }))
     .catch(error => ({ ok: false, error: safeStringify(error) }));
 });
