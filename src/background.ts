@@ -198,11 +198,12 @@ browser.tabs.onActivated.addListener(async activeInfo => {
 });
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (changeInfo.status !== 'complete') return;
-
-  if (await importSharedHeadersFromTab(tabId, tab.url)) {
+  const updatedUrl = changeInfo.url ?? (changeInfo.status === 'complete' ? tab.url : undefined);
+  if (updatedUrl && (await importSharedHeadersFromTab(tabId, updatedUrl))) {
     return;
   }
+
+  if (changeInfo.status !== 'complete') return;
 
   const activeTabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (activeTabs[0]?.id !== tabId) return;

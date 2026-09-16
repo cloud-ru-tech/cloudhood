@@ -83,9 +83,11 @@ test('shares active headers and imports them into a selected origin profile', as
   await expect(page.locator('[data-test-id="share-headers-link-output"] textarea')).toHaveValue(sharedUrl);
 
   const requestPage = await context.newPage();
+  await requestPage.goto(echoServerUrl);
   await requestPage.goto(sharedUrl);
 
   await expect.poll(() => requestPage.url()).toBe(`${echoServerUrl}/`);
+  await requestPage.reload();
   await expect
     .poll(async () => {
       const text = await requestPage.locator('body').textContent();
