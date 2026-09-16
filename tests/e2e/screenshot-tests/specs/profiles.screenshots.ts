@@ -47,5 +47,8 @@ createScreenshotTest({
   setup: async popup => {
     await popup.headersTab.activate();
     await popup.sidebar.openProfileActionsMenu();
+    await popup.page.getByRole('menuitem', { name: 'Share headers by URL' }).evaluate(element => {
+      (element as HTMLElement).style.display = 'none';
+    });
   },
 });
