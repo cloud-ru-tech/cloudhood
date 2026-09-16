@@ -1,5 +1,7 @@
 import browser from 'webextension-polyfill';
 
+import { importSharedHeadersFromTab } from '#features/share-headers-by-url/background';
+
 import { BrowserStorageKey, ServiceWorkerEvent } from './shared/constants';
 import { browserAction } from './shared/utils/browserAPI';
 import { logger, LogLevel } from './shared/utils/logger';
@@ -170,6 +172,11 @@ browser.runtime.onInstalled.addListener(async details => {
 browser.tabs.onActivated.addListener(async activeInfo => {
   logger.debug('Tab activated:', activeInfo);
 
+  const tab = await browser.tabs.get(activeInfo.tabId);
+  if (await importSharedHeadersFromTab(activeInfo.tabId, tab.url)) {
+    return;
+  }
+
   const result = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
     BrowserStorageKey.SelectedProfile,
@@ -181,7 +188,6 @@ browser.tabs.onActivated.addListener(async activeInfo => {
   if (Object.keys(result).length) {
     logger.info('📱 Tab activated, updating headers');
     try {
-      const tab = await browser.tabs.get(activeInfo.tabId);
       await setBrowserHeaders(result, tab.url);
     } catch (error) {
       logger.error('Failed to set browser headers on tab activation:', error);
@@ -193,6 +199,10 @@ browser.tabs.onActivated.addListener(async activeInfo => {
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return;
+
+  if (await importSharedHeadersFromTab(tabId, tab.url)) {
+    return;
+  }
 
   const activeTabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (activeTabs[0]?.id !== tabId) return;

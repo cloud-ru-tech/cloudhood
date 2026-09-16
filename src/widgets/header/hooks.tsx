@@ -1,11 +1,16 @@
 import { useUnit } from 'effector-react';
 import { useCallback, useMemo } from 'react';
 
-import { DownloadSVG, PlusSVG, UploadSVG } from '@snack-uikit/icons';
+import { ArrowLinksSVG, DownloadSVG, PlusSVG, UploadSVG } from '@snack-uikit/icons';
 
-import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
+import {
+  exportModalOpened,
+  importFromExtensionModalOpened,
+  importModalOpened,
+  shareHeadersByUrlModalOpened,
+} from '#entities/modal/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
-import { profileAdded } from '#entities/request-profile/model';
+import { $selectedProfileActiveRequestHeadersCount, profileAdded } from '#entities/request-profile/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
 import { FileOpenSVG, FileUploadSVG } from '#shared/assets/svg';
 
@@ -21,16 +26,20 @@ export function useActions({ onClose }: UseActionsProps) {
     onImportFromExtensionModalOpened,
 
     onExportModalOpened,
+    onShareHeadersByUrlModalOpened,
     onProfileUrlFiltersAdded,
     onProfileActionsTabChanged,
+    activeRequestHeadersCount,
   ] = useUnit([
     $activeProfileActionsTab,
     profileAdded,
     importModalOpened,
     importFromExtensionModalOpened,
     exportModalOpened,
+    shareHeadersByUrlModalOpened,
     profileUrlFiltersAdded,
     profileActionsTabChanged,
+    $selectedProfileActiveRequestHeadersCount,
   ]);
 
   const handleAddProfile = useCallback(() => {
@@ -52,6 +61,11 @@ export function useActions({ onClose }: UseActionsProps) {
     onExportModalOpened();
     onClose();
   }, [onClose, onExportModalOpened]);
+
+  const handleShareHeadersByUrlModalOpened = useCallback(() => {
+    onShareHeadersByUrlModalOpened();
+    onClose();
+  }, [onClose, onShareHeadersByUrlModalOpened]);
 
   const handleAddUrlFilter = useCallback(() => {
     onProfileUrlFiltersAdded();
@@ -93,6 +107,13 @@ export function useActions({ onClose }: UseActionsProps) {
         beforeContent: <UploadSVG />,
         onClick: handleExportModalOpened,
       },
+      {
+        id: 'share-headers-by-url',
+        content: { option: 'Share headers by URL' },
+        beforeContent: <ArrowLinksSVG />,
+        onClick: handleShareHeadersByUrlModalOpened,
+        disabled: activeRequestHeadersCount === 0,
+      },
     ],
     [
       handleAddProfile,
@@ -100,6 +121,8 @@ export function useActions({ onClose }: UseActionsProps) {
       handleOpenImportFromExtensionModal,
       handleOpenImportModal,
       handleAddUrlFilter,
+      handleShareHeadersByUrlModalOpened,
+      activeRequestHeadersCount,
     ],
   );
 }
