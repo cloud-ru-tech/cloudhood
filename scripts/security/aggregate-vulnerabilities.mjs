@@ -389,6 +389,7 @@ const exceptions = rawExceptions.ok
 const baselineSeverity = new Map();
 for (const entry of baseline?.entries ?? [])
   for (const id of entry.ids) baselineSeverity.set(id, bestSeverity(baselineSeverity.get(id), entry.severity));
+const isPullRequestPolicy = eventName === 'pull_request' && Boolean(baseline);
 
 let blocking = 0;
 let warnings = 0;
@@ -402,13 +403,16 @@ for (const entry of rows) {
   const exception = exceptions.valid.find(candidate => entry.ids.includes(candidate.id));
   const previous = bestSeverity(...entry.ids.map(id => baselineSeverity.get(id)));
   const isHigh = SEVERITY_ORDER[entry.severity] >= SEVERITY_ORDER.HIGH;
+  const isNewOrWorse = !isPullRequestPolicy || SEVERITY_ORDER[entry.severity] > SEVERITY_ORDER[previous];
   let status = 'warning';
   if (exception) {
     status = 'temporarily accepted';
     accepted.push({ entry, exception });
-  } else if (isHigh) {
+  } else if (isHigh && isNewOrWorse) {
     status = 'blocking';
     blocking += 1;
+  } else if (isHigh) {
+    status = 'present in baseline';
   } else {
     warnings += 1;
   }
@@ -421,10 +425,13 @@ const sourceTotals = Object.entries(current.counts)
   .join(', ');
 const severityDifferences = rows.filter(entry => new Set(entry.severities.values()).size > 1);
 const important = rows.filter(entry => entry.exploited || entry.packages.some(pkg => pkg.environment === 'prod'));
+const policySummary = isPullRequestPolicy
+  ? 'pull request diff against base branch (new or worsened HIGH/CRITICAL block merge)'
+  : 'full dependency tree (HIGH/CRITICAL block merge)';
 const summary = [
   '## Dependency vulnerability report',
   '',
-  `- Mode: **full dependency tree** (HIGH/CRITICAL block merge)`,
+  `- Mode: **${policySummary}**`,
   `- Unique vulnerabilities: **${rows.length}**; deduplicated source matches: **${deduplicated}**`,
   `- Raw findings: ${sourceTotals}`,
   `- Scanner data/scans completed: ${
@@ -433,13 +440,15 @@ const summary = [
       .join(', ') || 'not recorded'
   }`,
   '',
-  '| Severity | Dependency | Installed | Fixed in | Direct/Transitive | Prod/Dev | IDs | Sources | Status |',
-  '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  '| Severity | Previous | Dependency | Installed | Fixed in | Direct/Transitive | Prod/Dev | IDs | Sources | Status |',
+  '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   ...rows.map(entry => {
     const packages = entry.packages;
-    return `| ${entry.severity} | ${md(packages.map(pkg => pkg.packageName).join(', '))} | ${md(packages.map(pkg => pkg.installedVersion).join(', '))} | ${md(unique(packages.map(pkg => pkg.fixedVersion)).join(', ') || 'No fix published')} | ${md(unique(packages.map(pkg => pkg.dependencyType)).join(', '))} | ${md(unique(packages.map(pkg => pkg.environment)).join(', '))} | ${md(entry.ids.join(', '))} | ${md([...entry.sources].join(', '))} | ${entry.status}${entry.exploited ? ' (known/actively exploited)' : ''} |`;
+    return `| ${entry.severity} | ${entry.previousSeverity} | ${md(packages.map(pkg => pkg.packageName).join(', '))} | ${md(packages.map(pkg => pkg.installedVersion).join(', '))} | ${md(unique(packages.map(pkg => pkg.fixedVersion)).join(', ') || 'No fix published')} | ${md(unique(packages.map(pkg => pkg.dependencyType)).join(', '))} | ${md(unique(packages.map(pkg => pkg.environment)).join(', '))} | ${md(entry.ids.join(', '))} | ${md([...entry.sources].join(', '))} | ${entry.status}${entry.exploited ? ' (known/actively exploited)' : ''} |`;
   }),
-  ...scannerErrors.map(error => `| UNKNOWN | scanner | — | — | — | — | — | — | scanner error: ${md(error)} |`),
+  ...scannerErrors.map(
+    error => `| UNKNOWN | UNKNOWN | scanner | — | — | — | — | — | — | scanner error: ${md(error)} |`,
+  ),
   '',
   '### Scanner errors',
   ...(scannerErrors.length ? scannerErrors.map(error => `- ${error}`) : ['- None']),
@@ -518,7 +527,9 @@ if (exceptions.errors.length) {
   console.error(`One or more required scanners failed:\n${scannerErrors.map(error => `- ${error}`).join('\n')}`);
   process.exitCode = 2;
 } else if (blocking) {
-  console.error(`${blocking} vulnerability finding(s) violate the full-tree HIGH/CRITICAL policy.`);
+  console.error(
+    `${blocking} vulnerability finding(s) violate the ${isPullRequestPolicy ? 'pull request' : 'full-tree'} HIGH/CRITICAL policy.`,
+  );
   process.exitCode = 1;
 } else {
   console.log('Dependency vulnerability policy passed.');
