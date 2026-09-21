@@ -17,17 +17,25 @@ import * as S from './styled';
 import { UrlFiltersActions } from './UrlFiltersActions';
 
 export function ProfileActions() {
-  const [isPaused, activeTab, activeRequestHeadersCount, activeRequestCookiesCount, activeUrlFiltersCount] = useUnit([
+  const [
+    isPaused,
+    activeTab,
+    activeRequestHeadersCount,
+    activeRequestCookiesCount,
+    activeUrlFiltersCount,
+    onTabChange,
+  ] = useUnit([
     $isPaused,
     $activeProfileActionsTab,
     $selectedProfileActiveRequestHeadersCount,
     $selectedProfileActiveRequestCookiesCount,
     $selectedProfileActiveUrlFiltersCount,
+    profileActionsTabChanged,
   ]);
 
   return (
     <S.Content>
-      <Tabs value={activeTab} onChange={profileActionsTabChanged}>
+      <Tabs value={activeTab} onChange={onTabChange}>
         <Tabs.TabBar type='secondary'>
           <Tabs.Tab counter={getCounterProps(activeRequestHeadersCount)} label='Headers' value='headers' />
           <Tabs.Tab counter={getCounterProps(activeRequestCookiesCount)} label='Request cookies' value='cookies' />
