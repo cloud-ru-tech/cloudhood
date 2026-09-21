@@ -34,16 +34,17 @@ jobs:
           python3 << 'PY'
           import json
           import os
+          import re
           import urllib.error
           import urllib.request
 
           token = os.environ['GITHUB_TOKEN']
           repo = os.environ['GITHUB_REPOSITORY']
           alerts = []
-          page = 1
+          url = f'https://api.github.com/repos/{repo}/dependabot/alerts?state=open&per_page=100'
           while True:
               request = urllib.request.Request(
-                  f'https://api.github.com/repos/{repo}/dependabot/alerts?state=open&per_page=100&page={page}',
+                  url,
                   headers={
                       'Authorization': f'Bearer {token}',
                       'Accept': 'application/vnd.github+json',
@@ -54,15 +55,15 @@ jobs:
               try:
                   with urllib.request.urlopen(request) as response:
                       batch = json.load(response)
+                      link = response.headers.get('Link', '')
               except urllib.error.HTTPError as error:
                   body = error.read().decode('utf-8', 'replace')
                   raise SystemExit(f'Dependabot alerts API failed: HTTP {error.code}\n{body}') from error
-              if not batch:
-                  break
               alerts.extend(batch)
-              if len(batch) < 100:
+              next_link = re.search(r'<([^>]+)>;\s*rel="next"', link)
+              if not next_link:
                   break
-              page += 1
+              url = next_link.group(1)
 
           blocking = [
               alert
