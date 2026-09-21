@@ -105,17 +105,22 @@
   "pnpm": {
     "overrides": {
       "@babel/plugin-transform-modules-systemjs": "7.29.4",
-      "brace-expansion": "2.0.3",
+      "brace-expansion": "2.1.7",
+      "browserslist": "4.29.0",
       "esbuild": "0.27.2",
-      "fast-uri": "3.1.2",
+      "fast-uri": "3.1.8",
       "flatted": "3.4.2",
       "glob": "10.5.0",
+      "js-yaml": "4.3.2",
       "minimatch": "9.0.9",
+      "nanoid": "3.3.19",
       "@eslint/eslintrc>minimatch": "3.1.5",
       "picomatch": "4.0.4",
-      "postcss": "8.5.10",
+      "postcss": "8.5.28",
       "rollup": "4.60.1",
-      "svgo": "3.3.3",
+      "shell-quote": "1.10.0",
+      "svgo": "3.3.5",
+      "undici": "7.29.1",
       "yaml": "1.10.3"
     }
   },
