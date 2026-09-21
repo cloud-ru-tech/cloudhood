@@ -1,0 +1,187 @@
+name: Dependency vulnerabilities
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - pnpm-lock.yaml
+      - .npmrc
+      - pnpm-workspace.yaml
+      - .node-version
+      - .github/workflows/security-vulnerabilities.yml
+      - .github/security/**
+      - scripts/security/**
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-vulnerabilities-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Multi-source vulnerability scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      security-events: write # Required only by the SARIF upload step below.
+    steps:
+      - name: Checkout repository
+        # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup pnpm
+        # v6.1.0
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+        with:
+          version: 10.10.0
+
+      - name: Set up Node.js 20
+        # v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Create report directories and PR baseline
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports/baseline/source
+          if [ "$EVENT_NAME" = 'pull_request' ]; then
+            git show "$BASE_SHA:package.json" > reports/baseline/source/package.json
+            git show "$BASE_SHA:pnpm-lock.yaml" > reports/baseline/source/pnpm-lock.yaml
+            git show "$BASE_SHA:.npmrc" > reports/baseline/source/.npmrc 2>/dev/null || true
+          fi
+
+      - name: Install OSV-Scanner v2.6.0
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-all-errors --output osv-scanner https://github.com/google/osv-scanner/releases/download/v2.6.0/osv-scanner_linux_amd64
+          echo 'ca69b3d3cd08f889a49dc0a383122f71cc528b83803671df5fd874d97485b108  osv-scanner' | sha256sum --check --status
+          chmod 0755 osv-scanner
+          mv osv-scanner /usr/local/bin/osv-scanner
+
+      - name: Install Trivy v0.74.0
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-all-errors --output trivy.tar.gz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
+          echo '2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a  trivy.tar.gz' | sha256sum --check --status
+          tar -xzf trivy.tar.gz trivy
+          install -m 0755 trivy /usr/local/bin/trivy
+
+      - name: Run pnpm audit (npm/GHSA)
+        id: pnpm_audit
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          pnpm audit --json > reports/pnpm-audit.json 2> reports/pnpm-audit.stderr
+          exit_code=$?
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" reports/pnpm-audit.json
+          json_code=$?
+          node -e "const fs=require('fs'); const p='reports/scanner-status.json'; const x=fs.existsSync(p)?JSON.parse(fs.readFileSync(p)):{}; x.scanners??={}; x.scanners.pnpm={status:(process.argv[1] === '0' || process.argv[1] === '1') && process.argv[2] === '0' ? 'success':'error',exitCode:Number(process.argv[1]),completedAt:new Date().toISOString(),message:process.argv[2] === '0'?'report collected':fs.readFileSync('reports/pnpm-audit.stderr','utf8').slice(-1000)}; fs.writeFileSync(p,JSON.stringify(x,null,2))" "$exit_code" "$json_code"
+
+      - name: Run OSV-Scanner (OSV.dev)
+        id: osv_scan
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          osv-scanner scan source --format json --output-file reports/osv.json --lockfile pnpm-lock.yaml --experimental-exclude reports . 2> reports/osv.stderr
+          exit_code=$?
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" reports/osv.json
+          json_code=$?
+          node -e "const fs=require('fs'); const p='reports/scanner-status.json'; const x=fs.existsSync(p)?JSON.parse(fs.readFileSync(p)):{}; x.scanners??={}; x.scanners.osv={status:(process.argv[1] === '0' || process.argv[1] === '1') && process.argv[2] === '0' ? 'success':'error',exitCode:Number(process.argv[1]),completedAt:new Date().toISOString(),message:process.argv[2] === '0'?'report collected':fs.readFileSync('reports/osv.stderr','utf8').slice(-1000)}; fs.writeFileSync(p,JSON.stringify(x,null,2))" "$exit_code" "$json_code"
+          if [ -f reports/baseline/source/pnpm-lock.yaml ]; then
+            osv-scanner scan source --format json --output-file reports/baseline/osv.json --lockfile reports/baseline/source/pnpm-lock.yaml reports/baseline/source 2> reports/baseline/osv.stderr
+            exit_code=$?
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" reports/baseline/osv.json
+            json_code=$?
+          fi
+          : "${exit_code:=0}" "${json_code:=0}"
+          node -e "const fs=require('fs'); const p='reports/baseline/scanner-status.json'; const x=fs.existsSync(p)?JSON.parse(fs.readFileSync(p)):{}; x.scanners??={}; x.scanners.osv={status:(process.argv[1] === '0' || process.argv[1] === '1') && process.argv[2] === '0' ? 'success':'error',exitCode:Number(process.argv[1]),completedAt:new Date().toISOString(),message:'baseline report'}; fs.writeFileSync(p,JSON.stringify(x,null,2))" "$exit_code" "$json_code"
+
+      - name: Run Trivy filesystem scan
+        id: trivy_scan
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          trivy clean --vuln-db
+          clean_code=$?
+          trivy fs --scanners vuln --vuln-type library --format json --output reports/trivy.json --skip-dirs node_modules --skip-dirs build --skip-dirs dist --skip-dirs coverage --skip-dirs reports --skip-dirs test-results --skip-dirs playwright-report . 2> reports/trivy.stderr
+          exit_code=$?
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" reports/trivy.json
+          json_code=$?
+          node -e "const fs=require('fs'); const p='reports/scanner-status.json'; const x=fs.existsSync(p)?JSON.parse(fs.readFileSync(p)):{}; x.scanners??={}; x.scanners.trivy={status:process.argv[1] === '0' && process.argv[2] === '0' && process.argv[3] === '0' ? 'success':'error',exitCode:Number(process.argv[1]),completedAt:new Date().toISOString(),message:process.argv[3] !== '0'?'could not clear the previous vulnerability database':process.argv[2] === '0'?'report collected':fs.readFileSync('reports/trivy.stderr','utf8').slice(-1000)}; fs.writeFileSync(p,JSON.stringify(x,null,2))" "$exit_code" "$json_code" "$clean_code"
+          if [ -d reports/baseline/source ]; then
+            trivy fs --scanners vuln --vuln-type library --format json --output reports/baseline/trivy.json --skip-dirs node_modules reports/baseline/source 2> reports/baseline/trivy.stderr
+            exit_code=$?
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" reports/baseline/trivy.json
+            json_code=$?
+          fi
+          : "${exit_code:=0}" "${json_code:=0}"
+          node -e "const fs=require('fs'); const p='reports/baseline/scanner-status.json'; const x=fs.existsSync(p)?JSON.parse(fs.readFileSync(p)):{}; x.scanners??={}; x.scanners.trivy={status:process.argv[1] === '0' && process.argv[2] === '0' ? 'success':'error',exitCode:Number(process.argv[1]),completedAt:new Date().toISOString(),message:'baseline report'}; fs.writeFileSync(p,JSON.stringify(x,null,2))" "$exit_code" "$json_code"
+
+      - name: Build PR baseline pnpm audit report
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set +e
+          pnpm --dir reports/baseline/source audit --json > reports/baseline/pnpm-audit.json 2> reports/baseline/pnpm-audit.stderr
+          exit_code=$?
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" reports/baseline/pnpm-audit.json
+          json_code=$?
+          node -e "const fs=require('fs'); const p='reports/baseline/scanner-status.json'; const x=fs.existsSync(p)?JSON.parse(fs.readFileSync(p)):{}; x.scanners??={}; x.scanners.pnpm={status:(process.argv[1] === '0' || process.argv[1] === '1') && process.argv[2] === '0' ? 'success':'error',exitCode:Number(process.argv[1]),completedAt:new Date().toISOString(),message:'baseline report'}; fs.writeFileSync(p,JSON.stringify(x,null,2))" "$exit_code" "$json_code"
+
+      - name: Aggregate reports and enforce policy
+        if: always()
+        shell: bash
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then
+            node scripts/security/aggregate-vulnerabilities.mjs --reports-dir reports --baseline-dir reports/baseline --event-name "$GITHUB_EVENT_NAME"
+          else
+            node scripts/security/aggregate-vulnerabilities.mjs --reports-dir reports --event-name "$GITHUB_EVENT_NAME"
+          fi
+
+      - name: Upload combined SARIF
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        continue-on-error: true
+        # v3.28.17
+        uses: github/codeql-action/upload-sarif@60168efe1c415ce0f5521ea06d5c2062adbeed1b
+        with:
+          sarif_file: reports/vulnerabilities.sarif
+          category: dependency-vulnerabilities
+
+      - name: Upload scanner reports
+        if: always()
+        # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: security-vulnerability-reports
+          path: reports/
+          retention-days: 14
+          if-no-files-found: warn
