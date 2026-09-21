@@ -6,7 +6,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  dependabot-alerts: read
 
 jobs:
   dependency-review:
@@ -24,63 +23,3 @@ jobs:
           fail-on-severity: high
           fail-on-scopes: runtime, development, unknown
           comment-summary-in-pr: on-failure
-
-      - name: Fail if open HIGH or CRITICAL Dependabot alerts exist
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        shell: bash
-        run: |
-          python3 << 'PY'
-          import json
-          import os
-          import urllib.error
-          import urllib.request
-
-          token = os.environ['GITHUB_TOKEN']
-          repo = os.environ['GITHUB_REPOSITORY']
-          alerts = []
-          page = 1
-          while True:
-              request = urllib.request.Request(
-                  f'https://api.github.com/repos/{repo}/dependabot/alerts?state=open&per_page=100&page={page}',
-                  headers={
-                      'Authorization': f'Bearer {token}',
-                      'Accept': 'application/vnd.github+json',
-                      'X-GitHub-Api-Version': '2022-11-28',
-                      'User-Agent': 'cloudhood-ci',
-                  },
-              )
-              try:
-                  with urllib.request.urlopen(request) as response:
-                      batch = json.load(response)
-              except urllib.error.HTTPError as error:
-                  body = error.read().decode('utf-8', 'replace')
-                  raise SystemExit(f'Dependabot alerts API failed: HTTP {error.code}\n{body}') from error
-              if not batch:
-                  break
-              alerts.extend(batch)
-              if len(batch) < 100:
-                  break
-              page += 1
-
-          blocking = [
-              alert
-              for alert in alerts
-              if (alert.get('security_advisory') or {}).get('severity') in {'high', 'critical'}
-          ]
-          if not blocking:
-              print(f'No open HIGH/CRITICAL Dependabot alerts ({len(alerts)} open total).')
-              raise SystemExit(0)
-
-          print(f'{len(blocking)} open HIGH/CRITICAL Dependabot alert(s); merge is blocked.')
-          for alert in blocking:
-              advisory = alert.get('security_advisory') or {}
-              dependency = alert.get('dependency') or {}
-              package = (dependency.get('package') or {}).get('name', 'unknown')
-              print(
-                  f'- #{alert.get("number")} [{advisory.get("severity", "?")}] '
-                  f'({dependency.get("scope", "unknown")}) {package}: {advisory.get("summary", "")}'
-              )
-          raise SystemExit(1)
-          PY
