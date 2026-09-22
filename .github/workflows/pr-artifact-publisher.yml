@@ -118,7 +118,7 @@ jobs:
           EOF
 
       - name: Checkout artifacts branch
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           ref: artifacts
           path: artifacts-branch
