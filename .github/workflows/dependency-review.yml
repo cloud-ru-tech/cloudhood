@@ -1,0 +1,42 @@
+name: Dependency Review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    name: Review newly introduced dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup pnpm
+        # v6.1.0
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+        with:
+          version: 10.10.0
+
+      - name: Set up Node.js 20
+        # v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+
+      - name: Dependency Review
+        # v4.7.3
+        uses: actions/dependency-review-action@595b5aeba73380359d98a5e087f648dbb0edce1b
+        with:
+          fail-on-severity: high
+          fail-on-scopes: runtime, development, unknown
+          comment-summary-in-pr: on-failure
+
+      - name: Fail if HIGH or CRITICAL vulnerabilities exist
+        shell: bash
+        run: |
+          pnpm audit --audit-level high
