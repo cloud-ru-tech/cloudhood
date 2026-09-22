@@ -172,9 +172,10 @@ const scenarios = [
     await activateHeaders();
     await click(selectors.profileNameEditButton);
   }),
-  scenario('profiles', 'profile-actions-menu', async ({ activateHeaders, click }) => {
+  scenario('profiles', 'profile-actions-menu', async ({ activateHeaders, click, hideMenuItem }) => {
     await activateHeaders();
     await click(selectors.profileActionsButton);
+    await hideMenuItem('Share headers by URL');
   }),
   scenario('url-filters', 'empty-state', async ({ activateUrlFilters }) => {
     await activateUrlFilters();
@@ -312,6 +313,14 @@ function createBrowserHelpers(driver, popupUrl) {
     click,
     clickMenuItem,
     fill,
+    hideMenuItem: async (text) => {
+      const xpath = `//*[@role="menuitem" and contains(normalize-space(.), "${text}")]`;
+      const item = (await driver.findElements(By.xpath(xpath)))[0];
+      if (!item) {
+        throw new Error(`Missing menu item "${text}"`);
+      }
+      await driver.executeScript('arguments[0].style.display = "none"', item);
+    },
     removeAllCookies: async () => {
       await click(selectors.removeAllCookiesButton);
     },
