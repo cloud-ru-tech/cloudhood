@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/playwright:v1.60.0-noble
+# Keep this tag aligned with @playwright/test. The image sets
+# PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD, so a newer test runner cannot fetch browsers.
+FROM mcr.microsoft.com/playwright:v1.63.0-noble
 
 # Add custom fonts used by the extension UI.
 COPY src/assets/fonts/*.otf /usr/local/share/fonts/
