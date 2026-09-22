@@ -20,7 +20,7 @@ jobs:
       version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.PAT }}
@@ -104,7 +104,7 @@ jobs:
           name: cloudhood-${{ needs.build.outputs.tag }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.build.outputs.tag }}
           name: Release ${{ needs.build.outputs.tag }}
