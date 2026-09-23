@@ -2,7 +2,8 @@ import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent, useState } from 'react';
 
 import { ButtonFunction } from '@snack-uikit/button';
-import { CrossSVG } from '@snack-uikit/icons';
+import { themeVars } from '@snack-uikit/figma-tokens';
+import { CrossSVG, WarningSVG } from '@snack-uikit/icons';
 import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
 import { Tooltip } from '@snack-uikit/tooltip';
 
@@ -20,9 +21,10 @@ import * as S from './styled';
 
 type RequestHeaderRowProps = RequestHeader & {
   onMove: (direction: -1 | 1) => void;
+  isStuck?: boolean;
 };
 
-export function RequestHeaderRow({ onMove, ...props }: RequestHeaderRowProps) {
+export function RequestHeaderRow({ onMove, isStuck, ...props }: RequestHeaderRowProps) {
   const { disabled, name, value, id } = props;
   const { isPaused, onRequestHeadersPasted, onRequestHeadersUpdated, onRequestHeadersRemoved } = useUnit({
     isPaused: $isPaused,
@@ -77,6 +79,17 @@ export function RequestHeaderRow({ onMove, ...props }: RequestHeaderRowProps) {
           onChange={handleChecked}
         />
       </S.LeftHeaderActions>
+
+      {isStuck && (
+        <Tooltip
+          tip="This header couldn't be applied by Chrome. Try toggling it or restarting the browser."
+          placement='top'
+        >
+          <span data-test-id='header-stuck-warning' style={{ display: 'flex' }}>
+            <WarningSVG size={16} style={{ color: themeVars.sys.orange.accentDefault, flexShrink: 0 }} />
+          </span>
+        </Tooltip>
+      )}
 
       <S.HeaderFieldWrapper grow={216}>
         <Tooltip

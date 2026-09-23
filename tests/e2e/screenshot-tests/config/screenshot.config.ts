@@ -55,6 +55,9 @@ export const SCREENSHOT_CONFIG = {
     general: {
       themeToggleButton: '[data-test-id="theme-toggle-button"]',
       pauseButton: '[data-test-id="pause-button"]',
+      settingsButton: '[data-test-id="settings-button"]',
+      settingsPage: '[data-test-id="settings-page"]',
+      settingsBackButton: '[data-test-id="settings-back-button"]',
     },
     modals: {
       title: '[data-test-id="modal__title"]',
