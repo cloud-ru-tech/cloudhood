@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
 
 type CircleProps = {
   color: string;
@@ -8,7 +8,7 @@ type CircleProps = {
 };
 
 export const Circle = styled.div<CircleProps>`
-  ${themeVars.sans.title.m};
+  ${themeVars.sn.regular.title.m};
 
   color: ${({ color }) => color};
   display: grid;
@@ -21,7 +21,7 @@ export const Circle = styled.div<CircleProps>`
   border-radius: 50%;
   border-width: 8px;
   border-style: solid;
-  border-color: ${themeVars.sys.neutral.background1Level};
+  border-color: ${themeVars.sn.theme.color.neutral.background1Level};
 
   background-color: ${({ backgroundColor }) => backgroundColor};
 

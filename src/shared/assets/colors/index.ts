@@ -1,4 +1,4 @@
-import { themeVars } from '@snack-uikit/figma-tokens';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
 
 type ColorMap = {
   background: string;
@@ -8,53 +8,53 @@ type ColorMap = {
 
 export const profileColorList: ColorMap[] = [
   {
-    background: themeVars.sys.primary.accentDefault,
-    border: themeVars.sys.primary.textMain,
-    font: themeVars.sys.primary.onAccent,
+    background: themeVars.sn.theme.color.primary.accent,
+    border: themeVars.sn.theme.color.primary.text,
+    font: themeVars.sn.theme.color.primary.onAccent,
   },
   {
-    background: themeVars.sys.violet.accentDefault,
-    border: themeVars.sys.violet.textMain,
-    font: themeVars.sys.violet.onAccent,
+    background: themeVars.sn.theme.color.violet.accent,
+    border: themeVars.sn.theme.color.violet.text,
+    font: themeVars.sn.theme.color.violet.onAccent,
   },
   {
-    background: themeVars.sys.pink.accentDefault,
-    border: themeVars.sys.pink.textMain,
-    font: themeVars.sys.pink.onAccent,
+    background: themeVars.sn.theme.color.pink.accent,
+    border: themeVars.sn.theme.color.pink.text,
+    font: themeVars.sn.theme.color.pink.onAccent,
   },
   {
-    background: themeVars.sys.red.accentDefault,
-    border: themeVars.sys.red.textMain,
-    font: themeVars.sys.red.onAccent,
+    background: themeVars.sn.theme.color.red.accent,
+    border: themeVars.sn.theme.color.red.text,
+    font: themeVars.sn.theme.color.red.onAccent,
   },
   {
-    background: themeVars.sys.orange.accentDefault,
-    border: themeVars.sys.orange.textMain,
-    font: themeVars.sys.orange.onAccent,
+    background: themeVars.sn.theme.color.orange.accent,
+    border: themeVars.sn.theme.color.orange.text,
+    font: themeVars.sn.theme.color.orange.onAccent,
   },
   {
-    background: themeVars.sys.orange.textDisabled,
-    border: themeVars.sys.orange.textSupport,
-    font: themeVars.sys.orange.textMain,
+    background: themeVars.sn.theme.color.orange.decor,
+    border: themeVars.sn.theme.color.orange.accent,
+    font: themeVars.sn.theme.color.orange.text,
   },
   {
-    background: themeVars.sys.yellow.accentDefault,
-    border: themeVars.sys.yellow.textMain,
-    font: themeVars.sys.yellow.onAccent,
+    background: themeVars.sn.theme.color.yellow.accent,
+    border: themeVars.sn.theme.color.yellow.text,
+    font: themeVars.sn.theme.color.yellow.onAccent,
   },
   {
-    background: themeVars.sys.green.textDisabled,
-    border: themeVars.sys.green.textSupport,
-    font: themeVars.sys.green.textMain,
+    background: themeVars.sn.theme.color.green.decor,
+    border: themeVars.sn.theme.color.green.accent,
+    font: themeVars.sn.theme.color.green.text,
   },
   {
-    background: themeVars.sys.green.accentDefault,
-    border: themeVars.sys.green.textMain,
-    font: themeVars.sys.green.onAccent,
+    background: themeVars.sn.theme.color.green.accent,
+    border: themeVars.sn.theme.color.green.text,
+    font: themeVars.sn.theme.color.green.onAccent,
   },
   {
-    background: themeVars.sys.blue.accentDefault,
-    border: themeVars.sys.blue.textMain,
-    font: themeVars.sys.blue.onAccent,
+    background: themeVars.sn.theme.color.blue.accent,
+    border: themeVars.sn.theme.color.blue.text,
+    font: themeVars.sn.theme.color.blue.onAccent,
   },
 ];

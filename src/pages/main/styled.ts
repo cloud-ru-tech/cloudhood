@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
 
 export const Wrapper = styled.div`
-  background-color: ${themeVars.sys.neutral.background1Level};
+  background-color: ${themeVars.sn.theme.color.neutral.background1Level};
   display: flex;
   flex-direction: row;
 

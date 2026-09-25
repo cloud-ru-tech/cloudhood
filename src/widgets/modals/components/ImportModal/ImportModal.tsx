@@ -1,11 +1,10 @@
 import { useUnit } from 'effector-react';
-import { useCallback, useEffect, useRef } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef } from 'react';
 
-import { ButtonFilled, ButtonSimple } from '@snack-uikit/button';
-import { FileUpload } from '@snack-uikit/drop-zone';
-import { FieldTextArea } from '@snack-uikit/fields';
-import { UploadSVG } from '@snack-uikit/icons';
-import { ModalCustom } from '@snack-uikit/modal';
+import { FieldTextArea } from '@cloud-ru/ds-fields';
+import { UploadSVG } from '@cloud-ru/ds-icons/interface/system';
+import { Modal } from '@cloud-ru/ds-modal';
+import { QuestionTooltip } from '@cloud-ru/ds-tooltip';
 
 import { importModalClosed } from '#entities/modal/model';
 import {
@@ -55,6 +54,11 @@ export function ImportModal() {
     [onProfileImportLoadedFile],
   );
 
+  const handleFileInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => handleProfileLoaded(Array.from(event.target.files ?? [])),
+    [handleProfileLoaded],
+  );
+
   useEffect(() => {
     if (isError && textFieldRef.current) {
       textFieldRef.current.focus();
@@ -66,47 +70,45 @@ export function ImportModal() {
   }, [errorPosition, isError]);
 
   return (
-    <ModalCustom open onClose={handleImportModalClosed}>
-      <ModalCustom.Header
-        title={'Import profile'}
-        data-test-id='import-profile-modal-title'
-        titleTooltip={
-          <>
-            {TOOLTIP_TITLE}
-
-            <pre>{JSON.stringify(TOOLTIP_JSON_FORMAT, null, 2)}</pre>
-          </>
-        }
-      />
-      <S.DropZone onFilesUpload={handleProfileLoaded} description='Drop files to upload'>
-        <ModalCustom.Body
-          content={
-            <FieldTextArea
-              size='m'
-              ref={textFieldRef}
-              label='JSON'
-              value={profileImportString}
-              onChange={onProfileImportStringChanged}
-              minRows={4}
-              maxRows={4}
-              error={errorMessage ?? undefined}
-              data-test-id='import-profile-json-textarea'
-            />
-          }
-        />
-
-        <ModalCustom.Footer
-          actions={
+    <Modal
+      open
+      onClose={handleImportModalClosed}
+      title='Import profile'
+      data-test-id='import-profile-modal'
+      slotAfterTitle={
+        <QuestionTooltip
+          tip={
             <>
-              <ButtonFilled size='m' appearance='primary' label='Import' onClick={handleProfileImported} />
+              {TOOLTIP_TITLE}
 
-              <FileUpload onFilesUpload={handleProfileLoaded}>
-                <ButtonSimple size='m' appearance='neutral' label='Load file' icon={<UploadSVG />} />
-              </FileUpload>
+              <pre>{JSON.stringify(TOOLTIP_JSON_FORMAT, null, 2)}</pre>
             </>
           }
         />
-      </S.DropZone>
-    </ModalCustom>
+      }
+      content={
+        <S.DropZone onFilesUpload={handleProfileLoaded} content='Drop files to upload'>
+          <FieldTextArea
+            size='l'
+            ref={textFieldRef}
+            label='JSON'
+            value={profileImportString}
+            onChange={onProfileImportStringChanged}
+            minRows={4}
+            maxRows={4}
+            error={errorMessage ?? undefined}
+            data-test-id='import-profile-json-textarea'
+          />
+          <input ref={loadFileRef} type='file' hidden onChange={handleFileInputChange} />
+        </S.DropZone>
+      }
+      approveButton={{ label: 'Import', onClick: handleProfileImported }}
+      additionalButton={{
+        label: 'Load file',
+        icon: <UploadSVG />,
+        iconPosition: 'after',
+        onClick: () => loadFileRef.current?.click(),
+      }}
+    />
   );
 }

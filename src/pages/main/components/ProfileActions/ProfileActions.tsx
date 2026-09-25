@@ -1,6 +1,6 @@
 import { useUnit } from 'effector-react';
 
-import { Tabs } from '@snack-uikit/tabs';
+import { Tabs } from '@cloud-ru/ds-tabs';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
@@ -36,7 +36,7 @@ export function ProfileActions() {
   return (
     <S.Content>
       <Tabs value={activeTab} onChange={onTabChange}>
-        <Tabs.TabBar type='secondary'>
+        <Tabs.TabBar size='m'>
           <Tabs.Tab counter={getCounterProps(activeRequestHeadersCount)} label='Headers' value='headers' />
           <Tabs.Tab counter={getCounterProps(activeRequestCookiesCount)} label='Request cookies' value='cookies' />
           <Tabs.Tab label='URL Filters' counter={getCounterProps(activeUrlFiltersCount)} value='url-filters' />

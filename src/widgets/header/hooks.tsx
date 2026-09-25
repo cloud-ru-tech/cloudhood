@@ -1,7 +1,7 @@
 import { useUnit } from 'effector-react';
 import { useCallback, useMemo } from 'react';
 
-import { DownloadSVG, PlusSVG, UploadSVG } from '@snack-uikit/icons';
+import { DownloadSVG, PlusSVG, UploadSVG } from '@cloud-ru/ds-icons/interface/system';
 
 import { exportModalOpened, importFromExtensionModalOpened, importModalOpened } from '#entities/modal/model';
 import { $activeProfileActionsTab, profileActionsTabChanged } from '#entities/profile-actions';
@@ -65,31 +65,31 @@ export function useActions({ onClose }: UseActionsProps) {
     () => [
       {
         id: 'add',
-        content: { option: 'Add profile' },
+        content: { label: 'Add profile' },
         beforeContent: <PlusSVG />,
         onClick: handleAddProfile,
       },
       {
         id: 'import',
-        content: { option: 'Import profile' },
+        content: { label: 'Import profile' },
         beforeContent: <DownloadSVG />,
         onClick: handleOpenImportModal,
       },
       {
         id: 'import-from-extension',
-        content: { option: 'Import from other extension' },
+        content: { label: 'Import from other extension' },
         beforeContent: <FileOpenSVG />,
         onClick: handleOpenImportFromExtensionModal,
       },
       {
         id: 'add-request-url-filter',
-        content: { option: 'Add request URL filters' },
+        content: { label: 'Add request URL filters' },
         beforeContent: <FileUploadSVG />,
         onClick: handleAddUrlFilter,
       },
       {
         id: 'export',
-        content: { option: 'Export/share profile' },
+        content: { label: 'Export/share profile' },
         beforeContent: <UploadSVG />,
         onClick: handleExportModalOpened,
       },

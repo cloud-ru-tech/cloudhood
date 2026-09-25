@@ -1,6 +1,6 @@
 import { useUnit } from 'effector-react';
 
-import { Tooltip } from '@snack-uikit/tooltip';
+import { Tooltip } from '@cloud-ru/ds-tooltip';
 
 import { selectedRequestProfileIdChanged } from '#entities/request-profile/model';
 import { profileColorList } from '#shared/assets/colors';
