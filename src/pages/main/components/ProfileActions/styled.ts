@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
 
 export const Content = styled.div`
   position: relative;
@@ -21,7 +21,7 @@ export const StyledBackdrop = styled.div`
   position: fixed;
   top: 64px;
   left: 52px;
-  background: ${themeVars.sys.neutral.textMain};
+  background: ${themeVars.sn.theme.color.available.version.textMain};
   opacity: 0.3;
   width: 100%;
   height: 100%;

@@ -1,4 +1,4 @@
-import { ButtonFunction } from '@snack-uikit/button';
+import { Button } from '@cloud-ru/ds-button';
 
 import { DragIndicatorSVG } from '#shared/assets/svg';
 
@@ -12,7 +12,7 @@ type DragHandleProps = {
 export function DragHandle({
   disabled = false,
   icon = <DragIndicatorSVG />,
-  size = 's',
+  size = 'm',
   onMove,
   ...props
 }: DragHandleProps) {
@@ -40,7 +40,7 @@ export function DragHandle({
         }
       }}
     >
-      <ButtonFunction disabled={disabled} size={size} icon={icon} />
+      <Button view='function' appearance='neutral' disabled={disabled} size={size} icon={icon} />
     </span>
   );
 }

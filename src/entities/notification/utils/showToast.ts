@@ -1,4 +1,4 @@
-import { toaster } from '@snack-uikit/toaster';
+import { toaster } from '@cloud-ru/ds-toaster';
 
 import { NotificationInfo, NotificationVariant } from '#entities/notification/types';
 

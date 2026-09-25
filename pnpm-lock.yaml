@@ -28,51 +28,60 @@ importers:
 
   .:
     dependencies:
+      '@cloud-ru/ds-button':
+        specifier: 1.0.2
+        version: 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-counter':
+        specifier: 1.0.1
+        version: 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-divider':
+        specifier: 1.0.1
+        version: 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-dropzone':
+        specifier: 1.0.1
+        version: 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-fields':
+        specifier: 2.2.6
+        version: 2.2.6(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-figma-variables':
+        specifier: 1.1.0
+        version: 1.1.0
+      '@cloud-ru/ds-icons':
+        specifier: 1.2.0
+        version: 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-list':
+        specifier: 2.2.0
+        version: 2.2.0(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-modal':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-tabs':
+        specifier: 1.0.6
+        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-theme':
+        specifier: 1.1.0
+        version: 1.1.0
+      '@cloud-ru/ds-toaster':
+        specifier: 1.0.6
+        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-toggles':
+        specifier: 1.1.4
+        version: 1.1.4(@types/react@18.3.1)(react@18.3.1)
+      '@cloud-ru/ds-tooltip':
+        specifier: 1.0.5
+        version: 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-truncate-string':
+        specifier: 1.0.5
+        version: 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-typography':
+        specifier: 1.0.0
+        version: 1.0.0
       '@emotion/react':
         specifier: 11.14.0
         version: 11.14.0(@types/react@18.3.1)(react@18.3.1)
       '@emotion/styled':
         specifier: 11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
-      '@snack-uikit/button':
-        specifier: 0.19.19
-        version: 0.19.19(react@18.3.1)
-      '@snack-uikit/divider':
-        specifier: 3.2.12
-        version: 3.2.12(react@18.3.1)
-      '@snack-uikit/drop-zone':
-        specifier: 0.9.13
-        version: 0.9.13(lodash@4.18.1)(react@18.3.1)
-      '@snack-uikit/fields':
-        specifier: 0.57.5
-        version: 0.57.5(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/figma-tokens':
-        specifier: 17.7.5
-        version: 17.7.5
-      '@snack-uikit/icons':
-        specifier: 0.27.8
-        version: 0.27.8
-      '@snack-uikit/list':
-        specifier: 0.34.0
-        version: 0.34.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/modal':
-        specifier: 0.20.3
-        version: 0.20.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/tabs':
-        specifier: 0.10.20
-        version: 0.10.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/toaster':
-        specifier: 0.11.32
-        version: 0.11.32(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/toggles':
-        specifier: 0.13.28
-        version: 0.13.28(@types/react@18.3.1)(react@18.3.1)
-      '@snack-uikit/tooltip':
-        specifier: 0.18.16
-        version: 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/truncate-string':
-        specifier: 0.7.15
-        version: 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       effector:
         specifier: 23.4.4
         version: 23.4.4
@@ -796,6 +805,136 @@ packages:
   '@cacheable/utils@2.5.0':
     resolution: {integrity: sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA==}
 
+  '@cloud-ru/ds-adaptive@1.0.1':
+    resolution: {integrity: sha512-qnV+n4TpSmmY5WHiLKVDikPpnVh+o9UgdlerWvo9b5aKL/AgFt8Gh5WtnNkt5pWmP5vuwwdFrMjEdaW0bK5WmA==}
+
+  '@cloud-ru/ds-bottom-sheet@1.1.2':
+    resolution: {integrity: sha512-eawULyVGqQxojg35w/nPgqcfcRsexVW2YUwMxnvVHk+TLMdmy1zI2qhRDN0QrPiR/QdqALoMnvYKvzJUqA0qpQ==}
+
+  '@cloud-ru/ds-button@1.0.2':
+    resolution: {integrity: sha512-b3V8tRqBkenVcQTTJCGdssQsCv/5wbnJUgw2s43ip9RoeNeRFRNQk/AsWxbmPGq7QKu2MtB7YmVfKx8UROrIEg==}
+
+  '@cloud-ru/ds-calendar@1.0.18':
+    resolution: {integrity: sha512-mtK98OLwWjhC291SZ3LypC8JLy1eB9Bw4E0u3UnMQLAYwXnsDuRhzxGryu+i2Xox9oXnh3Gwiqu7JGi24cJrrQ==}
+
+  '@cloud-ru/ds-color-picker@1.0.7':
+    resolution: {integrity: sha512-WoO0XU2YbRjxYWY1zedjxux0PzmQCbSeDjGEAZbNCAvZXdm5UbqUFFk1Jgj46mBz+OK4pksaB/tW/vpnTmbkmg==}
+
+  '@cloud-ru/ds-context-kit@1.0.0':
+    resolution: {integrity: sha512-PVbduXpEdN9cWt57J2phQrONw65N7HMgIfNcZ2i8u8F3MNRXyI/hiJNUIY0A8SHMKzS6FRMkz82OLnLa7zNvyg==}
+
+  '@cloud-ru/ds-counter@1.0.1':
+    resolution: {integrity: sha512-TTzEV0xWQn3rQ9imuDFYxnUfFU8SCf9oAKjsYENU31yPEefrU4E8kl9k5Zlp83CuAze0TP5sqjzAcNk9comscQ==}
+
+  '@cloud-ru/ds-divider@1.0.1':
+    resolution: {integrity: sha512-Bnod9xSge6B51h77T8lbQM/5+Sk8QPY6UmtpEzfgX8vc2aVtnO4//KIqHmFzLR9cSlH2ieynBpZz1VyHqbNCUg==}
+
+  '@cloud-ru/ds-drag-and-drop@1.1.1':
+    resolution: {integrity: sha512-JGwZej4/uEEiaSdbVS8oDgNLniWedsxzQ69JXPsmyX9a/XLpxWcjxCLszPc5V8xN2lO8ufNfRP6i3VrHImGVWQ==}
+
+  '@cloud-ru/ds-dropdown@1.0.9':
+    resolution: {integrity: sha512-cE6sSBA9bytagHiIO5mb6H7wBK9Bb09XQds7eRemEIULWxuDbM1wcMivpAmiYn8vq2l6MA6C6GR7cfrr90UT+A==}
+    peerDependencies:
+      '@cloud-ru/ds-locale': ^1.0.0
+
+  '@cloud-ru/ds-dropzone@1.0.1':
+    resolution: {integrity: sha512-wRrbhemWSHv4dcZP0/Q0cTvOldaXhfoZBGEXnwtj+G3oXFUvjm6pZP1tStmMT1MICFiFrB3URZkNCqV8XaV2Og==}
+
+  '@cloud-ru/ds-field-decorator@1.0.6':
+    resolution: {integrity: sha512-yDQCZJnj9tmSCa/WnYyIdBBRGcXHTwtCDzaJFBE4922m5ZwylqpAn7ZziuY467044Yo9eGgLgZWzKjXlXkSQLw==}
+
+  '@cloud-ru/ds-fields@2.2.6':
+    resolution: {integrity: sha512-pflIOP2lIDwzzAQnPk4/9ZqyLI1J7f2DVctj6E6NPQFiCPJBDWQEThLsHwoHYFnRlV3AIRrNZ9FHQAuhNyHeOQ==}
+
+  '@cloud-ru/ds-figma-variables@1.1.0':
+    resolution: {integrity: sha512-txHzRtsLfUhOdxh6v/51s3wk3qGfMi7vdavxRCzkxpLaidmxN7abZ5HOUSXRWL+/dm6K01SyedCKwmqmv7h7Gw==}
+
+  '@cloud-ru/ds-icon-predefined@1.0.1':
+    resolution: {integrity: sha512-0iBUzWIx7McAd51AQsS7l/o48ANHFZMmEFoSz8EF6eM8FscrVWuHWITfSeVelq1ihfyL1ixZ5+K6Cii1omKE1g==}
+
+  '@cloud-ru/ds-icons@1.2.0':
+    resolution: {integrity: sha512-/eeH73HnAy/SyA5dJIGQ6Ten9CmUf/HzWR1U5KRDvQ+s40bwh2MQm945OKBkvNf8PttcoGQ+lRElTjtq4tC2nw==}
+    hasBin: true
+
+  '@cloud-ru/ds-info-block@1.0.1':
+    resolution: {integrity: sha512-HwKnw0E9OpxBKh+CeJR+M/9W4cJlECTKpjphP1Wa3LjJtBKoewg0uSrPlB+QLzfZflxaYJTAe0OHWbS8ifabpg==}
+
+  '@cloud-ru/ds-input-private@1.0.5':
+    resolution: {integrity: sha512-Di6wJnEiCsZ4dClPKRzzZzuKXSea2GSeXy/bHwIWRlRu72c8G7jxDS0e7mNndc09wmqqT7Jy7C79Lm/VhSoLrA==}
+
+  '@cloud-ru/ds-link@1.0.5':
+    resolution: {integrity: sha512-075lMwhyd30rrBuCeSvKuTOWMpSJYKd1/9f9jnsZivbzo4U07mOkWK28ufT9CS7cJD8taqtjGfU1igugSgn2GQ==}
+
+  '@cloud-ru/ds-list@2.2.0':
+    resolution: {integrity: sha512-SS1NILHOyD0rkfT1YxmXA7HpoQMgsu7r74A/TG5kiEUujmeRSl62crZu35a662HIURIlsuIZ36tSksP7eOCD6Q==}
+    peerDependencies:
+      '@cloud-ru/ds-locale': ^1.0.0
+
+  '@cloud-ru/ds-loader@1.0.1':
+    resolution: {integrity: sha512-+DsmKZS2lHqREUVjjTEEjPMYBd0LMeSX7OlkwXSQk8PPX4qYy/xPDljzcPd7Y513jow4hwcASDTqi2bo3nKhQw==}
+
+  '@cloud-ru/ds-locale@1.0.0':
+    resolution: {integrity: sha512-sfCvabkPdETSVuMuKKSH/mpi1g1w7G/58h9tmCf5Z1NynYGD+4VmK0Hl4xNpleOQy6ofDGX9KtE+5mxBPNdUyQ==}
+
+  '@cloud-ru/ds-materials@1.0.1':
+    resolution: {integrity: sha512-z0qUu2aLgt0cpJYCfuJDb8x0MMkVVAMpGq3QbaeiJtgUJa7Byd0rmSxmmE0FRm/rrithy2qTFrqQ2OI97JWOJg==}
+
+  '@cloud-ru/ds-modal@1.1.2':
+    resolution: {integrity: sha512-5PBcxLn7zyfx+tg55rhmCCG8WySCsd8M0KDNh71p1/S+KzetUHW3iyvhHl4+qtiogtZJyVl9jnP8+nPS4ByTRg==}
+
+  '@cloud-ru/ds-popover-private@1.0.2':
+    resolution: {integrity: sha512-2vGZZJwIkGG2pZ8q3jwYtEiQmp5RDxTA+AD69hYJMfXEbFQsh5kFlHQvIH0Wd1qON7wk7FcbpAhpptbLRp/E6Q==}
+
+  '@cloud-ru/ds-popup-private@1.1.2':
+    resolution: {integrity: sha512-3UGHS4tP9WOPWE+nJa7snfgsmztE90tPjFSNMQ22I2YKsF9xEH0A/8ohvDawwj/cXF6scsYRG5pDEibewF9DWg==}
+
+  '@cloud-ru/ds-portal-context@1.0.1':
+    resolution: {integrity: sha512-vdPfsNrxc4aQo/X52GoI8fYcUWr7iwSjboQV6EwhJG/TLGkcKY92T7HOHaRwVrFVThXfjg1HSSPFTrpP8deR6w==}
+
+  '@cloud-ru/ds-scroll@1.0.2':
+    resolution: {integrity: sha512-GKX822ZQFIPgQUGZhM6dmqAYxhJ/+C0tpLxf0KPAXZQ87dQvxmJETAY5sAEDdCeQg8hsqQgnUWzx0VM12dKnzA==}
+
+  '@cloud-ru/ds-search-private@1.0.8':
+    resolution: {integrity: sha512-bavRFJ2zHM6J8zhJa7E1HRx5dWtZrhsO7vvFwE1vxx8ttRzDcE71AkHb9VtB7qdn/mj+7qRmpop4AS1eIhOhWg==}
+    peerDependencies:
+      '@cloud-ru/ds-locale': ^1.0.0
+
+  '@cloud-ru/ds-segment-control@1.0.6':
+    resolution: {integrity: sha512-qlZ/rJNPFBb7iRd23Cg2y1cTokx+vP0H47V4osnaRpk1XfbSsR45iF6olIEq2W1KFKZ3ulkvWYMg5xI4c28ptA==}
+
+  '@cloud-ru/ds-skeleton@1.0.1':
+    resolution: {integrity: sha512-VekoSNEjsqUAypPzo89cGY/QVTjFJ0vag4CusCeT2XK44uieMs4zN70IUJRCezzzBzW8qqdW3RX1AJv2blrzFw==}
+
+  '@cloud-ru/ds-slider@1.0.5':
+    resolution: {integrity: sha512-90kqrtZ9B9Mt2iqRfUjcOEWKQ00IBnOxk4fKy0cqU2p5U+ck75nOoYmCCuyCDadR/vouA265Jgm2oQpyP6swxA==}
+
+  '@cloud-ru/ds-tabs@1.0.6':
+    resolution: {integrity: sha512-8zISgR6A7HlrPUm3gqIM43K7HM+z/59hutcL49KRYLkhQIUo5LfOEuDiYgtTRxAolbNt9oJ+3HrmCZ7Qve3EPA==}
+
+  '@cloud-ru/ds-tag@1.1.2':
+    resolution: {integrity: sha512-G6hH6ONZHFe2QYRg/zidga4rA1ISg49C9msqaY2svp8XWQcuhxsMaZoixgGQg5ZSLeP8wr7TAVJzTry3zKbgHQ==}
+
+  '@cloud-ru/ds-theme@1.1.0':
+    resolution: {integrity: sha512-beOJWPFTzx8ldEDMtNpePMJNvBB24QCblzZ3El6fsCgsVyqomwd5TDvApMNsrjIR+N+iPwrtjpL8B2XHIY0xmA==}
+
+  '@cloud-ru/ds-toaster@1.0.6':
+    resolution: {integrity: sha512-/FtsxGuFU3Bj/GXFgOWpxBrmbYR4pNqmk8mDdZnMFF52TXJmQY/3GREsk19mve7GecH6oTpPeRm8Swz9CYPEBQ==}
+
+  '@cloud-ru/ds-toggles@1.1.4':
+    resolution: {integrity: sha512-deV0sISO5tErYx+86nbEZiADEflMKvVJd8qFy+75lWpzHE1ebJkC/fLorY8Yy1DyfvJAH4bNI7dsmSGw/Cxdjg==}
+
+  '@cloud-ru/ds-tooltip@1.0.5':
+    resolution: {integrity: sha512-zhKNUSRi46xSVrd31sr1zUF4VsIYkDZL6Y5XgRbmJCw+O+PPjPhVLsbnm9bTMdf2A2heAfliiae63lnaFypx9Q==}
+
+  '@cloud-ru/ds-truncate-string@1.0.5':
+    resolution: {integrity: sha512-VhScNlW9iNsCGdyM8axYWdt2sKAHSwRkfusfrOv8+0LnWF2/P+j9fBYzH/qejXo2olj4voFnZ1y2Use4SUi6NA==}
+
+  '@cloud-ru/ds-typography@1.0.0':
+    resolution: {integrity: sha512-DzZXcUIThzHZXNTqrESx7ykr8+K83xJKOQeP6JE7CCBvvWJ9pboYAe5l0k+f3pQPdpDJEf2lyjYtfk/+R7om7Q==}
+
+  '@cloud-ru/ds-utils@1.1.0':
+    resolution: {integrity: sha512-7qxMaY+KeHhC4q/sBAZCUeME67DBYdlozQaxLSpUyJHz+XdNj10mNoKzyIDaUOXGpQfkBWXL4hVrjZGoZ1wKvQ==}
+
   '@cloud-ru/eslint-config@3.1.7':
     resolution: {integrity: sha512-OYvPagLlJoWCd9QLsm+gc5Q9w3R4B6VbelaDEmzbVxIu28I8iZoCxK0oqoYunPEdK1umqoqcyWgD2JhB83Qk2g==}
 
@@ -878,6 +1017,28 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       postcss-selector-parser: ^7.0.0
+
+  '@dnd-kit/accessibility@3.1.1':
+    resolution: {integrity: sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@dnd-kit/core@6.3.1':
+    resolution: {integrity: sha512-xkGBRQQab4RLwgXxoqETICr6S5JlogafbhNsidmrkVv2YRs5MLwpjoF2qpiGjQt8S9AoxtIV603s0GIUpY5eYQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
+  '@dnd-kit/sortable@10.0.0':
+    resolution: {integrity: sha512-+xqhmIIzvAYMGfBYYnbKuNicfSsk4RksY2XdmJhT+HAC01nix6fHCztU68jooFiMUB01Ky3F0FyOvhG/BZrWkg==}
+    peerDependencies:
+      '@dnd-kit/core': ^6.3.0
+      react: '>=16.8.0'
+
+  '@dnd-kit/utilities@3.2.2':
+    resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   '@dual-bundle/import-meta-resolve@4.2.1':
     resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
@@ -1161,26 +1322,26 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@floating-ui/core@1.7.5':
-    resolution: {integrity: sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==}
+  '@floating-ui/core@1.8.0':
+    resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
 
-  '@floating-ui/dom@1.7.6':
-    resolution: {integrity: sha512-9gZSAI5XM36880PPMm//9dfiEngYoC6Am2izES1FF406YFsjvyBMmeJ2g4SAju3xWwtuynNRFL2s9hgxpLI5SQ==}
+  '@floating-ui/dom@1.8.0':
+    resolution: {integrity: sha512-yXSrzeHZBTZadLOlfyhCkJHNeLJnHRnRInwdZ40L7ZiaAtrBwoYlsDrX3v5zB1Utk7CLfzcOVnVVWoXEky7Ceg==}
 
-  '@floating-ui/react-dom@2.1.8':
-    resolution: {integrity: sha512-cC52bHwM/n/CxS87FH0yWdngEZrjdtLW/qVruo68qg+prK7ZQ4YGdut2GyDVpoGeAYe/h899rVeOVm6Oi40k2A==}
+  '@floating-ui/react-dom@2.1.9':
+    resolution: {integrity: sha512-JDjEFGCpImxDCA7JJKviA0M9+RtmJdj0m/NVU5IMgBK+AmZouAQQ7/+2GLH0GXXY0YMw9oXPB8hKdbPYg5QLYg==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.26.24':
-    resolution: {integrity: sha512-2ly0pCkZIGEQUq5H8bBK0XJmc1xIK/RM3tvVzY3GBER7IOD1UgmC2Y2tjj4AuS+TC+vTE1KJv2053290jua0Sw==}
+  '@floating-ui/react@0.27.20':
+    resolution: {integrity: sha512-CMqMy7OaXl9W0eq1Uy7L7i2Y/anPvHmFmESd2CEw0t5YvZhcVCeo4MBevAmswRllX7Y2dEidA4ozGPunLSTQpw==}
     peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
 
-  '@floating-ui/utils@0.2.11':
-    resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+  '@floating-ui/utils@0.2.12':
+    resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1486,119 +1647,6 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
-  '@snack-uikit/button@0.19.19':
-    resolution: {integrity: sha512-i2xg5C5eBcM316ml3ZsWegpoTtqycY0Gwxo2K4iZGC+l7/00+1EAfDy6PwEP8SIUjY8WWL280C6gaN6HHVL6Fw==}
-
-  '@snack-uikit/calendar@0.14.4':
-    resolution: {integrity: sha512-kGHDln9tNR89QcI0lqi0+4FTDFtp+wagGwMH7vNC4+ncihgAaWN1dH25F2YoWHQ6lR8PRw5ZCTTH8I0OzXXmKg==}
-    peerDependencies:
-      '@snack-uikit/locale': '*'
-
-  '@snack-uikit/color-picker@0.3.59':
-    resolution: {integrity: sha512-fD39ScDUEc6FRkX6iTOviVqAlmyJnvrFLkhigEG7hwnDBdR5wv63Hsj16fU9Z7jZP6boY2MC49Hf/ue+M85cXg==}
-    peerDependencies:
-      '@snack-uikit/locale': '*'
-
-  '@snack-uikit/counter@0.8.12':
-    resolution: {integrity: sha512-zgW5IF9KyfAmB5NHizPLSk0hDLPqwONyxq19BV6kgRBv79kzTMvnBwhH+jbMyHBBYbTKDDKc1V4wWVHa1Boe4g==}
-
-  '@snack-uikit/divider@3.2.12':
-    resolution: {integrity: sha512-71Mj17gExzdtcNw1aW132oo0btaQi+qkjS9m9cb4OGNVws7UDO2soT6k4OHg6xVVPFdZw+TZGjBJHKQWAPUsog==}
-
-  '@snack-uikit/drop-zone@0.9.13':
-    resolution: {integrity: sha512-5dSDTA6WaYZtxpN8cpRLtqMvXtrIfjYAsvIDLl6vUWosNC0AGvGRLRPhD6dXfh21gdT6Km6olVnBtXN7HhyQwA==}
-    peerDependencies:
-      lodash: 4.18.1
-
-  '@snack-uikit/dropdown@0.5.8':
-    resolution: {integrity: sha512-cBOYDtjm6G6DQY16yUCBgckmeGk9uIVkTTa7JuBcvnpiJ4euNYPPDqzcYGEILqWV+k2YGN8Ffp5StYnMwHTFEQ==}
-
-  '@snack-uikit/fields@0.57.5':
-    resolution: {integrity: sha512-aaW/d0b+jpG4xBWKqdRhoEoSKCsQLa/ps5buY9NRsnN+LQStglP640B3vkTWJwhvB0vkWAJkWYVu1XRI7DnktQ==}
-    peerDependencies:
-      '@snack-uikit/locale': '*'
-
-  '@snack-uikit/figma-tokens@17.7.5':
-    resolution: {integrity: sha512-1ojhbYQvQhSqWN8EYPdl7b8k9K6iwWBAsiw3sfhm+VmJXdFFiQMUXKXKVOlXKxslPAEMgQszIipep4IRbH4Fng==}
-
-  '@snack-uikit/icon-predefined@0.7.12':
-    resolution: {integrity: sha512-cKGCaTLk8yv7lBDjJor9x8dBnRCoaIVCnXAhIs8MjiS3l89AZ5A02mCbuNURDGrwkKVdqCXmxjwQP8TDZXLcqg==}
-
-  '@snack-uikit/icons@0.27.8':
-    resolution: {integrity: sha512-lm/XOrSZHki9XkbNAnbFiy6HJi7SQYUA+sLlfDmNYdwNRbsSriXofM0FeK399BEi9gagrmXToVe9APZyEHvmoA==}
-
-  '@snack-uikit/info-block@0.6.44':
-    resolution: {integrity: sha512-joJEYO3MUY73bJ/mmcOl9nlO1tpag+6QSDjPsU2JXz4HWrQnxgFcq/+siuOrMkTyFQ9BtfUeWAP0La/U4gakGw==}
-
-  '@snack-uikit/input-private@4.8.10':
-    resolution: {integrity: sha512-dQ78gvf77unAHk0OrSzeveyuOe4vHvlEA3YNTP4WqA6IfijydO7SWATGGf3rb+GZevGW2lO00rPrL/Jv0LYbHQ==}
-
-  '@snack-uikit/link@0.18.4':
-    resolution: {integrity: sha512-AzSPhb41wWGW76erGwhOGEy/s6iucEKc0t5Lp2t5DN0UuqkhvhwIj4KnED9eg8Xp6SYpbEKhO3wnvN8dvKE6mQ==}
-
-  '@snack-uikit/list@0.34.0':
-    resolution: {integrity: sha512-KOr5faFsZr3CJ7k1ng/4V5wYXnRxtWlgzBkSgXKoaqOT7zySXRgsxEmSlf6QP3WlmGHrmA3sUduTbxvsaBOgMg==}
-    peerDependencies:
-      '@snack-uikit/locale': '*'
-
-  '@snack-uikit/loaders@0.9.11':
-    resolution: {integrity: sha512-JWik6756Y+kcJzNc9yO8pJMk6CGOzuUi9ANM9r9J0H6o+yoVb5HGPcM+WVo3n+7DRBLzFswWjZ1HVoISXbyHhQ==}
-
-  '@snack-uikit/locale@0.15.1':
-    resolution: {integrity: sha512-zNrxaGSXToXE0SB3EIMYZQGVJtuFHIbddsfaayXjbPiGOER7fPX7uXrOtJvS6zPJToMhVwYNy0TRj+QYctrG3Q==}
-
-  '@snack-uikit/modal@0.20.3':
-    resolution: {integrity: sha512-ZxEofhJGoa13phkjtC/jx9O5bS+koF6IPj0ypncSSvzMB4NcrnnPkW6Dh0lJUWWI6k3GLQMpoXsOb+8InRBuHg==}
-
-  '@snack-uikit/popover-private@0.15.8':
-    resolution: {integrity: sha512-IGPYxBlGMaoWC4DDD8j6lSK/bxgBlEFxYM2n61WR44kUWQjX9m41hTG70tqS8YgqpgvEpW+7pEwOUqNJ5c4cWA==}
-
-  '@snack-uikit/progress-bar@0.1.12':
-    resolution: {integrity: sha512-bsk7MgWId9nI1R9XcoYNjemCK7f3m6OvVocN9l/lBbKa9rT2Amg3qzqBNGvBGSM19+3UilLItAU7u85sboNO6Q==}
-
-  '@snack-uikit/scroll@0.11.0':
-    resolution: {integrity: sha512-GCKsL98Nr6ht0EIsx7w0jpByRBEgrByxjSxejtd87GRrmMdCLQHewkEyvb3whK0g0oN2XYae/NIzbeGTX/7eFQ==}
-
-  '@snack-uikit/search-private@0.4.38':
-    resolution: {integrity: sha512-lQx73AyuX694wb7I1+D/5T1XqJobqzximdgQLcxe8+vsDM6prk3FFgVLAA4jhnFbwCF8IguACPjHtqPRLFH93Q==}
-    peerDependencies:
-      '@snack-uikit/locale': '*'
-
-  '@snack-uikit/segmented-control@0.6.24':
-    resolution: {integrity: sha512-1fv28qpxsG9BZ+Jvl8/fOLuOwedUwMyN46vuxtfjocQN3qm2EJyuth2fEnOjrQ/hp/TVHUC/H24DY8X0v2QQUA==}
-
-  '@snack-uikit/skeleton@0.6.11':
-    resolution: {integrity: sha512-aAYidZ6q1CB0hvWOlwm3ui4RBopItbS5fjOfw/D5dmrzWhKSFSeLXCPYk91dzkggSoIgh0TNTzM5nX/Cysw1mw==}
-
-  '@snack-uikit/slider@0.3.40':
-    resolution: {integrity: sha512-ea142lNx7CaGlqJV1Ug5Lu5bI81U6spt8cO1AxZIINGPQmcowgVUatXngVqGzjCcTXYOiXt7qjFUWr2/aj5+Mg==}
-
-  '@snack-uikit/tabs@0.10.20':
-    resolution: {integrity: sha512-tb7tKCgcpZ7rgwpa5bE6CefP9o+RLKVSShSt+V2bomjd4VOB9L+ePbHnJSBUKOueGWDo50+kvaKxPvPDw4ZFKQ==}
-
-  '@snack-uikit/tag@0.15.23':
-    resolution: {integrity: sha512-RUaTsnwbzcGzE95TmaMKmx2gFoDojK4MX/SfGURL9410kaxq9IJ5AGIBZ/Oi2cVytqJplutfuQfCrwCVexARwQ==}
-
-  '@snack-uikit/toaster@0.11.32':
-    resolution: {integrity: sha512-7WeMIzcn7dk+Mn6tIoy9pqvPFVjeZSFi7LXillvSdG/sxH6LUmQ60KZR0td+lbfUr61iKGRNGBwSAyGIjJWxTA==}
-    peerDependencies:
-      '@snack-uikit/locale': '*'
-
-  '@snack-uikit/toggles@0.13.28':
-    resolution: {integrity: sha512-5XL9F3kVvjoynLVTnFn2Guty3FXfaICSXnvG3nhTqXt6F5ebM+ytfqhwOYamhzT5XUV/bYqhtfX2owbdYwGIqg==}
-
-  '@snack-uikit/tooltip@0.18.16':
-    resolution: {integrity: sha512-aN6gmZSLTKDt7w4MezBcRUKAtP6zmxuJmZ81zyM5Xr9CzUAnEXoC+jHZsj/OuTTEzXCB7dbzSS3MQme+91AOTg==}
-
-  '@snack-uikit/truncate-string@0.7.15':
-    resolution: {integrity: sha512-r5he9isH/vTCLfI2Gkn8i8doHhAC43dRCgXfmVPFX9Zy2dOFHhO7sAZmHTb4xCkwwfcywOtSUm8AXgnFPyCB4A==}
-
-  '@snack-uikit/typography@0.8.13':
-    resolution: {integrity: sha512-63ALaKVNqcPpybMIcoeycXVWRLW9oPXNdPoiQsA3VDI8oO2u/U+GeBCgBD5qPH9bM0oUfPf6Lqtv/hJGXzqoMg==}
-
-  '@snack-uikit/utils@4.0.2':
-    resolution: {integrity: sha512-t2EL7ohgv+YtSCrFaQ9AQPDTrQNZJ6ezDqNo0ANv3Fu5ANduHi6JKcI0a7HYxW7xDz7yf8HwhKU8wGkl3vnlxQ==}
-
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -1680,20 +1728,14 @@ packages:
     resolution: {integrity: sha512-LnhVjMWyMQV9ZmeEy26maJk+8HTIbd59cH4F2MJ439k9DqejRisfFNGAPvRYlKETuh9LrImlS8aKsBgKjMA8WA==}
     engines: {node: '>=14'}
 
-  '@tanem/react-nprogress@5.0.35':
-    resolution: {integrity: sha512-rfRvG+/wcL/zb7lTQD+HAStIMnDmFaVZZqd7v1OeQQpHqYeHOMCP7TRkPE08trQ9xjzGEoc/vJB8wBc4XSMTYg==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-
-  '@tanstack/react-virtual@3.11.2':
-    resolution: {integrity: sha512-OuFzMXPF4+xZgx8UzJha0AieuMihhhaWG0tCqpp6tDzlFwOmNBPYMuLOtMJ1Tr4pXLHmgjcWhG6RlknY2oNTdQ==}
+  '@tanstack/react-virtual@3.14.13':
+    resolution: {integrity: sha512-JbDTAwtzZ99aOeCrAfW5EsE5KSq5RWh6Af2dtFwyLIIk48Ja7vm6n4axu/43T3vfjFnEGJalxJ1wyYjSQD6bSg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/virtual-core@3.11.2':
-    resolution: {integrity: sha512-vTtpNt7mKCiZ1pwU9hfKPhpdVO2sVzFQsxoVBGtOSHxlrRRzYr8iQ2TlwbAcRYCcEiZ9ECAM8kBzH0v2+VzfKw==}
+  '@tanstack/virtual-core@3.17.11':
+    resolution: {integrity: sha512-+ILjvtHup6Y2hzQ6YzwMgX1Q+oQpxEGOXCEsCNaPoIP0VxMbizIBTmYTDtkerkIQS8/CbP1BRuyt8V/8BCsy1g==}
 
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
@@ -1727,6 +1769,9 @@ packages:
 
   '@types/react-dom@18.3.1':
     resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
+
+  '@types/react-is@19.3.0':
+    resolution: {integrity: sha512-pnL9JaaCgCeERlAwWLHBbv/sQV9jRFnp5ex7docWJ4/zA2UDwY2BrTSjEshBWJ81wyl37w9BSz22NW6i0qJhwA==}
 
   '@types/react@18.3.1':
     resolution: {integrity: sha512-V0kuGBX3+prX+DQ/7r2qsv1NsdfnCLnTgnRJ1pYnxykBhGMz+qj+box5lq7XsO5mtZsBqpjwwTu/7wszPfMBcw==}
@@ -2237,14 +2282,6 @@ packages:
     resolution: {integrity: sha512-k7ndgKhwoQveBL+/1tqGJYNz097I7WOvwbmmU2AR5+magtbjPWQTS1C5vzGkBC8Ym8UWRzfKUzUUqFLypY4Q+w==}
     engines: {node: '>=20'}
 
-  clsx@1.2.1:
-    resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
-    engines: {node: '>=6'}
-
-  clsx@2.1.1:
-    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
-    engines: {node: '>=6'}
-
   color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
     engines: {node: '>=7.0.0'}
@@ -2279,9 +2316,6 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
-
-  copy-to-clipboard@3.3.3:
-    resolution: {integrity: sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==}
 
   core-js-compat@3.48.0:
     resolution: {integrity: sha512-OM4cAF3D6VtH/WkLtWvyNC56EZVXsZdU3iqaMG2B4WvYrlqU831pc4UtG5yp0sE9z8Y02wVN7PjW5Zf9Gt0f1Q==}
@@ -2434,6 +2468,9 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
+
+  detect-node-es@1.1.0:
+    resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
 
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
@@ -2728,9 +2765,6 @@ packages:
   eventemitter3@5.0.4:
     resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
 
-  exenv@1.2.2:
-    resolution: {integrity: sha512-Z+ktTxTwv9ILfgKCk32OX3n/doe+OcLTRtqK9pcL+JsP3J1/VW8Uvl4ZjLlKqeW4rzK4oesDOGMEMRIZqtP4Iw==}
-
   expect-type@1.3.0:
     resolution: {integrity: sha512-knvyeauYhqjOYvQ66MznSMs83wmHrCycNEN6Ao+2AeYEfxUIkuiVxdEa1qlGEPK+We3n0THiDciYSsCcgW/DoA==}
     engines: {node: '>=12.0.0'}
@@ -2827,9 +2861,6 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  fuzzy-search@3.2.1:
-    resolution: {integrity: sha512-vAcPiyomt1ioKAsAL2uxSABHJ4Ju/e4UeDM+g1OlR0vV4YhLGMNsdLNvZTpEDY4JCSt0E4hASCNM5t2ETtsbyg==}
-
   geckodriver@6.1.1:
     resolution: {integrity: sha512-/AcCyc9o9o6hUbudaSJM2iOtXbxSLqQPOb4GrPvEN40cjraUeaX/j5kH3mSgwiroyMn7qzx2wM61AQ2XY8j3sA==}
     engines: {node: '>=20.0.0'}
@@ -2854,6 +2885,10 @@ packages:
   get-intrinsic@1.3.0:
     resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
     engines: {node: '>= 0.4'}
+
+  get-nonce@1.0.1:
+    resolution: {integrity: sha512-FJhYRoDaiatfEkUK8HKlicmu/3SGFD51q3itKDGoSTysQJBnfOcxU5GxnhE1E6soB76MbT0MBtnKJuXyAx+96Q==}
+    engines: {node: '>=6'}
 
   get-proto@1.0.1:
     resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
@@ -3338,9 +3373,6 @@ packages:
   lodash.truncate@4.4.2:
     resolution: {integrity: sha512-jttmRe7bRse52OsWIMDLaXxWqRAmtIUccAQ3garviCqJjafXOfNMO0yMfNpdD6zbGaTU0P5Nz7e7gAT6cKmJRw==}
 
-  lodash@4.18.1:
-    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
-
   log-update@6.1.0:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
     engines: {node: '>=18'}
@@ -3392,8 +3424,8 @@ packages:
     resolution: {integrity: sha512-pxQJQzB6djGPXh08dacEloMFopsOqGVRKFPYvPOt9XDZ1HasbgDZA74CJGreSU4G3Ak7EFJGoiH2auq+yXISgA==}
     engines: {node: '>=18'}
 
-  merge-refs@1.3.0:
-    resolution: {integrity: sha512-nqXPXbso+1dcKDpPCXvwZyJILz+vSLqGGOnDrYHQYE+B8n9JTCekVLC65AfCpR4ggVyA/45Y0iR9LDyS2iI+zA==}
+  merge-refs@2.0.0:
+    resolution: {integrity: sha512-3+B21mYK2IqUWnd2EivABLT7ueDhb0b8/dGK8LoFQPrU61YITeCMn14F7y7qZafWNZhUEKb24cJdiT5Wxs3prg==}
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
@@ -3516,8 +3548,8 @@ packages:
       overlayscrollbars: ^2.0.0
       react: '>=16.8.0'
 
-  overlayscrollbars@2.11.1:
-    resolution: {integrity: sha512-kogaNaBTIizRenQ2GTzt2cpkEH9B0nUBXseRxqQblH/YicJ3TaWuvn8E5TXPPfJCVoHYSgBYZzzva40kCERKHg==}
+  overlayscrollbars@2.16.0:
+    resolution: {integrity: sha512-N03oje/q7j93D0aLZtoCdsDSYLmhheSsv8H7oSLE7HhdV9P/bmCURtLV/KbPye7P/bpfyt/obSfDpGUYoJ0OWg==}
 
   own-keys@1.0.1:
     resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
@@ -3680,8 +3712,8 @@ packages:
   quick-format-unescaped@4.0.4:
     resolution: {integrity: sha512-tYC1Q1hgyRuHgloV/YXs2w15unPVh8qfu/qCTfhTYamaw7fyhumKa2yGpdSo87vY32rIclj+4fWYQXUMs9EHvg==}
 
-  rc-slider@10.5.0:
-    resolution: {integrity: sha512-xiYght50cvoODZYI43v3Ylsqiw14+D7ELsgzR40boDZaya1HFa1Etnv9MDkQE8X/UrXAffwv2AcNAhslgYuDTw==}
+  rc-slider@11.1.9:
+    resolution: {integrity: sha512-h8IknhzSh3FEM9u8ivkskh+Ef4Yo4JRIY2nj7MrH6GQmrwV6mcpJf5/4KgH5JaVI1H3E52yCdpOlVyGZIeph5A==}
     engines: {node: '>=8.x'}
     peerDependencies:
       react: '>=16.9.0'
@@ -3693,8 +3725,8 @@ packages:
       react: '>=16.9.0'
       react-dom: '>=16.9.0'
 
-  react-colorful@5.6.1:
-    resolution: {integrity: sha512-1exovf0uGTGyq5mXQT0zgQ80uvj2PCwvF8zY1RN9/vbJVSjSo3fsB/4L3ObbF7u70NduSiK4xu4Y6q1MHoUGEw==}
+  react-colorful@5.8.1:
+    resolution: {integrity: sha512-oz68bhsnFWnpDf1ZR8daiQbYpXUnM2h2J6hl9Zg2rTpM/DU6vCqe1E+CpqmqLnJucMZetHZeifSAfJ+geN9lcA==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -3704,54 +3736,62 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
-  react-draggable@4.4.6:
-    resolution: {integrity: sha512-LtY5Xw1zTPqHkVmtM3X8MUOxNDOUhv/khTgBgrUvwaS064bwVvxT+q5El0uUFNx5IEPKXuRejr7UqLwBIg5pdw==}
-    peerDependencies:
-      react: '>= 16.3.0'
-      react-dom: '>= 16.3.0'
-
-  react-indiana-drag-scroll@2.2.0:
-    resolution: {integrity: sha512-+W/3B2OQV0FrbdnsoIo4dww/xpH0MUQJz6ziQb7H+oBko3OCbXuzDFYnho6v6yhGrYDNWYPuFUewb89IONEl/A==}
+  react-indiana-drag-scroll@2.2.1:
+    resolution: {integrity: sha512-aGNJt7fxWzZGVkd0xRF+fPDt5RFuYouQffwOFx3m+CiOlvLZDQtV+4NyPnJqXCRlfbbwP26LI4LclNymTOgDiQ==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
-      react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
-  react-is@18.2.0:
-    resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
-
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-lifecycles-compat@3.0.4:
-    resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
+  react-is@19.3.0:
+    resolution: {integrity: sha512-UpMYezM4v5/18F28aC66AEsjXIgE02kyEMH6yLdgLXu/UTfa1Ntwck/nNLrbqJsEXW7gPb0coNO9FQse9WTovA==}
 
-  react-modal@3.16.1:
-    resolution: {integrity: sha512-VStHgI3BVcGo7OXczvnJN7yT2TWHJPDXZWyI/a0ssFNhGZWsPmB8cF0z33ewDXq4VfYMO1vXgiv/g8Nj9NDyWg==}
-    engines: {node: '>=8'}
+  react-remove-scroll-bar@2.3.8:
+    resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
+    engines: {node: '>=10'}
     peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
-      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-remove-scroll@2.7.2:
+    resolution: {integrity: sha512-Iqb9NjCCTt6Hf+vOdNIZGdTiH1QSqr27H/Ek9sv/a97gfueI/5h1s3yRi1nngzMUaOOToin5dI1dXKdXiF+u0Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-style-singleton@2.2.3:
+    resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   react-swipeable@7.0.2:
     resolution: {integrity: sha512-v1Qx1l+aC2fdxKa9aKJiaU/ZxmJ5o98RMoFwUqAAzVWUcxgfHFXDDruCKXhw6zIYXm6V64JiHgP9f6mlME5l8w==}
     peerDependencies:
       react: ^16.8.3 || ^17 || ^18 || ^19.0.0 || ^19.0.0-rc
 
-  react-textarea-autosize@8.5.3:
-    resolution: {integrity: sha512-XT1024o2pqCuZSuBt9FwHlaDeNtVrtCXu0Rnz88t1jUGheCLa3PhjE1GH8Ctm2axEtvdCl5SUHYschyQ0L5QHQ==}
+  react-textarea-autosize@8.5.9:
+    resolution: {integrity: sha512-U1DGlIQN5AwgjTyOEnI1oCcMuEr1pv1qOtklB2l4nyMGbHzWrI0eFsYK0zos2YWqAolJyG0IWJaqWmWj5ETh0A==}
     engines: {node: '>=10'}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-
-  react-toastify@10.0.5:
-    resolution: {integrity: sha512-mNKt2jBXJg4O7pSdbNUfDdTsK9FIdikfsIE/yUCxbAEXl4HMyJaivrVFcn3Elvt5xvCQYhUZm+hqTIu1UXM3Pw==}
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -4135,8 +4175,8 @@ packages:
     resolution: {integrity: sha512-eNRKgb3z66Yp3D2CixVujOUvXLFUTij/zVnV8KRyvFdQwpz7I5DS8UfRkTeLzb64u+dkzDSdelE24izu+zSSUg==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tabbable@6.4.0:
-    resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
+  tabbable@6.5.0:
+    resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
 
   table@6.9.0:
     resolution: {integrity: sha512-9kY+CygyYM6j02t5YFHbNz2FN5QmYGv9zAjVp4lCDjlCw7amdckXlEt/bjMhUIfj4ThGRE4gCUH5+yGnNuPo5A==}
@@ -4180,9 +4220,6 @@ packages:
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
-
-  toggle-selection@1.0.6:
-    resolution: {integrity: sha512-BiZS+C1OS8g/q2RRbJmy59xpyghNBqrr6k5L/uKBGRsTfxmu3ffiRnd8mlGPUVayg8pvfi5urfnu8TU7DVOkLQ==}
 
   tough-cookie@6.0.2:
     resolution: {integrity: sha512-exgYmnmL/sJpR3upZfXG5PoatXQii55xAiXGXzY+sROLZ/Y+SLcp9PgJNI9Vz37HpQ74WvDcLT8eqm+kV3FzrA==}
@@ -4255,16 +4292,6 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  uncontrollable@8.0.4:
-    resolution: {integrity: sha512-ulRWYWHvscPFc0QQXvyJjY6LIXU56f0h8pQFvhxiKk5V1fcI8gp9Ht9leVAhrVjzqMw0BgjspBINx9r6oyJUvQ==}
-    peerDependencies:
-      react: '>=16.14.0'
-
-  uncontrollable@9.0.0:
-    resolution: {integrity: sha512-wPScOFmvRkHdvebf7qNPn9Wog9B1TL8Dqcx0Vecz6HYTKFKMfGKP6MJHTjiKL8kwd8KTW3YfIUke7pmRDtkcRQ==}
-    peerDependencies:
-      react: '>=16.14.0'
-
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
@@ -4304,6 +4331,16 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  use-callback-ref@1.3.3:
+    resolution: {integrity: sha512-jQL3lRnocaFtu3V00JToYz/4QkNWswxijDaCVNZRiRTO3HQDLsdu1ZtmIUvV4yPp+rvWm5j0y0TG/S61cuijTg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   use-composed-ref@1.4.0:
     resolution: {integrity: sha512-djviaxuOOh7wkj0paeO1Q/4wMZ8Zrnag5H6yBvzN7AKKe8beOaED9SF5/ByLqsku8NP4zQqsvM2u3ew/tJK8/w==}
     peerDependencies:
@@ -4327,6 +4364,16 @@ packages:
     peerDependencies:
       '@types/react': '*'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  use-sidecar@1.1.3:
+    resolution: {integrity: sha512-Fedw0aZvkhynoPYlA5WXrMCAMm+nSWdZt6lzJQ7Ok8S6Q+VsHmHpRWndVRJ8Be0ZbkfPc5LRYH+5XrzXcEeLRQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -4436,9 +4483,6 @@ packages:
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
-
-  warning@4.0.3:
-    resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
 
   webextension-polyfill@0.12.0:
     resolution: {integrity: sha512-97TBmpoWJEE+3nFBQ4VocyCdLKfw54rFaJ6EVQYLBCXqCIpLSZkwGgASpv4oPt9gdKCJ80RJlcmNzNn008Ag6Q==}
@@ -5357,6 +5401,444 @@ snapshots:
       hashery: 1.5.1
       keyv: 5.6.0
 
+  '@cloud-ru/ds-adaptive@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-context-kit': 1.0.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-bottom-sheet@1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-popup-private': 1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-portal-context': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-theme': 1.1.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      react-remove-scroll: 2.7.2(@types/react@18.3.1)(react@18.3.1)
+      tabbable: 6.5.0
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-button@1.0.2(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-counter': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-calendar@1.0.18(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-adaptive': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-bottom-sheet': 1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-divider': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-dropdown': 1.0.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-list': 2.2.0(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      '@tanstack/react-virtual': 3.14.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      classnames: 2.5.1
+      weekstart: 2.0.0
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-color-picker@1.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-input-private': 1.0.5(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-segment-control': 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      react-colorful: 5.8.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-context-kit@1.0.0': {}
+
+  '@cloud-ru/ds-counter@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-divider@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-drag-and-drop@1.1.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-dropdown@1.0.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-adaptive': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-bottom-sheet': 1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-divider': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-info-block': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-popover-private': 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-dropzone@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-field-decorator@1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-tooltip': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-fields@2.2.6(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-adaptive': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-bottom-sheet': 1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-calendar': 1.0.18(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-color-picker': 1.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-divider': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-dropdown': 1.0.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-field-decorator': 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-input-private': 1.0.5(react@18.3.1)
+      '@cloud-ru/ds-list': 2.2.0(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-skeleton': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-slider': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-tag': 1.1.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-tooltip': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      merge-refs: 2.0.0(@types/react@18.3.1)
+      react-textarea-autosize: 8.5.9(@types/react@18.3.1)(react@18.3.1)
+    transitivePeerDependencies:
+      - '@cloud-ru/ds-locale'
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-figma-variables@1.1.0': {}
+
+  '@cloud-ru/ds-icon-predefined@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-icons@1.2.0(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-theme': 1.1.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-info-block@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-icon-predefined': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-input-private@1.0.5(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-link@1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-list@2.2.0(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-adaptive': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-bottom-sheet': 1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-divider': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-drag-and-drop': 1.1.1(react@18.3.1)
+      '@cloud-ru/ds-dropdown': 1.0.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-info-block': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-portal-context': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-search-private': 1.0.8(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react@18.3.1)
+      '@cloud-ru/ds-toggles': 1.1.4(@types/react@18.3.1)(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      '@tanstack/react-virtual': 3.14.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      classnames: 2.5.1
+      merge-refs: 2.0.0(@types/react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-loader@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-locale@1.0.0':
+    dependencies:
+      '@cloud-ru/ds-context-kit': 1.0.0
+
+  '@cloud-ru/ds-materials@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-modal@1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-adaptive': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-bottom-sheet': 1.1.2(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-popup-private': 1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-portal-context': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      react-remove-scroll: 2.7.2(@types/react@18.3.1)(react@18.3.1)
+      tabbable: 6.5.0
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-popover-private@1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-portal-context': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      '@floating-ui/react': 0.27.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react-is': 19.3.0
+      classnames: 2.5.1
+      react-is: 19.3.0
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-popup-private@1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-typography': 1.0.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-portal-context@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-context-kit': 1.0.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-scroll@1.0.2(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      overlayscrollbars: 2.16.0
+      overlayscrollbars-react: 0.5.6(overlayscrollbars@2.16.0)(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-search-private@1.0.8(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-input-private': 1.0.5(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      merge-refs: 2.0.0(@types/react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+
+  '@cloud-ru/ds-segment-control@1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-counter': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-skeleton@1.0.1(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+
+  '@cloud-ru/ds-slider@1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-tooltip': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      rc-slider: 11.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-tabs@1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-button': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-counter': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-divider': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-typography': 1.0.0
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      react-indiana-drag-scroll: 2.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-tag@1.1.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-dropdown': 1.0.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - '@cloud-ru/ds-locale'
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-theme@1.1.0':
+    dependencies:
+      '@cloud-ru/ds-context-kit': 1.0.0
+      classnames: 2.5.1
+
+  '@cloud-ru/ds-toaster@1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-link': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.2(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-toggles@1.1.4(@types/react@18.3.1)(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-materials': 1.0.1(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+      merge-refs: 2.0.0(@types/react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+
+  '@cloud-ru/ds-tooltip@1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-icons': 1.2.0(react@18.3.1)
+      '@cloud-ru/ds-popover-private': 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-truncate-string@1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-tooltip': 1.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.1.0(react@18.3.1)
+      classnames: 2.5.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-typography@1.0.0':
+    dependencies:
+      classnames: 2.5.1
+
+  '@cloud-ru/ds-utils@1.1.0(react@18.3.1)':
+    dependencies:
+      react-swipeable: 7.0.2(react@18.3.1)
+    transitivePeerDependencies:
+      - react
+
   '@cloud-ru/eslint-config@3.1.7(@typescript-eslint/eslint-plugin@8.70.1(@typescript-eslint/parser@8.70.1(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(prettier@3.9.8)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.2)(jsdom@30.1.0)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))':
     dependencies:
       '@eslint/js': 9.39.5
@@ -5487,6 +5969,31 @@ snapshots:
   '@csstools/selector-specificity@5.0.0(postcss-selector-parser@7.1.1)':
     dependencies:
       postcss-selector-parser: 7.1.1
+
+  '@dnd-kit/accessibility@3.1.1(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
+
+  '@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@dnd-kit/accessibility': 3.1.1(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.1
+
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      react: 18.3.1
+      tslib: 2.8.1
+
+  '@dnd-kit/utilities@3.2.2(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
 
   '@dual-bundle/import-meta-resolve@4.2.1': {}
 
@@ -5725,30 +6232,30 @@ snapshots:
 
   '@exodus/bytes@1.15.2': {}
 
-  '@floating-ui/core@1.7.5':
+  '@floating-ui/core@1.8.0':
     dependencies:
-      '@floating-ui/utils': 0.2.11
+      '@floating-ui/utils': 0.2.12
 
-  '@floating-ui/dom@1.7.6':
+  '@floating-ui/dom@1.8.0':
     dependencies:
-      '@floating-ui/core': 1.7.5
-      '@floating-ui/utils': 0.2.11
+      '@floating-ui/core': 1.8.0
+      '@floating-ui/utils': 0.2.12
 
-  '@floating-ui/react-dom@2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@floating-ui/react-dom@2.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@floating-ui/dom': 1.7.6
+      '@floating-ui/dom': 1.8.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@floating-ui/react@0.26.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@floating-ui/react@0.27.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@floating-ui/utils': 0.2.11
+      '@floating-ui/react-dom': 2.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@floating-ui/utils': 0.2.12
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      tabbable: 6.4.0
+      tabbable: 6.5.0
 
-  '@floating-ui/utils@0.2.11': {}
+  '@floating-ui/utils@0.2.12': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -5954,358 +6461,6 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@snack-uikit/button@0.19.19(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/counter': 0.8.12(react@18.3.1)
-      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/calendar@0.14.4(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/divider': 3.2.12(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/list': 0.34.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      uncontrollable: 8.0.4(react@18.3.1)
-      weekstart: 2.0.0
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-      - react-dom
-
-  '@snack-uikit/color-picker@0.3.59(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/input-private': 4.8.10(react@18.3.1)
-      '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/segmented-control': 0.6.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/counter@0.8.12(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/divider@3.2.12(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/drop-zone@0.9.13(lodash@4.18.1)(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      lodash: 4.18.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/dropdown@0.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/popover-private': 0.15.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/fields@0.57.5(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/calendar': 0.14.4(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/color-picker': 0.3.59(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/divider': 3.2.12(react@18.3.1)
-      '@snack-uikit/dropdown': 0.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/input-private': 4.8.10(react@18.3.1)
-      '@snack-uikit/list': 0.34.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
-      '@snack-uikit/skeleton': 0.6.11(react@18.3.1)
-      '@snack-uikit/slider': 0.3.40(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/tag': 0.15.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/tooltip': 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/truncate-string': 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      copy-to-clipboard: 3.3.3
-      decimal.js: 10.6.0
-      fuzzy-search: 3.2.1
-      merge-refs: 1.3.0(@types/react@18.3.1)
-      react-textarea-autosize: 8.5.3(@types/react@18.3.1)(react@18.3.1)
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-      - react-dom
-
-  '@snack-uikit/figma-tokens@17.7.5': {}
-
-  '@snack-uikit/icon-predefined@0.7.12(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/icons@0.27.8': {}
-
-  '@snack-uikit/info-block@0.6.44(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/icon-predefined': 0.7.12(react@18.3.1)
-      '@snack-uikit/tooltip': 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/typography': 0.8.13(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/input-private@4.8.10(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/link@0.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/truncate-string': 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/list@0.34.0(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/divider': 3.2.12(react@18.3.1)
-      '@snack-uikit/dropdown': 0.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/info-block': 0.6.44(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
-      '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
-      '@snack-uikit/search-private': 0.4.38(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react@18.3.1)
-      '@snack-uikit/toggles': 0.13.28(@types/react@18.3.1)(react@18.3.1)
-      '@snack-uikit/truncate-string': 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      '@tanstack/react-virtual': 3.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      classnames: 2.5.1
-      merge-refs: 1.3.0(@types/react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-      - react-dom
-
-  '@snack-uikit/loaders@0.9.11(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/locale@0.15.1':
-    dependencies:
-      lodash.merge: 4.6.2
-
-  '@snack-uikit/modal@0.20.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/icon-predefined': 0.7.12(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/link': 0.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
-      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
-      '@snack-uikit/tooltip': 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/truncate-string': 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/typography': 0.8.13(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      react-modal: 3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/popover-private@0.15.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@floating-ui/react': 0.26.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      react-is: 18.2.0
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/progress-bar@0.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      '@tanem/react-nprogress': 5.0.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/scroll@0.11.0(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      overlayscrollbars: 2.11.1
-      overlayscrollbars-react: 0.5.6(overlayscrollbars@2.11.1)(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/search-private@0.4.38(@snack-uikit/locale@0.15.1)(@types/react@18.3.1)(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/input-private': 4.8.10(react@18.3.1)
-      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
-      '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      merge-refs: 1.3.0(@types/react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-
-  '@snack-uikit/segmented-control@0.6.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/counter': 0.8.12(react@18.3.1)
-      '@snack-uikit/truncate-string': 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/skeleton@0.6.11(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/slider@0.3.40(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/tooltip': 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      rc-slider: 10.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/tabs@0.10.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/button': 0.19.19(react@18.3.1)
-      '@snack-uikit/counter': 0.8.12(react@18.3.1)
-      '@snack-uikit/divider': 3.2.12(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/typography': 0.8.13(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      react-indiana-drag-scroll: 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/tag@0.15.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/dropdown': 0.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
-      '@snack-uikit/tooltip': 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/toaster@0.11.32(@snack-uikit/locale@0.15.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/link': 0.18.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/loaders': 0.9.11(react@18.3.1)
-      '@snack-uikit/locale': 0.15.1
-      '@snack-uikit/progress-bar': 0.1.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/scroll': 0.11.0(react@18.3.1)
-      '@snack-uikit/truncate-string': 0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      react-draggable: 4.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-toastify: 10.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      uncontrollable: 9.0.0(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/toggles@0.13.28(@types/react@18.3.1)(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      merge-refs: 1.3.0(@types/react@18.3.1)
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-
-  '@snack-uikit/tooltip@0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/icons': 0.27.8
-      '@snack-uikit/popover-private': 0.15.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/truncate-string@0.7.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/tooltip': 0.18.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-      lodash: 4.18.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@snack-uikit/typography@0.8.13(react@18.3.1)':
-    dependencies:
-      '@snack-uikit/utils': 4.0.2(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-
-  '@snack-uikit/utils@4.0.2(react@18.3.1)':
-    dependencies:
-      react-swipeable: 7.0.2(react@18.3.1)
-      uncontrollable: 8.0.4(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-
   '@standard-schema/spec@1.1.0': {}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.29.0)':
@@ -6401,20 +6556,13 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tanem/react-nprogress@5.0.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-virtual@3.14.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.29.7
-      hoist-non-react-statics: 3.3.2
+      '@tanstack/virtual-core': 3.17.11
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/react-virtual@3.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@tanstack/virtual-core': 3.11.2
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  '@tanstack/virtual-core@3.11.2': {}
+  '@tanstack/virtual-core@3.17.11': {}
 
   '@tybys/wasm-util@0.10.2':
     dependencies:
@@ -6445,6 +6593,10 @@ snapshots:
   '@types/prop-types@15.7.15': {}
 
   '@types/react-dom@18.3.1':
+    dependencies:
+      '@types/react': 18.3.1
+
+  '@types/react-is@19.3.0':
     dependencies:
       '@types/react': 18.3.1
 
@@ -6994,10 +7146,6 @@ snapshots:
       strip-ansi: 7.2.0
       wrap-ansi: 9.0.2
 
-  clsx@1.2.1: {}
-
-  clsx@2.1.1: {}
-
   color-convert@2.0.1:
     dependencies:
       color-name: 1.1.4
@@ -7026,10 +7174,6 @@ snapshots:
   convert-source-map@1.9.0: {}
 
   convert-source-map@2.0.0: {}
-
-  copy-to-clipboard@3.3.3:
-    dependencies:
-      toggle-selection: 1.0.6
 
   core-js-compat@3.48.0:
     dependencies:
@@ -7185,6 +7329,8 @@ snapshots:
       object-keys: 1.1.1
 
   detect-libc@2.1.2: {}
+
+  detect-node-es@1.1.0: {}
 
   dir-glob@3.0.1:
     dependencies:
@@ -7623,8 +7769,6 @@ snapshots:
 
   eventemitter3@5.0.4: {}
 
-  exenv@1.2.2: {}
-
   expect-type@1.3.0: {}
 
   fast-copy@4.0.3: {}
@@ -7717,8 +7861,6 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  fuzzy-search@3.2.1: {}
-
   geckodriver@6.1.1:
     dependencies:
       '@wdio/logger': 9.18.0
@@ -7750,6 +7892,8 @@ snapshots:
       has-symbols: 1.1.0
       hasown: 2.0.3
       math-intrinsics: 1.1.0
+
+  get-nonce@1.0.1: {}
 
   get-proto@1.0.1:
     dependencies:
@@ -8245,8 +8389,6 @@ snapshots:
 
   lodash.truncate@4.4.2: {}
 
-  lodash@4.18.1: {}
-
   log-update@6.1.0:
     dependencies:
       ansi-escapes: 7.2.0
@@ -8291,7 +8433,7 @@ snapshots:
 
   meow@13.2.0: {}
 
-  merge-refs@1.3.0(@types/react@18.3.1):
+  merge-refs@2.0.0(@types/react@18.3.1):
     optionalDependencies:
       '@types/react': 18.3.1
 
@@ -8405,12 +8547,12 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  overlayscrollbars-react@0.5.6(overlayscrollbars@2.11.1)(react@18.3.1):
+  overlayscrollbars-react@0.5.6(overlayscrollbars@2.16.0)(react@18.3.1):
     dependencies:
-      overlayscrollbars: 2.11.1
+      overlayscrollbars: 2.16.0
       react: 18.3.1
 
-  overlayscrollbars@2.11.1: {}
+  overlayscrollbars@2.16.0: {}
 
   own-keys@1.0.1:
     dependencies:
@@ -8570,7 +8712,7 @@ snapshots:
 
   quick-format-unescaped@4.0.4: {}
 
-  rc-slider@10.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  rc-slider@11.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
       classnames: 2.5.1
@@ -8585,7 +8727,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.3.1
 
-  react-colorful@5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-colorful@5.8.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -8596,14 +8738,7 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-draggable@4.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      clsx: 1.2.1
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  react-indiana-drag-scroll@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-indiana-drag-scroll@2.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       classnames: 2.5.1
       debounce: 1.2.1
@@ -8613,26 +8748,42 @@ snapshots:
 
   react-is@16.13.1: {}
 
-  react-is@18.2.0: {}
-
   react-is@18.3.1: {}
 
-  react-lifecycles-compat@3.0.4: {}
+  react-is@19.3.0: {}
 
-  react-modal@3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-remove-scroll-bar@2.3.8(@types/react@18.3.1)(react@18.3.1):
     dependencies:
-      exenv: 1.2.2
-      prop-types: 15.8.1
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-lifecycles-compat: 3.0.4
-      warning: 4.0.3
+      react-style-singleton: 2.2.3(@types/react@18.3.1)(react@18.3.1)
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.1
+
+  react-remove-scroll@2.7.2(@types/react@18.3.1)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-remove-scroll-bar: 2.3.8(@types/react@18.3.1)(react@18.3.1)
+      react-style-singleton: 2.2.3(@types/react@18.3.1)(react@18.3.1)
+      tslib: 2.8.1
+      use-callback-ref: 1.3.3(@types/react@18.3.1)(react@18.3.1)
+      use-sidecar: 1.1.3(@types/react@18.3.1)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.1
+
+  react-style-singleton@2.2.3(@types/react@18.3.1)(react@18.3.1):
+    dependencies:
+      get-nonce: 1.0.1
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.1
 
   react-swipeable@7.0.2(react@18.3.1):
     dependencies:
       react: 18.3.1
 
-  react-textarea-autosize@8.5.3(@types/react@18.3.1)(react@18.3.1):
+  react-textarea-autosize@8.5.9(@types/react@18.3.1)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
       react: 18.3.1
@@ -8640,12 +8791,6 @@ snapshots:
       use-latest: 1.3.0(@types/react@18.3.1)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
-
-  react-toastify@10.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      clsx: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   react@18.3.1:
     dependencies:
@@ -9166,7 +9311,7 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.3.6
 
-  tabbable@6.4.0: {}
+  tabbable@6.5.0: {}
 
   table@6.9.0:
     dependencies:
@@ -9209,8 +9354,6 @@ snapshots:
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
-
-  toggle-selection@1.0.6: {}
 
   tough-cookie@6.0.2:
     dependencies:
@@ -9296,14 +9439,6 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  uncontrollable@8.0.4(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-
-  uncontrollable@9.0.0(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-
   undici-types@8.9.0: {}
 
   undici@7.29.1: {}
@@ -9355,6 +9490,13 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
+  use-callback-ref@1.3.3(@types/react@18.3.1)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 18.3.1
+
   use-composed-ref@1.4.0(@types/react@18.3.1)(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -9371,6 +9513,14 @@ snapshots:
     dependencies:
       react: 18.3.1
       use-isomorphic-layout-effect: 1.2.1(@types/react@18.3.1)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.1
+
+  use-sidecar@1.1.3(@types/react@18.3.1)(react@18.3.1):
+    dependencies:
+      detect-node-es: 1.1.0
+      react: 18.3.1
+      tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.1
 
@@ -9475,10 +9625,6 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-
-  warning@4.0.3:
-    dependencies:
-      loose-envify: 1.4.0
 
   webextension-polyfill@0.12.0: {}
 

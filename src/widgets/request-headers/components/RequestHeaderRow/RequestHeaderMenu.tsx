@@ -1,8 +1,8 @@
 import { useUnit } from 'effector-react';
 import { useState } from 'react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { CopySVG, CrossSVG, KebabSVG } from '@snack-uikit/icons';
+import { Button } from '@cloud-ru/ds-button';
+import { CopySVG, CrossSVG, KebabSVG } from '@cloud-ru/ds-icons/interface/system';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { RequestHeader } from '#entities/request-profile/types';
@@ -37,25 +37,32 @@ export function RequestHeaderMenu({ id, name, value }: RequestHeader) {
       items={[
         {
           id: 'duplicate-value',
-          content: { option: 'Duplicate' },
+          content: { label: 'Duplicate' },
           beforeContent: <DuplicateSVG />,
           onClick: () => handleDuplicate(id),
         },
         {
           id: 'copy-value',
-          content: { option: 'Copy' },
+          content: { label: 'Copy' },
           beforeContent: <CopySVG />,
           onClick: handleCopy,
         },
         {
           id: 'clear-value',
-          content: { option: 'Clear Value' },
+          content: { label: 'Clear Value' },
           beforeContent: <CrossSVG />,
           onClick: () => handleClear(id),
         },
       ]}
     >
-      <ButtonFunction size='s' data-test-id='request-header-menu-button' icon={<KebabSVG />} disabled={isPaused} />
+      <Button
+        view='function'
+        appearance='neutral'
+        size='m'
+        data-test-id='request-header-menu-button'
+        icon={<KebabSVG />}
+        disabled={isPaused}
+      />
     </S.StyledDroplist>
   );
 }

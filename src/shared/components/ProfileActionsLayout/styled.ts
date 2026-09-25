@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
 
 export const LeftHeaderActions = styled.div`
-  color: ${themeVars.sys.neutral.textMain};
+  color: ${themeVars.sn.theme.color.available.version.textMain};
   display: flex;
   gap: 8px;
   padding-left: 4px;
@@ -35,7 +35,7 @@ export const Header = styled.div`
   margin: 3px 0;
   position: sticky;
   top: 0;
-  background-color: ${themeVars.sys.neutral.background1Level};
+  background-color: ${themeVars.sn.theme.color.neutral.background1Level};
 `;
 
 export const ContentWrapper = styled.div`

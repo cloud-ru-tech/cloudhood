@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
 
 export const Ul = styled.ul``;
 
 export const Li = styled.li`
-  ${themeVars.sans.body.m};
+  ${themeVars.sn.regular.body.m};
 `;

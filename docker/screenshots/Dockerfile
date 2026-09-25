@@ -3,7 +3,7 @@
 FROM mcr.microsoft.com/playwright:v1.63.0-noble
 
 # Add custom fonts used by the extension UI.
-COPY src/assets/fonts/*.otf /usr/local/share/fonts/
+COPY src/assets/fonts/*.woff2 /usr/local/share/fonts/
 
 # Refresh font cache so Playwright/Chromium can pick them up.
 RUN fc-cache -f -v

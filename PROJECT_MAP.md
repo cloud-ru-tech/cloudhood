@@ -8,7 +8,7 @@ RU: Cloudhood - это браузерное расширение для упра
 ## Technology Stack | Технологический стек
 - **Frontend**: React 18 + TypeScript
 - **State Management**: Effector
-- **UI Library**: @snack-uikit (Cloud.ru internal library | внутренняя библиотека Cloud.ru)
+- **UI Library**: @cloud-ru/ds-* (Cloud.ru design system | дизайн-система Cloud.ru)
 - **Build Tool**: Vite
 - **Testing**: Vitest + Playwright
 - **Architecture**: Feature-Sliced Design
@@ -136,7 +136,7 @@ pnpm build          # Build for all browsers | Сборка для всех бр
 #### Main | Основные
 - `react` + `react-dom` - UI framework | UI фреймворк
 - `effector` + `effector-react` - state management | управление состоянием
-- `@snack-uikit/*` - Cloud.ru UI components | UI компоненты Cloud.ru
+- `@cloud-ru/ds-*` - Cloud.ru UI components | UI компоненты Cloud.ru
 
 #### Development | Разработка
 - `vite` - bundler | сборщик
@@ -163,7 +163,7 @@ pnpm build          # Build for all browsers | Сборка для всех бр
 #### Design System | Дизайн система
 - **Colors | Цвета**: `src/shared/assets/colors/` - profile palette | палитра профилей
 - **Icons | Иконки**: `src/shared/assets/svg/` - SVG icons | SVG иконки
-- **Fonts | Шрифты**: `src/assets/fonts/` - SBSans corporate fonts | корпоративные шрифты SBSans
+- **Fonts | Шрифты**: `src/assets/fonts/` - Inter and Roboto Mono (OFL) | шрифты Inter и Roboto Mono (OFL)
 
 #### Components | Компоненты
 - **Snack UI Kit**: Cloud.ru internal component library | Внутренняя библиотека компонентов Cloud.ru

@@ -134,15 +134,15 @@ test.describe('Request Headers', () => {
 
     // Step 4: Verify that a validation error is shown
     // Check that the field has an error state
-    const headerNameContainer = headerNameField.locator('xpath=..');
-    await expect(headerNameContainer).toHaveAttribute('data-validation', 'error');
+    const headerNameContainer = headerNameField.locator('xpath=ancestor::*[@data-validation-state][1]');
+    await expect(headerNameContainer).toHaveAttribute('data-validation-state', 'error');
 
     // Step 5: Enter a valid header name
     await headerNameField.fill('X-Valid-Header');
     await headerNameField.blur();
 
     // Step 6: Verify that the error disappears
-    await expect(headerNameContainer).toHaveAttribute('data-validation', 'default');
+    await expect(headerNameContainer).toHaveAttribute('data-validation-state', 'default');
 
     // Step 7: Test header value validation
     await headerValueField.fill('valid-value');
@@ -512,8 +512,8 @@ test.describe('Request Headers', () => {
       await headerNameField.blur();
 
       // Verify that the name is accepted (no validation error)
-      const headerNameContainer = headerNameField.locator('xpath=..');
-      await expect(headerNameContainer).toHaveAttribute('data-validation', 'default');
+      const headerNameContainer = headerNameField.locator('xpath=ancestor::*[@data-validation-state][1]');
+      await expect(headerNameContainer).toHaveAttribute('data-validation-state', 'default');
 
       await page.waitForTimeout(100);
     }
@@ -549,8 +549,8 @@ test.describe('Request Headers', () => {
       await headerNameField.blur();
 
       // Verify that a validation error is shown
-      const headerNameContainer = headerNameField.locator('xpath=..');
-      await expect(headerNameContainer).toHaveAttribute('data-validation', 'error');
+      const headerNameContainer = headerNameField.locator('xpath=ancestor::*[@data-validation-state][1]');
+      await expect(headerNameContainer).toHaveAttribute('data-validation-state', 'error');
 
       await page.waitForTimeout(100);
     }

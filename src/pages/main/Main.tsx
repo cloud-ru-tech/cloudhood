@@ -1,7 +1,7 @@
 import { useUnit } from 'effector-react';
 import { useMemo } from 'react';
 
-import { Divider } from '@snack-uikit/divider';
+import { Divider } from '@cloud-ru/ds-divider';
 
 import { $selectedProfileIndex } from '#entities/request-profile/model';
 import { profileColorList } from '#shared/assets/colors';

@@ -374,7 +374,10 @@ test.describe('Storage Persistence', () => {
     await headerNameInput.fill('Invalid Header Name!');
     await headerValueInput.fill('valid-value');
     await headerNameInput.blur();
-    await expect(headerNameInput.locator('xpath=..')).toHaveAttribute('data-validation', 'error');
+    await expect(headerNameInput.locator('xpath=ancestor::*[@data-validation-state][1]')).toHaveAttribute(
+      'data-validation-state',
+      'error',
+    );
 
     // Switch to URL Filters and test filter validation
     const urlFiltersTab = page.locator('[role="tab"]:has-text("URL Filters")');
@@ -398,7 +401,10 @@ test.describe('Storage Persistence', () => {
     await expect(headerValueInputAfterReload).toBeVisible({ timeout: 10000 });
     await expect(headerNameInputAfterReload).toHaveValue('Invalid Header Name!');
     await expect(headerValueInputAfterReload).toHaveValue('valid-value');
-    await expect(headerNameInputAfterReload.locator('xpath=..')).toHaveAttribute('data-validation', 'error');
+    await expect(headerNameInputAfterReload.locator('xpath=ancestor::*[@data-validation-state][1]')).toHaveAttribute(
+      'data-validation-state',
+      'error',
+    );
 
     // Switch to URL Filters and verify that its value was restored
     const urlFiltersTabAfterReload = page.locator('[role="tab"]:has-text("URL Filters")');

@@ -1,9 +1,9 @@
 import { useUnit } from 'effector-react';
 import { FocusEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { FieldText } from '@snack-uikit/fields';
-import { CheckSVG } from '@snack-uikit/icons';
+import { Button } from '@cloud-ru/ds-button';
+import { FieldText } from '@cloud-ru/ds-fields';
+import { CheckSVG } from '@cloud-ru/ds-icons/interface/system';
 
 import { $selectedProfile, $selectedProfileIndex } from '#entities/request-profile/model';
 import { setSelectedRequestProfileName } from '#features/selected-profile-update-name/model';
@@ -58,7 +58,7 @@ export function ProfileNameField() {
       <S.TitleWrapper>
         {isEdited ? (
           <FieldText
-            size='m'
+            size='l'
             inputMode='text'
             ref={inputRef}
             placeholder='Profile name'
@@ -74,10 +74,11 @@ export function ProfileNameField() {
       </S.TitleWrapper>
 
       <S.ButtonWrapper>
-        <ButtonFunction
+        <Button
+          view='function'
           appearance='neutral'
-          size='m'
-          ref={buttonRef}
+          size='l'
+          innerRef={buttonRef}
           onClick={toggleEdit}
           icon={isEdited ? <CheckSVG /> : <EditSVG />}
           data-test-id='profile-name-edit-button'

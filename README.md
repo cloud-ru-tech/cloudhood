@@ -169,7 +169,7 @@ src/
 
 - **Frontend**: React 18 + TypeScript
 - **State Management**: Effector
-- **UI Library**: @snack-uikit (Cloud.ru internal library)
+- **UI Library**: @cloud-ru/ds-* (Cloud.ru design system)
 - **Build Tool**: Vite
 - **Testing**: Vitest + Playwright
 - **Architecture**: Feature-Sliced Design
