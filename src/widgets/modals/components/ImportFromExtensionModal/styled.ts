@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { HiddenDropZone } from '@snack-uikit/drop-zone';
+import { HiddenDropZone } from '@cloud-ru/ds-dropzone';
 
 export const DropZone = styled(HiddenDropZone)`
   width: 100%;

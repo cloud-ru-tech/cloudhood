@@ -1,11 +1,9 @@
 import { useUnit } from 'effector-react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { ButtonFilled, ButtonSimple } from '@snack-uikit/button';
-import { FileUpload } from '@snack-uikit/drop-zone';
-import { FieldSelect, FieldTextArea } from '@snack-uikit/fields';
-import { UploadSVG } from '@snack-uikit/icons';
-import { ModalCustom } from '@snack-uikit/modal';
+import { FieldSelect, FieldTextArea } from '@cloud-ru/ds-fields';
+import { UploadSVG } from '@cloud-ru/ds-icons/interface/system';
+import { Modal } from '@cloud-ru/ds-modal';
 
 import { importFromExtensionModalClosed } from '#entities/modal/model';
 import {
@@ -66,7 +64,10 @@ export function ImportFromExtensionModal() {
     }
   }, [errorPosition, isError]);
 
-  const menuItems = useMemo(() => Object.entries(Extensions).map(([key, value]) => ({ option: key, value })), []);
+  const menuItems = useMemo(
+    () => Object.entries(Extensions).map(([key, value]) => ({ id: value, content: { label: key } })),
+    [],
+  );
 
   const loadFileRef = useRef<HTMLInputElement>(null);
 
@@ -86,49 +87,50 @@ export function ImportFromExtensionModal() {
     [onProfileImportLoadedFile],
   );
 
+  const handleFileInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => handleProfileLoaded(Array.from(event.target.files ?? [])),
+    [handleProfileLoaded],
+  );
+
   return (
-    <ModalCustom open onClose={handleImportFromExtensionModalClosed}>
-      <ModalCustom.Header title={'Import from other extension'} />
-      <S.DropZone onFilesUpload={handleProfileLoaded} description='Drop files to upload'>
-        <ModalCustom.Body
-          content={
-            <S.Wrapper>
-              <FieldSelect
-                size='m'
-                selection='single'
-                label='Other extension'
-                value={profileImportExtensionName ?? undefined}
-                onChange={onProfileImportExtensionNameChanged}
-                options={menuItems}
-                showClearButton={false}
-              />
+    <Modal
+      open
+      onClose={handleImportFromExtensionModalClosed}
+      title='Import from other extension'
+      content={
+        <S.DropZone onFilesUpload={handleProfileLoaded} content='Drop files to upload'>
+          <S.Wrapper>
+            <FieldSelect
+              size='l'
+              selection='single'
+              label='Other extension'
+              value={profileImportExtensionName ?? undefined}
+              onChange={value => onProfileImportExtensionNameChanged(String(value ?? ''))}
+              items={menuItems}
+              showClearButton={false}
+            />
 
-              <FieldTextArea
-                size='m'
-                ref={textFieldRef}
-                label='JSON'
-                value={profileImportString}
-                onChange={onProfileImportStringChanged}
-                maxRows={4}
-                minRows={4}
-                error={isError && errorMessage ? errorMessage : undefined}
-              />
-            </S.Wrapper>
-          }
-        />
-
-        <ModalCustom.Footer
-          actions={
-            <>
-              <ButtonFilled size='m' appearance='primary' label='Import' onClick={handleProfileImported} />
-
-              <FileUpload onFilesUpload={handleProfileLoaded}>
-                <ButtonSimple size='m' appearance='neutral' label='Load file' icon={<UploadSVG />} />
-              </FileUpload>
-            </>
-          }
-        />
-      </S.DropZone>
-    </ModalCustom>
+            <FieldTextArea
+              size='l'
+              ref={textFieldRef}
+              label='JSON'
+              value={profileImportString}
+              onChange={onProfileImportStringChanged}
+              maxRows={4}
+              minRows={4}
+              error={isError && errorMessage ? errorMessage : undefined}
+            />
+          </S.Wrapper>
+          <input ref={loadFileRef} type='file' hidden onChange={handleFileInputChange} />
+        </S.DropZone>
+      }
+      approveButton={{ label: 'Import', onClick: handleProfileImported }}
+      additionalButton={{
+        label: 'Load file',
+        icon: <UploadSVG />,
+        iconPosition: 'after',
+        onClick: () => loadFileRef.current?.click(),
+      }}
+    />
   );
 }

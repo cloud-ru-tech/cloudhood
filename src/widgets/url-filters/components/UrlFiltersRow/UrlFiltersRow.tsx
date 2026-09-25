@@ -1,11 +1,11 @@
 import { useUnit } from 'effector-react/effector-react.mjs';
 import { type ClipboardEvent, type KeyboardEvent } from 'react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { FieldText } from '@snack-uikit/fields';
-import { CrossSVG } from '@snack-uikit/icons';
-import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
-import { Tooltip } from '@snack-uikit/tooltip';
+import { Button } from '@cloud-ru/ds-button';
+import { FieldText } from '@cloud-ru/ds-fields';
+import { CrossSVG } from '@cloud-ru/ds-icons/interface/system';
+import { Checkbox, CheckboxProps } from '@cloud-ru/ds-toggles';
+import { Tooltip } from '@cloud-ru/ds-tooltip';
 
 import { $isPaused } from '#entities/is-paused/model';
 import type { UrlFilter } from '#entities/request-profile/types';
@@ -75,7 +75,7 @@ export function UrlFiltersRow({ onMove, ...props }: UrlFiltersRowProps) {
           open={value.length > 0 && (!isValueFormatVerified || urlFilterValidation.warnings.length > 0)}
         >
           <FieldText
-            size='m'
+            size='l'
             inputMode='text'
             value={value}
             placeholder='.*://url.domain/.*'
@@ -92,9 +92,11 @@ export function UrlFiltersRow({ onMove, ...props }: UrlFiltersRowProps) {
         </Tooltip>
       </S.UrlFilterFieldWrapper>
 
-      <ButtonFunction
+      <Button
+        view='function'
+        appearance='neutral'
         disabled={isPaused}
-        size='s'
+        size='m'
         icon={<CrossSVG />}
         onClick={() => onUrlFiltersRemoved([id])}
         data-test-id='remove-url-filter-button'

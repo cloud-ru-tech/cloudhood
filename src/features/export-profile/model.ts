@@ -65,8 +65,8 @@ export const $profilesNameOptions = combine(
   $selectedExportProfileIdList,
   (requestProfiles, selectedExportProfileIdList) =>
     requestProfiles.map((p, index) => ({
-      value: p.id,
-      option: `Profile ${index + 1}`,
+      id: p.id,
+      content: { label: `Profile ${index + 1}` },
       disabled: selectedExportProfileIdList.length === 1 && selectedExportProfileIdList[0] === p.id,
     })),
   { skipVoid: false },
@@ -76,7 +76,7 @@ export const $selectedExportProfileValue = combine(
   $selectedExportProfileIdList,
   $profilesNameOptions,
   (selectedProfileIdList, profilesNameOptions) =>
-    profilesNameOptions.filter(({ value }) => selectedProfileIdList.includes(value)).map(({ value }) => value),
+    profilesNameOptions.filter(({ id }) => selectedProfileIdList.includes(id)).map(({ id }) => id),
   { skipVoid: false },
 );
 

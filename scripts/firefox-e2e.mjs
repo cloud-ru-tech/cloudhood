@@ -197,7 +197,9 @@ function createBrowser(driver, popupUrl) {
     value: async (selector, index = 0) => (await element(selector, index)).getAttribute('value'),
     validation: async (selector, index = 0) => {
       const input = await element(selector, index);
-      return (await input.findElement(By.xpath('..'))).getAttribute('data-validation');
+      return (await input.findElement(By.xpath('ancestor::*[@data-validation-state][1]'))).getAttribute(
+        'data-validation-state',
+      );
     },
     waitReady,
   };

@@ -14,16 +14,16 @@
   "prConcurrentLimit": 10,
   "packageRules": [
     {
-      "description": "Snack UI Kit packages | Пакеты Snack UI Kit",
-      "matchPackagePatterns": ["^@snack-uikit/"],
-      "groupName": "snack-uikit",
-      "labels": ["dependencies", "ui"]
-    },
-    {
       "description": "Cloud.ru packages | Пакеты Cloud.ru",
       "matchPackagePatterns": ["^@cloud-ru/"],
       "groupName": "cloud-ru",
       "labels": ["dependencies", "cloud-ru"]
+    },
+    {
+      "description": "Cloud.ru design system packages | Пакеты дизайн-системы Cloud.ru",
+      "matchPackagePatterns": ["^@cloud-ru/ds-"],
+      "groupName": "cloud-ru-ds",
+      "labels": ["dependencies", "ui"]
     },
     {
       "description": "Effector ecosystem | Экосистема Effector",
@@ -97,7 +97,6 @@
     }
   ],
   "ignoreDeps": [
-    "@snack-uikit/figma-tokens",
     "react",
     "react-dom",
     "@types/react",

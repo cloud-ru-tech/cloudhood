@@ -329,17 +329,9 @@ function createBrowserHelpers(driver, popupUrl) {
     reset: async () => {
       await driver.get(popupUrl);
       await waitUntil(() => visible(selectors.headerNameInput), 'popup to load');
-      await waitUntil(
-        async () => Boolean(await driver.executeScript('return document.querySelector("#snack-uikit-sprite")')),
-        'SVG sprite to load',
-      );
       await driver.executeScript('return browser.storage.local.clear()');
       await driver.navigate().refresh();
       await waitUntil(() => visible(selectors.headerNameInput), 'popup to reload');
-      await waitUntil(
-        async () => Boolean(await driver.executeScript('return document.querySelector("#snack-uikit-sprite")')),
-        'SVG sprite to reload',
-      );
     },
     setTheme: async (theme) => {
       await click(selectors.themeToggle);

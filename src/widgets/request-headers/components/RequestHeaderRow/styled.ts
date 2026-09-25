@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
-import { FieldText } from '@snack-uikit/fields';
-import { themeVars } from '@snack-uikit/figma-tokens';
-import { Droplist } from '@snack-uikit/list';
+import { FieldText } from '@cloud-ru/ds-fields';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
+import { Droplist } from '@cloud-ru/ds-list';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -19,7 +19,7 @@ export const Wrapper = styled.div`
   &.sortable-fallback {
     opacity: 0.96;
     border-radius: 12px;
-    box-shadow: ${themeVars.boxShadow.elevation.level3};
+    box-shadow: ${themeVars.sn.boxShadow.elevation.level3};
   }
 `;
 

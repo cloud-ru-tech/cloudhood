@@ -1,6 +1,6 @@
 import { useUnit } from 'effector-react';
 
-import { Checkbox } from '@snack-uikit/toggles';
+import { Checkbox } from '@cloud-ru/ds-toggles';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { $isAllUrlFiltersEnabled, toggleAllProfileUrlFilters } from '#features/toggle-all-url-filters/model';

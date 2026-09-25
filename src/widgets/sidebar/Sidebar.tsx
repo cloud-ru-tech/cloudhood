@@ -1,12 +1,12 @@
 import { useUnit } from 'effector-react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, ThemeContrastSVG } from '@snack-uikit/icons';
-import { Droplist } from '@snack-uikit/list';
+import { Button } from '@cloud-ru/ds-button';
+import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, ThemeContrastSVG } from '@cloud-ru/ds-icons/interface/system';
+import { GitHubLogo } from '@cloud-ru/ds-icons/logos';
+import { Droplist, ItemId } from '@cloud-ru/ds-list';
 
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
 import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
-import { GithubIcon } from '#shared/assets/GithubIcon';
 import { ThemeMode } from '#shared/constants';
 import { SetRequestProfile } from '#widgets/sidebar/components/SetRequestProfile';
 
@@ -41,7 +41,14 @@ export function Sidebar() {
       </S.ProfilesWrapper>
 
       <S.IconButtonWrapper>
-        <ButtonFunction onClick={handleAddProfile} size='m' icon={<PlusSVG />} data-test-id='add-profile-button' />
+        <Button
+          view='function'
+          appearance='neutral'
+          onClick={handleAddProfile}
+          size='l'
+          icon={<PlusSVG />}
+          data-test-id='add-profile-button'
+        />
 
         <S.IconButtonBottomWrapper>
           <Droplist
@@ -49,21 +56,29 @@ export function Sidebar() {
             selection={{
               mode: 'single',
               value: currentTheme,
-              onChange: toggleTheme,
+              onChange: (value: ItemId) => toggleTheme(value as ThemeMode),
             }}
             items={[
-              { id: ThemeMode.Light, content: { option: 'Light' }, beforeContent: <DaySVG /> },
-              { id: ThemeMode.Dark, content: { option: 'Dark' }, beforeContent: <NightSVG /> },
-              { id: ThemeMode.System, content: { option: 'System' }, beforeContent: <LaptopPhoneSVG /> },
+              { id: ThemeMode.Light, content: { label: 'Light' }, beforeContent: <DaySVG /> },
+              { id: ThemeMode.Dark, content: { label: 'Dark' }, beforeContent: <NightSVG /> },
+              { id: ThemeMode.System, content: { label: 'System' }, beforeContent: <LaptopPhoneSVG /> },
             ]}
           >
-            <ButtonFunction size='m' icon={<ThemeContrastSVG />} data-test-id='theme-toggle-button' />
+            <Button
+              view='function'
+              appearance='neutral'
+              size='l'
+              icon={<ThemeContrastSVG />}
+              data-test-id='theme-toggle-button'
+            />
           </Droplist>
 
-          <ButtonFunction
+          <Button
+            view='function'
+            appearance='neutral'
             onClick={handleGithubIconClick}
-            size='m'
-            icon={<GithubIcon />}
+            size='l'
+            icon={<GitHubLogo />}
             data-test-id='github-link-button'
           />
         </S.IconButtonBottomWrapper>

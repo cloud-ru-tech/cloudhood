@@ -1,8 +1,8 @@
 import { useUnit } from 'effector-react';
 import { useCallback, useState } from 'react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { KebabSVG, TrashSVG } from '@snack-uikit/icons';
+import { Button } from '@cloud-ru/ds-button';
+import { KebabSVG, TrashSVG } from '@cloud-ru/ds-icons/interface/system';
 
 import { $isProfileRemoveAvailable, $selectedProfileIndex } from '#entities/request-profile/model';
 import { selectedProfileRemoved } from '#features/selected-profile/remove/model';
@@ -35,9 +35,10 @@ export function Header() {
         <S.Actions>
           <CopyActiveRequestHeaders />
 
-          <ButtonFunction
+          <Button
+            view='function'
             appearance='neutral'
-            size='m'
+            size='l'
             icon={<TrashSVG />}
             disabled={!isProfileRemoveAvailable}
             onClick={handleRemove}
@@ -47,9 +48,10 @@ export function Header() {
           <PauseAllRequestHeaders />
 
           <S.StyledDroplist open={isOpen} onOpenChange={setIsOpen} placement='bottom-end' size='m' items={actions}>
-            <ButtonFunction
+            <Button
+              view='function'
               appearance='neutral'
-              size='m'
+              size='l'
               icon={<KebabSVG />}
               data-test-id='profile-actions-menu-button'
             />

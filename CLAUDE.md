@@ -77,7 +77,7 @@ The `BROWSER` env var (`chrome` | `firefox`) controls which manifest and build o
 
 ### UI Components
 
-Uses `@snack-uikit/*` component library with `@emotion/styled` for CSS-in-JS styling.
+Uses `@cloud-ru/ds-*` design system packages with `@emotion/styled` for CSS-in-JS styling.
 
 ## Code Style
 

@@ -1,6 +1,6 @@
-import { CounterProps } from '@snack-uikit/counter';
+import { CounterProps } from '@cloud-ru/ds-counter';
 
-export function getCounterProps(count: number): { appearance: CounterProps['appearance'], label: number  } | undefined {
+export function getCounterProps(count: number): { appearance: CounterProps['appearance']; label: number } | undefined {
   if (count <= 0) {
     return;
   }
@@ -8,5 +8,5 @@ export function getCounterProps(count: number): { appearance: CounterProps['appe
   return {
     appearance: 'primary',
     label: count,
-  }
+  };
 }
