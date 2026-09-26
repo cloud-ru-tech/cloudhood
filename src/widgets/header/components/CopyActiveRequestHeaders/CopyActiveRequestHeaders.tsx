@@ -1,12 +1,12 @@
 import { useUnit } from 'effector-react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { CopySVG } from '@snack-uikit/icons';
+import { Button } from '@cloud-ru/ds-button';
+import { CopySVG } from '@cloud-ru/ds-icons/interface/system';
 
 import { copyActiveProfileRequestHeaders } from '#features/copy-active-request-headers/model';
 
 export function CopyActiveRequestHeaders() {
   const [handleCopyRequestHeaders] = useUnit([copyActiveProfileRequestHeaders]);
 
-  return <ButtonFunction appearance='neutral' size='m' icon={<CopySVG />} onClick={handleCopyRequestHeaders} />;
+  return <Button view='function' appearance='neutral' size='l' icon={<CopySVG />} onClick={handleCopyRequestHeaders} />;
 }

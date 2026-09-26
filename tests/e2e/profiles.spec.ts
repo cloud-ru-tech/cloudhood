@@ -219,7 +219,7 @@ test.describe('Profile Actions', () => {
     await importOption.click();
 
     // Wait for the modal and JSON input to appear
-    const importModalHeading = page.locator('[data-test-id="modal__title"]', { hasText: 'Import profile' });
+    const importModalHeading = page.getByRole('dialog').getByRole('heading', { name: 'Import profile' });
     await expect(importModalHeading).toBeVisible({ timeout: 10000 });
 
     const jsonTextarea = page.locator('[data-test-id="import-profile-json-textarea"] textarea');
@@ -338,9 +338,9 @@ test.describe('Profile Actions', () => {
     await importFromExtensionOption.click();
 
     // Enter ModHeader-format JSON in the modal
-    const importFromExtensionModalHeading = page.locator('[data-test-id="modal__title"]', {
-      hasText: 'Import from other extension',
-    });
+    const importFromExtensionModalHeading = page
+      .getByRole('dialog')
+      .getByRole('heading', { name: 'Import from other extension' });
     await expect(importFromExtensionModalHeading).toBeVisible({ timeout: 10000 });
 
     const jsonTextarea = page.locator('[data-test-id="field-textarea__input"]').last();

@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
-import { Droplist } from '@snack-uikit/list';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
+import { Droplist } from '@cloud-ru/ds-list';
 
 export const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  color: ${themeVars.sys.neutral.textMain};
+  color: ${themeVars.sn.theme.color.available.version.textMain};
   width: 100%;
   padding: 12px;
   align-items: center;

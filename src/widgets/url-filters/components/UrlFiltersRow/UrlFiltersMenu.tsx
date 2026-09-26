@@ -1,8 +1,8 @@
 import { useUnit } from 'effector-react';
 import { useState } from 'react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { CopySVG, CrossSVG, KebabSVG } from '@snack-uikit/icons';
+import { Button } from '@cloud-ru/ds-button';
+import { CopySVG, CrossSVG, KebabSVG } from '@cloud-ru/ds-icons/interface/system';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { UrlFilter } from '#entities/request-profile/types';
@@ -37,25 +37,32 @@ export function UrlFiltersMenu({ id, value }: UrlFilter) {
       items={[
         {
           id: 'duplicate-value',
-          content: { option: 'Duplicate' },
+          content: { label: 'Duplicate' },
           beforeContent: <DuplicateSVG />,
           onClick: () => handleDuplicate(id),
         },
         {
           id: 'copy-value',
-          content: { option: 'Copy' },
+          content: { label: 'Copy' },
           beforeContent: <CopySVG />,
           onClick: handleCopy,
         },
         {
           id: 'clear-value',
-          content: { option: 'Clear Value' },
+          content: { label: 'Clear Value' },
           beforeContent: <CrossSVG />,
           onClick: () => handleClear(id),
         },
       ]}
     >
-      <ButtonFunction size='s' icon={<KebabSVG />} disabled={isPaused} data-test-id='url-filter-menu-button' />
+      <Button
+        view='function'
+        appearance='neutral'
+        size='m'
+        icon={<KebabSVG />}
+        disabled={isPaused}
+        data-test-id='url-filter-menu-button'
+      />
     </S.StyledDroplist>
   );
 }

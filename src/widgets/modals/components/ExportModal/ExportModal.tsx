@@ -1,8 +1,9 @@
 import { useUnit } from 'effector-react';
 import { useCallback } from 'react';
 
-import { FieldSelect, FieldTextArea } from '@snack-uikit/fields';
-import { Modal } from '@snack-uikit/modal';
+import { FieldSelect, FieldTextArea } from '@cloud-ru/ds-fields';
+import { ItemId } from '@cloud-ru/ds-list';
+import { Modal } from '@cloud-ru/ds-modal';
 
 import { exportModalClosed } from '#entities/modal/model';
 import {
@@ -39,12 +40,12 @@ export function ExportModal() {
   ]);
 
   const handleProfilesChange = useCallback(
-    (value: string[]) => {
+    (value: ItemId[]) => {
       if (value.length < 1) {
         return;
       }
 
-      onProfileNameExportChanged(value);
+      onProfileNameExportChanged(value.map(String));
     },
     [onProfileNameExportChanged],
   );
@@ -68,8 +69,8 @@ export function ExportModal() {
             label='Profiles'
             selection='multiple'
             value={selectedExportProfileValue}
-            size='m'
-            options={profilesNameOptions}
+            size='l'
+            items={profilesNameOptions}
             onChange={handleProfilesChange}
             showClearButton={false}
           />
@@ -80,7 +81,7 @@ export function ExportModal() {
             onChange={onProfileExportStringChanged}
             minRows={4}
             maxRows={4}
-            size='m'
+            size='l'
             data-test-id='export-profile-json-textarea'
           />
         </S.Wrapper>

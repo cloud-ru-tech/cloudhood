@@ -1,10 +1,10 @@
 import { useUnit } from 'effector-react/effector-react.mjs';
 import { type KeyboardEvent, useState } from 'react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { CrossSVG } from '@snack-uikit/icons';
-import { Checkbox, CheckboxProps } from '@snack-uikit/toggles';
-import { Tooltip } from '@snack-uikit/tooltip';
+import { Button } from '@cloud-ru/ds-button';
+import { CrossSVG } from '@cloud-ru/ds-icons/interface/system';
+import { Checkbox, CheckboxProps } from '@cloud-ru/ds-toggles';
+import { Tooltip } from '@cloud-ru/ds-tooltip';
 
 import { $isPaused } from '#entities/is-paused/model';
 import type { RequestCookie } from '#entities/request-profile/types';
@@ -68,7 +68,7 @@ export function RequestCookieRow({ onMove, ...props }: RequestCookieRowProps) {
         >
           <S.CookieNameField
             data-test-id='cookie-name-input'
-            size='m'
+            size='l'
             inputMode='text'
             value={name}
             placeholder='Cookie name'
@@ -90,7 +90,7 @@ export function RequestCookieRow({ onMove, ...props }: RequestCookieRowProps) {
           open={value.length > 0 && !isValueFormatVerified}
         >
           <S.CookieValueField
-            size='m'
+            size='l'
             inputMode='text'
             value={value}
             placeholder='Cookie value'
@@ -104,9 +104,11 @@ export function RequestCookieRow({ onMove, ...props }: RequestCookieRowProps) {
         </Tooltip>
       </S.CookieFieldWrapper>
 
-      <ButtonFunction
+      <Button
+        view='function'
+        appearance='neutral'
         disabled={isPaused}
-        size='s'
+        size='m'
         data-test-id='remove-request-cookie-button'
         icon={<CrossSVG />}
         onClick={() => onRequestCookiesRemoved([id])}

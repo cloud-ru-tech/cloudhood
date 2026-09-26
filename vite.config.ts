@@ -80,16 +80,6 @@ const copyBrowserExtensionFiles = (targetBrowser: string, outDir: string, isDev:
     });
   }
 
-  // Copy the UI kit sprite after Vite has cleaned and written the output directory.
-  const spriteSrc = resolve('node_modules/@snack-uikit/icons/dist/esm/sprite/svg/sprite.symbol.svg');
-  const spriteDest = resolve(outDir, 'sprite.symbol.svg');
-
-  if (existsSync(spriteSrc)) {
-    copyFileSync(spriteSrc, spriteDest);
-  } else {
-    logger.warn({ spriteSrc }, 'SVG sprite source not found');
-  }
-
   // Copy manifest file LAST to ensure it's available only when everything is ready
   let manifestSrc: string;
   if (isDev) {

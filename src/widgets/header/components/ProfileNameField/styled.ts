@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 
-import { themeVars } from '@snack-uikit/figma-tokens';
-import { TruncateString } from '@snack-uikit/truncate-string';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
+import { TruncateString } from '@cloud-ru/ds-truncate-string';
 
 export const Title = styled(TruncateString)`
-  ${themeVars.sans.title.l}
+  ${themeVars.sn.regular.title.l}
 `;
 
 export const Row = styled.div`

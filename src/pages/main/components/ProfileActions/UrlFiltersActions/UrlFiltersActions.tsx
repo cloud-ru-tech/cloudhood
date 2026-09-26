@@ -1,10 +1,10 @@
 import { useUnit } from 'effector-react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { themeVars } from '@snack-uikit/figma-tokens';
-import { InfoFilledSVG, PlusSVG } from '@snack-uikit/icons';
-import { Tooltip } from '@snack-uikit/tooltip';
-import { Typography } from '@snack-uikit/typography';
+import { Button } from '@cloud-ru/ds-button';
+import { themeVars } from '@cloud-ru/ds-figma-variables';
+import { NotifierInfoFilledSVG, PlusSVG } from '@cloud-ru/ds-icons/interface/system';
+import { Tooltip } from '@cloud-ru/ds-tooltip';
+import { Typography } from '@cloud-ru/ds-typography';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { profileUrlFiltersAdded } from '#features/selected-profile-url-filters/add/model';
@@ -21,7 +21,9 @@ export function UrlFiltersActions() {
   const leftHeaderActions = (
     <>
       <AllUrlFiltersCheckbox />
-      <Typography.SansTitleM data-test-id='url-filters-section'>Request URL filters</Typography.SansTitleM>
+      <Typography variant='title' size='m' data-test-id='url-filters-section'>
+        Request URL filters
+      </Typography>
       <Tooltip
         tip={
           <S.Ul>
@@ -36,14 +38,17 @@ export function UrlFiltersActions() {
         placement='top'
         trigger='click'
       >
-        <InfoFilledSVG color={themeVars.sys.primary.accentDefault} cursor='pointer' />
+        <NotifierInfoFilledSVG color={themeVars.sn.theme.color.primary.accent} cursor='pointer' />
       </Tooltip>
     </>
   );
 
   const rightHeaderActions = (
     <>
-      <ButtonFunction
+      <Button
+        size='l'
+        view='function'
+        appearance='neutral'
         disabled={isPaused}
         icon={<PlusSVG />}
         onClick={handleAddUrlFilter}

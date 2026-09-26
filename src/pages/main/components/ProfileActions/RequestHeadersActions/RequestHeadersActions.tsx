@@ -1,8 +1,8 @@
 import { useUnit } from 'effector-react';
 
-import { ButtonFunction } from '@snack-uikit/button';
-import { PlusSVG, TrashSVG } from '@snack-uikit/icons';
-import { Typography } from '@snack-uikit/typography';
+import { Button } from '@cloud-ru/ds-button';
+import { PlusSVG, TrashSVG } from '@cloud-ru/ds-icons/interface/system';
+import { Typography } from '@cloud-ru/ds-typography';
 
 import { $isPaused } from '#entities/is-paused/model';
 import { $isProfileRemoveAvailable } from '#entities/request-profile/model';
@@ -28,20 +28,28 @@ export function RequestHeadersActions() {
   const leftHeaderActions = (
     <>
       <AllRequestHeadersCheckbox />
-      <Typography.SansTitleM data-test-id='profile-headers-section'>Profile headers</Typography.SansTitleM>
+      <Typography variant='title' size='m' data-test-id='profile-headers-section'>
+        Profile headers
+      </Typography>
     </>
   );
 
   const rightHeaderActions = (
     <>
-      <ButtonFunction
+      <Button
+        size='l'
+        view='function'
+        appearance='neutral'
         disabled={isPaused}
         data-test-id='add-request-header-button'
         icon={<PlusSVG />}
         onClick={onAddRequestHeader}
       />
 
-      <ButtonFunction
+      <Button
+        size='l'
+        view='function'
+        appearance='neutral'
         data-test-id='remove-request-header-button'
         icon={<TrashSVG />}
         disabled={isPaused || !isProfileRemoveAvailable}

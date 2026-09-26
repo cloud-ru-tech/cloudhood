@@ -5,22 +5,6 @@ test.describe('SVG Icons Rendering', () => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
-    // Verify that the sprite is loaded (take the first if there are multiple)
-    const spriteLocator = page.locator('#snack-uikit-sprite');
-    await expect(async () => {
-      const count = await spriteLocator.count();
-      expect(count).toBeGreaterThan(0);
-    }).toPass({
-      intervals: [500],
-      timeout: 5000,
-    });
-    const sprite = spriteLocator.first();
-
-    // Verify that the sprite contains symbols (icons)
-    const spriteSymbols = sprite.locator('symbol');
-    const symbolCount = await spriteSymbols.count();
-    expect(symbolCount).toBeGreaterThan(0);
-
     const expectIconVisible = async (iconName: string) => {
       const icon = page.locator(`svg[data-icon="${iconName}"]`).first();
       await expect(icon).toBeVisible();
@@ -31,7 +15,7 @@ test.describe('SVG Icons Rendering', () => {
       expect(boundingBox?.height).toBeGreaterThan(0);
     };
 
-    // Verify that the button contains a visible SVG (for sprite icons)
+    // Verify that the button contains a visible SVG
     const expectButtonHasVisibleIcon = async (buttonLocator: ReturnType<typeof page.locator>) => {
       const svg = buttonLocator.locator('svg').first();
       await expect(svg).toBeVisible({ timeout: 3000 });
@@ -54,11 +38,11 @@ test.describe('SVG Icons Rendering', () => {
     const profileEditButton = page.locator('[data-test-id="profile-name-edit-button"]');
     await expect(profileEditButton.locator('svg[data-icon="edit"]')).toBeVisible();
 
-    // Check sprite icons in the profile actions menu
+    // Check icons in the profile actions menu
     const actionsMenuButton = page.locator('[data-test-id="profile-actions-menu-button"]');
     await expect(actionsMenuButton).toBeVisible();
 
-    // Verify that the menu button has a visible icon (KebabSVG from the sprite)
+    // Verify that the menu button has a visible icon (KebabSVG)
     await expectButtonHasVisibleIcon(actionsMenuButton);
 
     await actionsMenuButton.click();
@@ -68,12 +52,12 @@ test.describe('SVG Icons Rendering', () => {
     await expectIconVisible('file-open');
     await expectIconVisible('file-upload');
 
-    // Check sprite icons in the menu (PlusSVG, TrashSVG, DownloadSVG, UploadSVG)
+    // Check icons in the menu (PlusSVG, TrashSVG, DownloadSVG, UploadSVG)
     const menuItems = page.locator('[role="menuitem"], [role="option"]');
     const menuItemCount = await menuItems.count();
     expect(menuItemCount).toBeGreaterThan(0);
 
-    // Verify that the menu has visible SVG icons (sprite or inline)
+    // Verify that the menu has visible SVG icons
     for (let i = 0; i < Math.min(menuItemCount, 5); i++) {
       const menuItem = menuItems.nth(i);
       const svg = menuItem.locator('svg').first();
@@ -93,7 +77,7 @@ test.describe('SVG Icons Rendering', () => {
     await expect(headerCheckbox).toBeVisible();
     await expectIconVisible('drag-indicator');
 
-    // Check sprite icons: PlusSVG and TrashSVG
+    // Check icons: PlusSVG and TrashSVG
     const addHeaderButton = page.locator('[data-test-id="add-request-header-button"]').first();
     await expect(addHeaderButton).toBeVisible();
     await expectButtonHasVisibleIcon(addHeaderButton);
@@ -106,7 +90,7 @@ test.describe('SVG Icons Rendering', () => {
     const headerMenuButton = page.locator('[data-test-id="request-header-menu-button"]').first();
     await expect(headerMenuButton).toBeVisible();
 
-    // Verify that the menu button has a visible icon (KebabSVG from the sprite)
+    // Verify that the menu button has a visible icon (KebabSVG)
     await expectButtonHasVisibleIcon(headerMenuButton);
 
     await headerMenuButton.click();
@@ -115,7 +99,7 @@ test.describe('SVG Icons Rendering', () => {
     // Check the custom duplicate icon
     await expectIconVisible('duplicate');
 
-    // Check sprite icons in the menu (CopySVG, CrossSVG)
+    // Check icons in the menu (CopySVG, CrossSVG)
     const headerMenuItems = page.locator('[role="menuitem"], [role="option"]');
     const headerMenuItemCount = await headerMenuItems.count();
     expect(headerMenuItemCount).toBeGreaterThan(0);
