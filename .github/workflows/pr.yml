@@ -104,7 +104,7 @@ jobs:
 
       - name: Archive test results
         if: always() && steps.unit_changes.outputs.run_unit_tests == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-results
           path: reports/unit/
@@ -182,21 +182,21 @@ jobs:
         run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.set_build_metadata.outputs.short_sha }}.zip
 
       - name: Upload Chrome build artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ steps.set_build_metadata.outputs.chrome_artifact }}
           path: cloudhood-chrome-${{ steps.set_build_metadata.outputs.short_sha }}.zip
           retention-days: 14
 
       - name: Upload Firefox build artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ steps.set_build_metadata.outputs.firefox_artifact }}
           path: cloudhood-firefox-${{ steps.set_build_metadata.outputs.short_sha }}.zip
           retention-days: 14
 
       - name: Upload Firefox sources artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ steps.set_build_metadata.outputs.firefox_sources_artifact }}
           path: cloudhood-firefox-sources-${{ steps.set_build_metadata.outputs.short_sha }}.zip
