@@ -1,5 +1,6 @@
 services:
   screenshots:
+    image: cloudhood-screenshots:latest
     build:
       context: .
       dockerfile: docker/screenshots/Dockerfile
@@ -15,8 +16,6 @@ services:
     volumes:
       - .:/app:cached
       - playwright-node-modules:/app/node_modules
-      - playwright-test-results:/app/test-results
 
 volumes:
   playwright-node-modules:
-  playwright-test-results:

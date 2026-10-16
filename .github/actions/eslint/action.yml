@@ -4,21 +4,6 @@ description: Run ESLint check
 runs:
   using: 'composite'
   steps:
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 10.10.0
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: 20
-        cache: 'pnpm'
-
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      shell: bash
-
     - name: ESLint check
       run: npx eslint "./src/**/*.{ts,tsx}" --config eslint.config.mjs
       shell: bash
