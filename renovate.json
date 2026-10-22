@@ -91,7 +91,7 @@
       "automerge": true
     },
     {
-      "description": "Disable automerge for @playwright/test — requires manual Docker image version sync in docker-compose.screenshots.yml",
+      "description": "Disable automerge for @playwright/test — requires manual Docker image version sync in docker/screenshots/Dockerfile",
       "matchPackageNames": ["@playwright/test"],
       "automerge": false
     }
