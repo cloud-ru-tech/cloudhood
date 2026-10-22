@@ -36,7 +36,7 @@ export function ProfileActions() {
   return (
     <S.Content>
       <Tabs value={activeTab} onChange={onTabChange}>
-        <Tabs.TabBar size='m'>
+        <Tabs.TabBar>
           <Tabs.Tab counter={getCounterProps(activeRequestHeadersCount)} label='Headers' value='headers' />
           <Tabs.Tab counter={getCounterProps(activeRequestCookiesCount)} label='Request cookies' value='cookies' />
           <Tabs.Tab label='URL Filters' counter={getCounterProps(activeUrlFiltersCount)} value='url-filters' />
