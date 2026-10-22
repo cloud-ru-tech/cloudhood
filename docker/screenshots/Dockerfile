@@ -1,6 +1,6 @@
 # Keep this tag aligned with @playwright/test. The image sets
 # PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD, so a newer test runner cannot fetch browsers.
-FROM mcr.microsoft.com/playwright:v1.63.0-noble
+FROM mcr.microsoft.com/playwright:v1.64.1-noble
 
 # Ensure pnpm is available at the expected version.
 RUN corepack enable && corepack prepare pnpm@10.10.0 --activate
