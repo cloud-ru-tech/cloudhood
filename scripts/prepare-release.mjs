@@ -80,8 +80,8 @@ function escapeMarkdown(value) {
 }
 
 function buildReleaseNotes(previousTag, version, commits) {
-  const repository = process.env.GITHUB_REPOSITORY;
-  const serverUrl = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
+  const repository = process.env.GITVERSE_REPOSITORY || process.env.GITHUB_REPOSITORY;
+  const serverUrl = process.env.GITVERSE_SERVER_URL || process.env.GITHUB_SERVER_URL || 'https://github.com';
   const compareLink = repository
     ? `\n\n**Full changelog:** [${previousTag}...v${version}](${serverUrl}/${repository}/compare/${previousTag}...v${version})`
     : '';
