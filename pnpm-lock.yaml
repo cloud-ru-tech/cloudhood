@@ -46,38 +46,38 @@ importers:
         specifier: 1.0.4
         version: 1.0.4(react@18.3.1)
       '@cloud-ru/ds-fields':
-        specifier: 3.0.2
-        version: 3.0.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 3.0.5
+        version: 3.0.5(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-figma-variables':
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.0.1
+        version: 3.0.1
       '@cloud-ru/ds-icons':
         specifier: 1.7.1
         version: 1.7.1(react@18.3.1)
       '@cloud-ru/ds-list':
-        specifier: 3.0.2
-        version: 3.0.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 3.0.5
+        version: 3.0.5(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-modal':
-        specifier: 2.0.5
-        version: 2.0.5(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.8
+        version: 2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-tabs':
-        specifier: 2.0.2
-        version: 2.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.3
+        version: 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-theme':
         specifier: 2.1.0
         version: 2.1.0
       '@cloud-ru/ds-toaster':
-        specifier: 1.1.1
-        version: 1.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.1.3
+        version: 1.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-toggles':
         specifier: 1.1.13
         version: 1.1.13(@types/react@18.3.1)(react@18.3.1)
       '@cloud-ru/ds-tooltip':
-        specifier: 1.0.15
-        version: 1.0.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cloud-ru/ds-truncate-string':
         specifier: 1.0.16
         version: 1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-truncate-string':
+        specifier: 1.0.17
+        version: 1.0.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-typography':
         specifier: 1.0.2
         version: 1.0.2
@@ -111,7 +111,7 @@ importers:
     devDependencies:
       '@cloud-ru/eslint-config':
         specifier: 3.2.0
-        version: 3.2.0(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(prettier@3.9.10)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))
+        version: 3.2.0(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(prettier@3.9.10)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))
       '@cloud-ru/ft-config-commit-message':
         specifier: 1.1.3
         version: 1.1.3(typescript@6.0.3)
@@ -123,10 +123,10 @@ importers:
         version: 3.1.3(postcss@8.5.28)(typescript@6.0.3)
       '@cloud-ru/ft-config-vitest':
         specifier: 1.3.5
-        version: 1.3.5(@types/node@26.6.5)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+        version: 1.3.5(@types/node@26.6.5)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       '@crxjs/vite-plugin':
         specifier: ^3.0.0
-        version: 3.0.0(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+        version: 3.0.0(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       '@eslint/compat':
         specifier: 2.1.1
         version: 2.1.1(eslint@9.39.5)
@@ -156,7 +156,7 @@ importers:
         version: 8.18.2
       '@vitejs/plugin-react':
         specifier: ^6.0.2
-        version: 6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+        version: 6.1.2(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       concurrently:
         specifier: 10.0.6
         version: 10.0.6
@@ -197,14 +197,14 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: 8.3.4
-        version: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+        specifier: 8.3.5
+        version: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
       vite-plugin-svgr:
         specifier: 5.2.0
-        version: 5.2.0(rollup@4.60.1)(typescript@6.0.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+        version: 5.2.0(rollup@4.60.1)(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       vite-tsconfig-paths:
         specifier: 6.1.1
-        version: 6.1.1(typescript@6.0.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+        version: 6.1.1(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       webextension-polyfill:
         specifier: 0.12.0
         version: 0.12.0
@@ -890,8 +890,8 @@ packages:
   '@cloud-ru/ds-button@1.0.5':
     resolution: {integrity: sha512-ykeYSu7WzjUa+XthaM6zzl2FkaVP8nNcW3Lh9PNxXuBCvsj5VstU9YbqLHL6Y7HExRL0pUdOo7uRLG2ZV0OU0A==}
 
-  '@cloud-ru/ds-calendar@1.1.19':
-    resolution: {integrity: sha512-gXNhleox7VzRiKeejiYdPMaL1QXTrnTv+Yuxf+cBp6Uosmx14WIOZQrYAeuNCHZN0cCBX3AK/AJsu4J9TVXrnw==}
+  '@cloud-ru/ds-calendar@1.1.20':
+    resolution: {integrity: sha512-Wo4qvxNHNSSpjOtmXtUhsNW76l/6xBp44JCuDBr+g9y/AStP/JVejhc6hU5stIDma0OeALtinLReKdK8hVe6og==}
 
   '@cloud-ru/ds-color-picker@1.0.20':
     resolution: {integrity: sha512-4gjQEY+1MRrhpW8cc9HXL8P+XXsubIJT6SbePfTTR4x6dSARaKdxu+0tFgepl1cV146u6wxBb6odi1Z+RLtUKg==}
@@ -919,11 +919,11 @@ packages:
   '@cloud-ru/ds-field-decorator@1.1.8':
     resolution: {integrity: sha512-kNNy7/BNu+gQ1QkaleY0jhz4v1IJenSuIGaTmyc5QOo7yuJ4bTKLXBpn9671sMeBz3iGCbcvxhwaVHl5xRa+rA==}
 
-  '@cloud-ru/ds-fields@3.0.2':
-    resolution: {integrity: sha512-e6E9rOsvjXSFGMhi/ieTEIgxM9f0HQx1wauqb14WVyRzQ0afENG1G9emMmnDZKCWEv44GVjaZO3zUKn93qjShA==}
+  '@cloud-ru/ds-fields@3.0.5':
+    resolution: {integrity: sha512-IhlwFDZVcljz4MA4hss9Ms7EMUfDRTsOWtk7fZBZNPCN3PbeMhqlaDkiamYJWEkFN8ipfsTbkSkffuNq+aq9gQ==}
 
-  '@cloud-ru/ds-figma-variables@3.0.0':
-    resolution: {integrity: sha512-buCOUfX1P2nt12cpD+XiuIw9cyLqm9bhgmGBF42fRN9Wq9hpAuzPyMegLdxUwUrjoYWYHqNsJFqFYHeNsCDJjw==}
+  '@cloud-ru/ds-figma-variables@3.0.1':
+    resolution: {integrity: sha512-FLUEubTqJTYVxbHEA7ITBIBvglnJzWskcHEREJt2dd2N5M8gp3NeyHThG7CkRIhmY6yGn1xuYO0obVtfsQDcRw==}
 
   '@cloud-ru/ds-icon-predefined@1.0.4':
     resolution: {integrity: sha512-GozqWcEaOYuLh+1Kh3OMa54Hlwnl2uyoW4i13dhXvGbtE8QfGrfgHjyeUWMlOyriOG8urOVaQ8hxwNa+0ih/xg==}
@@ -941,13 +941,13 @@ packages:
   '@cloud-ru/ds-link@1.0.18':
     resolution: {integrity: sha512-yfw54BhdGfvCnp7i/C9iw7TriIxPkT6awEZGfP6rXnNx2WpVHiRRz8+/xuXRWQj7J5JK0DVTnXdsnawTv0pP1A==}
 
-  '@cloud-ru/ds-list@3.0.2':
-    resolution: {integrity: sha512-kT+FIPcDj1sxs5Sdk5KK64RZvs+ZmYDmTAdwOQQdaVma5s4/vPlR0UWbY++z9Y/8Wy/O1kPzaxIf3MAbVmbl3g==}
+  '@cloud-ru/ds-list@3.0.5':
+    resolution: {integrity: sha512-GutXqjDLBkL8fKN3fI0Jg50tTb8YqUaEGppCmWBihJpf1h7Fp4ApttdwQDFfuU/fIGJHYvYPPzcCJKcZuF5dzw==}
     peerDependencies:
       '@cloud-ru/ds-locale': ^1.0.0
 
-  '@cloud-ru/ds-list@3.0.5':
-    resolution: {integrity: sha512-GutXqjDLBkL8fKN3fI0Jg50tTb8YqUaEGppCmWBihJpf1h7Fp4ApttdwQDFfuU/fIGJHYvYPPzcCJKcZuF5dzw==}
+  '@cloud-ru/ds-list@3.0.6':
+    resolution: {integrity: sha512-35R3g6RL77KqcjO5ux7JcJCsjymzFx1fSbrrO92VJkLZ8Lgkkw2+fLOk4ZAF0MaU/3Oo0DA85x21Hm0A5/LkHA==}
     peerDependencies:
       '@cloud-ru/ds-locale': ^1.0.0
 
@@ -960,8 +960,8 @@ packages:
   '@cloud-ru/ds-materials@2.0.2':
     resolution: {integrity: sha512-ZvysOzYkc4a7k3iQcOj2tZhH/JlGCm2H+2SjNoDlo/x2j52KFHmmPAXQG8BdO15hy6p+qrLmWuwoOfycn0Oi5g==}
 
-  '@cloud-ru/ds-modal@2.0.5':
-    resolution: {integrity: sha512-ULDfa1dnvXoxHAXf8y0/rLu1Xksl3GWlcO5nkPvHJQQJ8D0MoWG/1vDiz34oxQJaxJkHFC47bGp4hK1zDQeMXg==}
+  '@cloud-ru/ds-modal@2.0.8':
+    resolution: {integrity: sha512-js3WOb63KiV99oMaYlkTNUKrQL0Ck3zGJnSq+TPevY7KfIr+RVBUfsmRluFv0GzihdnGfv4s21C5A/4IeWMriQ==}
 
   '@cloud-ru/ds-popover-private@1.1.3':
     resolution: {integrity: sha512-3uLeA3AmaMUt8VFk1qHK2RgXTxopJMPuwmXErEWRFuViH2/rWOX2d/93lVyoMY+H8fcoxEJVrSwLTKnh2yItog==}
@@ -989,8 +989,8 @@ packages:
   '@cloud-ru/ds-slider@1.0.16':
     resolution: {integrity: sha512-ysb9lz5OEUJ0lhB3FL3NF0BGNmftWTCgQ5L82SGvfahcVFqbmeCNW5nCF0NdEn9y+Ji9SVaSKbF+DLuKMVHFCg==}
 
-  '@cloud-ru/ds-tabs@2.0.2':
-    resolution: {integrity: sha512-KkmnZIZtoag4ft0nDKZch8C+ZEgXnaQSpeQt0fDJ99hB2DftGCMTHfy9ojgZROq/LpJmWCiiBM/9r24coxUfSg==}
+  '@cloud-ru/ds-tabs@2.0.3':
+    resolution: {integrity: sha512-cs4DfLTx3jQ5l3rk0WKxd0QNqB2wKWTg9wDqAnxeeBuKnuJwDeorXQN5c9Pnjb9mH8852mlFMk9hjjBz+wrzLQ==}
 
   '@cloud-ru/ds-tag@1.1.19':
     resolution: {integrity: sha512-H4DjvHGp1CynpTNcsuDa45DgVLD0XdNTqxw9YdoTlz+y6CzXxmM3myYeQxZo3XFMac9Ypbfahm+O93T9qDFOdw==}
@@ -998,20 +998,17 @@ packages:
   '@cloud-ru/ds-theme@2.1.0':
     resolution: {integrity: sha512-kd5X3HbpQ19QJHuU8+lCS0cpH1n32Ic2I9jxwqC9noZLwSH24ikymBHAaIHkVFJDQ96RckdXFwubOx4FL/gy3A==}
 
-  '@cloud-ru/ds-toaster@1.1.1':
-    resolution: {integrity: sha512-A0u32PWGFGho79ufZSIinj/UP4zr9Bchg0zXTuR6ZDdxm0Y64OQNFBLzTixVHzLFoV1Nhf3VS7ykHaprqgiqew==}
+  '@cloud-ru/ds-toaster@1.1.3':
+    resolution: {integrity: sha512-Ov1LvzjiS4EwQ25TfdvavKhL+j9btw1rjzJZGGzLf36hk0f6GuICCoztKWufQCGRphVGUaiFUms2MFidALTUoQ==}
 
   '@cloud-ru/ds-toggles@1.1.13':
     resolution: {integrity: sha512-CHTB120Ia8w6BEGNZUXpkKRX6wk4oiJ6nr057PiFag6Cvz106xSw7NlGC3jGTDsQt9TSIzhIAkKPVdP9vk89kg==}
 
-  '@cloud-ru/ds-tooltip@1.0.15':
-    resolution: {integrity: sha512-v1g4V5T2DiakesKnxLFWUy3fm9IV753b6PwOqTxTavMsUHanl+i3CviT2Xq5LPAPEIrJb16kGE/5e3Fsv9i+Nw==}
+  '@cloud-ru/ds-toggles@1.1.14':
+    resolution: {integrity: sha512-0Os+3syfs1grJe0VWkONNCVTcrB+w/8X++UgnIok7S/koYZFeQaszgEYo/ixtMnirOiED1H1MisknyF71GU9ug==}
 
   '@cloud-ru/ds-tooltip@1.0.16':
     resolution: {integrity: sha512-XxkJV4fInz5cHHUMRpzCBwOh54N20+s7drkAG1kI+UOYzqs7GXaisCSqe7JUvhphyNZJHXhd3l+OUMEY+NYyRA==}
-
-  '@cloud-ru/ds-truncate-string@1.0.16':
-    resolution: {integrity: sha512-iQJQukSOQj1vbtz/PwG4ltG68KKMBfj99ZF3WhEsAlF/bCABNUQa2mojs6Xpa69B/6aKq2jifuKAcbdhJ9oevQ==}
 
   '@cloud-ru/ds-truncate-string@1.0.17':
     resolution: {integrity: sha512-8TL7QQKAeC00X8NRQq5iWHI0k8uRsZgSNGriz30IRG/CxW+vu1BcU0dr3RWzJL8lJRcS3LzQClaSnJKVIxzCgg==}
@@ -1946,14 +1943,14 @@ packages:
     resolution: {integrity: sha512-LnhVjMWyMQV9ZmeEy26maJk+8HTIbd59cH4F2MJ439k9DqejRisfFNGAPvRYlKETuh9LrImlS8aKsBgKjMA8WA==}
     engines: {node: '>=14'}
 
-  '@tanstack/react-virtual@3.14.21':
-    resolution: {integrity: sha512-wWE/ZJDNNDp18JHWy7n5PQooqerHePVkEEu6Op0twKQ2InF9DPhYMQptQY0syDEviMd3/r8D0OUvKJibDGm9HQ==}
+  '@tanstack/react-virtual@3.14.23':
+    resolution: {integrity: sha512-Oyy58qQwdaQieA+A4WUDtnh9D1rv5FZvGdw8og9Xeyh88V6HH94vMSyV5i9ATIbYNe9t5Ix0WXRo9NOTpHDkYw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/virtual-core@3.19.6':
-    resolution: {integrity: sha512-CsTW892z23gy7IyxYTTorVu1uZWB+0N349rSMgKz4rFLPpLza7F7TpcCKeI5iUAwYQCt8QUlOU67J+KXCxtpGw==}
+  '@tanstack/virtual-core@3.19.8':
+    resolution: {integrity: sha512-Oz/SYBo/aVPyQkwtOw7Q23myITUgFIof2glQqydYJAPL6mH2SkJDkvDKZTklB+7gv5jGLZQhyTcd7SO1A1EODQ==}
 
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
@@ -4443,8 +4440,8 @@ packages:
     resolution: {integrity: sha512-U+/AXT6LWsxnj2vz9HeUuPWBNgdWxjyIEjEPdbJARC9txmgPzo2VEdqnFo4hHaNyMPtycyVJrSaQYeQv/PoyyA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tabbable@6.5.0:
-    resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
+  tabbable@6.5.1:
+    resolution: {integrity: sha512-dMCuwDUY6Noz3zVKLefBC4wq+aJV20yc7vWmM7uTNGwtQSFF5kX7OUIUsxuVajz/bdt5Xqdah3/0NLjth+cM5A==}
 
   table@6.9.0:
     resolution: {integrity: sha512-9kY+CygyYM6j02t5YFHbNz2FN5QmYGv9zAjVp4lCDjlCw7amdckXlEt/bjMhUIfj4ThGRE4gCUH5+yGnNuPo5A==}
@@ -4676,13 +4673,13 @@ packages:
     peerDependencies:
       vite: '*'
 
-  vite@8.3.4:
-    resolution: {integrity: sha512-IftLE8phJhdNRIGNEV4JCCvfNScoZQVfcXaN8TQropWGJtOHcu+iAB9pHcuGvmEb/kddw0LBe/jS8ztdC6xdiQ==}
+  vite@8.3.5:
+    resolution: {integrity: sha512-z1YpjieJ9g0ebTmQpLBv/oq9E3F9EIlOe+7LahW8SrE3LTiG3udBRUXQOlYXP9b+IC2q2phHeVxj9xGlw34OEQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
-      '@vitejs/devtools': ^0.7.1
+      '@vitejs/devtools': ^0.7.1 || ^0.8.0
       esbuild: 0.27.2
       jiti: '>=1.21.0'
       less: ^4.0.0
@@ -5798,7 +5795,7 @@ snapshots:
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
       react-remove-scroll: 2.7.2(@types/react@18.3.1)(react@18.3.1)
-      tabbable: 6.5.0
+      tabbable: 6.5.1
     transitivePeerDependencies:
       - '@types/react'
       - react
@@ -5814,7 +5811,7 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@cloud-ru/ds-calendar@1.1.19(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloud-ru/ds-calendar@1.1.20(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-adaptive': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-bottom-sheet': 2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5822,12 +5819,12 @@ snapshots:
       '@cloud-ru/ds-divider': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-dropdown': 1.1.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
-      '@cloud-ru/ds-list': 3.0.5(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-list': 3.0.6(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-locale': 1.0.0
       '@cloud-ru/ds-materials': 2.0.2(react@18.3.1)
       '@cloud-ru/ds-scroll': 1.0.6(react@18.3.1)
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
-      '@tanstack/react-virtual': 3.14.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-virtual': 3.14.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
       weekstart: 2.0.0
     transitivePeerDependencies:
@@ -5910,26 +5907,26 @@ snapshots:
       - react
       - react-dom
 
-  '@cloud-ru/ds-fields@3.0.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloud-ru/ds-fields@3.0.5(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-adaptive': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-bottom-sheet': 2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-button': 1.0.5(react@18.3.1)
-      '@cloud-ru/ds-calendar': 1.1.19(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-calendar': 1.1.20(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-color-picker': 1.0.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-divider': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-dropdown': 1.1.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-field-decorator': 1.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
       '@cloud-ru/ds-input-private': 1.0.14(react@18.3.1)
-      '@cloud-ru/ds-list': 3.0.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-list': 3.0.5(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-loader': 1.0.4(react@18.3.1)
       '@cloud-ru/ds-materials': 2.0.2(react@18.3.1)
       '@cloud-ru/ds-scroll': 1.0.6(react@18.3.1)
       '@cloud-ru/ds-skeleton': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-slider': 1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-tag': 1.1.19(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cloud-ru/ds-tooltip': 1.0.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-tooltip': 1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
       merge-refs: 2.0.0(@types/react@18.3.1)
@@ -5940,7 +5937,7 @@ snapshots:
       - react
       - react-dom
 
-  '@cloud-ru/ds-figma-variables@3.0.0': {}
+  '@cloud-ru/ds-figma-variables@3.0.1': {}
 
   '@cloud-ru/ds-icon-predefined@1.0.4(react@18.3.1)':
     dependencies:
@@ -5983,36 +5980,6 @@ snapshots:
       - react
       - react-dom
 
-  '@cloud-ru/ds-list@3.0.2(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@cloud-ru/ds-adaptive': 1.0.3(react@18.3.1)
-      '@cloud-ru/ds-bottom-sheet': 2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cloud-ru/ds-button': 1.0.5(react@18.3.1)
-      '@cloud-ru/ds-divider': 1.0.3(react@18.3.1)
-      '@cloud-ru/ds-drag-and-drop': 1.1.4(react@18.3.1)
-      '@cloud-ru/ds-dropdown': 1.1.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
-      '@cloud-ru/ds-info-block': 1.0.4(react@18.3.1)
-      '@cloud-ru/ds-loader': 1.0.4(react@18.3.1)
-      '@cloud-ru/ds-locale': 1.0.0
-      '@cloud-ru/ds-materials': 2.0.2(react@18.3.1)
-      '@cloud-ru/ds-portal-context': 1.0.3(react@18.3.1)
-      '@cloud-ru/ds-scroll': 1.0.6(react@18.3.1)
-      '@cloud-ru/ds-search-private': 1.0.18(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react@18.3.1)
-      '@cloud-ru/ds-toggles': 1.1.13(@types/react@18.3.1)(react@18.3.1)
-      '@cloud-ru/ds-truncate-string': 1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
-      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
-      '@tanstack/react-virtual': 3.14.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      classnames: 2.5.1
-      merge-refs: 2.0.0(@types/react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-      - react-dom
-
   '@cloud-ru/ds-list@3.0.5(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-adaptive': 1.0.3(react@18.3.1)
@@ -6035,7 +6002,37 @@ snapshots:
       '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@dnd-kit/utilities': 3.2.2(react@18.3.1)
-      '@tanstack/react-virtual': 3.14.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-virtual': 3.14.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      classnames: 2.5.1
+      merge-refs: 2.0.0(@types/react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+      - react-dom
+
+  '@cloud-ru/ds-list@3.0.6(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@cloud-ru/ds-adaptive': 1.0.3(react@18.3.1)
+      '@cloud-ru/ds-bottom-sheet': 2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-button': 1.0.5(react@18.3.1)
+      '@cloud-ru/ds-divider': 1.0.3(react@18.3.1)
+      '@cloud-ru/ds-drag-and-drop': 1.1.4(react@18.3.1)
+      '@cloud-ru/ds-dropdown': 1.1.9(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
+      '@cloud-ru/ds-info-block': 1.0.4(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.4(react@18.3.1)
+      '@cloud-ru/ds-locale': 1.0.0
+      '@cloud-ru/ds-materials': 2.0.2(react@18.3.1)
+      '@cloud-ru/ds-portal-context': 1.0.3(react@18.3.1)
+      '@cloud-ru/ds-scroll': 1.0.6(react@18.3.1)
+      '@cloud-ru/ds-search-private': 1.0.18(@cloud-ru/ds-locale@1.0.0)(@types/react@18.3.1)(react@18.3.1)
+      '@cloud-ru/ds-toggles': 1.1.14(@types/react@18.3.1)(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
+      '@tanstack/react-virtual': 3.14.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
       merge-refs: 2.0.0(@types/react@18.3.1)
     transitivePeerDependencies:
@@ -6060,7 +6057,7 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@cloud-ru/ds-modal@2.0.5(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloud-ru/ds-modal@2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-adaptive': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-bottom-sheet': 2.0.8(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6072,7 +6069,7 @@ snapshots:
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
       react-remove-scroll: 2.7.2(@types/react@18.3.1)(react@18.3.1)
-      tabbable: 6.5.0
+      tabbable: 6.5.1
     transitivePeerDependencies:
       - '@types/react'
       - react
@@ -6161,13 +6158,13 @@ snapshots:
       - react
       - react-dom
 
-  '@cloud-ru/ds-tabs@2.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloud-ru/ds-tabs@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-button': 1.0.5(react@18.3.1)
       '@cloud-ru/ds-counter': 1.0.4(react@18.3.1)
       '@cloud-ru/ds-divider': 1.0.3(react@18.3.1)
       '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
-      '@cloud-ru/ds-truncate-string': 1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-typography': 1.0.2
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
@@ -6196,7 +6193,7 @@ snapshots:
       '@cloud-ru/ds-context-kit': 1.0.0
       classnames: 2.5.1
 
-  '@cloud-ru/ds-toaster@1.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloud-ru/ds-toaster@1.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
       '@cloud-ru/ds-link': 1.0.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6204,7 +6201,7 @@ snapshots:
       '@cloud-ru/ds-locale': 1.0.0
       '@cloud-ru/ds-materials': 2.0.2(react@18.3.1)
       '@cloud-ru/ds-scroll': 1.0.6(react@18.3.1)
-      '@cloud-ru/ds-truncate-string': 1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-truncate-string': 1.0.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
@@ -6223,29 +6220,22 @@ snapshots:
       - '@types/react'
       - react
 
-  '@cloud-ru/ds-tooltip@1.0.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@cloud-ru/ds-toggles@1.1.14(@types/react@18.3.1)(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
-      '@cloud-ru/ds-popover-private': 1.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@cloud-ru/ds-loader': 1.0.4(react@18.3.1)
+      '@cloud-ru/ds-materials': 2.0.2(react@18.3.1)
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
+      merge-refs: 2.0.0(@types/react@18.3.1)
     transitivePeerDependencies:
+      - '@types/react'
       - react
-      - react-dom
 
   '@cloud-ru/ds-tooltip@1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@cloud-ru/ds-icons': 1.7.1(react@18.3.1)
       '@cloud-ru/ds-popover-private': 1.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
-      classnames: 2.5.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
-  '@cloud-ru/ds-truncate-string@1.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@cloud-ru/ds-tooltip': 1.0.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cloud-ru/ds-utils': 1.3.0(react@18.3.1)
       classnames: 2.5.1
     transitivePeerDependencies:
@@ -6271,11 +6261,11 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@cloud-ru/eslint-config@3.2.0(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(prettier@3.9.10)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))':
+  '@cloud-ru/eslint-config@3.2.0(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(prettier@3.9.10)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))':
     dependencies:
       '@eslint/js': 9.39.5
       '@typescript-eslint/parser': 8.72.0(eslint@9.39.5)(typescript@6.0.3)
-      '@vitest/eslint-plugin': 1.6.27(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))
+      '@vitest/eslint-plugin': 1.6.27(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))
       eslint: 9.39.5
       eslint-config-prettier: 10.1.8(eslint@9.39.5)
       eslint-import-resolver-typescript: 4.4.5(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5))(eslint@9.39.5)
@@ -6331,10 +6321,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@cloud-ru/ft-config-vitest@1.3.5(@types/node@26.6.5)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
+  '@cloud-ru/ft-config-vitest@1.3.5(@types/node@26.6.5)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
     dependencies:
       jsdom: 27.4.0
-      vitest: 4.1.11(@types/node@26.6.5)(jsdom@27.4.0)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+      vitest: 4.1.11(@types/node@26.6.5)(jsdom@27.4.0)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@noble/hashes'
@@ -6354,7 +6344,7 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@crxjs/vite-plugin@3.0.0(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
+  '@crxjs/vite-plugin@3.0.0(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
     dependencies:
       '@webcomponents/custom-elements': 1.6.0
       acorn-walk: 8.3.5
@@ -6370,7 +6360,7 @@ snapshots:
       rollup: 4.60.1
       rxjs: 7.5.7
       tinyglobby: 0.2.17
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -6701,7 +6691,7 @@ snapshots:
       '@floating-ui/utils': 0.2.12
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      tabbable: 6.5.0
+      tabbable: 6.5.1
 
   '@floating-ui/utils@0.2.12': {}
 
@@ -7066,13 +7056,13 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tanstack/react-virtual@3.14.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-virtual@3.14.23(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/virtual-core': 3.19.6
+      '@tanstack/virtual-core': 3.19.8
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/virtual-core@3.19.6': {}
+  '@tanstack/virtual-core@3.19.8': {}
 
   '@tybys/wasm-util@0.10.4':
     dependencies:
@@ -7347,12 +7337,12 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
+  '@vitejs/plugin-react@6.1.2(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
 
-  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))':
+  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3)(vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)))':
     dependencies:
       '@typescript-eslint/scope-manager': 8.72.0
       '@typescript-eslint/utils': 8.72.0(eslint@9.39.5)(typescript@6.0.3)
@@ -7360,7 +7350,7 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3)
       typescript: 6.0.3
-      vitest: 4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+      vitest: 4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -7373,13 +7363,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.11(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
+  '@vitest/mocker@4.1.11(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -9891,7 +9881,7 @@ snapshots:
       '@dual-bundle/import-meta-resolve': 4.2.1
       '@pkgr/core': 0.3.6
 
-  tabbable@6.5.0: {}
+  tabbable@6.5.1: {}
 
   table@6.9.0:
     dependencies:
@@ -10120,28 +10110,28 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite-plugin-svgr@5.2.0(rollup@4.60.1)(typescript@6.0.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
+  vite-plugin-svgr@5.2.0(rollup@4.60.1)(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.60.1)
       '@svgr/core': 8.1.0(typescript@6.0.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@6.0.3))
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
     transitivePeerDependencies:
       - rollup
       - supports-color
       - typescript
 
-  vite-tsconfig-paths@6.1.1(typescript@6.0.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
+  vite-tsconfig-paths@6.1.1(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@6.0.3)
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3):
+  vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.4
@@ -10155,10 +10145,10 @@ snapshots:
       terser: 5.51.2
       yaml: 1.10.3
 
-  vitest@4.1.11(@types/node@26.6.5)(jsdom@27.4.0)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
+  vitest@4.1.11(@types/node@26.6.5)(jsdom@27.4.0)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+      '@vitest/mocker': 4.1.11(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -10175,7 +10165,7 @@ snapshots:
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.6.5
@@ -10183,10 +10173,10 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
+  vitest@4.1.11(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
+      '@vitest/mocker': 4.1.11(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -10203,7 +10193,7 @@ snapshots:
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.3.4(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.27.2)(terser@5.51.2)(yaml@1.10.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.6.5
