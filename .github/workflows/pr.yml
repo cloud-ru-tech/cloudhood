@@ -290,7 +290,7 @@ jobs:
           unzip -o cloudhood-firefox-${{ needs.pr-build.outputs.short_sha }}.zip -d build/firefox
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Playwright screenshot image
         uses: docker/build-push-action@v6
