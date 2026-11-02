@@ -5,6 +5,11 @@ import type { Profile, RequestHeader } from '#entities/request-profile/types';
 import { BrowserStorageKey, RuntimeMessageType } from './shared/constants';
 import { validateCookie } from './shared/utils/cookies';
 import { countActiveHeadersForUrl, doesUrlMatchFilter } from './shared/utils/countActiveHeadersForUrl';
+import {
+  filterDebugLogsForProfile,
+  parseProfileFromUnknown,
+  parseProfilesFromStorage,
+} from './shared/utils/debugLogsExport';
 import { validateHeader } from './shared/utils/headers';
 import { logger, LogLevel } from './shared/utils/logger';
 import { setBrowserCookies } from './shared/utils/setBrowserCookies';
@@ -151,7 +156,7 @@ function getApplyHealthSnapshot() {
   };
 }
 
-async function buildDebugLogsExportPayload() {
+async function buildDebugLogsExportPayload(options?: { profileId?: string; profile?: unknown }) {
   const now = Date.now();
   const storage = await browser.storage.local.get([
     BrowserStorageKey.Profiles,
@@ -173,8 +178,9 @@ async function buildDebugLogsExportPayload() {
     sessionRules = [];
   }
 
-  return {
+  const payload = {
     exportedAt: new Date(now).toISOString(),
+    scope: 'general' as const,
     worker: {
       bootId: workerBootId,
       bootedAt: new Date(workerBootAt).toISOString(),
@@ -190,6 +196,20 @@ async function buildDebugLogsExportPayload() {
     },
     logs: debugLogsBuffer,
   };
+
+  if (!options) {
+    return payload;
+  }
+
+  const profileId = options.profileId;
+  const profile =
+    parseProfileFromUnknown(options.profile) ?? parseProfilesFromStorage(storage).find(item => item.id === profileId);
+
+  if (!profile) {
+    throw new Error(`Profile "${profileId ?? ''}" not found`);
+  }
+
+  return filterDebugLogsForProfile(payload, profile);
 }
 
 function storageFingerprint(result: Record<string, unknown>): string {
@@ -462,9 +482,11 @@ browser.runtime.onStartup.addListener(async function () {
 
 browser.runtime.onMessage.addListener((message: unknown) => {
   if (!message || typeof message !== 'object') return undefined;
-  const payload = message as { type?: string };
+  const payload = message as { type?: string; scope?: unknown; profileId?: unknown; profile?: unknown };
   if (payload.type !== RuntimeMessageType.ExportDebugLogs) return undefined;
-  return buildDebugLogsExportPayload()
+  const isProfileScope = payload.scope === 'profile';
+  const profileId = typeof payload.profileId === 'string' ? payload.profileId : undefined;
+  return buildDebugLogsExportPayload(isProfileScope ? { profileId, profile: payload.profile } : undefined)
     .then(result => ({ ok: true, result }))
     .catch(error => ({ ok: false, error: safeStringify(error) }));
 });
@@ -503,6 +525,16 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
           applyPending,
         },
       });
+
+      // storage.local.clear() removes meta. The next popup starts seq from 0, which looks
+      // older than the cursor kept in this long-lived background script. Reset the cursor
+      // so the fresh configuration is applied instead of skipped as stale.
+      const metaChange = changes[BrowserStorageKey.HeadersConfigMeta];
+      if (metaChange && metaChange.newValue === undefined) {
+        lastAppliedMeta = { seq: 0, updatedAt: 0 };
+        lastAppliedStorageFingerprint = null;
+        logger.info('Headers config meta removed, resetting apply cursor');
+      }
 
       await applyHeadersFromStorageQueue('storage.onChanged');
     }

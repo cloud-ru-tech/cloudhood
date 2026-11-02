@@ -1,0 +1,6 @@
+body.options-page,
+body.options-page #app-container {
+  width: 100%;
+  height: auto;
+  min-height: 100vh;
+}

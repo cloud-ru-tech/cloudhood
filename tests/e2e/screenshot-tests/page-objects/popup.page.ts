@@ -13,6 +13,8 @@ const THEME_LABEL_MAP: Record<Theme, string> = {
 };
 
 export class PopupPage {
+  private theme: Theme = 'light';
+
   constructor(
     public readonly page: Page,
     private readonly extensionId: string,
@@ -29,6 +31,7 @@ export class PopupPage {
   }
 
   async setTheme(theme: Theme) {
+    this.theme = theme;
     const themeToggle = this.page.locator(SCREENSHOT_CONFIG.selectors.general.themeToggleButton);
     await safeClick(themeToggle);
 
@@ -42,6 +45,16 @@ export class PopupPage {
     );
 
     await ensureMenuClosed(this.page, SCREENSHOT_CONFIG.selectors.floatingMenu.menu);
+  }
+
+  async openSettings() {
+    await this.page.goto(`chrome-extension://${this.extensionId}/options.html`);
+    await waitForVisible(this.page.locator(SCREENSHOT_CONFIG.selectors.general.settingsPage));
+    await this.page.waitForFunction(
+      expectedTheme => Array.from(document.body.classList).some(cls => cls.includes(expectedTheme)),
+      this.theme,
+      { timeout: 5000 },
+    );
   }
 
   async pause() {
