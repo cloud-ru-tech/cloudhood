@@ -526,6 +526,16 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
         },
       });
 
+      // storage.local.clear() removes meta. The next popup starts seq from 0, which looks
+      // older than the cursor kept in this long-lived background script. Reset the cursor
+      // so the fresh configuration is applied instead of skipped as stale.
+      const metaChange = changes[BrowserStorageKey.HeadersConfigMeta];
+      if (metaChange && metaChange.newValue === undefined) {
+        lastAppliedMeta = { seq: 0, updatedAt: 0 };
+        lastAppliedStorageFingerprint = null;
+        logger.info('Headers config meta removed, resetting apply cursor');
+      }
+
       await applyHeadersFromStorageQueue('storage.onChanged');
     }
   }

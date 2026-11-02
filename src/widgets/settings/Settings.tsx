@@ -69,8 +69,11 @@ export function Settings() {
             Diagnostics
           </Typography>
           <S.SectionDescription>
-            Download recent debug logs from the background worker. Extension logs include everything; profile logs keep
-            only entries related to the current profile.
+            Download recent debug logs from the background worker.
+            <br />
+            Extension logs include everything.
+            <br />
+            Profile logs keep entries for the current profile.
           </S.SectionDescription>
           <S.Actions>
             <Button
