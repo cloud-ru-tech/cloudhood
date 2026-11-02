@@ -2,8 +2,8 @@
 # PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD, so a newer test runner cannot fetch browsers.
 FROM mcr.microsoft.com/playwright:v1.64.1-noble
 
-# Ensure pnpm is available at the expected version.
-RUN corepack enable && corepack prepare pnpm@10.10.0 --activate
+# Playwright images ship Node without Corepack; install pnpm explicitly.
+RUN npm install -g pnpm@10.10.0
 
 WORKDIR /app
 
