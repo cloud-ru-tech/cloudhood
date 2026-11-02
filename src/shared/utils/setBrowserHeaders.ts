@@ -14,6 +14,10 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 200;
 const RECOVERY_DELAY_MS = 500;
 
+// IDs >= COUNTERACT_BASE_ID are reserved for counteracting stuck dynamic rules.
+// Header IDs are generated in range [0, 999_999_999) — see generateId.ts.
+const COUNTERACT_BASE_ID = 1_000_000_000;
+
 async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -49,7 +53,15 @@ async function recoveryUpdateDynamicRules(
         });
         logger.info('🔧 DNR Recovery: Rules removed successfully');
       } catch (removeErr) {
-        logger.warn('🔧 DNR Recovery: Failed to remove rules, continuing anyway:', removeErr);
+        logger.warn('🔧 DNR Recovery: Batch removal failed, trying one-by-one:', removeErr);
+        for (const id of allIdsToRemove) {
+          try {
+            await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [id], addRules: [] });
+            logger.info('🔧 DNR Recovery: Removed rule:', id);
+          } catch (singleErr) {
+            logger.warn('🔧 DNR Recovery: Failed to remove rule:', { id, error: singleErr });
+          }
+        }
       }
     }
 
@@ -76,13 +88,24 @@ async function recoveryUpdateDynamicRules(
       logger.info('🔧 DNR Recovery: New rules added successfully');
     }
 
-    // Step 6: Verify final state
+    // Step 6: Verify final state actually matches expected
     const finalRules = await browser.declarativeNetRequest.getDynamicRules();
+    const expectedCount = addRules.length;
+    const actualCount = finalRules.length;
     logger.info('🔧 DNR Recovery: Final rules state:', {
-      count: finalRules.length,
+      count: actualCount,
       ids: finalRules.map(r => r.id),
-      expected: addRules.length,
+      expected: expectedCount,
     });
+
+    if (actualCount !== expectedCount) {
+      return {
+        success: false,
+        error: new Error(
+          `DNR Recovery: rules count mismatch after recovery: got ${actualCount}, expected ${expectedCount}`,
+        ),
+      };
+    }
 
     return { success: true };
   } catch (error) {
@@ -181,7 +204,15 @@ type SetBrowserHeadersMeta = {
   currentTabUrl?: string;
 };
 
-export async function setBrowserHeaders(result: Record<string, unknown>, meta: SetBrowserHeadersMeta = {}) {
+export type SetBrowserHeadersResult = {
+  /** Rule IDs that are still active in Chrome DNR but should have been removed (disabled headers) */
+  stuckRuleIds: number[];
+};
+
+export async function setBrowserHeaders(
+  result: Record<string, unknown>,
+  meta: SetBrowserHeadersMeta = {},
+): Promise<SetBrowserHeadersResult> {
   const isPaused = result[BrowserStorageKey.IsPaused] as boolean;
   const currentTabUrl = meta.currentTabUrl;
 
@@ -370,7 +401,13 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
 
       // Last resort: session rules fallback when Chrome's dynamic rules DB is corrupted
       if (lastError) {
-        const sessionResult = await sessionRulesFallback(removeSessionRuleIds, addRules);
+        // Exclude counteracting rules (id >= COUNTERACT_BASE_ID) from the fallback removal.
+        // Counteracting rules cancel stuck dynamic rules that couldn't be removed — if we pass
+        // them to sessionRulesFallback it will delete them while the stuck dynamic rules remain,
+        // opening a window where the disabled header is transmitted. They are cleaned up later
+        // (in the counteracting-rules section below) once we know the full stuck-rule picture.
+        const fallbackRemoveSessionRuleIds = removeSessionRuleIds.filter(id => id < COUNTERACT_BASE_ID);
+        const sessionResult = await sessionRulesFallback(fallbackRemoveSessionRuleIds, addRules);
 
         if (sessionResult.success) {
           usedSessionFallback = true;
@@ -408,12 +445,18 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     }
     const allActiveRules = [...updatedDynamicRules, ...updatedSessionRules];
 
+    // Rules that are still active in Chrome but should have been removed (disabled headers stuck due to DNR API errors).
+    // Only check dynamic rules — session rules are entirely under our control (fallback + counteracting).
+    const expectedRuleIds = new Set(addRules.map(r => r.id));
+    const stuckRuleIds = updatedDynamicRules.filter(r => !expectedRuleIds.has(r.id)).map(r => r.id);
+
     logger.info('📊 Final DNR state:', {
       dynamicRulesCount: updatedDynamicRules.length,
       sessionRulesCount: updatedSessionRules.length,
       totalActiveRulesCount: allActiveRules.length,
       expectedRulesCount: addRules.length,
       match: allActiveRules.length === addRules.length,
+      stuckRuleIds,
       usedSessionFallback,
       activeRuleIds: allActiveRules.map(r => r.id),
       activeRulesDetails: allActiveRules.map(r => ({
@@ -437,7 +480,57 @@ export async function setBrowserHeaders(result: Record<string, unknown>, meta: S
     const activeCookiesCount = urlMatchesCurrentTab ? activeCookies.length : 0;
     const activeRulesCount =
       countActiveHeadersForUrl(activeHeaders, activeUrlFilters, currentTabUrl) + activeCookiesCount;
-    await setIconBadge({ isPaused, activeRulesCount });
+    await setIconBadge({ isPaused, activeRulesCount, hasDnrMismatch: stuckRuleIds.length > 0 });
+
+    // Counteract stuck dynamic rules that are injecting headers which should be disabled.
+    // On the next successful apply these session rules are cleaned up automatically because
+    // removeSessionRuleIds (computed from getSessionRules at the top) includes them.
+    const prevCounteractIds = updatedSessionRules.filter(r => r.id >= COUNTERACT_BASE_ID).map(r => r.id);
+    const counteractingRules: browser.DeclarativeNetRequest.Rule[] = [];
+
+    if (stuckRuleIds.length > 0) {
+      const sessionRuleHeaderNames = new Set(
+        updatedSessionRules.flatMap(r => r.action.requestHeaders?.map(h => h.header) ?? []),
+      );
+      for (let i = 0; i < stuckRuleIds.length; i++) {
+        const stuckRule = updatedDynamicRules.find(r => r.id === stuckRuleIds[i]);
+        if (!stuckRule?.action.requestHeaders) continue;
+        const headersToRemove = stuckRule.action.requestHeaders.filter(
+          h => h.operation === 'set' && !sessionRuleHeaderNames.has(h.header),
+        );
+        if (headersToRemove.length === 0) continue;
+        counteractingRules.push({
+          id: COUNTERACT_BASE_ID + i,
+          priority: 2,
+          action: {
+            type: 'modifyHeaders' as const,
+            requestHeaders: headersToRemove.map(h => ({ header: h.header, operation: 'remove' as const })),
+          },
+          condition: stuckRule.condition,
+        });
+      }
+    }
+
+    if (prevCounteractIds.length > 0 || counteractingRules.length > 0) {
+      try {
+        await browser.declarativeNetRequest.updateSessionRules({
+          removeRuleIds: prevCounteractIds,
+          addRules: counteractingRules,
+        });
+        if (counteractingRules.length > 0) {
+          logger.info('🛡️ Added counteracting session rules for stuck dynamic rules:', {
+            count: counteractingRules.length,
+            headers: counteractingRules.flatMap(r => r.action.requestHeaders?.map(h => h.header) ?? []),
+          });
+        } else if (prevCounteractIds.length > 0) {
+          logger.info('🧹 Cleaned up stale counteracting session rules');
+        }
+      } catch (err) {
+        logger.warn('⚠️ Failed to update counteracting session rules:', err);
+      }
+    }
+
+    return { stuckRuleIds };
   } catch (err) {
     logger.error('Failed to update dynamic rules:', err);
     logger.groupEnd();

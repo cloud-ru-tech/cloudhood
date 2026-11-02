@@ -5,6 +5,12 @@ export enum BrowserStorageKey {
   /** Monotonic version meta for any header-config change */
   HeadersConfigMeta = 'headersConfigMetaV1',
   ThemeMode = 'themeMode',
+  /** DNR health state written by background after each apply */
+  DnrHealth = 'dnrHealthV1',
+}
+
+export enum RuntimeMessageType {
+  ExportDebugLogs = 'export-debug-logs',
 }
 
 export enum Extensions {

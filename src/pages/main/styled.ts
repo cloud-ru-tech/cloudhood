@@ -29,3 +29,19 @@ export const ColorLine = styled.div<{ color: string }>`
   width: 4px;
   background: ${({ color }) => color};
 `;
+
+export const DnrWarningBanner = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: ${themeVars.sn.theme.color.orange.background};
+  color: ${themeVars.sn.theme.color.orange.text};
+  font-size: 12px;
+  line-height: 16px;
+
+  svg {
+    color: ${themeVars.sn.theme.color.orange.accent};
+    flex-shrink: 0;
+  }
+`;
