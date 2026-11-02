@@ -27,9 +27,18 @@ function readManifest(browser) {
 
 function checkCommonBuild(browser, manifest) {
   const backgroundPath = resolve(rootDir, `build/${browser}/background.bundle.js`);
+  const optionsPath = resolve(rootDir, `build/${browser}/options.html`);
 
   if (!existsSync(backgroundPath)) {
     errors.push(`Missing build/${browser}/background.bundle.js.`);
+  }
+
+  if (!existsSync(optionsPath)) {
+    errors.push(`Missing build/${browser}/options.html.`);
+  }
+
+  if (manifest?.options_ui?.page !== 'options.html') {
+    errors.push(`${browser} manifest must register options_ui.page as options.html.`);
   }
 
   if (manifest?.manifest_version !== 3) {

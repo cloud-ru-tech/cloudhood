@@ -1,14 +1,13 @@
 import { expect, test } from './fixtures';
 
-const openSettings = async (page: import('@playwright/test').Page) => {
-  const settingsButton = page.locator('[data-test-id="settings-button"]');
-  await expect(settingsButton).toBeVisible({ timeout: 15000 });
-  await settingsButton.click();
+const openOptionsPage = async (page: import('@playwright/test').Page, extensionId: string) => {
+  await page.goto(`chrome-extension://${extensionId}/options.html`);
+  await page.waitForLoadState('networkidle');
   await expect(page.locator('[data-test-id="settings-page"]')).toBeVisible();
 };
 
 test.describe('Extension Settings', () => {
-  test('opens settings from the icon next to GitHub and returns to the main view', async ({ page, extensionId }) => {
+  test('opens the registered options page from the icon next to GitHub', async ({ page, extensionId }) => {
     await page.goto(`chrome-extension://${extensionId}/popup.html`);
     await page.waitForLoadState('networkidle');
 
@@ -28,25 +27,26 @@ test.describe('Extension Settings', () => {
     expect(githubBox).not.toBeNull();
     expect(Math.abs((settingsBox?.x ?? 0) - (githubBox?.x ?? 0))).toBeLessThan(8);
 
-    await openSettings(page);
+    const [optionsPage] = await Promise.all([page.context().waitForEvent('page'), settingsButton.click()]);
+    await optionsPage.waitForLoadState('domcontentloaded');
 
-    await expect(page.getByText('Appearance')).toBeVisible();
-    await expect(page.getByText('Diagnostics')).toBeVisible();
-    await expect(page.locator('[data-test-id="export-debug-logs-button"]')).toHaveText(/Download extension logs/);
-    await expect(page.locator('[data-test-id="export-profile-debug-logs-button"]')).toHaveText(/Download profile logs/);
-    await expect(page.locator('[data-test-id="settings-version"]')).toContainText('Cloudhood');
-    await expect(page.getByRole('menuitem', { name: 'Download profile logs' })).toHaveCount(0);
-
-    await page.locator('[data-test-id="settings-back-button"]').click();
-    await expect(page.locator('[data-test-id="settings-page"]')).toBeHidden();
+    expect(optionsPage.url()).toBe(`chrome-extension://${extensionId}/options.html`);
+    await expect(optionsPage.locator('[data-test-id="settings-page"]')).toBeVisible();
+    await expect(optionsPage.getByText('Appearance')).toBeVisible();
+    await expect(optionsPage.getByText('Diagnostics')).toBeVisible();
+    await expect(optionsPage.locator('[data-test-id="export-debug-logs-button"]')).toHaveText(
+      /Download extension logs/,
+    );
+    await expect(optionsPage.locator('[data-test-id="export-profile-debug-logs-button"]')).toHaveText(
+      /Download profile logs/,
+    );
+    await expect(optionsPage.locator('[data-test-id="settings-version"]')).toContainText('Cloudhood');
+    await expect(page.locator('[data-test-id="settings-page"]')).toHaveCount(0);
     await expect(page.locator('[data-test-id="profile-actions-menu-button"]')).toBeVisible();
   });
 
-  test('downloads extension logs from settings', async ({ page, extensionId }) => {
-    await page.goto(`chrome-extension://${extensionId}/popup.html`);
-    await page.waitForLoadState('networkidle');
-
-    await openSettings(page);
+  test('downloads extension logs from the options page', async ({ page, extensionId }) => {
+    await openOptionsPage(page, extensionId);
 
     const [download] = await Promise.all([
       page.waitForEvent('download'),
@@ -56,11 +56,8 @@ test.describe('Extension Settings', () => {
     expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_\d/);
   });
 
-  test('downloads profile logs from settings', async ({ page, extensionId }) => {
-    await page.goto(`chrome-extension://${extensionId}/popup.html`);
-    await page.waitForLoadState('networkidle');
-
-    await openSettings(page);
+  test('downloads profile logs from the options page', async ({ page, extensionId }) => {
+    await openOptionsPage(page, extensionId);
 
     const [download] = await Promise.all([
       page.waitForEvent('download'),
@@ -70,11 +67,8 @@ test.describe('Extension Settings', () => {
     expect(download.suggestedFilename()).toMatch(/^Cloudhood_debug_logs_profile_.*\.txt$/);
   });
 
-  test('changes theme from settings', async ({ page, extensionId }) => {
-    await page.goto(`chrome-extension://${extensionId}/popup.html`);
-    await page.waitForLoadState('networkidle');
-
-    await openSettings(page);
+  test('changes theme from the options page', async ({ page, extensionId }) => {
+    await openOptionsPage(page, extensionId);
 
     const themeSelect = page.locator('[data-test-id="settings-theme-select"]');
     await expect(themeSelect).toBeVisible();

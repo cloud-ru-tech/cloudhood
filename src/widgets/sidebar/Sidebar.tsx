@@ -1,4 +1,5 @@
 import { useUnit } from 'effector-react';
+import browser from 'webextension-polyfill';
 
 import { Button } from '@cloud-ru/ds-button';
 import {
@@ -13,7 +14,6 @@ import { GitHubLogo } from '@cloud-ru/ds-icons/logos';
 import { Droplist, ItemId } from '@cloud-ru/ds-list';
 import { Tooltip } from '@cloud-ru/ds-tooltip';
 
-import { settingsToggled } from '#entities/app-view';
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
 import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
 import { ThemeMode } from '#shared/constants';
@@ -25,16 +25,18 @@ import * as S from './styled';
 const CLOUDHOOD_GITHUB_URL = packageJson.homepage;
 
 export function Sidebar() {
-  const [currentTheme, toggleTheme, selectedProfileId, handleAddProfile, profiles, onSettingsToggled] = useUnit([
+  const [currentTheme, toggleTheme, selectedProfileId, handleAddProfile, profiles] = useUnit([
     $currentTheme,
     currentThemeChanged,
     $selectedRequestProfile,
     profileAdded,
     $requestProfiles,
-    settingsToggled,
   ]);
 
   const handleGithubIconClick = () => window.open(CLOUDHOOD_GITHUB_URL, '_blank')?.focus();
+  const handleSettingsClick = () => {
+    browser.runtime.openOptionsPage();
+  };
 
   return (
     <S.Wrapper>
@@ -89,7 +91,7 @@ export function Sidebar() {
               appearance='neutral'
               size='l'
               icon={<SettingsSVG />}
-              onClick={() => onSettingsToggled()}
+              onClick={handleSettingsClick}
               aria-label='Settings'
               data-test-id='settings-button'
             />

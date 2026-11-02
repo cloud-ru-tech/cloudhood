@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { By, Key, Origin } from 'selenium-webdriver';
+import { By, Key } from 'selenium-webdriver';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
@@ -58,10 +58,8 @@ const scenarios = [
   scenario('general', 'theme-menu-open', async ({ click }) => {
     await click(selectors.themeToggle);
   }),
-  scenario('settings', 'settings-page', async ({ click, waitText, dismissHover }) => {
-    await click(selectors.settingsButton);
-    await waitText('Download extension logs');
-    await dismissHover();
+  scenario('settings', 'settings-page', async ({ openOptions }) => {
+    await openOptions();
   }),
   scenario('headers', 'empty-state', async ({ activateHeaders }) => {
     await activateHeaders();
@@ -322,12 +320,16 @@ function createBrowserHelpers(driver, popupUrl) {
     blur,
     click,
     clickMenuItem,
-    dismissHover: async () => {
-      await driver.actions().move({ origin: Origin.VIEWPORT, x: 8, y: 8 }).perform();
-      const active = await driver.switchTo().activeElement();
-      await driver.executeScript('arguments[0].blur()', active);
-    },
     fill,
+    openOptions: async () => {
+      const optionsUrl = popupUrl.replace(/popup\.html$/, 'options.html');
+      await driver.get(optionsUrl);
+      await waitUntil(() => visible(selectors.settingsPage), 'settings page');
+      await waitUntil(async () => {
+        const className = await driver.findElement(By.css('body')).getAttribute('class');
+        return className.includes('light') || className.includes('dark');
+      }, 'options theme');
+    },
     removeAllCookies: async () => {
       await click(selectors.removeAllCookiesButton);
     },

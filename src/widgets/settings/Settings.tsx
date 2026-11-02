@@ -3,11 +3,10 @@ import { useUnit } from 'effector-react';
 import { Button } from '@cloud-ru/ds-button';
 import { Divider } from '@cloud-ru/ds-divider';
 import { FieldSelect } from '@cloud-ru/ds-fields';
-import { ChevronLeftSVG, DaySVG, DownloadSVG, LaptopPhoneSVG, NightSVG } from '@cloud-ru/ds-icons/interface/system';
+import { DaySVG, DownloadSVG, LaptopPhoneSVG, NightSVG } from '@cloud-ru/ds-icons/interface/system';
 import { ItemId } from '@cloud-ru/ds-list';
 import { Typography } from '@cloud-ru/ds-typography';
 
-import { settingsClosed } from '#entities/app-view';
 import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
 import { $isExportingDebugLogs, generalDebugLogsExported, profileDebugLogsExported } from '#features/export-debug-logs';
 import { ThemeMode } from '#shared/constants';
@@ -22,21 +21,14 @@ const THEME_OPTIONS = [
 ];
 
 export function Settings() {
-  const [
-    currentTheme,
-    isExportingDebugLogs,
-    onSettingsClosed,
-    onThemeChanged,
-    onGeneralDebugLogsExported,
-    onProfileDebugLogsExported,
-  ] = useUnit([
-    $currentTheme,
-    $isExportingDebugLogs,
-    settingsClosed,
-    currentThemeChanged,
-    generalDebugLogsExported,
-    profileDebugLogsExported,
-  ]);
+  const [currentTheme, isExportingDebugLogs, onThemeChanged, onGeneralDebugLogsExported, onProfileDebugLogsExported] =
+    useUnit([
+      $currentTheme,
+      $isExportingDebugLogs,
+      currentThemeChanged,
+      generalDebugLogsExported,
+      profileDebugLogsExported,
+    ]);
 
   const handleThemeChange = (value: ItemId | undefined) => {
     if (value === ThemeMode.Light || value === ThemeMode.Dark || value === ThemeMode.System) {
@@ -47,15 +39,6 @@ export function Settings() {
   return (
     <S.Root>
       <S.Header>
-        <Button
-          view='function'
-          appearance='neutral'
-          size='l'
-          icon={<ChevronLeftSVG />}
-          onClick={() => onSettingsClosed()}
-          aria-label='Back'
-          data-test-id='settings-back-button'
-        />
         <Typography variant='title' size='l'>
           Settings
         </Typography>
