@@ -6,11 +6,14 @@ import { logger } from './logger';
 type SetIconBadgeParams = {
   isPaused: boolean;
   activeRulesCount: number;
+  /** When true, badge background turns orange to warn that some DNR rules could not be applied */
+  hasDnrMismatch?: boolean;
 };
 
-export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeParams) {
+export async function setIconBadge({ isPaused, activeRulesCount, hasDnrMismatch = false }: SetIconBadgeParams) {
   const iconPath = isPaused ? 'img/paused-icon-38.png' : 'img/main-icon-38.png';
   const badgeText = !isPaused && activeRulesCount > 0 ? activeRulesCount.toString() : '';
+  const badgeColor = hasDnrMismatch ? '#f59e0b' : '#ffffff';
 
   // Log extension info
   logger.debug('Extension info:', {
@@ -20,9 +23,10 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
     badgeText,
     isPaused,
     activeRulesCount,
+    hasDnrMismatch,
   });
 
-  logger.debug('Setting icon badge:', { isPaused, activeRulesCount, iconPath, badgeText });
+  logger.debug('Setting icon badge:', { isPaused, activeRulesCount, iconPath, badgeText, hasDnrMismatch });
 
   try {
     // In Chrome Manifest V3, use an object with icon sizes
@@ -36,6 +40,7 @@ export async function setIconBadge({ isPaused, activeRulesCount }: SetIconBadgeP
 
     await browserAction.setIcon(iconDetails);
     await browserAction.setBadgeText({ text: badgeText });
+    await browserAction.setBadgeBackgroundColor({ color: badgeColor });
     logger.debug('Icon badge set successfully');
   } catch (err) {
     logger.error('Error setting icon badge:', err);

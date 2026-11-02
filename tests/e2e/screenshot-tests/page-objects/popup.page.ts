@@ -44,6 +44,13 @@ export class PopupPage {
     await ensureMenuClosed(this.page, SCREENSHOT_CONFIG.selectors.floatingMenu.menu);
   }
 
+  async openSettings() {
+    const settingsButton = this.page.locator(SCREENSHOT_CONFIG.selectors.general.settingsButton);
+    await safeClick(settingsButton);
+    await waitForVisible(this.page.locator(SCREENSHOT_CONFIG.selectors.general.settingsPage));
+    await this.page.mouse.move(0, 0);
+  }
+
   async pause() {
     const pauseButton = this.page.locator(SCREENSHOT_CONFIG.selectors.general.pauseButton);
     await safeClick(pauseButton);
