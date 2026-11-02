@@ -48,8 +48,4 @@ createScreenshotTest({
     await popup.headersTab.activate();
     await popup.sidebar.openProfileActionsMenu();
   },
-  snapshotOptions: {
-    // Dropdown menus have subtle rendering differences across platforms (fonts, shadows, anti-aliasing)
-    maxDiffPixelRatio: 0.02,
-  },
 });

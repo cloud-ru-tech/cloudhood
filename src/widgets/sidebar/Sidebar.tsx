@@ -1,9 +1,18 @@
 import { useUnit } from 'effector-react';
+import browser from 'webextension-polyfill';
 
 import { Button } from '@cloud-ru/ds-button';
-import { DaySVG, LaptopPhoneSVG, NightSVG, PlusSVG, ThemeContrastSVG } from '@cloud-ru/ds-icons/interface/system';
+import {
+  DaySVG,
+  LaptopPhoneSVG,
+  NightSVG,
+  PlusSVG,
+  SettingsSVG,
+  ThemeContrastSVG,
+} from '@cloud-ru/ds-icons/interface/system';
 import { GitHubLogo } from '@cloud-ru/ds-icons/logos';
 import { Droplist, ItemId } from '@cloud-ru/ds-list';
+import { Tooltip } from '@cloud-ru/ds-tooltip';
 
 import { $requestProfiles, $selectedRequestProfile, profileAdded } from '#entities/request-profile/model';
 import { $currentTheme, currentThemeChanged } from '#entities/themeMode/model';
@@ -25,6 +34,9 @@ export function Sidebar() {
   ]);
 
   const handleGithubIconClick = () => window.open(CLOUDHOOD_GITHUB_URL, '_blank')?.focus();
+  const handleSettingsClick = () => {
+    browser.runtime.openOptionsPage();
+  };
 
   return (
     <S.Wrapper>
@@ -72,6 +84,18 @@ export function Sidebar() {
               data-test-id='theme-toggle-button'
             />
           </Droplist>
+
+          <Tooltip tip='Settings' placement='right'>
+            <Button
+              view='function'
+              appearance='neutral'
+              size='l'
+              icon={<SettingsSVG />}
+              onClick={handleSettingsClick}
+              aria-label='Settings'
+              data-test-id='settings-button'
+            />
+          </Tooltip>
 
           <Button
             view='function'

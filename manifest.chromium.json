@@ -10,6 +10,10 @@
     },
     "default_title": "Modify Outgoing XHR/Fetch Request Headers"
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "icons": {
     "16": "img/main-icon-16.jpg",
     "32": "img/main-icon-32.jpg",

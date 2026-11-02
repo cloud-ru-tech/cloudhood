@@ -5,7 +5,6 @@ import { getSnapshotName } from '../utils';
 
 type SnapshotOptions = {
   maxDiffPixels?: number;
-  maxDiffPixelRatio?: number;
   timeout?: number;
   threshold?: number;
 };

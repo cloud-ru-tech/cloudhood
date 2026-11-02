@@ -225,6 +225,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           popup: resolve(__dirname, 'src/index.html'),
+          options: resolve(__dirname, 'src/options.html'),
         },
         output: {
           entryFileNames: chunk => {

@@ -38,6 +38,19 @@ test.describe('DNR warning indicator', () => {
     return rules as Array<{ id: number }>;
   }
 
+  async function waitForBackgroundHealthSettled(page: Page) {
+    await page.waitForFunction(
+      async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const browser = (globalThis as any).chrome ?? (globalThis as any).browser;
+        const data = await browser.storage.local.get('dnrHealthV1');
+        return data.dnrHealthV1?.ok === true;
+      },
+      null,
+      { timeout: 5000 },
+    );
+  }
+
   async function waitForRulesCount(sw: Worker, expectedCount: number, timeout = 5000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
@@ -118,6 +131,7 @@ test.describe('DNR warning indicator', () => {
 
     // Wait for the DNR rule to appear so we can read its ID
     const rules = await waitForRulesCount(sw, 1);
+    await waitForBackgroundHealthSettled(page);
     const stuckRuleId = rules[0].id;
 
     // No warning icon initially
@@ -160,6 +174,7 @@ test.describe('DNR warning indicator', () => {
     await headerValueField.fill('healthy-value');
 
     await waitForRulesCount(sw, 1);
+    await waitForBackgroundHealthSettled(page);
 
     // Report a *different* rule ID as stuck (not the one belonging to our header)
     const unrelatedStuckId = 999888;

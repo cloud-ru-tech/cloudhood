@@ -38,6 +38,8 @@ const selectors = {
   urlFilterMenuButton: '[data-test-id="url-filter-menu-button"]',
   pauseButton: '[data-test-id="pause-button"]',
   themeToggle: '[data-test-id="theme-toggle-button"]',
+  settingsButton: '[data-test-id="settings-button"]',
+  settingsPage: '[data-test-id="settings-page"]',
   profileActionsButton: '[data-test-id="profile-actions-menu-button"]',
   addProfileButton: '[data-test-id="add-profile-button"]',
   profileSelect: '[data-test-id="profile-select"]',
@@ -55,6 +57,9 @@ const scenarios = [
   }),
   scenario('general', 'theme-menu-open', async ({ click }) => {
     await click(selectors.themeToggle);
+  }),
+  scenario('settings', 'settings-page', async ({ openOptions }) => {
+    await openOptions();
   }),
   scenario('headers', 'empty-state', async ({ activateHeaders }) => {
     await activateHeaders();
@@ -150,12 +155,16 @@ const scenarios = [
     await removeAllUrlFilters();
     await waitText('Remove all URL filters');
   }),
-  scenario('modals', 'cookies-delete-confirmation', async ({ activateCookies, addCookie, removeAllCookies, waitText }) => {
-    await activateCookies();
-    await addCookie('session_id', 'abc123');
-    await removeAllCookies();
-    await waitText('Remove all request cookies');
-  }),
+  scenario(
+    'modals',
+    'cookies-delete-confirmation',
+    async ({ activateCookies, addCookie, removeAllCookies, waitText }) => {
+      await activateCookies();
+      await addCookie('session_id', 'abc123');
+      await removeAllCookies();
+      await waitText('Remove all request cookies');
+    },
+  ),
   scenario('profiles', 'single-profile', async ({ activateHeaders }) => {
     await activateHeaders();
   }),
@@ -213,7 +222,7 @@ async function main() {
   try {
     const browser = createBrowserHelpers(driver, popupUrl);
     const selectedScenarios = scenarios
-      .flatMap((item) => ['light', 'dark'].map((theme) => ({ ...item, theme })))
+      .flatMap(item => ['light', 'dark'].map(theme => ({ ...item, theme })))
       .filter(({ area, name, theme }) => !FILTER || `${area}-${name}-${theme}`.includes(FILTER));
 
     if (selectedScenarios.length === 0) {
@@ -236,7 +245,7 @@ async function main() {
 }
 
 function createBrowserHelpers(driver, popupUrl) {
-  const elements = async (selector) => driver.findElements(By.css(selector));
+  const elements = async selector => driver.findElements(By.css(selector));
   const element = async (selector, index = 0) => {
     const matches = await elements(selector);
     if (!matches[index]) {
@@ -266,21 +275,21 @@ function createBrowserHelpers(driver, popupUrl) {
     await waitUntil(() => visible(selector, index), `${selector} to become visible`);
     await (await element(selector, index)).sendKeys(Key.TAB);
   };
-  const waitText = async (text) => {
+  const waitText = async text => {
     await waitUntil(async () => {
       const body = await driver.findElement(By.css('body'));
       return (await body.getText()).includes(text);
     }, `text "${text}"`);
   };
-  const clickMenuItem = async (text) => {
+  const clickMenuItem = async text => {
     const xpath = `//*[@role="menuitem" and contains(normalize-space(.), "${text}")]`;
     await waitUntil(async () => {
       const matches = await driver.findElements(By.xpath(xpath));
-      return matches.length > 0 && await matches[0].isDisplayed();
+      return matches.length > 0 && (await matches[0].isDisplayed());
     }, `menu item "${text}"`);
     await (await driver.findElements(By.xpath(xpath)))[0].click();
   };
-  const clickTab = async (text) => {
+  const clickTab = async text => {
     const xpath = `//*[@role="tab" and contains(normalize-space(.), "${text}")]`;
     await waitUntil(async () => (await driver.findElements(By.xpath(xpath))).length > 0, `tab "${text}"`);
     await (await driver.findElements(By.xpath(xpath)))[0].click();
@@ -312,6 +321,15 @@ function createBrowserHelpers(driver, popupUrl) {
     click,
     clickMenuItem,
     fill,
+    openOptions: async () => {
+      const optionsUrl = popupUrl.replace(/popup\.html$/, 'options.html');
+      await driver.get(optionsUrl);
+      await waitUntil(() => visible(selectors.settingsPage), 'settings page');
+      await waitUntil(async () => {
+        const className = await driver.findElement(By.css('body')).getAttribute('class');
+        return className.includes('light') || className.includes('dark');
+      }, 'options theme');
+    },
     removeAllCookies: async () => {
       await click(selectors.removeAllCookiesButton);
     },
@@ -333,7 +351,7 @@ function createBrowserHelpers(driver, popupUrl) {
       await driver.navigate().refresh();
       await waitUntil(() => visible(selectors.headerNameInput), 'popup to reload');
     },
-    setTheme: async (theme) => {
+    setTheme: async theme => {
       await click(selectors.themeToggle);
       await clickMenuItem(theme === 'light' ? 'Light' : 'Dark');
       await waitUntil(
@@ -382,7 +400,7 @@ async function assertScreenshot(driver, snapshotName) {
   }
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

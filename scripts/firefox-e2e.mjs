@@ -209,6 +209,14 @@ async function waitForValue(browser, selector, expected, index = 0) {
   await waitUntil(async () => (await browser.value(selector, index)) === expected, `${selector} value "${expected}"`);
 }
 
+async function waitForStoredText(browser, text) {
+  await waitUntil(async () => {
+    const data = await browser.storage();
+    const profiles = data[STORAGE_KEYS.profiles];
+    return typeof profiles === 'string' && profiles.includes(text);
+  }, `storage to contain "${text}"`);
+}
+
 async function waitForCount(browser, selector, expected) {
   await waitUntil(async () => (await browser.count(selector)) === expected, `${selector} count ${expected}`);
 }
@@ -366,6 +374,8 @@ async function main() {
         async () => {
           await browser.fill(selectors.headerNameInput, 'X-Persisted');
           await browser.fill(selectors.headerValueInput, 'persisted-value');
+          await waitForStoredText(browser, 'X-Persisted');
+          await waitForStoredText(browser, 'persisted-value');
           await browser.refresh();
           await waitForValue(browser, selectors.headerNameInput, 'X-Persisted');
           await waitForValue(browser, selectors.headerValueInput, 'persisted-value');
@@ -424,6 +434,7 @@ async function main() {
         async () => {
           await browser.clickTab('URL Filters');
           await browser.fill(selectors.urlFilterInput, 'https://persisted.example.com/*');
+          await waitForStoredText(browser, 'https://persisted.example.com/*');
           await browser.refresh();
           await browser.clickTab('URL Filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://persisted.example.com/*');
@@ -526,6 +537,7 @@ async function main() {
           assert.equal(await browser.count(selectors.urlFilterInput), 0);
           await browser.click(selectors.addUrlFilterButton);
           await browser.fill(selectors.urlFilterInput, 'https://legacy.example.com/*');
+          await waitForStoredText(browser, 'https://legacy.example.com/*');
           await browser.refresh();
           await browser.clickTab('URL Filters');
           await waitForValue(browser, selectors.urlFilterInput, 'https://legacy.example.com/*');
@@ -536,7 +548,8 @@ async function main() {
         async () => {
           await browser.fill(selectors.headerNameInput, 'X-Cloudhood-Firefox');
           await browser.fill(selectors.headerValueInput, 'active');
-          await waitUntil(async () => (await browser.dynamicRules()).length === 1, 'one Firefox DNR rule');
+          await waitForStoredText(browser, 'X-Cloudhood-Firefox');
+          await waitUntil(async () => (await browser.dynamicRules()).length === 1, 'one Firefox DNR rule', 15_000);
           await expectEchoedHeader(driver, `${echoServer.url}/active`, 'X-Cloudhood-Firefox', 'active');
           await browser.open();
           await browser.click(selectors.pauseButton);
@@ -554,7 +567,8 @@ async function main() {
           await browser.fill(selectors.headerValueInput, 'matched');
           await browser.clickTab('URL Filters');
           await browser.fill(selectors.urlFilterInput, `${echoServer.url}/matched*`);
-          await waitUntil(async () => (await browser.dynamicRules()).length === 1, 'one filtered Firefox DNR rule');
+          await waitForStoredText(browser, `${echoServer.url}/matched*`);
+          await waitUntil(async () => (await browser.dynamicRules()).length === 1, 'one filtered Firefox DNR rule', 15_000);
           await expectEchoedHeader(driver, `${echoServer.url}/matched-path`, 'X-Cloudhood-Filtered', 'matched');
           await expectEchoedHeader(driver, `${echoServer.url}/other-path`, 'X-Cloudhood-Filtered', undefined);
         },
