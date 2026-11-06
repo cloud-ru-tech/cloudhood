@@ -1,0 +1,173 @@
+# Standby release pipeline for Gitverse.
+# Always builds + creates a Gitverse release. Publishing to Chrome Web Store /
+# Firefox Add-ons only runs when triggered manually with publish=true — use this
+# as a fallback if the GitHub release pipeline is unavailable, not as a
+# parallel auto-publisher (avoids double-submitting the same version to stores).
+
+name: Release (Gitverse standby)
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to Chrome Web Store / Firefox Add-ons after build'
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: release-gitverse
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITVERSE_TOKEN }}
+
+      - name: Prepare release version and notes
+        id: release
+        run: node scripts/prepare-release.mjs
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.10.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Chrome extension
+        run: pnpm build:chromium
+
+      - name: Check Chrome build
+        run: pnpm check:chrome-build
+
+      - name: Pack Chrome extension
+        run: |
+          cd build/chrome
+          zip -r ../../cloudhood-chrome-${{ steps.release.outputs.tag }}.zip .
+
+      - name: Build Firefox extension
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        run: pnpm build:firefox
+
+      - name: Check release builds
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+        run: pnpm check:extension-builds
+
+      - name: Pack Firefox extension
+        run: |
+          cd build/firefox
+          zip -r ../../cloudhood-firefox-${{ steps.release.outputs.tag }}.zip .
+
+      - name: Build Firefox sources archive
+        run: pnpm build:firefox-sources
+
+      - name: Rename Firefox sources archive
+        run: mv cloudhood-firefox-sources.zip cloudhood-firefox-sources-${{ steps.release.outputs.tag }}.zip
+
+      - name: Commit release version and create tag
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          git config --local user.name gitverse-actions
+          git config --local user.email gitverse-actions@gitverse.ru
+          git add package.json manifest.chromium.json manifest.firefox.json
+          git commit -m "ci: bump version to $VERSION [skip ci]"
+          git push
+          git tag "$TAG"
+          git push origin "$TAG"
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudhood-${{ steps.release.outputs.tag }}
+          path: |
+            cloudhood-chrome-${{ steps.release.outputs.tag }}.zip
+            cloudhood-firefox-${{ steps.release.outputs.tag }}.zip
+            cloudhood-firefox-sources-${{ steps.release.outputs.tag }}.zip
+            release-notes.md
+
+  gitverse-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.build.outputs.tag }}
+
+      - name: Create Gitverse release
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPOSITORY }}
+          GITVERSE_API_URL: ${{ vars.GITVERSE_API_URL }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          node scripts/create-gitverse-release.mjs \
+            cloudhood-chrome-${{ needs.build.outputs.tag }}.zip \
+            cloudhood-firefox-${{ needs.build.outputs.tag }}.zip \
+            cloudhood-firefox-sources-${{ needs.build.outputs.tag }}.zip
+
+  publish-chrome:
+    if: ${{ inputs.publish == true }}
+    needs: [build, gitverse-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.build.outputs.tag }}
+
+      - name: Publish to Chrome Web Store
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+        run: |
+          npx --yes publish-browser-extension@4.0.4 \
+            --chrome-zip cloudhood-chrome-${{ needs.build.outputs.tag }}.zip \
+            --chrome-extension-id "$CHROME_EXTENSION_ID" \
+            --chrome-client-id "$CHROME_CLIENT_ID" \
+            --chrome-client-secret "$CHROME_CLIENT_SECRET" \
+            --chrome-refresh-token "$CHROME_REFRESH_TOKEN" \
+            --chrome-publish-target "$CHROME_PUBLISH_TARGET"
+
+  publish-firefox:
+    if: ${{ inputs.publish == true }}
+    needs: [build, gitverse-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudhood-${{ needs.build.outputs.tag }}
+
+      - name: Publish to Firefox Add-ons
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          npx --yes publish-browser-extension@4.0.4 \
+            --firefox-zip cloudhood-firefox-${{ needs.build.outputs.tag }}.zip \
+            --firefox-sources-zip cloudhood-firefox-sources-${{ needs.build.outputs.tag }}.zip \
+            --firefox-extension-id "$FIREFOX_EXTENSION_ID" \
+            --firefox-jwt-issuer "$FIREFOX_JWT_ISSUER" \
+            --firefox-jwt-secret "$FIREFOX_JWT_SECRET"
